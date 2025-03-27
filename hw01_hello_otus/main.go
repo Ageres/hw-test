@@ -8,7 +8,5 @@ import (
 
 func main() {
 	// Place your code here.
-	inputString := "Hello, OTUS!"
-	reversedString := reverse.String(inputString)
-	fmt.Println(reversedString)
+	fmt.Println(reverse.String("Hello, OTUS!"))
 }
