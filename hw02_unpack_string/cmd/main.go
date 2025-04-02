@@ -7,8 +7,13 @@ import (
 )
 
 func main() {
-	in := "a4bc2d5e"
+	//in := "a4bc2d5e"
 	//in := "a33a4bc2d5e"
+	//in := "abccd"
+	//in := "i0"
+	//in := "a🙃0"
+	//in := "aa🙃1"
+	in := `qwe\4\5`
 
 	out, err := us.Unpack(in)
 	fmt.Println("out:", out)
