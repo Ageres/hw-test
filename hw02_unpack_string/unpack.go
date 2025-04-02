@@ -6,62 +6,94 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(in string) (string, error) {
 	// Place your code here.
+
 	fmt.Println("-------------------------------------------------------")
-	//inRunes := []rune(in)
+
+	inSize := utf8.RuneCountInString(in)
+	fmt.Println("inSize:", inSize)
+
+	// анализируемая строка содержит 0 символов
+	if inSize == 0 {
+		return "", nil
+	}
 
 	var sb strings.Builder
+	isWritePreItem := false
 
-	var prePreItem rune
-	var prePreItemIsDigit bool
-	var prePreItemIsLetter bool
-	//var prePreItemIsSlash bool
+	in0 := rune(in[0])
+	in0IsDigit := unicode.IsDigit(in0)
+	if in0IsDigit {
+		return "", ErrInvalidString
+	} else {
+		sb.WriteRune(in0)
+	}
 
-	var preItem rune
-	var preItemIsDigit bool
-	var preItemIsLetter bool
-	//var preItemIsSlash bool
+	// анализируемая строка содержит 1 символ
+	if inSize == 1 {
+		return sb.String(), nil
+	}
 
-	var itemIsDigit bool
-	var itemIsLetter bool
-	var itemIsSlash bool
+	in1 := rune(in[1])
+	in1IsDigit := unicode.IsDigit(in1)
 
-	for i, item := range in {
+	if in1IsDigit {
+		in1Int, err := strconv.Atoi(string(in1))
+		if err != nil {
+			return "", err
+		}
+		sb.WriteString(strings.Repeat(string(in0), in1Int))
+	} else {
+		sb.WriteRune(in0)
+		sb.WriteRune(in1)
+	}
+
+	// анализируемая строка содержит 2 символа
+	if inSize == 2 {
+		return sb.String(), nil
+	}
+
+	// анализируемая строка содержит больше 2-х символов
+	var prePreItem rune = rune(in[0])
+	var prePreItemIsDigit bool = unicode.IsDigit(rune(in[0]))
+	var prePreItemIsSlash bool = rune(in[0]) == 92
+
+	var preItem rune = rune(in[1])
+	var preItemIsDigit bool = unicode.IsDigit(rune(in[1]))
+	var preItemIsSlash bool = rune(in[1]) == 92
+
+	isWritePreItem := true
+
+	for i := 2; i < inSize; i++ {
 		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", i, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-		itemIsDigit = unicode.IsDigit(item)
-		itemIsLetter = unicode.IsLetter(item)
-		itemIsSlash = (item == 92)
+		item := rune(in[i])
+		itemIsDigit := unicode.IsDigit(item)
+		itemIsSlash := (item == 92)
 
 		//---------------------------
 
 		fmt.Println("prePreItem: ", string(prePreItem))
 		fmt.Println("prePreItemIsDigit: ", prePreItemIsDigit)
-		fmt.Println("prePreItemIsLetter: ", prePreItemIsLetter)
+		fmt.Println("prePreItemIsSlash: ", prePreItemIsSlash)
 
 		fmt.Println("++++++++++++++++++++++++++++")
 
 		fmt.Println("preItem: ", string(preItem))
 		fmt.Println("preItemIsDigit: ", preItemIsDigit)
-		fmt.Println("preItemIsLetter: ", preItemIsLetter)
+		fmt.Println("preItemIsSlash: ", preItemIsSlash)
 
 		fmt.Println("++++++++++++++++++++++++++++")
 
 		fmt.Println("item: ", string(item))
 		fmt.Println("itemRune: ", item)
 		fmt.Println("itemIsDigit:", itemIsDigit)
-		fmt.Println("itemIsLetter:", itemIsLetter)
 		fmt.Println("itemIsSlash:", itemIsSlash)
-
-		/*
-			if i == 0 && itemIsDigit {
-				return "", ErrInvalidString
-			}
-		*/
 
 		/*
 			if prePreItemIsDigit == true && preItemIsDigit == true {
@@ -100,5 +132,39 @@ func Unpack(in string) (string, error) {
 		fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", i, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	}
 	fmt.Println("-------------------------------------------------------")
+	return sb.String(), nil
+}
+
+func stringSize1(in string) (string, error) {
+	in0 := rune(in[0])
+	in0IsDigit := unicode.IsDigit(in0)
+	if in0IsDigit {
+		return "", ErrInvalidString
+	} else {
+		return string(in0), nil
+	}
+}
+
+func stringSize2(in string) (string, error) {
+	var sb strings.Builder
+	in0 := rune(in[0])
+	in0IsDigit := unicode.IsDigit(in0)
+	in1 := rune(in[1])
+	in1IsDigit := unicode.IsDigit(in1)
+
+	if in0IsDigit {
+		return "", ErrInvalidString
+	} else {
+		if in1IsDigit {
+			in1Int, err := strconv.Atoi(string(in1))
+			if err != nil {
+				return "", err
+			}
+			sb.WriteString(strings.Repeat(string(in0), in1Int))
+		} else {
+			sb.WriteRune(in0)
+			sb.WriteRune(in1)
+		}
+	}
 	return sb.String(), nil
 }
