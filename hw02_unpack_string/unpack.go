@@ -95,37 +95,679 @@ func Unpack(in string) (string, error) {
 
 		ifIsUsed := false // использовано хотя бы одно условие для записи
 
+		if prePreItemIsDigit {
+			if prePreItemIsWritten {
+				if preItemIsDigit {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else if preItemIsSlash {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				}
+			} else {
+				if preItemIsDigit {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else if preItemIsSlash {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				}
+			}
+		} else if prePreItemIsSlash {
+			if prePreItemIsWritten {
+				if preItemIsDigit {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else if preItemIsSlash {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				}
+			} else {
+				if preItemIsDigit {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else if preItemIsSlash {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				}
+			}
+		} else {
+			if prePreItemIsWritten {
+				if preItemIsDigit {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else if preItemIsSlash {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				}
+			} else {
+				if preItemIsDigit {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else if preItemIsSlash {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				} else {
+					if preItemIsWritten {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					} else {
+						if itemIsDigit {
+
+						} else if itemIsSlash {
+
+						} else {
+
+						}
+					}
+				}
+			}
+		}
+
+		// --------------------------------------------------------------------
+
 		if prePreItemIsWritten { // если предпредпоследний символ записан
 			if prePreItemIsDigit { // если предпредпоследний символ это число
 				if preItemIsWritten { // если предпоследний символ записан
 					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
 					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
 					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
 					}
 				} else { // если предпоследний символ не записан
 					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
 					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
 					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
 					}
 				}
 			} else if prePreItemIsSlash { //если предпредпоследний символ это слеш
+				if preItemIsWritten { // если предпоследний символ записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				} else { // если предпоследний символ не записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				}
 			} else { //если предпредпоследний символ это не число и не слеш
+				if preItemIsWritten { // если предпоследний символ записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				} else { // если предпоследний символ не записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				}
 			}
 		} else { // если предпредпоследний символ не записан
 			if prePreItemIsDigit { // если предпредпоследний символ это число
+				if preItemIsWritten { // если предпоследний символ записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				} else { // если предпоследний символ не записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				}
 			} else if prePreItemIsSlash { //если предпредпоследний символ это слеш
+				if preItemIsWritten { // если предпоследний символ записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				} else { // если предпоследний символ не записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				}
 			} else { //если предпредпоследний символ это не число и не слеш
+				if preItemIsWritten { // если предпоследний символ записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
 
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				} else { // если предпоследний символ не записан
+					if preItemIsDigit { // если предпоследний символ это число
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else if preItemIsSlash { //если предпоследний символ это слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					} else { //если предпоследний символ это не число и не слеш
+						if itemIsDigit { // если последний символ это число
+
+						} else if itemIsSlash { //если последний символ это слеш
+
+						} else { //если последний символ это не число и не слеш
+
+						}
+					}
+				}
 			}
 		}
 
