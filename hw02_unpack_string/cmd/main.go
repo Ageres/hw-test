@@ -7,8 +7,10 @@ import (
 )
 
 func main() {
-	var in1 = "a4bc2d5e"
-	out, err := us.Unpack(in1)
+	in := "a4bc2d5e"
+	//in := "a33a4bc2d5e"
+
+	out, err := us.Unpack(in)
 	fmt.Println("out:", out)
 	fmt.Println("err", err)
 
