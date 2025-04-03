@@ -9,18 +9,33 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
+/*
+ * Распаковка в 4 этапа:
+ * Первый этап    - проверяется есть ли символы в переданной строке, если нет - возвращается пустая строка;
+ * Второй этап    - проверяется достаточность условий и формат распаковки первого символа на основании видов первого и второго символов (число/слеш/прочий символ);
+ * Третий этап    - проверяется достаточность условий и формат распаковки от второго до предпоследнего символа;
+ *	                решение для анализируемого символа принимается на основании собственного вида, а так же видов предыдущих и последующего символов;
+ *				    при необходимости первый символ так же добавляется в распаковку;
+ * Четвертый этап - проверяется достаточность условий и формат распаковки последнего символа на основании собственного вида, а так же видов предыдущих символов.
+ */
 func Unpack(in string) (string, error) {
 	// Place your code here.
 
-	var sb strings.Builder
 	inRunes := []rune(in)
-
 	inSize := len(inRunes)
+
+	//--------------------------------
+	// Первый этап
 
 	// анализируемая строка содержит 0 символов
 	if inSize == 0 {
 		return "", nil
 	}
+
+	//--------------------------------
+	// Второй этап
+
+	var sb strings.Builder
 
 	// анализ первого символа
 	firstItem := inRunes[0]
@@ -56,29 +71,54 @@ func Unpack(in string) (string, error) {
 		}
 	}
 
+	//--------------------------------
+	// Третий этап
+
+	outTS, err := processThirdStage(inSize, inRunes)
+	if err != nil {
+		return "", err
+	}
+	sb.WriteString(outTS)
+
+	//--------------------------------
+	// Четвертый этап
+
+	// запись последнего элемента
+	lastItem := inRunes[inSize-1]
+	lastItemIsDigit := unicode.IsDigit(lastItem)
+	lastItemIsSlash := (lastItem == 92)
+
+	// определение экранирован ли последний символ
+	lastItemIsSlashed := defineIfItemIsSlashed(inSize-1, inRunes)
+
+	if lastItemIsSlashed {
+		if lastItemIsDigit || lastItemIsSlash {
+			sb.WriteRune(lastItem)
+		} else {
+			sb.WriteString("\\")
+			sb.WriteRune(lastItem)
+		}
+	} else {
+		if !lastItemIsDigit && !lastItemIsSlash {
+			sb.WriteRune(lastItem)
+		}
+	}
+	return sb.String(), nil
+}
+
+// выполнение третьего этапа
+func processThirdStage(inSize int, inRunes []rune) (string, error) {
+	var sb strings.Builder
 	for i := 1; i < inSize-1; i++ {
 		previousItem := inRunes[i-1]
 
 		item := inRunes[i]
-		itemIsDigit := unicode.IsDigit(item)
-		itemIsSlash := (item == 92)
+		itemIsDigit := unicode.IsDigit(item)               // является ли текущий элемент цифрой
+		itemIsSlash := (item == 92)                        // является ли текущий элемент слешем
+		itemIsSlashed := defineIfItemIsSlashed(i, inRunes) // определение экранирован ли текущий символ
 
 		nextItem := inRunes[i+1]
 		nextItemIsDigit := unicode.IsDigit(nextItem)
-
-		// подсчет количества предыдущих символов слеш, следующих подряд
-		countPreviousSlash := 0
-		for j := i - 1; j >= 0; j-- {
-			sItem := inRunes[j]
-			sItemIsSlash := (sItem == 92)
-			if sItemIsSlash {
-				countPreviousSlash = countPreviousSlash + 1
-			} else {
-				break
-			}
-		}
-		// определение экранирован ли текущий символ
-		itemIsSlashed := !(countPreviousSlash%2 == 0)
 
 		// отсекаем ошибку цифр, идущих подряд, при условии, что первая цифра не экранирована слэшем
 		if !itemIsSlashed && itemIsDigit && nextItemIsDigit {
@@ -130,15 +170,14 @@ func Unpack(in string) (string, error) {
 			}
 		}
 	}
+	return sb.String(), nil
+}
 
-	// запись последнего элемента
-	lastItem := inRunes[inSize-1]
-	lastItemIsDigit := unicode.IsDigit(lastItem)
-	lastItemIsSlash := (lastItem == 92)
-
+// определение экранирован ли символ
+func defineIfItemIsSlashed(itemNumber int, inRunes []rune) bool {
 	// подсчет количества предыдущих символов слеш, следующих подряд
 	countPreviousSlash := 0
-	for j := inSize - 2; j >= 0; j-- {
+	for j := itemNumber - 1; j >= 0; j-- {
 		sItem := inRunes[j]
 		sItemIsSlash := (sItem == 92)
 		if sItemIsSlash {
@@ -147,20 +186,6 @@ func Unpack(in string) (string, error) {
 			break
 		}
 	}
-	// определение экранирован ли текущий символ
-	lastItemIsSlashed := !(countPreviousSlash%2 == 0)
 
-	if lastItemIsSlashed {
-		if lastItemIsDigit || lastItemIsSlash {
-			sb.WriteRune(lastItem)
-		} else {
-			sb.WriteString("\\")
-			sb.WriteRune(lastItem)
-		}
-	} else {
-		if !lastItemIsDigit && !lastItemIsSlash {
-			sb.WriteRune(lastItem)
-		}
-	}
-	return sb.String(), nil
+	return !(countPreviousSlash%2 == 0)
 }
