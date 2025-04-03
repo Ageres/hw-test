@@ -12,17 +12,12 @@ var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(in string) (string, error) {
 	// Place your code here.
-
-	fmt.Println("-------------------------------------------------------")
-
-	fmt.Println("in:    ", in)
+	fmt.Println(in)
 
 	var sb strings.Builder
 	inRunes := []rune(in)
 
-	//inSize := utf8.RuneCountInString(in)
 	inSize := len(inRunes)
-	fmt.Println("inSize:", inSize)
 
 	// анализируемая строка содержит 0 символов
 	if inSize == 0 {
@@ -64,12 +59,7 @@ func Unpack(in string) (string, error) {
 	}
 
 	for i := 1; i < inSize-1; i++ {
-
-		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", i, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-
 		previousItem := inRunes[i-1]
-		//previousItemIsDigit := unicode.IsDigit(previousItem)
-		//previousItemIsSlash := (previousItem == 92)
 
 		item := inRunes[i]
 		itemIsDigit := unicode.IsDigit(item)
@@ -77,9 +67,6 @@ func Unpack(in string) (string, error) {
 
 		nextItem := inRunes[i+1]
 		nextItemIsDigit := unicode.IsDigit(nextItem)
-		//nextItemIsSlash := (nextItem == 92)
-
-		//--------------------------------------------------------------------
 
 		// подсчет количества предыдущих символов слеш, следующих подряд
 		countPreviousSlash := 0
@@ -95,30 +82,6 @@ func Unpack(in string) (string, error) {
 		// определение экранирован ли текущий символ
 		itemIsSlashed := !(countPreviousSlash%2 == 0)
 
-		//--------------------------------------------------------------------
-
-		/*
-			fmt.Println("++++++++++++++++++++++++++++")
-			fmt.Println("previousItem:        ", string(previousItem))
-			fmt.Println("previousItemIsDigit: ", previousItemIsDigit)
-			fmt.Println("previousItemIsSlash: ", previousItemIsSlash)
-		*/
-
-		fmt.Println("++++++++++++++++++++++++++++")
-		fmt.Println("item:                ", string(item))
-		fmt.Println("itemIsDigit:         ", itemIsDigit)
-		fmt.Println("itemIsSlash:         ", itemIsSlash)
-		//fmt.Println("countPreviousSlash:  ", countPreviousSlash)
-		fmt.Println("itemIsSlashed:       ", itemIsSlashed)
-		fmt.Println("++++++++++++++++++++++++++++")
-
-		/*
-			fmt.Println("nextItem:            ", string(nextItem))
-			fmt.Println("nextItemIsDigit:     ", nextItemIsDigit)
-			fmt.Println("nextItemIsSlash:     ", nextItemIsSlash)
-			fmt.Println("++++++++++++++++++++++++++++")
-		*/
-
 		// отсекаем ошибку цифр, идущих подряд, при условии, что первая цифра не экранирована слэшем
 		if !itemIsSlashed && itemIsDigit && nextItemIsDigit {
 			return "", ErrInvalidString
@@ -128,21 +91,11 @@ func Unpack(in string) (string, error) {
 			if itemIsSlashed {
 				if nextItemIsDigit {
 					nextItemInt, err := strconv.Atoi(string(nextItem))
-					fmt.Println("-----------001---------", nextItemInt)
-					fmt.Println("previousItem:        ", string(previousItem))
-					fmt.Println("item:                ", string(item))
 					if err != nil {
 						return "", err
 					}
 					sb.WriteString(strings.Repeat(string(item), nextItemInt))
-					/*
-						for range nextItemInt {
-							//sb.WriteRune(previousItem)
-							sb.WriteRune(item)
-						}
-					*/
 				} else {
-					//sb.WriteRune(previousItem)
 					sb.WriteRune(item)
 				}
 			}
@@ -152,14 +105,9 @@ func Unpack(in string) (string, error) {
 			if itemIsSlashed {
 				if nextItemIsDigit {
 					nextItemInt, err := strconv.Atoi(string(nextItem))
-					fmt.Println("-----------002---------", nextItemInt)
-					fmt.Println("previousItem:        ", string(previousItem))
-					fmt.Println("item:                ", string(item))
 					if err != nil {
 						return "", err
 					}
-					//sb.WriteString(strings.Repeat(string(item), nextItemInt))
-
 					for range nextItemInt {
 						sb.WriteRune(previousItem)
 						sb.WriteRune(item)
@@ -172,25 +120,17 @@ func Unpack(in string) (string, error) {
 			} else {
 				if nextItemIsDigit {
 					nextItemInt, err := strconv.Atoi(string(nextItem))
-					fmt.Println("-----------003---------", nextItemInt)
-					fmt.Println("previousItem:        ", string(previousItem))
-					fmt.Println("item:                ", string(item))
 					if err != nil {
 						return "", err
 					}
-					//sb.WriteString(strings.Repeat(string(item), nextItemInt))
-
 					for range nextItemInt {
 						sb.WriteRune(item)
 					}
-
 				} else {
 					sb.WriteRune(item)
 				}
 			}
 		}
-
-		fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", i, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	}
 
 	// запись последнего элемента
