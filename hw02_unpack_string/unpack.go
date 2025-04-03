@@ -2,7 +2,6 @@ package hw02unpackstring
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
@@ -12,7 +11,6 @@ var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(in string) (string, error) {
 	// Place your code here.
-	fmt.Println(in)
 
 	var sb strings.Builder
 	inRunes := []rune(in)
