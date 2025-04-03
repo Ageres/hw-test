@@ -63,21 +63,6 @@ func Unpack(in string) (string, error) {
 		}
 	}
 
-	/*
-		var prePreItem rune = inRunes[0] // предпредпоследний символ (i - 2)
-		var prePreItemIsDigit bool = unicode.IsDigit(prePreItem)
-		var prePreItemIsSlash bool = prePreItem == 92
-		var prePreItemIsWritten bool = false
-
-		var preItem rune = inRunes[1] // предпоследний символ (i - 1)
-		var preItemIsDigit bool = unicode.IsDigit(preItem)
-		var preItemIsSlash bool = preItem == 92
-		var preItemIsWritten bool = false
-
-		//outRune := make([]rune, inSize)
-
-		//sbLen := 0
-	*/
 	for i := 1; i < inSize-1; i++ {
 
 		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", i, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -205,257 +190,39 @@ func Unpack(in string) (string, error) {
 			}
 		}
 
-		/*
-			if itemIsSlashed {
-
-			}
-		*/
-
-		// анализ предыдущего символа - если он слеш - то определить, нужно ли экранировать.
-		// экранируется только цифра и слеш
-
-		if itemIsSlash {
-			continue
-		}
-
-		// остается item который и не слеш и не цифра
-		if nextItemIsDigit {
-			// записать в sb в определеное количество раз
-			continue
-		} else {
-			// записать в sb один раз
-		}
-
-		/*
-			itemIsFrst := i ==0
-			if itemIsFrst {
-				if itemIsDigit {
-					return "", ErrInvalidString
-				} else if !itemIsSlash {
-					if i != inSize - 1 {
-						itemNext := inRunes[i + 1]
-						itemNextIsDigit := unicode.IsDigit(itemNext)
-						if itemNextIsDigit {
-
-						}
-					} else {
-						sb.WriteRune(item)
-					}
-					continue
-				}
-			}
-		*/
-		/*
-			item := inRunes[i]
-			if i > 0 {
-			}
-			previousItem := inRunes[i-1]
-			item := inRunes[i]
-			nextItem := inRunes[i+1]
-
-			itemIsDigit := unicode.IsDigit(item)
-			itemIsSlash := (item == 92)
-			if !itemIsDigit && !itemIsSlash {
-				sb.WriteRune(item)
-				preItemIsWritten = true
-			}
-		*/
 		fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", i, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	}
 
-	/*
-			for i := 2; i < inSize; i++ {
-				fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", i, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-				item := inRunes[i]
-				itemIsDigit := unicode.IsDigit(item)
-				itemIsSlash := (item == 92)
+	// запись последнего элемента
+	lastItem := inRunes[inSize-1]
+	lastItemIsDigit := unicode.IsDigit(lastItem)
+	lastItemIsSlash := (lastItem == 92)
 
-				//---------------------------
-				fmt.Println("++++++++++++++++++++++++++++")
-
-				fmt.Println("prePreItem: ", string(prePreItem))
-				fmt.Println("prePreItemIsDigit: ", prePreItemIsDigit)
-				fmt.Println("prePreItemIsSlash: ", prePreItemIsSlash)
-				fmt.Println("prePreItemIsWritten:", prePreItemIsWritten)
-
-				fmt.Println("++++++++++++++++++++++++++++")
-
-				fmt.Println("preItem: ", string(preItem))
-				fmt.Println("preItemIsDigit: ", preItemIsDigit)
-				fmt.Println("preItemIsSlash: ", preItemIsSlash)
-				fmt.Println("preItemIsWritten:", preItemIsWritten)
-
-				fmt.Println("++++++++++++++++++++++++++++")
-
-				fmt.Println("item: ", string(item))
-				fmt.Println("itemRune: ", item)
-				fmt.Println("itemIsDigit:", itemIsDigit)
-				fmt.Println("itemIsSlash:", itemIsSlash)
-
-				fmt.Println("++++++++++++++++++++++++++++")
-
-				//---------------------------------------------------
-
-				// если предпоследний символ цифра и последний символ цифра или
-				// если предпредпоследний символ цифра и предпоследний символ цифра
-				// то вернуть ошибку
-				if (preItemIsDigit && itemIsDigit) || (prePreItemIsDigit && preItemIsDigit) {
-					return "", ErrInvalidString
-				}
-
-				ifIsUsed := false // использовано хотя бы одно условие для записи
-
-				}
-
-				// если предпредпоследний символ не записан и если он слеш и если предпоследний символ не цифра и если последний символ некая цифра y (itemInt),
-				// то записать комбинацию из препредпоследнего и предпоследнего символа y раз,
-				// пометить предпредпоследний и предпоследний символ как записанные (с учетом того, что в следующей итерации предпоследний символ станет предпредпоследним
-				// а последний символ станет предпоследним)
-				if !prePreItemIsWritten && prePreItemIsSlash && !preItemIsDigit && itemIsDigit {
-					ifIsUsed = true
-					fmt.Println("------------ if 1")
-					itemInt, err := strconv.Atoi(string(item))
-					if err != nil {
-						return "", err
-					}
-					sb.WriteString(strings.Repeat(string(prePreItem)+string(preItem), itemInt))
-					prePreItemIsWritten = true
-					preItemIsWritten = true
-				}
-
-				// если предпредпоследний символ не записан и если он не слеш и
-				// если предпоследний символ не цифра и если он не слеш и
-				// если последний символ не цифра,
-				// то записать комбинацию из препредпоследнего и предпоследнего символа 1 раз,
-				// пометить предпредпоследний и предпоследний символ как записанные (с учетом того, что в следующей итерации предпоследний символ станет предпредпоследним
-				// а последний символ станет предпоследним)
-				if !prePreItemIsWritten && !prePreItemIsSlash && !preItemIsDigit && !preItemIsSlash && !itemIsDigit {
-					ifIsUsed = true
-					fmt.Println("------------ if 1.1")
-					sb.WriteRune(prePreItem)
-					sb.WriteRune(preItem)
-					prePreItemIsWritten = true
-					preItemIsWritten = true
-				}
-
-				// если предпредпоследний символ не записан и если он не слеш
-				// если предпоследний символ некая цифра x
-				// то записать предпредпоследний символ x раз
-				// пометить предпредпоследний символ как записанный и предпоследний символ как не записанный
-				if !prePreItemIsWritten && !prePreItemIsSlash && preItemIsDigit {
-					ifIsUsed = true
-					fmt.Println("------------ if 2")
-					preItemInt, err := strconv.Atoi(string(preItem))
-					if err != nil {
-						return "", err
-					}
-					sb.WriteString(strings.Repeat(string(prePreItem), preItemInt))
-					prePreItemIsWritten = true
-					preItemIsWritten = false
-				}
-
-				// если предпредпоследний символ не записан и если он не слеш и не цифра
-				// если предпоследний символ (не записан и если он) не цифра и не слеш
-				// то записать предпредпоследний символ 1 раз
-				// пометить предпредпоследний символ как записанный и предпоследний символ как не записанный
-				if !prePreItemIsWritten && !prePreItemIsSlash && !preItemIsDigit && !preItemIsSlash {
-					ifIsUsed = true
-					fmt.Println("------------ if 2.1")
-					sb.WriteRune(prePreItem)
-					prePreItemIsWritten = true
-					preItemIsWritten = false
-				}
-
-				// если предпредпоследний символ записан и если предпоследний символ не записан и если предпоследний символ не цифра и если последний символ не цифра
-				// то записать предпредпоследний символ 1 раз
-				// пометить предпредпоследний символ как записанный и предпоследний символ как не записанный
-				if prePreItemIsWritten && !preItemIsWritten && !preItemIsDigit && !itemIsDigit {
-					ifIsUsed = true
-					fmt.Println("------------ if 3")
-					sb.WriteRune(preItem)
-					prePreItemIsWritten = true
-					preItemIsWritten = false
-				}
-
-				//----------------------------------------------
-
-				if !ifIsUsed { // не использовано ни одно условие для записи
-					prePreItemIsWritten = false
-					preItemIsWritten = false
-				}
-
-				prePreItem = preItem
-				prePreItemIsDigit = preItemIsDigit
-				prePreItemIsSlash = preItemIsSlash
-
-				preItem = item
-				preItemIsDigit = itemIsDigit
-				preItemIsSlash = itemIsSlash
-
-				fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", i, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-			}
-
-			// запись последнего элемента
-
-			lastItem := inRunes[inSize-1]
-			lastItemIsDigit := unicode.IsDigit(lastItem)
-			fmt.Println("lastItemIsDigit:", lastItemIsDigit)
-
-			fmt.Println("sb:", sb.String())
-
-			if lastItemIsDigit {
-				preLastitem := inRunes[inSize-2]
-				lastItemInt, err := strconv.Atoi(string(lastItem))
-				if err != nil {
-					return "", err
-				}
-				sb.WriteString(strings.Repeat(string(preLastitem), lastItemInt))
-			} else {
-				sb.WriteRune(inRunes[inSize-1])
-			}
-
-			return sb.String(), nil
+	// подсчет количества предыдущих символов слеш, следующих подряд
+	countPreviousSlash := 0
+	for j := inSize - 2; j >= 0; j-- {
+		sItem := inRunes[j]
+		sItemIsSlash := (sItem == 92)
+		if sItemIsSlash {
+			countPreviousSlash = countPreviousSlash + 1
+		} else {
+			break
 		}
-
-		func stringSize2(in string) (string, error) {
-			fmt.Println("----------------- size 2")
-
-			inRunes := []rune(in)
-			var sb strings.Builder
-			in0 := inRunes[0]
-			//fmt.Println("in[0]:", in[0])
-			//fmt.Println("in0:", string(in0))
-			in0IsDigit := unicode.IsDigit(in0)
-			in1 := inRunes[1]
-			//fmt.Println("in[1]:", in[1])
-			//fmt.Println("in1:", string(in1))
-			in1IsDigit := unicode.IsDigit(in1)
-
-			if in0IsDigit {
-				return "", ErrInvalidString
-			} else {
-				if in1IsDigit {
-					in1Int, err := strconv.Atoi(string(in1))
-					if err != nil {
-						return "", err
-					}
-					sb.WriteString(strings.Repeat(string(in0), in1Int))
-				} else {
-					sb.WriteRune(in0)
-					sb.WriteRune(in1)
-				}
-			}
-	*/
-	return sb.String(), nil
-}
-
-func stringSize1(in string) string {
-	inRunes := []rune(in)
-	in0 := inRunes[0]
-	in0IsSlash := (in0 == 92)
-	if in0IsSlash {
-		return ""
-	} else {
-		return string(in0)
 	}
+	// определение экранирован ли текущий символ
+	lastItemIsSlashed := !(countPreviousSlash%2 == 0)
+
+	if lastItemIsSlashed {
+		if lastItemIsDigit || lastItemIsSlash {
+			sb.WriteRune(lastItem)
+		} else {
+			sb.WriteString("\\")
+			sb.WriteRune(lastItem)
+		}
+	} else {
+		if !lastItemIsDigit && !lastItemIsSlash {
+			sb.WriteRune(lastItem)
+		}
+	}
+	return sb.String(), nil
 }
