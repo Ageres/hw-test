@@ -146,10 +146,9 @@ func processThirdStageModuleForOtherSymbolType(
 	itemIsSlashed, nextItemIsDigit bool,
 ) (string, error) {
 	var sb strings.Builder
-
-	// обработка, если текущий символ экранирован и следующий символ некая цифра x, то записать текущий символ x раз
-
+	// обработка, если текущий символ экранирован
 	if itemIsSlashed {
+		// если следующий символ некая цифра x, то записать комбинацию из слеша и текущего символа x раз
 		if nextItemIsDigit {
 			nextItemInt, err := strconv.Atoi(string(nextItem))
 			if err != nil {
@@ -159,12 +158,12 @@ func processThirdStageModuleForOtherSymbolType(
 				sb.WriteRune(previousItem)
 				sb.WriteRune(item)
 			}
-		} else {
+		} else { // если следующий символ не число, то записать комбинацию из слеша и текущего символа 1 раз
 			sb.WriteRune(previousItem)
 			sb.WriteRune(item)
 		}
 	}
-
+	// обработка, если текущий символ не экранирован
 	if !itemIsSlashed {
 		if nextItemIsDigit {
 			nextItemInt, err := strconv.Atoi(string(nextItem))
