@@ -91,16 +91,14 @@ func Unpack(in string) (string, error) {
 func processThirdStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
 	for i := 1; i < inSize-1; i++ {
-		previousItem := inRunes[i-1] // предыдущий символ
-
 		item := inRunes[i]                                 // текущий анализируемый символ
 		itemIsDigit := unicode.IsDigit(item)               // является ли текущий элемент цифрой
 		itemIsSlash := (item == 92)                        // является ли текущий элемент слешем
 		itemIsOther := !itemIsDigit && !itemIsSlash        // является ли текущий элемент прочим символом
 		itemIsSlashed := defineIfItemIsSlashed(i, inRunes) // определение экранирован ли текущий символ
 
-		nextItem := inRunes[i+1] // следующий символ
-		nextItemIsDigit := unicode.IsDigit(nextItem)
+		nextItem := inRunes[i+1]                     // следующий символ
+		nextItemIsDigit := unicode.IsDigit(nextItem) // является ли следующий символ цифрой
 
 		// отсекаем ошибку цифр, идущих подряд, при условии, что текущий символ - цифра не экранированая слэшем
 		if !itemIsSlashed && itemIsDigit && nextItemIsDigit {
@@ -123,7 +121,6 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 		// обработка, если текущий символ не является цифрой или слешем
 		if itemIsOther {
 			outTSMFOS, err := processThirdStageModuleForOtherSymbolType(
-				previousItem,
 				item,
 				nextItem,
 				itemIsSlashed,
@@ -140,7 +137,7 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 
 // обработка, если текущий символ не является цифрой или слешем.
 func processThirdStageModuleForOtherSymbolType(
-	previousItem, item, nextItem rune,
+	item, nextItem rune,
 	itemIsSlashed, nextItemIsDigit bool,
 ) (string, error) {
 	var sb strings.Builder
@@ -152,11 +149,11 @@ func processThirdStageModuleForOtherSymbolType(
 				return "", err
 			}
 			for range nextItemInt {
-				sb.WriteRune(previousItem)
+				sb.WriteString("\\")
 				sb.WriteRune(item)
 			}
 		} else { // если следующий символ не цифра, то записать комбинацию из слеша и текущего символа 1 раз
-			sb.WriteRune(previousItem)
+			sb.WriteString("\\")
 			sb.WriteRune(item)
 		}
 	}
