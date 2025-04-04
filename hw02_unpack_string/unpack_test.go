@@ -7,11 +7,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// test ok --------------------------------------------------------
+
 func TestUnpack(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
 	}{
+		/**/
 		{input: "a4bc2d5e", expected: "aaaabccddddde"},
 		{input: "abccd", expected: "abccd"},
 		{input: "", expected: ""},
@@ -20,13 +23,32 @@ func TestUnpack(t *testing.T) {
 		{input: "a🙃0", expected: "a"},
 		{input: "aa🙃1", expected: "aa🙃"},
 		{input: "aaф0b", expected: "aab"},
+		{input: "d\n5abc", expected: "d\n\n\n\n\nabc"},
+
+		//{input: "\", expected: "\"},
+		//{input: "\\", expected: "\\"},
+		//{input: "d\\n5abc", expected: "d\\n\n\n\n\nabc"},
+		//{input: "d\\n5abc", expected: "d\n\n\n\n\nabc"},
+
 		// uncomment if task with asterisk completed
+
 		{input: `qwe\4\5`, expected: `qwe45`},
 		{input: `qwe\45`, expected: `qwe44444`},
 		{input: `qwe\\5`, expected: `qwe\\\\\`},
 		{input: `qwe\\\3`, expected: `qwe\3`},
 		{input: `\q5w\e2\\\55a`, expected: `\q\q\q\q\qw\e\e\55555a`},
 		{input: `\务\\许2可\\\证1\0\🙃1a🙃4\00\24`, expected: `\务\许许可\\证0\🙃a🙃🙃🙃🙃2222`},
+
+		//{input: `\`, expected: `\`},
+		//{input: `\aqwe`, expected: `\aqwe`},
+		//{input: `qw\ae`, expected: `qw\ae`},
+		//{input: "qwe\a", expected: `dwe\a`},
+		//{input: "qwea\", expected: `dwea\`},
+		//{input: `\\`, expected: `\\`},
+		//{input: `\\nqwe`, expected: `qw\ne`},
+		//{input: `qw\\ne`, expected: `qw\ne`},
+		//{input: "qwe\\n", expected: `dw\ne`},
+		//{input: "qwen\\", expected: `dwne\\`},
 	}
 
 	for _, tc := range tests {

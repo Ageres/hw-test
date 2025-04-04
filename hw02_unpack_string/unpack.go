@@ -2,6 +2,7 @@ package hw02unpackstring
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
@@ -22,11 +23,39 @@ var ErrInvalidString = errors.New("invalid string")
  *                  вида и значения, а так же видов и значений предыдущих символов.
  */
 func Unpack(in string) (string, error) {
+
 	// Place your code here.
 
 	inRunes := []rune(in)
 	inSize := len(inRunes)
 	var sb strings.Builder
+
+	//--------------------------------------
+
+	fmt.Println("--------------------------------------------01---------------------------------------------")
+
+	fmt.Println("in:                 ", in)
+	fmt.Println("inSize:             ", inSize)
+	fmt.Println("inRunes:            ", inRunes)
+
+	fmt.Println("--------------------------------------------02---------------------------------------------")
+	j := 0
+	for item := range inRunes {
+		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", j, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		fmt.Println("item:               ", item)
+		fmt.Println("item string:        ", fmt.Sprint(item))
+		fmt.Println("item rune string:   ", string(rune(item)))
+		fmt.Println("inRunes[", j, "]:         ", inRunes[j])
+		fmt.Println("inRunes[", j, "] string:  ", string(inRunes[j]))
+		fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", j, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+		j++
+	}
+
+	fmt.Println("--------------------------------------------03---------------------------------------------")
+
+	fmt.Println("--------------------------------------------04---------------------------------------------")
+
+	//--------------------------------------
 
 	//--------------------------------
 	// Первый этап
@@ -45,32 +74,32 @@ func Unpack(in string) (string, error) {
 		return "", ErrInvalidString
 	}
 
-	// является ли первый символ спешем
-	firstItemIsSlash := (firstItem == 92)
+	/*	// является ли первый символ спешем
+		firstItemIsSlash := (firstItem == 92)
 
-	// обработка , если анализируемая строка содержит 1 символ
-	if inSize == 1 {
-		if !firstItemIsSlash { // если символ не слеш, то вернуть его в виде строки
-			return string(firstItem), nil
-		}
-		return "", nil // иначе вернуть пустую строку
-	}
-
-	// если первый символ не слеш
-	if !firstItemIsSlash {
-		// то проводится анализ второго символа
-		secondItem := inRunes[1]
-		if unicode.IsDigit(secondItem) { // если второй символ некая цифра x, то записать первый символ x раз
-			secondItemInt, err := strconv.Atoi(string(secondItem))
-			if err != nil {
-				return "", err
+		// обработка , если анализируемая строка содержит 1 символ
+		if inSize == 1 {
+			if !firstItemIsSlash { // если символ не слеш, то вернуть его в виде строки
+				return string(firstItem), nil
 			}
-			sb.WriteString(strings.Repeat(string(firstItem), secondItemInt))
-		} else { // иначе записать первый символ 1 раз
-			sb.WriteRune(firstItem)
+			return "", nil // иначе вернуть пустую строку
 		}
-	}
 
+		// если первый символ не слеш
+		if !firstItemIsSlash {
+			// то проводится анализ второго символа
+			secondItem := inRunes[1]
+			if unicode.IsDigit(secondItem) { // если второй символ некая цифра x, то записать первый символ x раз
+				secondItemInt, err := strconv.Atoi(string(secondItem))
+				if err != nil {
+					return "", err
+				}
+				sb.WriteString(strings.Repeat(string(firstItem), secondItemInt))
+			} else { // иначе записать первый символ 1 раз
+				sb.WriteRune(firstItem)
+			}
+		}
+	*/
 	//--------------------------------
 	// Третий этап
 	// анализ со второго по предпоследний символов
@@ -86,13 +115,17 @@ func Unpack(in string) (string, error) {
 	outFS := processFourthStage(inSize, inRunes)
 	sb.WriteString(outFS)
 
-	return sb.String(), nil
+	out := sb.String()
+
+	fmt.Println("out:", out)
+
+	return out, nil
 }
 
 // выполнение третьего этапа.
 func processThirdStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
-	for i := 1; i < inSize-1; i++ {
+	for i := 0; i < inSize-1; i++ {
 		item := inRunes[i]                                 // текущий анализируемый символ
 		itemIsDigit := unicode.IsDigit(item)               // является ли текущий элемент цифрой
 		itemIsSlash := (item == 92)                        // является ли текущий элемент слешем
