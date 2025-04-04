@@ -132,7 +132,6 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 						sb.WriteRune(previousItem)
 						sb.WriteRune(item)
 					}
-
 				} else {
 					sb.WriteRune(previousItem)
 					sb.WriteRune(item)
