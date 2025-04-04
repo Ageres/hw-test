@@ -92,14 +92,15 @@ func Unpack(in string) (string, error) {
 func processThirdStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
 	for i := 1; i < inSize-1; i++ {
-		previousItem := inRunes[i-1]
+		previousItem := inRunes[i-1] // предыдущий символ
 
-		item := inRunes[i]
+		item := inRunes[i]                                 // текущий анализируемый символ
 		itemIsDigit := unicode.IsDigit(item)               // является ли текущий элемент цифрой
 		itemIsSlash := (item == 92)                        // является ли текущий элемент слешем
+		itemIsOther := !itemIsDigit && !itemIsSlash        // является ли текущий элемент прочим символом
 		itemIsSlashed := defineIfItemIsSlashed(i, inRunes) // определение экранирован ли текущий символ
 
-		nextItem := inRunes[i+1]
+		nextItem := inRunes[i+1] // последующий символ
 		nextItemIsDigit := unicode.IsDigit(nextItem)
 
 		// отсекаем ошибку цифр, идущих подряд, при условии, что первая цифра не экранирована слэшем
@@ -121,7 +122,7 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 			}
 		}
 
-		if !itemIsDigit && !itemIsSlash {
+		if itemIsOther {
 			if itemIsSlashed {
 				if nextItemIsDigit {
 					nextItemInt, err := strconv.Atoi(string(nextItem))
