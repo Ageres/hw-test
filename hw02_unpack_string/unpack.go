@@ -100,7 +100,7 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 		itemIsOther := !itemIsDigit && !itemIsSlash        // является ли текущий элемент прочим символом
 		itemIsSlashed := defineIfItemIsSlashed(i, inRunes) // определение экранирован ли текущий символ
 
-		nextItem := inRunes[i+1] // последующий символ
+		nextItem := inRunes[i+1] // следующий символ
 		nextItemIsDigit := unicode.IsDigit(nextItem)
 
 		// отсекаем ошибку цифр, идущих подряд, при условии, что первая цифра не экранирована слэшем
@@ -108,9 +108,9 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 			return "", ErrInvalidString
 		}
 
-		// если текущий символ является числом или слешем и при этом экранирован
+		// обработка, если текущий символ является числом или слешем и при этом экранирован
 		if (itemIsDigit || itemIsSlash) && itemIsSlashed {
-			// и следующий символ некая цифра x, то записать текущий символ x раз
+			// если следующий символ некая цифра x, то записать текущий символ x раз
 			if nextItemIsDigit {
 				nextItemInt, err := strconv.Atoi(string(nextItem))
 				if err != nil {
@@ -122,34 +122,55 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 			}
 		}
 
+		// обработка, если текущий символ не является числом или слешем
 		if itemIsOther {
-			if itemIsSlashed {
-				if nextItemIsDigit {
-					nextItemInt, err := strconv.Atoi(string(nextItem))
-					if err != nil {
-						return "", err
-					}
-					for range nextItemInt {
-						sb.WriteRune(previousItem)
-						sb.WriteRune(item)
-					}
-				} else {
-					sb.WriteRune(previousItem)
-					sb.WriteRune(item)
-				}
-			} else {
-				if nextItemIsDigit {
-					nextItemInt, err := strconv.Atoi(string(nextItem))
-					if err != nil {
-						return "", err
-					}
-					for range nextItemInt {
-						sb.WriteRune(item)
-					}
-				} else {
-					sb.WriteRune(item)
-				}
+			outTSMFOS, err := processThirdStageModuleForOtherSymbolType(
+				previousItem,
+				item,
+				nextItem,
+				itemIsSlashed,
+				nextItemIsDigit,
+			)
+			if err != nil {
+				return "", err
 			}
+			sb.WriteString(outTSMFOS)
+		}
+	}
+	return sb.String(), nil
+}
+
+// обработка, если текущий символ не является числом или слешем.
+func processThirdStageModuleForOtherSymbolType(
+	previousItem, item, nextItem rune,
+	itemIsSlashed, nextItemIsDigit bool,
+) (string, error) {
+	var sb strings.Builder
+	if itemIsSlashed {
+		if nextItemIsDigit {
+			nextItemInt, err := strconv.Atoi(string(nextItem))
+			if err != nil {
+				return "", err
+			}
+			for range nextItemInt {
+				sb.WriteRune(previousItem)
+				sb.WriteRune(item)
+			}
+		} else {
+			sb.WriteRune(previousItem)
+			sb.WriteRune(item)
+		}
+	} else {
+		if nextItemIsDigit {
+			nextItemInt, err := strconv.Atoi(string(nextItem))
+			if err != nil {
+				return "", err
+			}
+			for range nextItemInt {
+				sb.WriteRune(item)
+			}
+		} else {
+			sb.WriteRune(item)
 		}
 	}
 	return sb.String(), nil
