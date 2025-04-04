@@ -119,7 +119,6 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 			} else { // если следующий символ не число, , то записать текущий символ 1 раз
 				sb.WriteRune(item)
 			}
-
 		}
 
 		if !itemIsDigit && !itemIsSlash {
