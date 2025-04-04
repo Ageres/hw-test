@@ -26,10 +26,10 @@ func Unpack(in string) (string, error) {
 
 	inRunes := []rune(in)
 	inSize := len(inRunes)
+	var sb strings.Builder
 
 	//--------------------------------
 	// Первый этап
-
 	// анализируемая строка содержит 0 символов
 	if inSize == 0 {
 		return "", nil
@@ -37,9 +37,6 @@ func Unpack(in string) (string, error) {
 
 	//--------------------------------
 	// Второй этап
-
-	var sb strings.Builder
-
 	// анализ первого символа
 	firstItem := inRunes[0]
 
@@ -48,6 +45,7 @@ func Unpack(in string) (string, error) {
 		return "", ErrInvalidString
 	}
 
+	// является ли первый символ спешем
 	firstItemIsSlash := (firstItem == 92)
 
 	// анализируемая строка содержит 1 символ
@@ -76,7 +74,6 @@ func Unpack(in string) (string, error) {
 
 	//--------------------------------
 	// Третий этап
-
 	outTS, err := processThirdStage(inSize, inRunes)
 	if err != nil {
 		return "", err
@@ -85,27 +82,9 @@ func Unpack(in string) (string, error) {
 
 	//--------------------------------
 	// Четвертый этап
+	outFS := processFourthStage(inSize, inRunes)
+	sb.WriteString(outFS)
 
-	// запись последнего элемента
-	lastItem := inRunes[inSize-1]
-	lastItemIsDigit := unicode.IsDigit(lastItem)
-	lastItemIsSlash := (lastItem == 92)
-
-	// определение экранирован ли последний символ
-	lastItemIsSlashed := defineIfItemIsSlashed(inSize-1, inRunes)
-
-	if lastItemIsSlashed {
-		if lastItemIsDigit || lastItemIsSlash {
-			sb.WriteRune(lastItem)
-		} else {
-			sb.WriteString("\\")
-			sb.WriteRune(lastItem)
-		}
-	} else {
-		if !lastItemIsDigit && !lastItemIsSlash {
-			sb.WriteRune(lastItem)
-		}
-	}
 	return sb.String(), nil
 }
 
@@ -174,6 +153,31 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 		}
 	}
 	return sb.String(), nil
+}
+
+func processFourthStage(inSize int, inRunes []rune) string {
+	var sb strings.Builder
+	// запись последнего элемента
+	lastItem := inRunes[inSize-1]
+	lastItemIsDigit := unicode.IsDigit(lastItem)
+	lastItemIsSlash := (lastItem == 92)
+
+	// определение экранирован ли последний символ
+	lastItemIsSlashed := defineIfItemIsSlashed(inSize-1, inRunes)
+
+	if lastItemIsSlashed {
+		if lastItemIsDigit || lastItemIsSlash {
+			sb.WriteRune(lastItem)
+		} else {
+			sb.WriteString("\\")
+			sb.WriteRune(lastItem)
+		}
+	} else {
+		if !lastItemIsDigit && !lastItemIsSlash {
+			sb.WriteRune(lastItem)
+		}
+	}
+	return sb.String()
 }
 
 // определение экранирован ли символ
