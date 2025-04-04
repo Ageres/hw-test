@@ -73,6 +73,7 @@ func Unpack(in string) (string, error) {
 
 	//--------------------------------
 	// Третий этап
+	// анализ со второго по предпоследний символов
 	outTS, err := processThirdStage(inSize, inRunes)
 	if err != nil {
 		return "", err
@@ -81,6 +82,7 @@ func Unpack(in string) (string, error) {
 
 	//--------------------------------
 	// Четвертый этап
+	// анализ последнего символа
 	outFS := processFourthStage(inSize, inRunes)
 	sb.WriteString(outFS)
 
