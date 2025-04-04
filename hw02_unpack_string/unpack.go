@@ -88,7 +88,7 @@ func Unpack(in string) (string, error) {
 	return sb.String(), nil
 }
 
-// выполнение третьего этапа
+// выполнение третьего этапа.
 func processThirdStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
 	for i := 1; i < inSize-1; i++ {
@@ -155,6 +155,7 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 	return sb.String(), nil
 }
 
+// выполнение четвертого этапа.
 func processFourthStage(inSize int, inRunes []rune) string {
 	var sb strings.Builder
 	// запись последнего элемента
@@ -180,7 +181,7 @@ func processFourthStage(inSize int, inRunes []rune) string {
 	return sb.String()
 }
 
-// определение экранирован ли символ
+// определение экранирован ли символ.
 func defineIfItemIsSlashed(itemNumber int, inRunes []rune) bool {
 	// подсчет количества предыдущих символов слеш, следующих подряд
 	countPreviousSlash := 0
@@ -188,7 +189,7 @@ func defineIfItemIsSlashed(itemNumber int, inRunes []rune) bool {
 		sItem := inRunes[j]
 		sItemIsSlash := (sItem == 92)
 		if sItemIsSlash {
-			countPreviousSlash = countPreviousSlash + 1
+			countPreviousSlash++
 		} else {
 			break
 		}
