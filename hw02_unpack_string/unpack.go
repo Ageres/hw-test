@@ -107,14 +107,16 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 			return "", ErrInvalidString
 		}
 
+		// если текущий символ является числом или слешем и при этом экранирован
 		if (itemIsDigit || itemIsSlash) && itemIsSlashed {
+			// и следующий символ некая цифра x, то записать текущий символ x раз
 			if nextItemIsDigit {
 				nextItemInt, err := strconv.Atoi(string(nextItem))
 				if err != nil {
 					return "", err
 				}
 				sb.WriteString(strings.Repeat(string(item), nextItemInt))
-			} else {
+			} else { // если следующий символ не число, , то записать текущий символ 1 раз
 				sb.WriteRune(item)
 			}
 
