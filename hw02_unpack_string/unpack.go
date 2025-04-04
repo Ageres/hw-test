@@ -107,18 +107,17 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 			return "", ErrInvalidString
 		}
 
-		if itemIsDigit || itemIsSlash {
-			if itemIsSlashed {
-				if nextItemIsDigit {
-					nextItemInt, err := strconv.Atoi(string(nextItem))
-					if err != nil {
-						return "", err
-					}
-					sb.WriteString(strings.Repeat(string(item), nextItemInt))
-				} else {
-					sb.WriteRune(item)
+		if (itemIsDigit || itemIsSlash) && itemIsSlashed {
+			if nextItemIsDigit {
+				nextItemInt, err := strconv.Atoi(string(nextItem))
+				if err != nil {
+					return "", err
 				}
+				sb.WriteString(strings.Repeat(string(item), nextItemInt))
+			} else {
+				sb.WriteRune(item)
 			}
+
 		}
 
 		if !itemIsDigit && !itemIsSlash {
