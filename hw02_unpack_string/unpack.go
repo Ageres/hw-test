@@ -8,7 +8,7 @@ import (
 )
 
 var ErrInvalidString = errors.New("invalid string")
-var SymbolSlash rune = []rune(`\`)[0]
+var SymbolSlash = []rune(`\`)[0]
 
 /*
  * Распаковка переданной строки в 4 этапа:
@@ -62,47 +62,41 @@ func Unpack(in string) (string, error) {
 func processThirdStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
 	for i := range inSize - 1 {
-		item := BuildSymBolItem(i, inRunes)
-
-		//item := inRunes[i]                                 // текущий анализируемый символ
-		//itemIsDigit := unicode.IsDigit(item)               // является ли текущий элемент цифрой
-		//itemIsSlash := (item == 92)                        // является ли текущий элемент слешем
-		//itemIsOther := !itemIsDigit && !itemIsSlash        // является ли текущий элемент прочим символом
-		//itemIsSlashed := defineIfItemIsSlashed(i, inRunes) // определение экранирован ли текущий символ
+		sItem := BuildSymBolItem(i, inRunes)
 		nextItem := inRunes[i+1]                     // следующий символ
 		nextItemIsDigit := unicode.IsDigit(nextItem) // является ли следующий символ цифрой
 		// отсекаем ошибку цифр, идущих подряд, при условии, что текущий символ - цифра не экранированая слэшем
-		if item.Type == IsDigit && !item.IsSlashed && nextItemIsDigit {
+		if sItem.Type == IsDigit && !sItem.IsSlashed && nextItemIsDigit {
 			return "", ErrInvalidString
 		}
 		// отсекаем ошибку экранирования символов, не являющихся слешем или цифрой
-		if item.IsSlashed && item.Type == IsOther {
+		if sItem.IsSlashed && sItem.Type == IsOther {
 			return "", ErrInvalidString
 		}
 		// обработка, если текущий символ является цифрой или слешем и при этом экранирован
-		if (item.Type == IsDigit || item.Type == IsSlash) && item.IsSlashed {
+		if (sItem.Type == IsDigit || sItem.Type == IsSlash) && sItem.IsSlashed {
 			if nextItemIsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
 				nextItemInt, err := strconv.Atoi(string(nextItem))
 				if err != nil {
 					return "", err
 				}
-				sb.WriteString(strings.Repeat(string(item.Item), nextItemInt))
+				sb.WriteString(strings.Repeat(string(sItem.Item), nextItemInt))
 			} else { // если следующий символ не цифра, то записать текущий символ 1 раз
-				sb.WriteRune(item.Item)
+				sb.WriteRune(sItem.Item)
 			}
 		}
 		// обработка, если текущий символ не является цифрой или слешем  и при этом не экранирован
-		if item.Type == IsOther && !item.IsSlashed {
+		if sItem.Type == IsOther && !sItem.IsSlashed {
 			if nextItemIsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
 				nextItemInt, err := strconv.Atoi(string(nextItem))
 				if err != nil {
 					return "", err
 				}
 				for range nextItemInt {
-					sb.WriteRune(item.Item)
+					sb.WriteRune(sItem.Item)
 				}
 			} else { // если следующий символ не цифра, то записать текущий символ 1 раз
-				sb.WriteRune(item.Item)
+				sb.WriteRune(sItem.Item)
 			}
 		}
 	}
@@ -113,23 +107,20 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 // выполнение четвертого этапа.
 func processFourthStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
-	lastItem := inRunes[inSize-1]
-	lastItemIsDigit := unicode.IsDigit(lastItem)
-	lastItemIsSlash := (lastItem == 92)
-	lastItemIsSlashed := defineIfItemIsSlashed(inSize-1, inRunes) // определение экранирован ли последний символ
+	lastSItem := BuildSymBolItem(inSize-1, inRunes)
 	// обработка, если последний символ экранирован
-	if lastItemIsSlashed {
-		if lastItemIsDigit || lastItemIsSlash { // если последний символ является цифрой или слешем, то записать его
-			sb.WriteRune(lastItem)
+	if lastSItem.IsSlashed {
+		if lastSItem.Type == IsDigit || lastSItem.Type == IsSlash { // если последний символ цифра или слеш, то записать его
+			sb.WriteRune(lastSItem.Item)
 		} else { // если последний символ не является цифрой или слешем, то вернуть ошибку
 			return "", ErrInvalidString
 		}
 	}
 	// обработка, если текущий символ не экранирован
-	if !lastItemIsSlashed {
-		if !lastItemIsDigit && !lastItemIsSlash { // если последний символ не является цифрой или слешем, то записать его
-			sb.WriteRune(lastItem)
-		} else if lastItemIsSlash { // если последний символ является слешем, то вернуть ошибку
+	if !lastSItem.IsSlashed {
+		if lastSItem.Type == IsOther { // если последний символ не является цифрой или слешем, то записать его
+			sb.WriteRune(lastSItem.Item)
+		} else if lastSItem.Type == IsSlash { // если последний символ является слешем, то вернуть ошибку
 			return "", ErrInvalidString
 		}
 	}
@@ -143,7 +134,7 @@ func BuildSymBolItem(itemNumber int, inRunes []rune) SymbolItem {
 	return si
 }
 
-// перечисление с типами анализируемого символа
+// перечисление с типами анализируемого символа.
 type Type int
 
 const (
@@ -152,7 +143,7 @@ const (
 	IsOther                 // анализируемый символ это не цифра и не слеш
 )
 
-// структура с параметрами анализируемого символа
+// структура с параметрами анализируемого символа.
 type SymbolItem struct {
 	Item      rune // анализируемый символ
 	Type      Type // тип анализируемого символа
@@ -161,11 +152,12 @@ type SymbolItem struct {
 
 func (s *SymbolItem) buildSymbolItem(itemNumber int, inRunes []rune) {
 	s.Item = inRunes[itemNumber]
-	if unicode.IsDigit(s.Item) {
+	switch {
+	case unicode.IsDigit(s.Item):
 		s.Type = IsDigit
-	} else if s.Item == 92 {
+	case s.Item == SymbolSlash:
 		s.Type = IsSlash
-	} else {
+	default:
 		s.Type = IsOther
 	}
 	s.IsSlashed = defineIfItemIsSlashed(itemNumber, inRunes) // определение экранирован ли текущий символ
@@ -177,7 +169,7 @@ func defineIfItemIsSlashed(itemNumber int, inRunes []rune) bool {
 	countPreviousSlash := 0
 	for j := itemNumber - 1; j >= 0; j-- {
 		sItem := inRunes[j]
-		sItemIsSlash := (sItem == 92)
+		sItemIsSlash := (sItem == SymbolSlash)
 		if sItemIsSlash {
 			countPreviousSlash++
 		} else {
