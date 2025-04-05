@@ -23,7 +23,6 @@ var ErrInvalidString = errors.New("invalid string")
  *                  вида и значения, а так же видов и значений предыдущих символов.
  */
 func Unpack(in string) (string, error) {
-
 	// Place your code here.
 
 	inRunes := []rune(in)
@@ -39,33 +38,39 @@ func Unpack(in string) (string, error) {
 	fmt.Println("inRunes:            ", inRunes)
 
 	fmt.Println("--------------------------------------------02---------------------------------------------")
-	j := 0
-	for item := range inRunes {
-		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", j, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-		fmt.Println("item:               ", item)
-		fmt.Println("item string:        ", fmt.Sprint(item))
-		fmt.Println("item rune string:   ", string(rune(item)))
-		fmt.Println("inRunes[", j, "]:         ", inRunes[j])
-		fmt.Println("inRunes[", j, "] string:  ", string(inRunes[j]))
-		fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", j, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-		j++
-	}
 
-	fmt.Println("--------------------------------------------03---------------------------------------------")
+	/*
+		j := 0
+		for item := range inRunes {
+			fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", j, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+			fmt.Println("item:               ", item)
+			fmt.Println("item string:        ", fmt.Sprint(item))
+			fmt.Println("item rune string:   ", string(rune(item)))
+			fmt.Println("inRunes[", j, "]:         ", inRunes[j])
+			fmt.Println("inRunes[", j, "] string:  ", string(inRunes[j]))
+			fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", j, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+			j++
+		}
+	*/
 
-	fmt.Println("--------------------------------------------04---------------------------------------------")
+	// fmt.Println("--------------------------------------------03---------------------------------------------")
+
+	// fmt.Println("--------------------------------------------04---------------------------------------------")
 
 	//--------------------------------------
 
 	//--------------------------------
 	// Первый этап
 	// анализируемая строка содержит 0 символов
+
+	fmt.Println("------------01-----------")
+
 	if inSize == 0 {
 		return "", nil
 	}
 
-	//--------------------------------
-	// Второй этап
+	fmt.Println("------------02-----------")
+
 	// анализ первого символа
 	firstItem := inRunes[0]
 
@@ -73,6 +78,26 @@ func Unpack(in string) (string, error) {
 	if unicode.IsDigit(firstItem) {
 		return "", ErrInvalidString
 	}
+
+	fmt.Println("------------03-----------")
+
+	// если переданная строка содержит только один символ и это слеш
+	// то вернуть ошибку
+	if inSize == 1 && firstItem == 92 {
+		return "", ErrInvalidString
+	}
+
+	fmt.Println("------------04-----------")
+
+	/*
+		lastItem := inRunes[inSize-1]
+		if lastItem == 1 && firstItem == 92 {
+			return "", ErrInvalidString
+		}
+	*/
+
+	//--------------------------------
+	// Второй этап
 
 	/*	// является ли первый символ спешем
 		firstItemIsSlash := (firstItem == 92)
@@ -100,6 +125,9 @@ func Unpack(in string) (string, error) {
 			}
 		}
 	*/
+
+	fmt.Println("------------05-----------")
+
 	//--------------------------------
 	// Третий этап
 	// анализ со второго по предпоследний символов
@@ -109,15 +137,21 @@ func Unpack(in string) (string, error) {
 	}
 	sb.WriteString(outTS)
 
+	fmt.Println("------------06-----------")
+
 	//--------------------------------
 	// Четвертый этап
 	// анализ последнего символа
-	outFS := processFourthStage(inSize, inRunes)
+	outFS, err := processFourthStage(inSize, inRunes)
+	if err != nil {
+		return "", err
+	}
 	sb.WriteString(outFS)
 
 	out := sb.String()
 
 	fmt.Println("out:", out)
+	fmt.Println("--------------------------------------------99---------------------------------------------")
 
 	return out, nil
 }
@@ -137,6 +171,11 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 
 		// отсекаем ошибку цифр, идущих подряд, при условии, что текущий символ - цифра не экранированая слэшем
 		if !itemIsSlashed && itemIsDigit && nextItemIsDigit {
+			return "", ErrInvalidString
+		}
+
+		// отсекаем ошибку экранирования символов, не являющихся слешем или цифрой
+		if itemIsSlashed && itemIsOther {
 			return "", ErrInvalidString
 		}
 
@@ -176,22 +215,27 @@ func processThirdStageModuleForOtherSymbolType(
 	itemIsSlashed, nextItemIsDigit bool,
 ) (string, error) {
 	var sb strings.Builder
+
 	// обработка, если текущий символ экранирован
-	if itemIsSlashed {
-		if nextItemIsDigit { // если следующий символ некая цифра x, то записать комбинацию из слеша и текущего символа x раз
-			nextItemInt, err := strconv.Atoi(string(nextItem))
-			if err != nil {
-				return "", err
-			}
-			for range nextItemInt {
+	/*
+		if itemIsSlashed {
+			return "", ErrInvalidString
+			if nextItemIsDigit { // если следующий символ некая цифра x, то записать комбинацию из слеша и текущего символа x раз
+				nextItemInt, err := strconv.Atoi(string(nextItem))
+				if err != nil {
+					return "", err
+				}
+				for range nextItemInt {
+					sb.WriteString("\\")
+					sb.WriteRune(item)
+				}
+			} else { // если следующий символ не цифра, то записать комбинацию из слеша и текущего символа 1 раз
 				sb.WriteString("\\")
 				sb.WriteRune(item)
 			}
-		} else { // если следующий символ не цифра, то записать комбинацию из слеша и текущего символа 1 раз
-			sb.WriteString("\\")
-			sb.WriteRune(item)
 		}
-	}
+	*/
+
 	// обработка, если текущий символ не экранирован
 	if !itemIsSlashed {
 		if nextItemIsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
@@ -210,7 +254,7 @@ func processThirdStageModuleForOtherSymbolType(
 }
 
 // выполнение четвертого этапа.
-func processFourthStage(inSize int, inRunes []rune) string {
+func processFourthStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
 
 	lastItem := inRunes[inSize-1]
@@ -224,15 +268,28 @@ func processFourthStage(inSize int, inRunes []rune) string {
 		if lastItemIsDigit || lastItemIsSlash {
 			sb.WriteRune(lastItem)
 		} else {
-			sb.WriteString("\\")
-			sb.WriteRune(lastItem)
-		}
-	} else {
-		if !lastItemIsDigit && !lastItemIsSlash {
-			sb.WriteRune(lastItem)
+			// sb.WriteString("\\")
+			// sb.WriteRune(lastItem)
+			return "", ErrInvalidString
 		}
 	}
-	return sb.String()
+
+	if !lastItemIsSlashed {
+		if !lastItemIsDigit && !lastItemIsSlash {
+			sb.WriteRune(lastItem)
+			// return "", ErrInvalidString
+		} else if lastItemIsSlash {
+			return "", ErrInvalidString
+		}
+	}
+
+	/*
+		if !lastItemIsSlashed && lastItemIsSlash {
+			return "", ErrInvalidString
+		}
+	*/
+
+	return sb.String(), nil
 }
 
 // определение экранирован ли символ.
