@@ -113,21 +113,20 @@ func processFourthStage(inSize int, inRunes []rune) (string, error) {
 	lastItem := inRunes[inSize-1]
 	lastItemIsDigit := unicode.IsDigit(lastItem)
 	lastItemIsSlash := (lastItem == 92)
-	// определение экранирован ли последний символ
-	lastItemIsSlashed := defineIfItemIsSlashed(inSize-1, inRunes)
+	lastItemIsSlashed := defineIfItemIsSlashed(inSize-1, inRunes) // определение экранирован ли последний символ
 	// обработка, если последний символ экранирован
 	if lastItemIsSlashed {
-		if lastItemIsDigit || lastItemIsSlash { //если последний символ является цифрой или слешем, то записать его
+		if lastItemIsDigit || lastItemIsSlash { // если последний символ является цифрой или слешем, то записать его
 			sb.WriteRune(lastItem)
-		} else { //если последний символ не является цифрой или слешем, то вернуть ошибку
+		} else { // если последний символ не является цифрой или слешем, то вернуть ошибку
 			return "", ErrInvalidString
 		}
 	}
 	// обработка, если текущий символ не экранирован
 	if !lastItemIsSlashed {
-		if !lastItemIsDigit && !lastItemIsSlash { //если последний символ не является цифрой или слешем, то записать его
+		if !lastItemIsDigit && !lastItemIsSlash { // если последний символ не является цифрой или слешем, то записать его
 			sb.WriteRune(lastItem)
-		} else if lastItemIsSlash { //если последний символ является слешем, то вернуть ошибку
+		} else if lastItemIsSlash { // если последний символ является слешем, то вернуть ошибку
 			return "", ErrInvalidString
 		}
 	}
