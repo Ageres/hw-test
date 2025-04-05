@@ -7,8 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// test ok --------------------------------------------------------
-
 func TestUnpack(t *testing.T) {
 	tests := []struct {
 		input    string
