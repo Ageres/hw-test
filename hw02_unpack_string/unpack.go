@@ -86,9 +86,7 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 		// обработка, если текущий символ не является цифрой или слешем  и при этом не экранирован
 		if itemRef.Type == IsOther && !itemRef.IsSlashed {
 			if nextItemRef.IsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
-				for range nextItemRef.ValueInt {
-					sb.WriteRune(itemRef.Item)
-				}
+				sb.WriteString(strings.Repeat(string(itemRef.Item), nextItemRef.ValueInt))
 			} else { // если следующий символ не цифра, то записать текущий символ 1 раз
 				sb.WriteRune(itemRef.Item)
 			}
