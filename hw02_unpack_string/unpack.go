@@ -8,6 +8,7 @@ import (
 )
 
 var ErrInvalidString = errors.New("invalid string")
+
 var SymbolSlash = []rune(`\`)[0]
 
 /*
