@@ -23,53 +23,36 @@ var ErrInvalidString = errors.New("invalid string")
  */
 func Unpack(in string) (string, error) {
 	// Place your code here.
-
 	inRunes := []rune(in)
 	inSize := len(inRunes)
-
-	//--------------------------------
-	// Первый этап
-	// анализируемая строка содержит 0 символов
-
+	// первый этап - анализируемая строка содержит 0 символов
 	if inSize == 0 {
 		return "", nil
 	}
-
-	//--------------------------------
-	// Второй этап
-	// анализ первого символа
+	// второй этап - анализ первого символа
 	firstItem := inRunes[0]
-
 	// если первый символ строки содержит цифру, то вернуть ошибку
 	if unicode.IsDigit(firstItem) {
 		return "", ErrInvalidString
 	}
-
-	// если переданная строка содержит только один символ и это слеш
-	// то вернуть ошибку
+	// если переданная строка содержит только один символ и это слеш, то вернуть ошибку
 	if inSize == 1 && firstItem == 92 {
 		return "", ErrInvalidString
 	}
+	// третий этап - анализ со второго по предпоследний символов
+	outThirdStage, err := processThirdStage(inSize, inRunes)
+	if err != nil {
+		return "", err
+	}
+	// четвертый этап - анализ последнего символа
+	outFourthStage, err := processFourthStage(inSize, inRunes)
+	if err != nil {
+		return "", err
+	}
 
-	//--------------------------------
-	// Третий этап
-	// анализ со второго по предпоследний символов
 	var sb strings.Builder
-
-	outTS, err := processThirdStage(inSize, inRunes)
-	if err != nil {
-		return "", err
-	}
-	sb.WriteString(outTS)
-
-	//--------------------------------
-	// Четвертый этап
-	// анализ последнего символа
-	outFS, err := processFourthStage(inSize, inRunes)
-	if err != nil {
-		return "", err
-	}
-	sb.WriteString(outFS)
+	sb.WriteString(outThirdStage)
+	sb.WriteString(outFourthStage)
 
 	return sb.String(), nil
 }
@@ -77,26 +60,22 @@ func Unpack(in string) (string, error) {
 // выполнение третьего этапа.
 func processThirdStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
-	for i := 0; i < inSize-1; i++ {
+	for i := range inSize - 1 {
 		item := inRunes[i]                                 // текущий анализируемый символ
 		itemIsDigit := unicode.IsDigit(item)               // является ли текущий элемент цифрой
 		itemIsSlash := (item == 92)                        // является ли текущий элемент слешем
 		itemIsOther := !itemIsDigit && !itemIsSlash        // является ли текущий элемент прочим символом
 		itemIsSlashed := defineIfItemIsSlashed(i, inRunes) // определение экранирован ли текущий символ
-
-		nextItem := inRunes[i+1]                     // следующий символ
-		nextItemIsDigit := unicode.IsDigit(nextItem) // является ли следующий символ цифрой
-
+		nextItem := inRunes[i+1]                           // следующий символ
+		nextItemIsDigit := unicode.IsDigit(nextItem)       // является ли следующий символ цифрой
 		// отсекаем ошибку цифр, идущих подряд, при условии, что текущий символ - цифра не экранированая слэшем
 		if !itemIsSlashed && itemIsDigit && nextItemIsDigit {
 			return "", ErrInvalidString
 		}
-
 		// отсекаем ошибку экранирования символов, не являющихся слешем или цифрой
 		if itemIsSlashed && itemIsOther {
 			return "", ErrInvalidString
 		}
-
 		// обработка, если текущий символ является цифрой или слешем и при этом экранирован
 		if (itemIsDigit || itemIsSlash) && itemIsSlashed {
 			if nextItemIsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
@@ -109,73 +88,50 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 				sb.WriteRune(item)
 			}
 		}
-
-		// обработка, если текущий символ не является цифрой или слешем
-		if itemIsOther {
-			outTSMFOS, err := processThirdStageModuleForOtherSymbolType(
-				item,
-				nextItem,
-				itemIsSlashed,
-				nextItemIsDigit,
-			)
-			if err != nil {
-				return "", err
-			}
-			sb.WriteString(outTSMFOS)
-		}
-	}
-	return sb.String(), nil
-}
-
-// обработка, если текущий символ не является цифрой или слешем.
-func processThirdStageModuleForOtherSymbolType(
-	item, nextItem rune,
-	itemIsSlashed, nextItemIsDigit bool,
-) (string, error) {
-	var sb strings.Builder
-	// обработка, если текущий символ не экранирован
-	if !itemIsSlashed {
-		if nextItemIsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
-			nextItemInt, err := strconv.Atoi(string(nextItem))
-			if err != nil {
-				return "", err
-			}
-			for range nextItemInt {
+		// обработка, если текущий символ не является цифрой или слешем  и при этом не экранирован
+		if itemIsOther && !itemIsSlashed {
+			if nextItemIsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
+				nextItemInt, err := strconv.Atoi(string(nextItem))
+				if err != nil {
+					return "", err
+				}
+				for range nextItemInt {
+					sb.WriteRune(item)
+				}
+			} else { // если следующий символ не цифра, то записать текущий символ 1 раз
 				sb.WriteRune(item)
 			}
-		} else { // если следующий символ не цифра, то записать текущий символ 1 раз
-			sb.WriteRune(item)
 		}
 	}
+
 	return sb.String(), nil
 }
 
 // выполнение четвертого этапа.
 func processFourthStage(inSize int, inRunes []rune) (string, error) {
 	var sb strings.Builder
-
 	lastItem := inRunes[inSize-1]
 	lastItemIsDigit := unicode.IsDigit(lastItem)
 	lastItemIsSlash := (lastItem == 92)
-
 	// определение экранирован ли последний символ
 	lastItemIsSlashed := defineIfItemIsSlashed(inSize-1, inRunes)
-
+	// обработка, если последний символ экранирован
 	if lastItemIsSlashed {
-		if lastItemIsDigit || lastItemIsSlash {
+		if lastItemIsDigit || lastItemIsSlash { //если последний символ является цифрой или слешем, то записать его
 			sb.WriteRune(lastItem)
-		} else {
+		} else { //если последний символ не является цифрой или слешем, то вернуть ошибку
+			return "", ErrInvalidString
+		}
+	}
+	// обработка, если текущий символ не экранирован
+	if !lastItemIsSlashed {
+		if !lastItemIsDigit && !lastItemIsSlash { //если последний символ не является цифрой или слешем, то записать его
+			sb.WriteRune(lastItem)
+		} else if lastItemIsSlash { //если последний символ является слешем, то вернуть ошибку
 			return "", ErrInvalidString
 		}
 	}
 
-	if !lastItemIsSlashed {
-		if !lastItemIsDigit && !lastItemIsSlash {
-			sb.WriteRune(lastItem)
-		} else if lastItemIsSlash {
-			return "", ErrInvalidString
-		}
-	}
 	return sb.String(), nil
 }
 

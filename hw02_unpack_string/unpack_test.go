@@ -103,6 +103,9 @@ func TestUnpackInvalidString_Additional(t *testing.T) {
 		`\ab`,
 		`a\b`,
 		`ab\`,
+		`45ab`,
+		`a45b`,
+		`ab45`,
 	}
 	for _, tc := range invalidStrings {
 		t.Run(tc, func(t *testing.T) {
