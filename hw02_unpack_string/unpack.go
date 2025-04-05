@@ -8,6 +8,7 @@ import (
 )
 
 var ErrInvalidString = errors.New("invalid string")
+var SymbolSlash rune = []rune(`\`)[0]
 
 /*
  * Распаковка переданной строки в 4 этапа:
@@ -132,6 +133,34 @@ func processFourthStage(inSize int, inRunes []rune) (string, error) {
 	}
 
 	return sb.String(), nil
+}
+
+// перечисление с типами анализируемого символа
+type ItemType int
+
+const (
+	ItemIsDigit ItemType = iota + 1 // анализируемый символ это цифра
+	ItemIsSlash                     // анализируемый символ это слеш
+	ItemIsOther                     // анализируемый символ это не цифра и не слеш
+)
+
+// структура с параметрами анализируемого символа
+type SymbolItem struct {
+	Item          rune     // анализируемый символ
+	ItemType      ItemType // тип анализируемого символа
+	ItemIsSlashed bool     // анализируемый символ экранирован
+}
+
+func (s *SymbolItem) buildSymbolItem(itemNumber int, inRunes []rune) {
+	s.Item = inRunes[itemNumber]
+	if unicode.IsDigit(s.Item) {
+		s.ItemType = ItemIsDigit
+	} else if s.Item == 92 {
+		s.ItemType = ItemIsSlash
+	} else {
+		s.ItemType = ItemIsOther
+	}
+	s.ItemIsSlashed = defineIfItemIsSlashed(itemNumber, inRunes) // определение экранирован ли текущий символ
 }
 
 // определение экранирован ли символ.
