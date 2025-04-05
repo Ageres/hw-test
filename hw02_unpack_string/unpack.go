@@ -148,5 +148,6 @@ func defineIfItemIsSlashed(itemNumber int, inRunes []rune) bool {
 			break
 		}
 	}
+
 	return !(countPreviousSlash%2 == 0)
 }
