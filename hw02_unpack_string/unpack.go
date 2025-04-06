@@ -52,7 +52,7 @@ func Unpack(in string) (string, error) {
 	}
 
 	// карта для хранения объектов анализируемых символов
-	itemMap := make(map[int]SymbolItem)
+	itemMap := make(map[int]SymbolItem, inSize)
 	itemMap[0] = *firstItemRef
 	itemMap[1] = *secondItemRef
 
