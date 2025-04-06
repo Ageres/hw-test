@@ -2,11 +2,15 @@ package hw03frequencyanalysis
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
 func Top10(in string) []string {
 	// Place your code here.
+	if in == "" {
+		return []string{}
+	}
 
 	in = strings.ToLower(in)
 	in = strings.ReplaceAll(in, " ", "_")
@@ -27,68 +31,166 @@ func Top10(in string) []string {
 	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 	fmt.Println("---------------------01----------------------")
-	outMap := map[string]int{}
+	outMap1 := map[string]int{}
 	for i := range inArray {
 		item := inArray[i]
+		if item == "-" {
+			continue
+		}
 		//item = strings.Replace(item, " ", "", -1)
 		//item = strings.Replace(item, ",", "", -1)
 		//inArray[i] = item
 		//fmt.Println(i, ":    ", item, " | ", []rune(item))
 
-		value := outMap[item]
+		value := outMap1[item]
 		value++
-		outMap[item] = value
+		outMap1[item] = value
 	}
 	fmt.Println("---------------------02----------------------")
 
-	var max1, max2, max3, max4, max5, max6, max7, max8, max9, max10 int
-	var max1Str, max2Str, max3Str, max4Str, max5Str, max6Str, max7Str, max8Str, max9Str, max10Str string
-
-	for key, value := range outMap {
+	for key, value := range outMap1 {
 		fmt.Println(key, ":    ", value)
-		if value > max1 {
-			max10 = max9
-			max9 = max8
-			max8 = max7
-			max7 = max6
-			max6 = max5
-			max5 = max4
-			max4 = max3
-			max3 = max2
-			max2 = max1
-			max1 = value
 
-			max10Str = max9Str
-			max9Str = max8Str
-			max8Str = max7Str
-			max7Str = max6Str
-			max6Str = max5Str
-			max5Str = max4Str
-			max4Str = max3Str
-			max3Str = max2Str
-			max2Str = max1Str
-			max1Str = key
+	}
+
+	fmt.Println("---------------------03----------------------")
+
+	max := 0
+	outMap2 := map[int][]string{}
+	for key1, value1 := range outMap1 {
+		if value1 > max {
+			max = value1
 		}
+		key2 := value1
+		value2 := outMap2[key2]
+		value2 = append(value2, key1)
+		outMap2[key2] = value2
+	}
+
+	fmt.Println("---------------------04----------------------")
+
+	for key2, value2 := range outMap2 {
+		fmt.Println(key2, ": ", value2)
+		outMap2[key2] = value2
+		sort.Slice(value2, func(i, j int) bool {
+			return value2[i] < value2[j]
+		})
+	}
+
+	fmt.Println("---------------------05----------------------")
+	for key2, value2 := range outMap2 {
+		outMap2[key2] = value2
+		fmt.Println(key2, ": ", value2)
+	}
+	fmt.Println("---------------------06----------------------")
+
+	count := 0
+	out := []string{}
+	for i := max; i > 0; i-- {
+		value2 := outMap2[i]
+		if value2 == nil {
+			continue
+		}
+		out = append(out, value2...)
+		count++
+		if count > 10 {
+			break
+		}
+	}
+
+	fmt.Println(out)
+	fmt.Println("---------------------07----------------------")
+	if len(out) > 10 {
+		out = out[0:10]
+	}
+	fmt.Println(out)
+	fmt.Println("---------------------08----------------------")
+	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+	//strings.Fields()
+	return out
+}
+
+func Top7(in string) []string {
+	// Place your code here.
+
+	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	if in == "" {
+		return []string{}
+	}
+
+	fmt.Println("---------------------00----------------------")
+	fmt.Println(in)
+	fmt.Println("---------------------001---------------------")
+	//inArray := strings.Split(in, "_")
+	inArray := strings.Fields(in)
+	for i := range inArray {
+		fmt.Println(inArray[i])
+	}
+	fmt.Println(inArray)
+	fmt.Println("---------------------01----------------------")
+	outMap1 := map[string]int{}
+	for i := range inArray {
+		item := inArray[i]
+		value := outMap1[item]
+		value++
+		outMap1[item] = value
+	}
+	fmt.Println("---------------------02----------------------")
+
+	for key, value := range outMap1 {
+		fmt.Println(key, ":    ", value)
+
 	}
 	fmt.Println("---------------------03----------------------")
 
-	fmt.Println(max1, ":    ", max1Str)
-	fmt.Println(max2, ":    ", max2Str)
-	fmt.Println(max3, ":    ", max3Str)
-	fmt.Println(max4, ":    ", max4Str)
-	fmt.Println(max5, ":    ", max5Str)
-	fmt.Println(max6, ":    ", max6Str)
-	fmt.Println(max7, ":    ", max7Str)
-	fmt.Println(max8, ":    ", max8Str)
-	fmt.Println(max9, ":    ", max9Str)
-	fmt.Println(max10, ":    ", max10Str)
+	max := 0
+	outMap2 := map[int][]string{}
+	for key1, value1 := range outMap1 {
+		if value1 > max {
+			max = value1
+		}
+		key2 := value1
+		value2 := outMap2[key2]
+		value2 = append(value2, key1)
+		outMap2[key2] = value2
+	}
 
 	fmt.Println("---------------------04----------------------")
-	out := []string{max10Str, max9Str, max8Str, max7Str, max6Str, max5Str, max4Str, max3Str, max2Str, max1Str}
-	fmt.Println(out)
-
+	for key2, value2 := range outMap2 {
+		fmt.Println(key2, ": ", value2)
+		outMap2[key2] = value2
+		sort.Slice(value2, func(i, j int) bool {
+			return value2[i] < value2[j]
+		})
+	}
 	fmt.Println("---------------------05----------------------")
+	for key2, value2 := range outMap2 {
+		outMap2[key2] = value2
+		fmt.Println(key2, ": ", value2)
+	}
+	fmt.Println("---------------------06----------------------")
+
+	count := 0
+	out := []string{}
+	for i := max; i > 0; i-- {
+		value2 := outMap2[i]
+		if value2 == nil {
+			continue
+		}
+		out = append(out, value2...)
+		count++
+		if count > 10 {
+			break
+		}
+	}
+
+	fmt.Println(out)
+	fmt.Println("---------------------07----------------------")
+	if len(out) > 10 {
+		out = out[0:10]
+	}
+	fmt.Println(out)
+	fmt.Println("---------------------08----------------------")
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-	//strings.Fields()
 	return out
 }
