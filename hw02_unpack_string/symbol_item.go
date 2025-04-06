@@ -53,17 +53,15 @@ func (si *SymbolItem) ParseIfDigit() error {
 
 // определение экранирован ли символ.
 func defineIfItemIsSlashed(itemNumber int, inRunes []rune) bool {
-	// подсчет количества предыдущих символов слеш, следующих подряд
-	countPreviousSlash := 0
+	isSlashed := false
 	for j := itemNumber - 1; j >= 0; j-- {
 		sItem := inRunes[j]
 		sItemIsSlash := (sItem == SymbolSlash)
 		if sItemIsSlash {
-			countPreviousSlash++
+			isSlashed = !isSlashed
 		} else {
 			break
 		}
 	}
-
-	return !(countPreviousSlash%2 == 0)
+	return isSlashed
 }
