@@ -130,8 +130,9 @@ func Top7(in string) []string {
 	for i := range inArray {
 		fmt.Println(inArray[i])
 	}
-	//fmt.Println(inArray)
+
 	fmt.Println("---------------------02----------------------")
+
 	outMap1 := map[string]int{}
 	for i := range inArray {
 		item := inArray[i]
@@ -139,13 +140,11 @@ func Top7(in string) []string {
 		value++
 		outMap1[item] = value
 	}
-	fmt.Println("---------------------03----------------------")
-
-	for key, value := range outMap1 {
-		fmt.Println(key, ":    ", value)
-
+	for key1, value1 := range outMap1 {
+		fmt.Println(key1, ":    ", value1)
 	}
-	fmt.Println("---------------------04----------------------")
+
+	fmt.Println("---------------------03----------------------")
 
 	max := 0
 	outMap2 := map[int][]string{}
@@ -157,44 +156,47 @@ func Top7(in string) []string {
 		value2 := outMap2[key2]
 		value2 = append(value2, key1)
 		outMap2[key2] = value2
-	}
 
-	fmt.Println("---------------------05----------------------")
+	}
 	for key2, value2 := range outMap2 {
 		fmt.Println(key2, ": ", value2)
+	}
+
+	fmt.Println("---------------------04----------------------")
+
+	for key2, value2 := range outMap2 {
+
 		outMap2[key2] = value2
 		sort.Slice(value2, func(i, j int) bool {
 			return value2[i] < value2[j]
 		})
-	}
-	fmt.Println("---------------------06----------------------")
-	for key2, value2 := range outMap2 {
-		outMap2[key2] = value2
 		fmt.Println(key2, ": ", value2)
 	}
-	fmt.Println("---------------------07----------------------")
+
+	fmt.Println("---------------------05----------------------")
 
 	count := 0
-	out := []string{}
+	out := make([]string, 0, 10)
 	for i := max; i > 0; i-- {
 		value2 := outMap2[i]
 		if value2 == nil {
 			continue
 		}
-		out = append(out, value2...)
-		count++
-		if count > 10 {
+		for j := range value2 {
+			out = append(out, value2[j])
+			count++
+			if count == 10 {
+				break
+			}
+		}
+		if count == 10 {
 			break
 		}
 	}
+	fmt.Println(out)
 
-	fmt.Println(out)
-	fmt.Println("---------------------08----------------------")
-	if len(out) > 10 {
-		out = out[0:10]
-	}
-	fmt.Println(out)
-	fmt.Println("---------------------09----------------------")
+	fmt.Println("---------------------06----------------------")
+
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	return out
 }
