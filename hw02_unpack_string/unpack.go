@@ -3,7 +3,6 @@ package hw02unpackstring
 import (
 	"errors"
 	"strings"
-	"unicode"
 )
 
 var ErrInvalidString = errors.New("invalid string")
@@ -29,22 +28,40 @@ func Unpack(in string) (string, error) {
 		return "", nil
 	}
 	// второй этап - анализ первого символа
-	firstItem := inRunes[0]
-	// если первый символ строки содержит цифру, то вернуть ошибку
-	if unicode.IsDigit(firstItem) {
+	firstItemRef, err := BuildSymbolItem(0, inRunes)
+	if err != nil {
+		return "", err
+	}
+
+	if firstItemRef.Type == IsDigit {
 		return "", ErrInvalidString
 	}
-	// если переданная строка содержит только один символ и это слеш, то вернуть ошибку
-	if inSize == 1 && firstItem == 92 {
-		return "", ErrInvalidString
+
+	// если переданная строка содержит только один символ
+	if inSize == 1 {
+		if firstItemRef.Type == IsSlash { // если передан символ слеш, то вернуть ошибку
+			return "", ErrInvalidString
+		}
+		return string(firstItemRef.Item), nil // если передан прочий символ, то вернуть строку из одного переданного символа
 	}
+
 	// третий этап - анализ  символов со второго по предпоследний
-	outThirdStage, err := processThirdStage(inSize, inRunes)
+	secondItemRef, err := BuildSymbolItem(1, inRunes)
+	if err != nil {
+		return "", err
+	}
+
+	// карта для хранения объектов анализируемых символов
+	itemMap := make(map[int]SymbolItem)
+	itemMap[0] = *firstItemRef
+	itemMap[1] = *secondItemRef
+
+	outThirdStage, err := processThirdStage(inSize, inRunes, itemMap)
 	if err != nil {
 		return "", err
 	}
 	// четвертый этап - анализ последнего символа
-	outFourthStage, err := processFourthStage(inSize, inRunes)
+	outFourthStage, err := processFourthStage(inSize, itemMap)
 	if err != nil {
 		return "", err
 	}
@@ -57,16 +74,17 @@ func Unpack(in string) (string, error) {
 }
 
 // выполнение третьего этапа.
-func processThirdStage(inSize int, inRunes []rune) (string, error) {
+func processThirdStage(inSize int, inRunes []rune, itemMap map[int]SymbolItem) (string, error) {
 	var sb strings.Builder
 	for i := range inSize - 1 {
-		itemRef := BuildSymbolItem(i, inRunes)                // анализируемый символ
-		nextItemRef, err := BuildNextSymBolItem(inRunes[i+1]) // следующий символ
+		itemRef := itemMap[i]                             // анализируемый символ
+		nextItemRef, err := BuildSymbolItem(i+1, inRunes) // следующий символ
 		if err != nil {
 			return "", err
 		}
+		itemMap[i+1] = *nextItemRef
 		// отсекаем ошибку цифр, идущих подряд, при условии, что текущий символ - цифра не экранированая слэшем
-		if itemRef.Type == IsDigit && !itemRef.IsSlashed && nextItemRef.IsDigit {
+		if itemRef.Type == IsDigit && !itemRef.IsSlashed && nextItemRef.Type == IsDigit {
 			return "", ErrInvalidString
 		}
 		// отсекаем ошибку экранирования символов, не являющихся слешем или цифрой
@@ -75,7 +93,7 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 		}
 		// обработка, если текущий символ является цифрой или слешем и при этом экранирован
 		if (itemRef.Type == IsDigit || itemRef.Type == IsSlash) && itemRef.IsSlashed {
-			if nextItemRef.IsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
+			if nextItemRef.Type == IsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
 				sb.WriteString(strings.Repeat(string(itemRef.Item), nextItemRef.ValueInt))
 			} else { // если следующий символ не цифра, то записать текущий символ 1 раз
 				sb.WriteRune(itemRef.Item)
@@ -83,7 +101,7 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 		}
 		// обработка, если текущий символ не является цифрой или слешем  и при этом не экранирован
 		if itemRef.Type == IsOther && !itemRef.IsSlashed {
-			if nextItemRef.IsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
+			if nextItemRef.Type == IsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
 				sb.WriteString(strings.Repeat(string(itemRef.Item), nextItemRef.ValueInt))
 			} else { // если следующий символ не цифра, то записать текущий символ 1 раз
 				sb.WriteRune(itemRef.Item)
@@ -95,9 +113,9 @@ func processThirdStage(inSize int, inRunes []rune) (string, error) {
 }
 
 // выполнение четвертого этапа.
-func processFourthStage(inSize int, inRunes []rune) (string, error) {
+func processFourthStage(inSize int, itemMap map[int]SymbolItem) (string, error) {
 	var sb strings.Builder
-	lastItemRef := BuildSymbolItem(inSize-1, inRunes)
+	lastItemRef := itemMap[inSize-1]
 	// обработка, если последний символ экранирован
 	if lastItemRef.IsSlashed {
 		if lastItemRef.Type == IsDigit || lastItemRef.Type == IsSlash { // если последний символ цифра/слеш, то записать его

@@ -1,6 +1,9 @@
 package hw02unpackstring
 
-import "unicode"
+import (
+	"strconv"
+	"unicode"
+)
 
 var SymbolSlash = []rune(`\`)[0]
 
@@ -18,9 +21,10 @@ type SymbolItem struct {
 	Item      rune // анализируемый символ
 	Type      Type // тип анализируемого символа
 	IsSlashed bool // анализируемый символ экранирован
+	ValueInt  int  // численное значение анализируемого символа, если это цифра
 }
 
-func BuildSymbolItem(itemNumber int, inRunes []rune) *SymbolItem {
+func BuildSymbolItem(itemNumber int, inRunes []rune) (*SymbolItem, error) {
 	si := SymbolItem{}
 	si.Item = inRunes[itemNumber]
 	switch {
@@ -32,7 +36,15 @@ func BuildSymbolItem(itemNumber int, inRunes []rune) *SymbolItem {
 		si.Type = IsOther
 	}
 	si.IsSlashed = defineIfItemIsSlashed(itemNumber, inRunes) // определение экранирован ли текущий символ
-	return &si
+
+	if itemNumber != 0 && si.Type == IsDigit { // если первый символ цифра, то парсить не нужно
+		valueInt, err := strconv.Atoi(string(si.Item))
+		if err != nil {
+			return nil, err
+		}
+		si.ValueInt = valueInt
+	}
+	return &si, nil
 }
 
 // определение экранирован ли символ.
