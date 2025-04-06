@@ -79,7 +79,6 @@ func processThirdStage(inSize int, inRunes []rune, itemMap map[int]SymbolItem) (
 		if err := nextItemRef.ParseIfDigit(); err != nil {
 			return "", err
 		}
-
 		itemMap[i+1] = *nextItemRef
 		// отсекаем ошибку цифр, идущих подряд, при условии, что текущий символ - цифра не экранированая слэшем
 		if itemRef.Type == IsDigit && !itemRef.IsSlashed && nextItemRef.Type == IsDigit {
