@@ -2,6 +2,8 @@ package hw02unpackstring
 
 import "unicode"
 
+var SymbolSlash = []rune(`\`)[0]
+
 // перечисление с типами анализируемого символа.
 type Type int
 
