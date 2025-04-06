@@ -110,24 +110,28 @@ func Top10(in string) []string {
 	return out
 }
 
+//----------------------------------------------------------------------------------------------------
+
 func Top7(in string) []string {
 	// Place your code here.
 
 	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+	fmt.Println("---------------------00----------------------")
+
+	fmt.Println(in)
 	if in == "" {
 		return []string{}
 	}
 
-	fmt.Println("---------------------00----------------------")
-	fmt.Println(in)
-	fmt.Println("---------------------001---------------------")
-	//inArray := strings.Split(in, "_")
+	fmt.Println("---------------------01---------------------")
+
 	inArray := strings.Fields(in)
 	for i := range inArray {
 		fmt.Println(inArray[i])
 	}
-	fmt.Println(inArray)
-	fmt.Println("---------------------01----------------------")
+	//fmt.Println(inArray)
+	fmt.Println("---------------------02----------------------")
 	outMap1 := map[string]int{}
 	for i := range inArray {
 		item := inArray[i]
@@ -135,13 +139,13 @@ func Top7(in string) []string {
 		value++
 		outMap1[item] = value
 	}
-	fmt.Println("---------------------02----------------------")
+	fmt.Println("---------------------03----------------------")
 
 	for key, value := range outMap1 {
 		fmt.Println(key, ":    ", value)
 
 	}
-	fmt.Println("---------------------03----------------------")
+	fmt.Println("---------------------04----------------------")
 
 	max := 0
 	outMap2 := map[int][]string{}
@@ -155,7 +159,7 @@ func Top7(in string) []string {
 		outMap2[key2] = value2
 	}
 
-	fmt.Println("---------------------04----------------------")
+	fmt.Println("---------------------05----------------------")
 	for key2, value2 := range outMap2 {
 		fmt.Println(key2, ": ", value2)
 		outMap2[key2] = value2
@@ -163,12 +167,12 @@ func Top7(in string) []string {
 			return value2[i] < value2[j]
 		})
 	}
-	fmt.Println("---------------------05----------------------")
+	fmt.Println("---------------------06----------------------")
 	for key2, value2 := range outMap2 {
 		outMap2[key2] = value2
 		fmt.Println(key2, ": ", value2)
 	}
-	fmt.Println("---------------------06----------------------")
+	fmt.Println("---------------------07----------------------")
 
 	count := 0
 	out := []string{}
@@ -185,12 +189,12 @@ func Top7(in string) []string {
 	}
 
 	fmt.Println(out)
-	fmt.Println("---------------------07----------------------")
+	fmt.Println("---------------------08----------------------")
 	if len(out) > 10 {
 		out = out[0:10]
 	}
 	fmt.Println(out)
-	fmt.Println("---------------------08----------------------")
+	fmt.Println("---------------------09----------------------")
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	return out
 }
