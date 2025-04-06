@@ -28,10 +28,7 @@ func Unpack(in string) (string, error) {
 		return "", nil
 	}
 	// второй этап - анализ первого символа
-	firstItemRef, err := BuildSymbolItem(0, inRunes)
-	if err != nil {
-		return "", err
-	}
+	firstItemRef := BuildSymbolItem(0, inRunes)
 
 	if firstItemRef.Type == IsDigit {
 		return "", ErrInvalidString
@@ -46,11 +43,10 @@ func Unpack(in string) (string, error) {
 	}
 
 	// третий этап - анализ  символов со второго по предпоследний
-	secondItemRef, err := BuildSymbolItem(1, inRunes)
-	if err != nil {
+	secondItemRef := BuildSymbolItem(1, inRunes)
+	if err := secondItemRef.ParseIfDigit(); err != nil {
 		return "", err
 	}
-
 	// карта для хранения объектов анализируемых символов
 	itemMap := make(map[int]SymbolItem, inSize)
 	itemMap[0] = *firstItemRef
@@ -77,11 +73,12 @@ func Unpack(in string) (string, error) {
 func processThirdStage(inSize int, inRunes []rune, itemMap map[int]SymbolItem) (string, error) {
 	var sb strings.Builder
 	for i := range inSize - 1 {
-		itemRef := itemMap[i]                             // анализируемый символ
-		nextItemRef, err := BuildSymbolItem(i+1, inRunes) // следующий символ
-		if err != nil {
+		itemRef := itemMap[i]                        // анализируемый символ
+		nextItemRef := BuildSymbolItem(i+1, inRunes) // следующий символ
+		if err := nextItemRef.ParseIfDigit(); err != nil {
 			return "", err
 		}
+
 		itemMap[i+1] = *nextItemRef
 		// отсекаем ошибку цифр, идущих подряд, при условии, что текущий символ - цифра не экранированая слэшем
 		if itemRef.Type == IsDigit && !itemRef.IsSlashed && nextItemRef.Type == IsDigit {

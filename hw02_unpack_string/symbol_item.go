@@ -24,7 +24,7 @@ type SymbolItem struct {
 	ValueInt  int  // численное значение анализируемого символа, если это цифра
 }
 
-func BuildSymbolItem(itemNumber int, inRunes []rune) (*SymbolItem, error) {
+func BuildSymbolItem(itemNumber int, inRunes []rune) *SymbolItem {
 	si := SymbolItem{}
 	si.Item = inRunes[itemNumber]
 	switch {
@@ -37,14 +37,18 @@ func BuildSymbolItem(itemNumber int, inRunes []rune) (*SymbolItem, error) {
 	}
 	si.IsSlashed = defineIfItemIsSlashed(itemNumber, inRunes) // определение экранирован ли текущий символ
 
-	if itemNumber != 0 && si.Type == IsDigit { // если первый символ цифра, то парсить не нужно
+	return &si
+}
+
+func (si *SymbolItem) ParseIfDigit() error {
+	if si.Type == IsDigit {
 		valueInt, err := strconv.Atoi(string(si.Item))
 		if err != nil {
-			return nil, err
+			return err
 		}
 		si.ValueInt = valueInt
 	}
-	return &si, nil
+	return nil
 }
 
 // определение экранирован ли символ.
