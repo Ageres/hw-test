@@ -54,6 +54,8 @@ func TestUnpack_Additional(t *testing.T) {
 		{input: "d\n5abc", expected: "d\n\n\n\n\nabc"},
 		// self
 		{input: "a", expected: "a"},
+		{input: "ab", expected: "ab"},
+		{input: "abc", expected: "abc"},
 		{input: "务", expected: "务"},
 		{input: "\a", expected: "\a"},
 		{input: "a🙃0", expected: "a"},

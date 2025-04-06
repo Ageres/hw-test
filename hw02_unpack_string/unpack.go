@@ -57,7 +57,8 @@ func Unpack(in string) (string, error) {
 		return "", err
 	}
 	// четвертый этап - анализ последнего символа
-	outFourthStage, err := processFourthStage(inSize, itemMap)
+	lastIiem := itemMap[inSize-1]
+	outFourthStage, err := processFourthStage(lastIiem)
 	if err != nil {
 		return "", err
 	}
@@ -110,9 +111,8 @@ func processThirdStage(inSize int, inRunes []rune, itemMap map[int]SymbolItem) (
 }
 
 // выполнение четвертого этапа.
-func processFourthStage(inSize int, itemMap map[int]SymbolItem) (string, error) {
+func processFourthStage(lastItemRef SymbolItem) (string, error) {
 	var sb strings.Builder
-	lastItemRef := itemMap[inSize-1]
 	// обработка, если последний символ экранирован
 	if lastItemRef.IsSlashed {
 		if lastItemRef.Type == IsDigit || lastItemRef.Type == IsSlash { // если последний символ цифра/слеш, то записать его
