@@ -21,8 +21,12 @@ func Top10(in string) []string {
 	in = strings.ReplaceAll(in, ".", "_")
 	in = strings.ReplaceAll(in, "!", "_")
 
-	for range 20 {
-		in = strings.ReplaceAll(in, "__", "_")
+	for {
+		if strings.Contains(in, "__") {
+			in = strings.ReplaceAll(in, "__", "_")
+		} else {
+			break
+		}
 	}
 
 	fmt.Println("---------------------00----------------------")
@@ -136,6 +140,9 @@ func Top7(in string) []string {
 	outMap1 := map[string]int{}
 	for i := range inArray {
 		item := inArray[i]
+		if item == "-" {
+			continue
+		}
 		value := outMap1[item]
 		value++
 		outMap1[item] = value
@@ -165,7 +172,6 @@ func Top7(in string) []string {
 	fmt.Println("---------------------04----------------------")
 
 	for key2, value2 := range outMap2 {
-
 		outMap2[key2] = value2
 		sort.Slice(value2, func(i, j int) bool {
 			return value2[i] < value2[j]

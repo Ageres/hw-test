@@ -7,7 +7,7 @@ import (
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = true
+var top10TaskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -49,7 +49,7 @@ func TestTop10(t *testing.T) {
 	})
 
 	t.Run("positive test", func(t *testing.T) {
-		if taskWithAsteriskIsCompleted {
+		if top10TaskWithAsteriskIsCompleted {
 			expected := []string{
 				"а",         // 8
 				"он",        // 8
@@ -81,7 +81,8 @@ func TestTop10(t *testing.T) {
 	})
 }
 
-var text2 = "cat and dog, one dog,two cats and one man"
+var top7TaskWithAsteriskIsCompleted = false
+var text2 = "cat and dog, one dog,two cats and one man ------- - "
 
 func TestTop7(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
@@ -89,10 +90,11 @@ func TestTop7(t *testing.T) {
 	})
 
 	t.Run("positive test", func(t *testing.T) {
-		if taskWithAsteriskIsCompleted {
+		if top7TaskWithAsteriskIsCompleted {
 			expected := []string{
 				"and",     // 2
 				"one",     // 2
+				"-------", // 1
 				"cat",     // 1
 				"cats",    // 1
 				"dog,",    // 1
@@ -104,6 +106,7 @@ func TestTop7(t *testing.T) {
 			expected := []string{
 				"and",     // 2
 				"one",     // 2
+				"-------", // 1
 				"cat",     // 1
 				"cats",    // 1
 				"dog,",    // 1
