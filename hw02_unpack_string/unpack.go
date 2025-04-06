@@ -23,17 +23,18 @@ func Unpack(in string) (string, error) {
 	// Place your code here.
 	inRunes := []rune(in)
 	inSize := len(inRunes)
+
 	// первый этап - анализируемая строка содержит 0 символов
 	if inSize == 0 {
 		return "", nil
 	}
+
 	// второй этап - анализ первого символа
 	firstItemRef := BuildSymbolItem(0, inRunes)
 
 	if firstItemRef.Type == IsDigit {
 		return "", ErrInvalidString
 	}
-
 	// если переданная строка содержит только один символ
 	if inSize == 1 {
 		if firstItemRef.Type == IsSlash { // если передан символ слеш, то вернуть ошибку
@@ -51,6 +52,7 @@ func Unpack(in string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	// четвертый этап - анализ последнего символа
 	lastIiem := items[inSize-1]
 	outFourthStage, err := processFourthStage(lastIiem)
