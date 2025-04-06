@@ -118,25 +118,31 @@ func Top10(in string) []string {
 
 func Top7(in string) []string {
 	// Place your code here.
-
 	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-
 	fmt.Println("---------------------00----------------------")
-
 	fmt.Println(in)
 	if in == "" {
 		return []string{}
 	}
-
 	fmt.Println("---------------------01---------------------")
-
 	inArray := strings.Fields(in)
 	for i := range inArray {
 		fmt.Println(inArray[i])
 	}
-
 	fmt.Println("---------------------02----------------------")
+	outMap1 := calcItems(inArray)
+	fmt.Println("---------------------03----------------------")
+	maxLen, outMap2 := buildOutMap(outMap1)
+	fmt.Println("---------------------04----------------------")
+	sortOutMap(outMap2)
+	fmt.Println("---------------------05----------------------")
+	out := buildOutSlice(maxLen, outMap2)
+	fmt.Println("---------------------06----------------------")
+	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+	return out
+}
 
+func calcItems(inArray []string) map[string]int {
 	outMap1 := map[string]int{}
 	for i := range inArray {
 		item := inArray[i]
@@ -150,27 +156,28 @@ func Top7(in string) []string {
 	for key1, value1 := range outMap1 {
 		fmt.Println(key1, ":    ", value1)
 	}
+	return outMap1
+}
 
-	fmt.Println("---------------------03----------------------")
-
-	max := 0
+func buildOutMap(outMap1 map[string]int) (int, map[int][]string) {
+	maxLen := 0
 	outMap2 := map[int][]string{}
 	for key1, value1 := range outMap1 {
-		if value1 > max {
-			max = value1
+		if value1 > maxLen {
+			maxLen = value1
 		}
 		key2 := value1
 		value2 := outMap2[key2]
 		value2 = append(value2, key1)
 		outMap2[key2] = value2
-
 	}
 	for key2, value2 := range outMap2 {
 		fmt.Println(key2, ": ", value2)
 	}
+	return maxLen, outMap2
+}
 
-	fmt.Println("---------------------04----------------------")
-
+func sortOutMap(outMap2 map[int][]string) {
 	for key2, value2 := range outMap2 {
 		outMap2[key2] = value2
 		sort.Slice(value2, func(i, j int) bool {
@@ -178,12 +185,12 @@ func Top7(in string) []string {
 		})
 		fmt.Println(key2, ": ", value2)
 	}
+}
 
-	fmt.Println("---------------------05----------------------")
-
+func buildOutSlice(maxLen int, outMap2 map[int][]string) []string {
 	count := 0
 	out := make([]string, 0, 10)
-	for i := max; i > 0; i-- {
+	for i := maxLen; i > 0; i-- {
 		value2 := outMap2[i]
 		if value2 == nil {
 			continue
@@ -200,9 +207,5 @@ func Top7(in string) []string {
 		}
 	}
 	fmt.Println(out)
-
-	fmt.Println("---------------------06----------------------")
-
-	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	return out
 }
