@@ -47,17 +47,17 @@ func Unpack(in string) (string, error) {
 	if err := secondItemRef.ParseIfDigit(); err != nil {
 		return "", err
 	}
-	// карта для хранения объектов анализируемых символов
-	itemMap := make(map[int]SymbolItem, inSize)
-	itemMap[0] = *firstItemRef
-	itemMap[1] = *secondItemRef
+	// слайс для хранения объектов анализируемых символов
+	items := make([]SymbolItem, inSize)
+	items[0] = *firstItemRef
+	items[1] = *secondItemRef
 
-	outThirdStage, err := processThirdStage(inSize, inRunes, itemMap)
+	outThirdStage, err := processThirdStage(inSize, inRunes, items)
 	if err != nil {
 		return "", err
 	}
 	// четвертый этап - анализ последнего символа
-	lastIiem := itemMap[inSize-1]
+	lastIiem := items[inSize-1]
 	outFourthStage, err := processFourthStage(lastIiem)
 	if err != nil {
 		return "", err
@@ -71,15 +71,15 @@ func Unpack(in string) (string, error) {
 }
 
 // выполнение третьего этапа.
-func processThirdStage(inSize int, inRunes []rune, itemMap map[int]SymbolItem) (string, error) {
+func processThirdStage(inSize int, inRunes []rune, items []SymbolItem) (string, error) {
 	var sb strings.Builder
 	for i := range inSize - 1 {
-		itemRef := itemMap[i]                        // анализируемый символ
+		itemRef := items[i]                          // анализируемый символ
 		nextItemRef := BuildSymbolItem(i+1, inRunes) // следующий символ
 		if err := nextItemRef.ParseIfDigit(); err != nil {
 			return "", err
 		}
-		itemMap[i+1] = *nextItemRef
+		items[i+1] = *nextItemRef
 		// отсекаем ошибку цифр, идущих подряд, при условии, что текущий символ - цифра не экранированая слэшем
 		if itemRef.Type == IsDigit && !itemRef.IsSlashed && nextItemRef.Type == IsDigit {
 			return "", ErrInvalidString
