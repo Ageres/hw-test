@@ -43,14 +43,9 @@ func Unpack(in string) (string, error) {
 	}
 
 	// третий этап - анализ  символов со второго по предпоследний
-	secondItemRef := BuildSymbolItem(1, inRunes)
-	if err := secondItemRef.ParseIfDigit(); err != nil {
-		return "", err
-	}
 	// слайс для хранения объектов анализируемых символов
 	items := make([]SymbolItem, inSize)
 	items[0] = *firstItemRef
-	items[1] = *secondItemRef
 
 	outThirdStage, err := processThirdStage(inSize, inRunes, items)
 	if err != nil {
