@@ -22,7 +22,7 @@ func Top10(in string) []string {
 		fmt.Println(inArray[i])
 	}
 	fmt.Println("---------------------04----------------------")
-	outMap1 := calcItems(inArray)
+	outMap1 := calcItemLen(inArray)
 	fmt.Println("---------------------05----------------------")
 	maxLen, outMap2 := buildOutMap(outMap1)
 	fmt.Println("---------------------06----------------------")
@@ -37,7 +37,7 @@ func Top10(in string) []string {
 
 //----------------------------------------------------------------------------------------------------
 
-func Top7(in string) []string {
+func Top7TaskWithOutAsterisk(in string) []string {
 	// Place your code here.
 	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	fmt.Println("---------------------01----------------------")
@@ -51,7 +51,7 @@ func Top7(in string) []string {
 		fmt.Println(inArray[i])
 	}
 	fmt.Println("---------------------03----------------------")
-	outMap1 := calcItems(inArray)
+	outMap1 := calcItemLen(inArray)
 	fmt.Println("---------------------04----------------------")
 	maxLen, outMap2 := buildOutMap(outMap1)
 	fmt.Println("---------------------05----------------------")
@@ -61,6 +61,12 @@ func Top7(in string) []string {
 	fmt.Println("---------------------07----------------------")
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	return out
+}
+
+//----------------------------------------------------------------------------------------------------
+
+func Top7TaskWithAsterisk(in string) []string {
+	return []string{}
 }
 
 func removeOtherSymbols(in string) string {
@@ -80,7 +86,7 @@ func removeOtherSymbols(in string) string {
 	return in
 }
 
-func calcItems(inArray []string) map[string]int {
+func calcItemLen(inArray []string) map[string]int {
 	outMap1 := map[string]int{}
 	for i := range inArray {
 		item := inArray[i]

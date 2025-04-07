@@ -81,40 +81,45 @@ func TestTop10(t *testing.T) {
 	})
 }
 
-var top7TaskWithAsteriskIsCompleted = false
-var text2 = "cat and dog, one dog,two cats and one man ------- - ?"
+var text2 = "cat and dog, one dog,two cats and one man ------- - ? какой-то какойто dog,cat dog...cat dogcat нога! нога,"
 
-func TestTop7(t *testing.T) {
+func TestTop7TaskWithOutAsterisk(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		require.Len(t, Top7(""), 0)
+		require.Len(t, Top7TaskWithOutAsterisk(""), 0)
+	})
+	t.Run("positive test", func(t *testing.T) {
+		expected := []string{
+			"and",     // 2
+			"one",     // 2
+			"-------", // 1
+			"?",       // 1
+			"cat",     // 1
+			"cats",    // 1
+			"dog,",    // 1
+			"dog,two", // 1
+			"man",     // 1
+		}
+		require.Equal(t, expected, Top7TaskWithOutAsterisk(text2))
+	})
+}
+
+func TestTop7TaskWithAsterisk(t *testing.T) {
+	t.Run("no words in empty string", func(t *testing.T) {
+		require.Len(t, Top7TaskWithAsterisk(""), 0)
 	})
 
 	t.Run("positive test", func(t *testing.T) {
-		if top7TaskWithAsteriskIsCompleted {
-			expected := []string{
-				"and",     // 2
-				"one",     // 2
-				"-------", // 1
-				"cat",     // 1
-				"cats",    // 1
-				"dog,",    // 1
-				"dog,two", // 1
-				"man",     // 1
-			}
-			require.Equal(t, expected, Top7(text2))
-		} else {
-			expected := []string{
-				"and",     // 2
-				"one",     // 2
-				"-------", // 1
-				"?",       // 1
-				"cat",     // 1
-				"cats",    // 1
-				"dog,",    // 1
-				"dog,two", // 1
-				"man",     // 1
-			}
-			require.Equal(t, expected, Top7(text2))
+		expected := []string{
+			"and",     // 2
+			"one",     // 2
+			"-------", // 1
+			"cat",     // 1
+			"cats",    // 1
+			"dog,",    // 1
+			"dog,two", // 1
+			"man",     // 1
 		}
+		require.Equal(t, expected, Top7TaskWithOutAsterisk(text2))
+
 	})
 }
