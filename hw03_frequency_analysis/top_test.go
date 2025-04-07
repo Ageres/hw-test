@@ -82,7 +82,7 @@ func TestTop10(t *testing.T) {
 }
 
 var top7TaskWithAsteriskIsCompleted = false
-var text2 = "cat and dog, one dog,two cats and one man ------- - "
+var text2 = "cat and dog, one dog,two cats and one man ------- - ?"
 
 func TestTop7(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
@@ -107,6 +107,7 @@ func TestTop7(t *testing.T) {
 				"and",     // 2
 				"one",     // 2
 				"-------", // 1
+				"?",       // 1
 				"cat",     // 1
 				"cats",    // 1
 				"dog,",    // 1
