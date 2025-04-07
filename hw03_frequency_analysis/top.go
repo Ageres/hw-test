@@ -76,17 +76,6 @@ func removeOtherSymbols(in string) string {
 	in = strings.ReplaceAll(in, ":", " ")
 	in = strings.ReplaceAll(in, ";", " ")
 	in = strings.ReplaceAll(in, "?", " ")
-
-	/*
-		for {
-			if strings.Contains(in, "__") {
-				in = strings.ReplaceAll(in, "__", "_")
-			} else {
-				break
-			}
-		}
-	*/
-
 	fmt.Println(in)
 	return in
 }
