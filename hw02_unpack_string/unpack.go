@@ -55,7 +55,7 @@ func Unpack(in string) (string, error) {
 
 	// четвертый этап - анализ последнего символа
 	lastIiem := items[inSize-1]
-	outFourthStage, err := processFourthStage(lastIiem)
+	outFourthStage, err := processFourthStage(&lastIiem)
 	if err != nil {
 		return "", err
 	}
@@ -107,7 +107,7 @@ func processThirdStage(inSize int, inRunes []rune, items []SymbolItem) (string, 
 }
 
 // выполнение четвертого этапа.
-func processFourthStage(lastItemRef SymbolItem) (string, error) {
+func processFourthStage(lastItemRef *SymbolItem) (string, error) {
 	var sb strings.Builder
 	// обработка, если последний символ экранирован
 	if lastItemRef.IsSlashed {
