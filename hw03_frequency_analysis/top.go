@@ -15,23 +15,7 @@ func Top10(in string) []string {
 		return []string{}
 	}
 	fmt.Println("---------------------02----------------------")
-	in = strings.ToLower(in)
-	in = strings.ReplaceAll(in, " ", "_")
-	in = strings.ReplaceAll(in, "\n", "_")
-	in = strings.ReplaceAll(in, "\t", "_")
-	in = strings.ReplaceAll(in, "\"", "_")
-	in = strings.ReplaceAll(in, ",", "_")
-	in = strings.ReplaceAll(in, ".", "_")
-	in = strings.ReplaceAll(in, "!", "_")
-
-	for {
-		if strings.Contains(in, "__") {
-			in = strings.ReplaceAll(in, "__", "_")
-		} else {
-			break
-		}
-	}
-	fmt.Println(in)
+	in = removeOtherSymbols(in)
 	fmt.Println("---------------------03----------------------")
 	inArray := strings.Split(in, "_")
 	for i := range inArray {
@@ -77,6 +61,27 @@ func Top7(in string) []string {
 	fmt.Println("---------------------07----------------------")
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	return out
+}
+
+func removeOtherSymbols(in string) string {
+	in = strings.ToLower(in)
+	in = strings.ReplaceAll(in, " ", "_")
+	in = strings.ReplaceAll(in, "\n", "_")
+	in = strings.ReplaceAll(in, "\t", "_")
+	in = strings.ReplaceAll(in, "\"", "_")
+	in = strings.ReplaceAll(in, ",", "_")
+	in = strings.ReplaceAll(in, ".", "_")
+	in = strings.ReplaceAll(in, "!", "_")
+
+	for {
+		if strings.Contains(in, "__") {
+			in = strings.ReplaceAll(in, "__", "_")
+		} else {
+			break
+		}
+	}
+	fmt.Println(in)
+	return in
 }
 
 func calcItems(inArray []string) map[string]int {
