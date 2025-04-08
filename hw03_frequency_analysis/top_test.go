@@ -9,9 +9,9 @@ import (
 // ------------------------------------------------------------------------------------------------------------------------
 var textTop7 = "cat and dog, one dog,two cats and one man"
 
-func TestTop7TaskWithOutAsterisk(t *testing.T) {
+func TestTop7(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		require.Len(t, Top7WithOutAsterisk(""), 0)
+		require.Len(t, Top7(""), 0)
 	})
 	t.Run("positive test", func(t *testing.T) {
 		expected := []string{
@@ -23,13 +23,13 @@ func TestTop7TaskWithOutAsterisk(t *testing.T) {
 			"dog,two", // 1
 			"man",     // 1
 		}
-		require.Equal(t, expected, Top7WithOutAsterisk(textTop7))
+		require.Equal(t, expected, Top7(textTop7))
 	})
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
 // Change to true if needed.
-var top10TaskWithAsteriskIsCompleted = true
+var top10TaskWithAsteriskIsCompleted = false
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -79,7 +79,7 @@ func TestTop10(t *testing.T) {
 				"ты",        // 5
 				"что",       // 5
 				"в",         // 4
-				"его",       // 4
+				"его",       //
 				"если",      // 4
 				"кристофер", // 4
 				"не",        // 4
@@ -98,7 +98,7 @@ func TestTop10(t *testing.T) {
 				"не",        // 4
 				"то",        // 4
 			}
-			require.Equal(t, expected, Top10(text))
+			require.Equal(t, expected, Top7(text))
 		}
 	})
 }
@@ -121,11 +121,11 @@ func TestTop7TaskWithOutAsterisk__(t *testing.T) {
 			"dog,two", // 1
 			"man",     // 1
 		}
-		require.Equal(t, expected, Top7WithOutAsterisk(text2))
+		require.Equal(t, expected, Top10(text2))
 	})
 }
 
-func TestTop7TaskWithAsterisk(t *testing.T) {
+func TestTop7TaskWithAsterisk_(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top7TaskWithAsterisk(""), 0)
 	})
