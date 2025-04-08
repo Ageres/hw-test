@@ -115,16 +115,16 @@ func TestTop10TaskWithOutAsterisk_(t *testing.T) {
 	})
 	t.Run("positive test", func(t *testing.T) {
 		expected := []string{
-			"and",     // 4
-			"one",     // 3
-			"-",       // 2
-			"-------", // 2
-			"?",       // 1
-			"cat",     // 1
-			"cats",    // 1
-			"dog",     // 1
-			"dog,",    // 1
-			"dog,cat", // 1
+			"dog...cat", // 6
+			"and",       // 4
+			"dog,cat",   // 4
+			"one",       // 3
+			"-",         // 2
+			"-------",   // 2
+			"?",         // 1
+			"cat",       // 1
+			"cats",      // 1
+			"dog",       // 1
 		}
 		require.Equal(t, expected, Top10WithOutAsterisk(text2))
 	})
