@@ -130,32 +130,40 @@ func TestTop10TaskWithOutAsterisk_(t *testing.T) {
 }
 
 var text3 = `dog cat 
-			.dog cat.
-			,dog cat,
-			;dog cat;
-			:dog cat:
-			...dog cat... 
+			.dog cat. 
+			,dog cat, 
+			;dog cat; 
+			:dog cat: 
+			...dog cat...  
 			!dog cat! 
 			?dog cat? 
 			-dog cat- 
-			(dog cat(
-			)dog cat)
+			(dog cat( 
+			)dog cat) 
 			"dog cat" 			
-			
-			dogcat
-			dog.cat
+			 
+			dogcat 
+			dog.cat 
 			dog,cat 
-			dog;cat
-			dog:cat
-			dog...cat
-			dog!cat
-			dog?cat
-			dogcat
-			dog(cat,
+			dog;cat 
+			dog:cat 
+			dog...cat 
+			dog!cat 
+			dog?cat 
+			dog-cat 
+			dog(cat 
 			dog)cat 
-			dog"cat
-			 -
-			 ------ 
+			dog"cat 
+			- 
+			------ 
+			_dog 
+			dog_ 
+			--dog 
+			dog-- 
+			&dog 
+			dog& 
+			+dog 
+			dog+  
 			`
 
 func TestTop10TaskWithAsterisk_(t *testing.T) {
