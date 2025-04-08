@@ -129,8 +129,34 @@ func TestTop10TaskWithOutAsterisk_(t *testing.T) {
 	})
 }
 
-var text3 = `dog cat dogcat,  dog...cat dog!!!cat - ------ dog, !dog dog one dog...cat dog,two cats dog...cat and one man ------- dog...cat - dog...cat ? какой-то какойто one - and 
-dog,cat ------- dog...cat dogcat dog,cat and нога! dog,cat нога, dog dog,cat`
+var text3 = `dog cat 
+			.dog cat.
+			,dog cat,
+			;dog cat;
+			:dog cat:
+			...dog cat... 
+			!dog cat! 
+			?dog cat? 
+			-dog cat- 
+			(dog cat(
+			)dog cat)
+			"dog cat" 			
+			
+			dogcat
+			dog.cat
+			dog,cat 
+			dog;cat
+			dog:cat
+			dog...cat
+			dog!cat
+			dog?cat
+			dogcat
+			dog(cat,
+			dog)cat 
+			dog"cat
+			 -
+			 ------ 
+			`
 
 func TestTop10TaskWithAsterisk_(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
