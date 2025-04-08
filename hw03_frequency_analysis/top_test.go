@@ -66,7 +66,6 @@ func TestTop10WithOutAsterisk(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
 	})
-
 	t.Run("positive test", func(t *testing.T) {
 		expected := []string{
 			"он",        // 8
@@ -130,6 +129,9 @@ func TestTop10TaskWithOutAsterisk_(t *testing.T) {
 	})
 }
 
+var text3 = `dog cat dogcat,  dog...cat dog!!!cat - ------ dog, !dog dog one dog...cat dog,two cats dog...cat and one man ------- dog...cat - dog...cat ? какой-то какойто one - and 
+dog,cat ------- dog...cat dogcat dog,cat and нога! dog,cat нога, dog dog,cat`
+
 func TestTop10TaskWithAsterisk_(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
@@ -146,6 +148,6 @@ func TestTop10TaskWithAsterisk_(t *testing.T) {
 			"dog,two", // 1
 			"man",     // 1
 		}
-		require.Equal(t, expected, Top10(text2))
+		require.Equal(t, expected, Top10(text3))
 	})
 }

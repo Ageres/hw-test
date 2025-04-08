@@ -91,7 +91,7 @@ func Top10_01(in string) []string {
 //-----------------------------------------------------------------------------------------------------------
 
 // var r = regexp.MustCompile("[a-z]*.*8,*:*;*!*?*-*(*)*\"*[a-z]*")
-var r = regexp.MustCompile("[a-zа-я]*[.]*[a-zа-я]*")
+var r = regexp.MustCompile("[a-zа-я]*[.,]*[a-zа-я]*")
 
 func Top10(in string) []string {
 	// Place your code here.
