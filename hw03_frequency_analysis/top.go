@@ -29,9 +29,10 @@ func Top7WithOutAsterisk(in string) []string {
 	fmt.Println("---------------------04----------------------")
 	// строим карту группировки слов по числу вхождений ([число вхождений]слово)
 	// определяем максимальное число вхождений для использования в алгоритме сортировки по алфавиту
-	maxOccurrence, groupedOccurrenceMap := buildOutMap(occurrenceMap)
+	maxOccurrence, groupedOccurrenceMap := groupByOccurrence(occurrenceMap)
 	fmt.Println("---------------------05----------------------")
-	sortOutMap(groupedOccurrenceMap)
+	// сортируем сгрупированные слова в алфавином порядке
+	sortGroupedOccurrence(groupedOccurrenceMap)
 	fmt.Println("---------------------06----------------------")
 	out := buildOutSlice(maxOccurrence, groupedOccurrenceMap)
 	fmt.Println("---------------------07----------------------")
@@ -59,9 +60,10 @@ func Top10(in string) []string {
 	fmt.Println("---------------------04----------------------")
 	outMap1 := determineNumberOfOccurrences(inArray)
 	fmt.Println("---------------------05----------------------")
-	maxLen, outMap2 := buildOutMap(outMap1)
+	maxLen, outMap2 := groupByOccurrence(outMap1)
 	fmt.Println("---------------------06----------------------")
-	sortOutMap(outMap2)
+	//
+	sortGroupedOccurrence(outMap2)
 	fmt.Println("---------------------07----------------------")
 	out := buildOutSlice(maxLen, outMap2)
 	fmt.Println("---------------------08----------------------")
@@ -116,27 +118,28 @@ func determineNumberOfOccurrences(inArray []string) map[string]int {
 
 // строим карту вхождений ([число вхождений]слово)
 // определяем максимальное число вхождений для использование в алгоритме сортировки по алфавиту
-func buildOutMap(outMap1 map[string]int) (int, map[int][]string) {
-	maxLen := 0
-	outMap2 := map[int][]string{}
-	for key1, value1 := range outMap1 {
-		if value1 > maxLen {
-			maxLen = value1
+func groupByOccurrence(occurrenceMap map[string]int) (int, map[int][]string) {
+	maxOccurrence := 0
+	groupedOccurrenceMap := map[int][]string{}
+	for key1, value1 := range occurrenceMap {
+		if value1 > maxOccurrence {
+			maxOccurrence = value1
 		}
 		key2 := value1
-		value2 := outMap2[key2]
+		value2 := groupedOccurrenceMap[key2]
 		value2 = append(value2, key1)
-		outMap2[key2] = value2
+		groupedOccurrenceMap[key2] = value2
 	}
-	for key2, value2 := range outMap2 {
+	for key2, value2 := range groupedOccurrenceMap {
 		fmt.Println(key2, ": ", value2)
 	}
-	return maxLen, outMap2
+	return maxOccurrence, groupedOccurrenceMap
 }
 
-func sortOutMap(outMap2 map[int][]string) {
-	for key2, value2 := range outMap2 {
-		outMap2[key2] = value2
+// сортируем сгрупированные слова в алфавином порядке
+func sortGroupedOccurrence(groupedOccurrenceMap map[int][]string) {
+	for key2, value2 := range groupedOccurrenceMap {
+		groupedOccurrenceMap[key2] = value2
 		sort.Slice(value2, func(i, j int) bool {
 			return value2[i] < value2[j]
 		})
@@ -144,11 +147,13 @@ func sortOutMap(outMap2 map[int][]string) {
 	}
 }
 
-func buildOutSlice(maxLen int, outMap2 map[int][]string) []string {
+// выстраиваем сгруппированые слова в одну последовательность, в порядке от максимальных вхождений к минимальным
+// ограничиваем длину последовательности 10-ю словами
+func buildOutSlice(maxOccurrence int, groupedOccurrenceMap map[int][]string) []string {
 	count := 0
 	out := make([]string, 0, 10)
-	for i := maxLen; i > 0; i-- {
-		value2 := outMap2[i]
+	for i := maxOccurrence; i > 0; i-- {
+		value2 := groupedOccurrenceMap[i]
 		if value2 == nil {
 			continue
 		}
