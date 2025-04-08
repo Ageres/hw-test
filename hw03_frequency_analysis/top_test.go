@@ -147,6 +147,5 @@ func TestTop10TaskWithAsterisk_(t *testing.T) {
 			"man",     // 1
 		}
 		require.Equal(t, expected, Top10(text2))
-
 	})
 }
