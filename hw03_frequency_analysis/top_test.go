@@ -6,6 +6,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// ------------------------------------------------------------------------------------------------------------------------
+var textTop7 = "cat and dog, one dog,two cats and one man"
+
+func TestTop7TaskWithOutAsterisk(t *testing.T) {
+	t.Run("no words in empty string", func(t *testing.T) {
+		require.Len(t, Top7WithOutAsterisk(""), 0)
+	})
+	t.Run("positive test", func(t *testing.T) {
+		expected := []string{
+			"and",     // 2
+			"one",     // 2
+			"cat",     // 1
+			"cats",    // 1
+			"dog,",    // 1
+			"dog,two", // 1
+			"man",     // 1
+		}
+		require.Equal(t, expected, Top7WithOutAsterisk(textTop7))
+	})
+}
+
+// ------------------------------------------------------------------------------------------------------------------------
 // Change to true if needed.
 var top10TaskWithAsteriskIsCompleted = true
 
@@ -83,9 +105,9 @@ func TestTop10(t *testing.T) {
 
 var text2 = "cat and dog, one dog,two cats and one man ------- - ? какой-то какойто dog,cat dog...cat dogcat нога! нога,"
 
-func TestTop7TaskWithOutAsterisk(t *testing.T) {
+func TestTop7TaskWithOutAsterisk__(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		require.Len(t, Top7TaskWithOutAsterisk(""), 0)
+		require.Len(t, Top7WithOutAsterisk(""), 0)
 	})
 	t.Run("positive test", func(t *testing.T) {
 		expected := []string{
@@ -99,7 +121,7 @@ func TestTop7TaskWithOutAsterisk(t *testing.T) {
 			"dog,two", // 1
 			"man",     // 1
 		}
-		require.Equal(t, expected, Top7TaskWithOutAsterisk(text2))
+		require.Equal(t, expected, Top7WithOutAsterisk(text2))
 	})
 }
 
@@ -119,7 +141,7 @@ func TestTop7TaskWithAsterisk(t *testing.T) {
 			"dog,two", // 1
 			"man",     // 1
 		}
-		require.Equal(t, expected, Top7TaskWithOutAsterisk(text2))
+		require.Equal(t, expected, Top7WithOutAsterisk(text2))
 
 	})
 }
