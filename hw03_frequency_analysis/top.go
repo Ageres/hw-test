@@ -91,7 +91,7 @@ func Top10_01(in string) []string {
 //-----------------------------------------------------------------------------------------------------------
 
 // var r = regexp.MustCompile("[a-z]*.*8,*:*;*!*?*-*(*)*\"*[a-z]*")
-var r = regexp.MustCompile("[a-z]*.*[a-z]*")
+var r = regexp.MustCompile("[a-zа-я]*[.]*[a-zа-я]*")
 
 func Top10(in string) []string {
 	// Place your code here.
@@ -110,19 +110,19 @@ func Top10(in string) []string {
 	ins := r.FindAllString(in, -1)
 	fmt.Println(ins)
 	for i := range ins {
-		fmt.Println("-------021-------->>")
+		fmt.Println("-------021 -", i, "-------->>")
 		s := ins[i]
 		fmt.Println(s)
-		fmt.Println("<------021-------->")
+		fmt.Println("<------021 -", i, "-------->")
 		sr := r.FindString(s)
 		fmt.Println(sr)
-		fmt.Println("<------021-------->")
+		fmt.Println("<------021 -", i, "-------->")
 		//sr2 := r.
 		//fmt.Println(sr2)
-		fmt.Println("<<-----021---------")
+		fmt.Println("<<-----021 -", i, "---------")
 	}
 	fmt.Println("---------------------03----------------------")
-	// разделяем по отступам
+	/*// разделяем по отступам
 	inArray := strings.Fields(in)
 	for i := range inArray {
 		fmt.Println("----------------->>")
@@ -163,7 +163,7 @@ func Top10(in string) []string {
 		}
 	}
 	fmt.Println(out)
-	fmt.Println("---------------------08----------------------")
+	fmt.Println("---------------------08----------------------") */
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	//-------------------------------------------------------------------------
 
@@ -173,8 +173,8 @@ func Top10(in string) []string {
 	//strings.Fields()
 	*/
 
-	//return []string{}
-	return out
+	return []string{}
+	//return out
 }
 
 //----------------------------------------------------------------------------------------------------
