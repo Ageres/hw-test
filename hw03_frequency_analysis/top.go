@@ -8,7 +8,7 @@ import (
 
 //-----------------------------------------------------------------------------------------------------------
 
-func Top7(in string) []string {
+func Top10WithOutAsterisk(in string) []string {
 	// Place your code here.
 	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	fmt.Println("in:", in)
@@ -18,6 +18,7 @@ func Top7(in string) []string {
 		return []string{}
 	}
 	fmt.Println("---------------------02---------------------")
+	//in = removeOtherSymbols(in)
 	// разделяем по отступам
 	inArray := strings.Fields(in)
 	for i := range inArray {
@@ -25,43 +26,7 @@ func Top7(in string) []string {
 	}
 	fmt.Println("---------------------03----------------------")
 	// определяем количество вхождений по каждому слову ([слово]число вхождений )
-	occurrenceMap := determineNumberOfOccurrences(inArray)
-	fmt.Println("---------------------04----------------------")
-	// строим карту группировки слов по числу вхождений ([число вхождений]слово)
-	// определяем максимальное число вхождений для использования в алгоритме сортировки по алфавиту
-	maxOccurrence, groupedOccurrenceMap := groupByOccurrence(occurrenceMap)
-	fmt.Println("---------------------05----------------------")
-	// сортируем сгрупированные слова в алфавином порядке
-	sortGroupedOccurrence(groupedOccurrenceMap)
-	fmt.Println("---------------------06----------------------")
-	// выстраиваем сгруппированые слова в одну последовательность, в порядке от максимальных вхождений к минимальным
-	// ограничиваем длину последовательности 10-ю словами
-	out := buildOutSlice(maxOccurrence, groupedOccurrenceMap)
-	fmt.Println("---------------------07----------------------")
-	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-	return out
-}
-
-//-----------------------------------------------------------------------------------------------------------
-
-func Top7WithOutAsterisk(in string) []string {
-	// Place your code here.
-	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	fmt.Println("in:", in)
-	fmt.Println("---------------------01----------------------")
-	// отсекаем исключение - пустая строка
-	if in == "" {
-		return []string{}
-	}
-	fmt.Println("---------------------02---------------------")
-	// разделяем по отступам
-	inArray := strings.Fields(in)
-	for i := range inArray {
-		fmt.Println("inArray[", i, "]", inArray[i])
-	}
-	fmt.Println("---------------------03----------------------")
-	// определяем количество вхождений по каждому слову ([слово]число вхождений )
-	occurrenceMap := determineNumberOfOccurrences(inArray)
+	occurrenceMap := determineNumberOfOccurrencesWithOutAsterisk(inArray)
 	fmt.Println("---------------------04----------------------")
 	// строим карту группировки слов по числу вхождений ([число вхождений]слово)
 	// определяем максимальное число вхождений для использования в алгоритме сортировки по алфавиту
@@ -85,25 +50,37 @@ func Top10(in string) []string {
 	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	fmt.Println("---------------------01----------------------")
 	fmt.Println(in)
+	// отсекаем исключение - пустая строка
 	if in == "" {
 		return []string{}
 	}
 	fmt.Println("---------------------02----------------------")
-	in = removeOtherSymbols(in)
+	// преобразуем в нижний регистр
+	in = strings.ToLower(in)
+	fmt.Println(in)
 	fmt.Println("---------------------03----------------------")
+	// удаляем ненужные символы
+	in = removeOtherSymbols(in)
+	fmt.Println("---------------------04----------------------")
+	// разделяем по отступам
 	inArray := strings.Fields(in)
 	for i := range inArray {
 		fmt.Println(inArray[i])
 	}
-	fmt.Println("---------------------04----------------------")
-	outMap1 := determineNumberOfOccurrences(inArray)
 	fmt.Println("---------------------05----------------------")
-	maxLen, outMap2 := groupByOccurrence(outMap1)
+	// определяем количество вхождений по каждому слову ([слово]число вхождений )
+	occurrenceMap := determineNumberOfOccurrences(inArray)
 	fmt.Println("---------------------06----------------------")
-	//
-	sortGroupedOccurrence(outMap2)
+	// строим карту группировки слов по числу вхождений ([число вхождений]слово)
+	// определяем максимальное число вхождений для использования в алгоритме сортировки по алфавиту
+	maxOccurrence, groupedOccurrenceMap := groupByOccurrence(occurrenceMap)
 	fmt.Println("---------------------07----------------------")
-	out := buildOutSlice(maxLen, outMap2)
+	// сортируем сгрупированные слова в алфавином порядке
+	sortGroupedOccurrence(groupedOccurrenceMap)
+	fmt.Println("---------------------08----------------------")
+	// выстраиваем сгруппированые слова в одну последовательность, в порядке от максимальных вхождений к минимальным
+	// ограничиваем длину последовательности 10-ю словами
+	out := buildOutSlice(maxOccurrence, groupedOccurrenceMap)
 	fmt.Println("---------------------08----------------------")
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	//strings.Fields()
@@ -112,16 +89,7 @@ func Top10(in string) []string {
 
 //----------------------------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------------------------------
-
-func Top7TaskWithAsterisk(in string) []string {
-	return []string{}
-}
-
-//----------------------------------------------------------------------------------------------------
-
 func removeOtherSymbols(in string) string {
-	in = strings.ToLower(in)
 	in = strings.ReplaceAll(in, "_", " ")
 	in = strings.ReplaceAll(in, "\n", " ")
 	in = strings.ReplaceAll(in, "\t", " ")
@@ -137,6 +105,22 @@ func removeOtherSymbols(in string) string {
 }
 
 // определяем количество вхождений по каждому слову ([слово]число вхождений )
+func determineNumberOfOccurrencesWithOutAsterisk(inArray []string) map[string]int {
+	occurrenceMap := map[string]int{}
+	for i := range inArray {
+		item := inArray[i]
+		value := occurrenceMap[item]
+		value++
+		occurrenceMap[item] = value
+	}
+	for key1, value1 := range occurrenceMap {
+		fmt.Println(value1, ":", key1)
+	}
+	return occurrenceMap
+}
+
+// определяем количество вхождений по каждому слову ([слово]число вхождений )
+// не учитываем символ одиночного тире как слово
 func determineNumberOfOccurrences(inArray []string) map[string]int {
 	occurrenceMap := map[string]int{}
 	for i := range inArray {
