@@ -2,6 +2,7 @@ package hw03frequencyanalysis
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -89,6 +90,9 @@ func Top10_01(in string) []string {
 
 //-----------------------------------------------------------------------------------------------------------
 
+// var r = regexp.MustCompile("[a-z]*.*8,*:*;*!*?*-*(*)*\"*[a-z]*")
+var r = regexp.MustCompile("[a-z]*.*[a-z]*")
+
 func Top10(in string) []string {
 	// Place your code here.
 	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -102,15 +106,38 @@ func Top10(in string) []string {
 	// преобразуем в нижний регистр
 	in = strings.ToLower(in)
 	fmt.Println(in)
+	fmt.Println("---------------------021---------------------")
+	ins := r.FindAllString(in, -1)
+	fmt.Println(ins)
+	for i := range ins {
+		fmt.Println("-------021-------->>")
+		s := ins[i]
+		fmt.Println(s)
+		fmt.Println("<------021-------->")
+		sr := r.FindString(s)
+		fmt.Println(sr)
+		fmt.Println("<------021-------->")
+		//sr2 := r.
+		//fmt.Println(sr2)
+		fmt.Println("<<-----021---------")
+	}
 	fmt.Println("---------------------03----------------------")
-	// удаляем ненужные символы
-	in = removeOtherSymbols(in)
-	fmt.Println("---------------------04----------------------")
 	// разделяем по отступам
 	inArray := strings.Fields(in)
 	for i := range inArray {
-		fmt.Println(inArray[i])
+		fmt.Println("----------------->>")
+		s := inArray[i]
+		fmt.Println(s)
+		fmt.Println("<--------1-------->")
+		sr := r.FindString(s)
+		fmt.Println(sr)
+		fmt.Println("<--------2-------->")
+		//sr2 := r.
+		//fmt.Println(sr2)
+		fmt.Println("<<-----------------")
 	}
+	fmt.Println("---------------------04----------------------")
+
 	fmt.Println("---------------------05----------------------")
 	// определяем количество вхождений по каждому слову ([слово]число вхождений )
 	occurrenceMap := determineNumberOfOccurrences(inArray)
@@ -124,10 +151,29 @@ func Top10(in string) []string {
 	fmt.Println("---------------------08----------------------")
 	// выстраиваем сгруппированые слова в одну последовательность, в порядке от максимальных вхождений к минимальным
 	// ограничиваем длину последовательности 10-ю словами
-	out := buildOutSlice(maxOccurrence, groupedOccurrenceMap)
+
+	out := make([]string, 0, 10)
+	for i := maxOccurrence; i > 0; i-- {
+		value2 := groupedOccurrenceMap[i]
+		if value2 == nil {
+			continue
+		}
+		for j := range value2 {
+			out = append(out, value2[j])
+		}
+	}
+	fmt.Println(out)
 	fmt.Println("---------------------08----------------------")
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+	//-------------------------------------------------------------------------
+
+	/*// удаляем ненужные символы
+	in = removeOtherSymbols(in)
+
 	//strings.Fields()
+	*/
+
+	//return []string{}
 	return out
 }
 
