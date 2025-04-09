@@ -82,6 +82,8 @@ func TestTop10(t *testing.T) {
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
+// тест для примера из readme задания
+
 var textTop7 = "cat and dog, one dog,two cats and one man"
 
 func TestTop7(t *testing.T) {
@@ -102,11 +104,35 @@ func TestTop7(t *testing.T) {
 	})
 }
 
+// ------------------------------------------------------------------------------------------------------------------------
+// тесты для вспомогательных функций
+
 func TestDetermineNumberOfOccurrences(t *testing.T) {
-	ins := []string{"cat", "and", "dog,two", "dog,", "one", "dog,two", "cats", "and", "one", "dog,two", "man"}
+	in := []string{"cat", "and", "dog,two", "dog,", "one", "dog,two", "cats", "and", "one", "dog,two", "man"}
 	outExpected := map[string]int{"cat": 1, "and": 2, "cats": 1, "dog,": 1, "dog,two": 3, "man": 1, "one": 2}
-	t.Run("positive test", func(t *testing.T) {
-		outActual := determineNumberOfOccurrences(ins)
+	t.Run("positive test determineNumberOfOccurrences func", func(t *testing.T) {
+		outActual := determineNumberOfOccurrences(in)
+		require.Equal(t, outExpected, outActual)
+	})
+}
+
+func TestGroupByOccurrence(t *testing.T) {
+	in := map[string]int{"cat": 1, "and": 2, "cats": 1, "dog,": 1, "dog,two": 3, "man": 1, "one": 2}
+	maxExpected := 3
+	mapExpected := map[int][]string{1: {"man", "cat", "cats", "dog,"}, 2: {"one", "and"}, 3: {"dog,two"}}
+	t.Run("positive test groupByOccurrence func", func(t *testing.T) {
+		maxActual, mapActual := groupByOccurrence(in)
+		require.Equal(t, maxExpected, maxActual)
+		require.Equal(t, mapExpected, mapActual)
+	})
+}
+
+func TestSortGroupByOccurrence(t *testing.T) {
+	in := map[int][]string{1: {"man", "cat", "cats", "dog,"}, 2: {"one", "and"}, 3: {"dog,two"}}
+	outExpected := map[int][]string{1: {"cat", "cats", "dog,", "man"}, 2: {"and", "one"}, 3: {"dog,two"}}
+	t.Run("positive test sortGroupedOccurrence func", func(t *testing.T) {
+		sortGroupedOccurrence(in)
+		outActual := in
 		require.Equal(t, outExpected, outActual)
 	})
 }
