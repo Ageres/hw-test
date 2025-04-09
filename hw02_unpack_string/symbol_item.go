@@ -2,6 +2,7 @@ package hw02unpackstring
 
 import (
 	"strconv"
+	"strings"
 	"unicode"
 )
 
@@ -64,4 +65,14 @@ func defineIfItemIsSlashed(itemNumber int, inRunes []rune) bool {
 		}
 	}
 	return isSlashed
+}
+
+func (si *SymbolItem) RepeatWith(nextRef *SymbolItem) string {
+	var sb strings.Builder
+	if nextRef.Type == IsDigit { // если следующий символ некая цифра x, то записать текущий символ x раз
+		sb.WriteString(strings.Repeat(string(si.Item), nextRef.ValueInt))
+	} else { // если следующий символ не цифра, то записать текущий символ 1 раз
+		sb.WriteRune(si.Item)
+	}
+	return sb.String()
 }
