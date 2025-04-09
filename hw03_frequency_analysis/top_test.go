@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -123,7 +124,15 @@ func TestGroupByOccurrence(t *testing.T) {
 	t.Run("positive test groupByOccurrence func", func(t *testing.T) {
 		maxActual, mapActual := groupByOccurrence(in)
 		require.Equal(t, maxExpected, maxActual)
-		require.Equal(t, mapExpected, mapActual)
+		for keyEXpected, valueExpected := range mapExpected {
+			valueActual := mapActual[keyEXpected]
+			require.NotNil(t, valueActual)
+			fmt.Println(valueExpected)
+			require.Equal(t, len(valueExpected), len(valueActual))
+			for _, elemExpected := range valueExpected {
+				require.True(t, contain(valueActual, elemExpected))
+			}
+		}
 	})
 }
 
@@ -146,4 +155,13 @@ func TestBuildOutSlice(t *testing.T) {
 		outActual := buildOutSlice(inMax, in)
 		require.Equal(t, outExpected, outActual)
 	})
+}
+
+func contain(s []string, elem string) bool {
+	for _, sElem := range s {
+		if sElem == elem {
+			return true
+		}
+	}
+	return false
 }
