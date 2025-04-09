@@ -1,7 +1,6 @@
 package hw03frequencyanalysis
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 )
@@ -10,35 +9,14 @@ import (
 
 func Top10(in string) []string {
 	// Place your code here.
-	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	fmt.Println("in:", in)
-	fmt.Println("---------------------01----------------------")
-	// отсекаем исключение - пустая строка
-	if in == "" {
+	if in == "" { // отсекаем исключение - пустая строка
 		return []string{}
 	}
-	fmt.Println("---------------------02---------------------")
-	// разделяем по отступам
-	inArray := strings.Fields(in)
-	for i := range inArray {
-		fmt.Println("inArray[", i, "]", inArray[i])
-	}
-	fmt.Println("---------------------03----------------------")
-	// определяем количество вхождений по каждому слову ([слово]число вхождений )
+	inArray := strings.Fields(in) // разделяем по отступам
 	occurrenceMap := determineNumberOfOccurrences(inArray)
-	fmt.Println("---------------------04----------------------")
-	// строим карту группировки слов по числу вхождений ([число вхождений]слово)
-	// определяем максимальное число вхождений для использования в алгоритме сортировки по алфавиту
 	maxOccurrence, groupedOccurrenceMap := groupByOccurrence(occurrenceMap)
-	fmt.Println("---------------------05----------------------")
-	// сортируем сгрупированные слова в алфавином порядке
 	sortGroupedOccurrence(groupedOccurrenceMap)
-	fmt.Println("---------------------06----------------------")
-	// выстраиваем сгруппированые слова в одну последовательность, в порядке от максимальных вхождений к минимальным
-	// ограничиваем длину последовательности 10-ю словами
 	out := buildOutSlice(maxOccurrence, groupedOccurrenceMap)
-	fmt.Println("---------------------07----------------------")
-	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	return out
 }
 
@@ -53,9 +31,6 @@ func determineNumberOfOccurrences(inArray []string) map[string]int {
 		value := occurrenceMap[item]
 		value++
 		occurrenceMap[item] = value
-	}
-	for key1, value1 := range occurrenceMap {
-		fmt.Println(value1, ":", key1)
 	}
 	return occurrenceMap
 }
@@ -74,9 +49,6 @@ func groupByOccurrence(occurrenceMap map[string]int) (int, map[int][]string) {
 		value2 = append(value2, key1)
 		groupedOccurrenceMap[key2] = value2
 	}
-	for key2, value2 := range groupedOccurrenceMap {
-		fmt.Println(key2, ": ", value2)
-	}
 	return maxOccurrence, groupedOccurrenceMap
 }
 
@@ -87,7 +59,6 @@ func sortGroupedOccurrence(groupedOccurrenceMap map[int][]string) {
 		sort.Slice(value2, func(i, j int) bool {
 			return value2[i] < value2[j]
 		})
-		fmt.Println(key2, ": ", value2)
 	}
 }
 
@@ -114,6 +85,5 @@ func buildOutSlice(maxOccurrence int, groupedOccurrenceMap map[int][]string) []s
 			break
 		}
 	}
-	fmt.Println(out)
 	return out
 }
