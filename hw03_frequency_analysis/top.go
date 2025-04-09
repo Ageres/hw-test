@@ -27,7 +27,7 @@ func Top10(in string) []string {
 func determineNumberOfOccurrences(inArray []string) map[string]int {
 	occurrenceMap := map[string]int{}
 	for _, item := range inArray {
-		occurrenceMap[item] = occurrenceMap[item] + 1
+		occurrenceMap[item]++
 	}
 	return occurrenceMap
 }
