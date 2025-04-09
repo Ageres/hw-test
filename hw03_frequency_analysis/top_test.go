@@ -1,7 +1,6 @@
 package hw03frequencyanalysis
 
 import (
-	"fmt"
 	"testing"
 
 	"slices"
@@ -129,7 +128,6 @@ func TestGroupByOccurrence(t *testing.T) {
 		for keyEXpected, valueExpected := range mapExpected {
 			valueActual := mapActual[keyEXpected]
 			require.NotNil(t, valueActual)
-			fmt.Println(valueExpected)
 			require.Equal(t, len(valueExpected), len(valueActual))
 			for _, elemExpected := range valueExpected {
 				require.True(t, slices.Contains(valueActual, elemExpected))
