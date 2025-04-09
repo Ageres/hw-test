@@ -10,7 +10,7 @@ import (
 func Top10(in string) []string {
 	// Place your code here.
 	if in == "" { // отсекаем исключение - пустая строка
-		return []string{}
+		return nil
 	}
 	inArray := strings.Fields(in) // разделяем по отступам
 	occurrenceMap := determineNumberOfOccurrences(inArray)
@@ -26,11 +26,8 @@ func Top10(in string) []string {
 // определяем количество вхождений по каждому слову ([слово]число вхождений).
 func determineNumberOfOccurrences(inArray []string) map[string]int {
 	occurrenceMap := map[string]int{}
-	for i := range inArray {
-		item := inArray[i]
-		value := occurrenceMap[item]
-		value++
-		occurrenceMap[item] = value
+	for _, item := range inArray {
+		occurrenceMap[item] = occurrenceMap[item] + 1
 	}
 	return occurrenceMap
 }
