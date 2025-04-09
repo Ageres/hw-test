@@ -136,3 +136,14 @@ func TestSortGroupByOccurrence(t *testing.T) {
 		require.Equal(t, outExpected, outActual)
 	})
 }
+
+func TestBuildOutSlice(t *testing.T) {
+	inMax := 3
+	in := map[int][]string{1: {"cat", "cats", "dog,", "man"}, 2: {"and", "one"}, 3: {"dog,two"}}
+	outExpected := []string{"dog,two", "and", "one", "cat", "cats", "dog,", "man"}
+	t.Run("positive test buildOutSlice func", func(t *testing.T) {
+		sortGroupedOccurrence(in)
+		outActual := buildOutSlice(inMax, in)
+		require.Equal(t, outExpected, outActual)
+	})
+}
