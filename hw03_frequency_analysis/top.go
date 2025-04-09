@@ -23,7 +23,7 @@ func Top10(in string) []string {
 //----------------------------------------------------------------------------------------------------
 // вспомогательные функции
 
-// определяем количество вхождений по каждому слову ([слово]число вхождений )
+// определяем количество вхождений по каждому слову ([слово]число вхождений).
 func determineNumberOfOccurrences(inArray []string) map[string]int {
 	occurrenceMap := map[string]int{}
 	for i := range inArray {
@@ -36,7 +36,7 @@ func determineNumberOfOccurrences(inArray []string) map[string]int {
 }
 
 // строим карту вхождений ([число вхождений]слово)
-// определяем максимальное число вхождений для использование в алгоритме сортировки по алфавиту
+// определяем максимальное число вхождений для использование в алгоритме сортировки по алфавиту.
 func groupByOccurrence(occurrenceMap map[string]int) (int, map[int][]string) {
 	maxOccurrence := 0
 	groupedOccurrenceMap := map[int][]string{}
@@ -52,7 +52,7 @@ func groupByOccurrence(occurrenceMap map[string]int) (int, map[int][]string) {
 	return maxOccurrence, groupedOccurrenceMap
 }
 
-// сортируем сгрупированные слова в алфавином порядке
+// сортируем сгрупированные слова в алфавином порядке.
 func sortGroupedOccurrence(groupedOccurrenceMap map[int][]string) {
 	for key2, value2 := range groupedOccurrenceMap {
 		groupedOccurrenceMap[key2] = value2
@@ -63,12 +63,12 @@ func sortGroupedOccurrence(groupedOccurrenceMap map[int][]string) {
 }
 
 // выстраиваем сгруппированые слова в одну последовательность, в порядке от максимальных вхождений к минимальным
-// ограничиваем длину последовательности 10-ю словами
-const OUT_SIZE_MAX = 10
+// ограничиваем длину последовательности 10-ю словами.
+const OutSizeMax = 10
 
 func buildOutSlice(maxOccurrence int, groupedOccurrenceMap map[int][]string) []string {
 	count := 0
-	out := make([]string, 0, OUT_SIZE_MAX)
+	out := make([]string, 0, OutSizeMax)
 	for i := maxOccurrence; i > 0; i-- {
 		value2 := groupedOccurrenceMap[i]
 		if value2 == nil {
