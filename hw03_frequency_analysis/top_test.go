@@ -76,7 +76,7 @@ func TestTop10(t *testing.T) {
 				"не",        // 4
 				"то",        // 4
 			}
-			require.Equal(t, expected, Top10WithOutAsterisk(text))
+			require.Equal(t, expected, Top10(text))
 		}
 	})
 }
@@ -86,7 +86,7 @@ var textTop7 = "cat and dog, one dog,two cats and one man"
 
 func TestTop7(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		require.Len(t, Top10WithOutAsterisk(""), 0)
+		require.Len(t, Top10(""), 0)
 	})
 	t.Run("positive test", func(t *testing.T) {
 		expected := []string{
@@ -98,6 +98,15 @@ func TestTop7(t *testing.T) {
 			"dog,two", // 1
 			"man",     // 1
 		}
-		require.Equal(t, expected, Top10WithOutAsterisk(textTop7))
+		require.Equal(t, expected, Top10(textTop7))
+	})
+}
+
+func TestDetermineNumberOfOccurrences(t *testing.T) {
+	ins := []string{"cat", "and", "dog,two", "dog,", "one", "dog,two", "cats", "and", "one", "dog,two", "man"}
+	outExpected := map[string]int{"cat": 1, "and": 2, "cats": 1, "dog,": 1, "dog,two": 3, "man": 1, "one": 2}
+	t.Run("positive test", func(t *testing.T) {
+		outActual := determineNumberOfOccurrences(ins)
+		require.Equal(t, outExpected, outActual)
 	})
 }
