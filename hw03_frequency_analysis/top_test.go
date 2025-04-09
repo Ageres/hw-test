@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"slices"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -130,7 +132,7 @@ func TestGroupByOccurrence(t *testing.T) {
 			fmt.Println(valueExpected)
 			require.Equal(t, len(valueExpected), len(valueActual))
 			for _, elemExpected := range valueExpected {
-				require.True(t, contain(valueActual, elemExpected))
+				require.True(t, slices.Contains(valueActual, elemExpected))
 			}
 		}
 	})
@@ -155,13 +157,4 @@ func TestBuildOutSlice(t *testing.T) {
 		outActual := buildOutSlice(inMax, in)
 		require.Equal(t, outExpected, outActual)
 	})
-}
-
-func contain(s []string, elem string) bool {
-	for _, sElem := range s {
-		if sElem == elem {
-			return true
-		}
-	}
-	return false
 }
