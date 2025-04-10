@@ -60,9 +60,6 @@ func sortWordItem(wordItems []WordItem) []WordItem {
 			cmp.Compare(a.Word, b.Word),
 		)
 	})
-	for i, w := range wordItems {
-		fmt.Println("---------i[", i, "] = ", w)
-	}
 	return wordItems
 }
 
@@ -76,6 +73,9 @@ func buildOutSlice(wordItems []WordItem) []string {
 	for i := range maxItem {
 		wordItem := wordItems[i]
 		out = append(out, wordItem.Word)
+	}
+	for i, w := range wordItems {
+		fmt.Println("---------i[", i, "] = ", w)
 	}
 	return out
 }

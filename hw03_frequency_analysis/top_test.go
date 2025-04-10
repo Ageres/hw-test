@@ -226,47 +226,40 @@ func TestSortWordItem(t *testing.T) {
 	})
 }
 
-/*
-func TestGroupByOccurrence(t *testing.T) {
-	in := map[string]int{"cat": 1, "and": 2, "cats": 1, "dog,": 1, "dog,two": 3, "man": 1, "one": 2}
-	maxExpected := 3
-	mapExpected := map[int][]string{1: {"man", "cat", "cats", "dog,"}, 2: {"one", "and"}, 3: {"dog,two"}}
-	t.Run("positive test groupByOccurrence func", func(t *testing.T) {
-		maxActual, mapActual := groupByOccurrence(in)
-		require.Equal(t, maxExpected, maxActual)
-		for keyEXpected, valueExpected := range mapExpected {
-			valueActual := mapActual[keyEXpected]
-			require.NotNil(t, valueActual)
-			require.Equal(t, len(valueExpected), len(valueActual))
-			for _, elemExpected := range valueExpected {
-				require.True(t, slices.Contains(valueActual, elemExpected))
-			}
-		}
-	})
-}
-*/
-
-/*
-func TestSortGroupByOccurrence(t *testing.T) {
-	in := map[int][]string{1: {"man", "cat", "cats", "dog,"}, 2: {"one", "and"}, 3: {"dog,two"}}
-	outExpected := map[int][]string{1: {"cat", "cats", "dog,", "man"}, 2: {"and", "one"}, 3: {"dog,two"}}
-	t.Run("positive test sortGroupedOccurrence func", func(t *testing.T) {
-		sortGroupedOccurrence(in)
-		outActual := in
-		require.Equal(t, outExpected, outActual)
-	})
-}
-*/
-
-/*
 func TestBuildOutSlice(t *testing.T) {
-	inMax := 3
-	in := map[int][]string{1: {"cat", "cats", "dog,", "man"}, 2: {"and", "one"}, 3: {"dog,two"}}
+	in := []WordItem{
+		{
+			Occurrence: 3,
+			Word:       "dog,two",
+		},
+		{
+			Occurrence: 2,
+			Word:       "and",
+		},
+		{
+			Occurrence: 2,
+			Word:       "one",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cat",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cats",
+		},
+		{
+			Occurrence: 1,
+			Word:       "dog,",
+		},
+		{
+			Occurrence: 1,
+			Word:       "man",
+		},
+	}
 	outExpected := []string{"dog,two", "and", "one", "cat", "cats", "dog,", "man"}
 	t.Run("positive test buildOutSlice func", func(t *testing.T) {
-		sortGroupedOccurrence(in)
-		outActual := buildOutSlice(inMax, in)
+		outActual := buildOutSlice(in)
 		require.Equal(t, outExpected, outActual)
 	})
 }
-*/
