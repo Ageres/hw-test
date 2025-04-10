@@ -1,7 +1,9 @@
 package hw03frequencyanalysis
 
 import (
-	"sort"
+	"cmp"
+	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -14,14 +16,19 @@ func Top10(in string) []string {
 	}
 	inArray := strings.Fields(in) // разделяем по отступам
 	occurrenceMap := determineNumberOfOccurrences(inArray)
-	maxOccurrence, groupedOccurrenceMap := groupByOccurrence(occurrenceMap)
-	sortGroupedOccurrence(groupedOccurrenceMap)
-	out := buildOutSlice(maxOccurrence, groupedOccurrenceMap)
+	wordItems := buildWordItems(occurrenceMap)
+	sortedWordItems := sortWordItem(wordItems)
+	out := buildOutSlice(sortedWordItems)
 	return out
 }
 
 //----------------------------------------------------------------------------------------------------
 // вспомогательные функции
+
+type WordItem struct {
+	Occurrence int    // число вхождений
+	Word       string // слово
+}
 
 // определяем количество вхождений по каждому слову ([слово]число вхождений).
 func determineNumberOfOccurrences(inArray []string) map[string]int {
@@ -32,55 +39,43 @@ func determineNumberOfOccurrences(inArray []string) map[string]int {
 	return occurrenceMap
 }
 
-// строим карту вхождений ([число вхождений]слово)
-// определяем максимальное число вхождений для использование в алгоритме сортировки по алфавиту.
-func groupByOccurrence(occurrenceMap map[string]int) (int, map[int][]string) {
-	maxOccurrence := 0
-	groupedOccurrenceMap := map[int][]string{}
-	for key1, value1 := range occurrenceMap {
-		if value1 > maxOccurrence {
-			maxOccurrence = value1
+// строим слайс объектов WordItem {число вхождений, слово}.
+func buildWordItems(occurrenceMap map[string]int) []WordItem {
+	var wordItems []WordItem
+	for word, occurrence := range occurrenceMap {
+		wordItem := WordItem{
+			Occurrence: occurrence,
+			Word:       word,
 		}
-		key2 := value1
-		value2 := groupedOccurrenceMap[key2]
-		value2 = append(value2, key1)
-		groupedOccurrenceMap[key2] = value2
+		wordItems = append(wordItems, wordItem)
 	}
-	return maxOccurrence, groupedOccurrenceMap
+	return wordItems
 }
 
-// сортируем сгрупированные слова в алфавином порядке.
-func sortGroupedOccurrence(groupedOccurrenceMap map[int][]string) {
-	for key2, value2 := range groupedOccurrenceMap {
-		groupedOccurrenceMap[key2] = value2
-		sort.Slice(value2, func(i, j int) bool {
-			return value2[i] < value2[j]
-		})
+// сортируем объекты WordItem по вхождению и алфавитному порядку.
+func sortWordItem(wordItems []WordItem) []WordItem {
+	slices.SortFunc(wordItems, func(a, b WordItem) int {
+		return cmp.Or(
+			cmp.Compare(b.Occurrence, a.Occurrence),
+			cmp.Compare(a.Word, b.Word),
+		)
+	})
+	for i, w := range wordItems {
+		fmt.Println("---------i[", i, "] = ", w)
 	}
+	return wordItems
 }
 
 // выстраиваем сгруппированые слова в одну последовательность, в порядке от максимальных вхождений к минимальным
 // ограничиваем длину последовательности 10-ю словами.
 const OutSizeMax = 10
 
-func buildOutSlice(maxOccurrence int, groupedOccurrenceMap map[int][]string) []string {
-	count := 0
-	out := make([]string, 0, OutSizeMax)
-	for i := maxOccurrence; i > 0; i-- {
-		value2 := groupedOccurrenceMap[i]
-		if value2 == nil {
-			continue
-		}
-		for j := range value2 {
-			out = append(out, value2[j])
-			count++
-			if count == 10 {
-				break
-			}
-		}
-		if count == 10 {
-			break
-		}
+func buildOutSlice(wordItems []WordItem) []string {
+	maxItem := min(len(wordItems), OutSizeMax)
+	out := make([]string, 0, maxItem)
+	for i := range maxItem {
+		wordItem := wordItems[i]
+		out = append(out, wordItem.Word)
 	}
 	return out
 }

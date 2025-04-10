@@ -117,6 +117,48 @@ func TestDetermineNumberOfOccurrences(t *testing.T) {
 	})
 }
 
+func TestBuildWordItems(t *testing.T) {
+	in := map[string]int{"cat": 1, "and": 2, "cats": 1, "dog,": 1, "dog,two": 3, "man": 1, "one": 2}
+	wordItemsExpected := []WordItem{
+		{
+			Occurrence: 1,
+			Word:       "man",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cat",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cats",
+		},
+		{
+			Occurrence: 1,
+			Word:       "dog,",
+		},
+		{
+			Occurrence: 2,
+			Word:       "one",
+		},
+		{
+			Occurrence: 2,
+			Word:       "and",
+		},
+		{
+			Occurrence: 3,
+			Word:       "dog,two",
+		},
+	}
+	t.Run("positive test TestBuildWordItems func", func(t *testing.T) {
+		wordItemsActual := buildWordItems(in)
+		require.Equal(t, len(wordItemsExpected), len(wordItemsActual))
+		for _, elemExpected := range wordItemsExpected {
+			require.True(t, slices.Contains(wordItemsActual, elemExpected))
+		}
+	})
+}
+
+/*
 func TestGroupByOccurrence(t *testing.T) {
 	in := map[string]int{"cat": 1, "and": 2, "cats": 1, "dog,": 1, "dog,two": 3, "man": 1, "one": 2}
 	maxExpected := 3
@@ -134,7 +176,9 @@ func TestGroupByOccurrence(t *testing.T) {
 		}
 	})
 }
+*/
 
+/*
 func TestSortGroupByOccurrence(t *testing.T) {
 	in := map[int][]string{1: {"man", "cat", "cats", "dog,"}, 2: {"one", "and"}, 3: {"dog,two"}}
 	outExpected := map[int][]string{1: {"cat", "cats", "dog,", "man"}, 2: {"and", "one"}, 3: {"dog,two"}}
@@ -144,7 +188,9 @@ func TestSortGroupByOccurrence(t *testing.T) {
 		require.Equal(t, outExpected, outActual)
 	})
 }
+*/
 
+/*
 func TestBuildOutSlice(t *testing.T) {
 	inMax := 3
 	in := map[int][]string{1: {"cat", "cats", "dog,", "man"}, 2: {"and", "one"}, 3: {"dog,two"}}
@@ -155,3 +201,4 @@ func TestBuildOutSlice(t *testing.T) {
 		require.Equal(t, outExpected, outActual)
 	})
 }
+*/
