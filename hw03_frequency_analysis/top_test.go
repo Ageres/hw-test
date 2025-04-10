@@ -149,12 +149,80 @@ func TestBuildWordItems(t *testing.T) {
 			Word:       "dog,two",
 		},
 	}
-	t.Run("positive test TestBuildWordItems func", func(t *testing.T) {
+	t.Run("positive test buildWordItems func", func(t *testing.T) {
 		wordItemsActual := buildWordItems(in)
 		require.Equal(t, len(wordItemsExpected), len(wordItemsActual))
 		for _, elemExpected := range wordItemsExpected {
 			require.True(t, slices.Contains(wordItemsActual, elemExpected))
 		}
+	})
+}
+
+func TestSortWordItem(t *testing.T) {
+	in := []WordItem{
+		{
+			Occurrence: 1,
+			Word:       "man",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cat",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cats",
+		},
+		{
+			Occurrence: 1,
+			Word:       "dog,",
+		},
+		{
+			Occurrence: 2,
+			Word:       "one",
+		},
+		{
+			Occurrence: 2,
+			Word:       "and",
+		},
+		{
+			Occurrence: 3,
+			Word:       "dog,two",
+		},
+	}
+	outExpected := []WordItem{
+		{
+			Occurrence: 3,
+			Word:       "dog,two",
+		},
+		{
+			Occurrence: 2,
+			Word:       "and",
+		},
+		{
+			Occurrence: 2,
+			Word:       "one",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cat",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cats",
+		},
+		{
+			Occurrence: 1,
+			Word:       "dog,",
+		},
+		{
+			Occurrence: 1,
+			Word:       "man",
+		},
+	}
+	t.Run("positive test sortWordItem func", func(t *testing.T) {
+		sortWordItem(in)
+		outActual := in
+		require.Equal(t, outExpected, outActual)
 	})
 }
 
