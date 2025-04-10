@@ -41,7 +41,7 @@ func determineNumberOfOccurrences(inArray []string) map[string]int {
 
 // строим слайс объектов WordItem {число вхождений, слово}.
 func buildWordItems(occurrenceMap map[string]int) []WordItem {
-	var wordItems []WordItem
+	wordItems := make([]WordItem, 0, len(occurrenceMap))
 	for word, occurrence := range occurrenceMap {
 		wordItem := WordItem{
 			Occurrence: occurrence,
