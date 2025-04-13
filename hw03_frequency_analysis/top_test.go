@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -78,5 +79,187 @@ func TestTop10(t *testing.T) {
 			}
 			require.Equal(t, expected, Top10(text))
 		}
+	})
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// тест для примера из readme задания
+
+var textTop7 = "cat and dog, one dog,two cats and one man"
+
+func TestTop7(t *testing.T) {
+	t.Run("no words in empty string", func(t *testing.T) {
+		require.Len(t, Top10(""), 0)
+	})
+	t.Run("positive test", func(t *testing.T) {
+		expected := []string{
+			"and",     // 2
+			"one",     // 2
+			"cat",     // 1
+			"cats",    // 1
+			"dog,",    // 1
+			"dog,two", // 1
+			"man",     // 1
+		}
+		require.Equal(t, expected, Top10(textTop7))
+	})
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// тесты для вспомогательных функций
+
+func TestDetermineNumberOfOccurrences(t *testing.T) {
+	in := []string{"cat", "and", "dog,two", "dog,", "one", "dog,two", "cats", "and", "one", "dog,two", "man"}
+	outExpected := map[string]int{"cat": 1, "and": 2, "cats": 1, "dog,": 1, "dog,two": 3, "man": 1, "one": 2}
+	t.Run("positive test determineNumberOfOccurrences func", func(t *testing.T) {
+		outActual := determineNumberOfOccurrences(in)
+		require.Equal(t, outExpected, outActual)
+	})
+}
+
+func TestBuildWordItems(t *testing.T) {
+	in := map[string]int{"cat": 1, "and": 2, "cats": 1, "dog,": 1, "dog,two": 3, "man": 1, "one": 2}
+	wordItemsExpected := []WordItem{
+		{
+			Occurrence: 1,
+			Word:       "man",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cat",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cats",
+		},
+		{
+			Occurrence: 1,
+			Word:       "dog,",
+		},
+		{
+			Occurrence: 2,
+			Word:       "one",
+		},
+		{
+			Occurrence: 2,
+			Word:       "and",
+		},
+		{
+			Occurrence: 3,
+			Word:       "dog,two",
+		},
+	}
+	t.Run("positive test buildWordItems func", func(t *testing.T) {
+		wordItemsActual := buildWordItems(in)
+		require.Equal(t, len(wordItemsExpected), len(wordItemsActual))
+		for _, elemExpected := range wordItemsExpected {
+			require.True(t, slices.Contains(wordItemsActual, elemExpected))
+		}
+	})
+}
+
+func TestSortWordItem(t *testing.T) {
+	in := []WordItem{
+		{
+			Occurrence: 1,
+			Word:       "man",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cat",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cats",
+		},
+		{
+			Occurrence: 1,
+			Word:       "dog,",
+		},
+		{
+			Occurrence: 2,
+			Word:       "one",
+		},
+		{
+			Occurrence: 2,
+			Word:       "and",
+		},
+		{
+			Occurrence: 3,
+			Word:       "dog,two",
+		},
+	}
+	outExpected := []WordItem{
+		{
+			Occurrence: 3,
+			Word:       "dog,two",
+		},
+		{
+			Occurrence: 2,
+			Word:       "and",
+		},
+		{
+			Occurrence: 2,
+			Word:       "one",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cat",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cats",
+		},
+		{
+			Occurrence: 1,
+			Word:       "dog,",
+		},
+		{
+			Occurrence: 1,
+			Word:       "man",
+		},
+	}
+	t.Run("positive test sortWordItem func", func(t *testing.T) {
+		sortWordItem(in)
+		outActual := in
+		require.Equal(t, outExpected, outActual)
+	})
+}
+
+func TestBuildOutSlice(t *testing.T) {
+	in := []WordItem{
+		{
+			Occurrence: 3,
+			Word:       "dog,two",
+		},
+		{
+			Occurrence: 2,
+			Word:       "and",
+		},
+		{
+			Occurrence: 2,
+			Word:       "one",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cat",
+		},
+		{
+			Occurrence: 1,
+			Word:       "cats",
+		},
+		{
+			Occurrence: 1,
+			Word:       "dog,",
+		},
+		{
+			Occurrence: 1,
+			Word:       "man",
+		},
+	}
+	outExpected := []string{"dog,two", "and", "one", "cat", "cats", "dog,", "man"}
+	t.Run("positive test buildOutSlice func", func(t *testing.T) {
+		outActual := buildOutSlice(in)
+		require.Equal(t, outExpected, outActual)
 	})
 }
