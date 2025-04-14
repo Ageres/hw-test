@@ -94,6 +94,7 @@ func (l *list) Remove(listItem *ListItem) {
 
 	listItem.next = nil
 	listItem.prev = nil
+	listItem.value = nil
 	l.len--
 }
 
