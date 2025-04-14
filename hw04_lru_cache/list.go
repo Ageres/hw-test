@@ -72,16 +72,17 @@ func (l *list) Remove(listItem *ListItem) {
 	prev := listItem.prev
 	next := listItem.next
 
-	if prev != nil && next != nil {
+	switch {
+	case prev != nil && next != nil:
 		prev.next = next
 		next.prev = prev
-	} else if prev != nil && next == nil {
+	case prev != nil && next == nil:
 		prev.next = nil
 		l.back = prev
-	} else if prev == nil && next != nil {
+	case prev == nil && next != nil:
 		next.prev = nil
 		l.front = next
-	} else if prev == nil && next == nil {
+	case prev == nil && next == nil:
 		l.front = nil
 		l.back = nil
 	}
