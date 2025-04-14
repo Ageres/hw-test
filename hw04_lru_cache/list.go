@@ -14,7 +14,6 @@ type List interface {
 }
 
 type list struct {
-	List  // Remove me after realization.
 	len   int
 	front *ListItem
 	back  *ListItem
@@ -40,6 +39,7 @@ func (l *list) PushFront(v any) *ListItem {
 	listItemRef := &ListItem{
 		value: v,
 	}
+
 	if l.len == 0 {
 		l.back = listItemRef
 	} else {
@@ -49,7 +49,7 @@ func (l *list) PushFront(v any) *ListItem {
 	}
 	l.front = listItemRef
 	l.len++
-	return l.back
+	return listItemRef
 }
 
 func (l *list) PushBack(v any) *ListItem {
@@ -65,7 +65,7 @@ func (l *list) PushBack(v any) *ListItem {
 	}
 	l.back = listItemRef
 	l.len++
-	return l.back
+	return listItemRef
 }
 
 func (l *list) Remove(listItem *ListItem) {

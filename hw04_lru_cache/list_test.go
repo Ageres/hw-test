@@ -18,6 +18,16 @@ func TestList(t *testing.T) {
 	t.Run("complex", func(t *testing.T) {
 		l := NewList()
 
+		listItem1 := l.PushFront(10) // [10]
+		require.Equal(t, l.Front(), listItem1)
+		require.Equal(t, l.Back(), listItem1)
+		l.Remove(listItem1)
+		require.Nil(t, listItem1.Value())
+		require.Nil(t, listItem1.Next())
+		require.Nil(t, listItem1.Prev())
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+
 		l.PushFront(10) // [10]
 		l.PushBack(20)  // [10, 20]
 		l.PushBack(30)  // [10, 20, 30]
@@ -54,5 +64,6 @@ func TestList(t *testing.T) {
 
 		// TODO добавить тест на проверку корректности перекрестных ссылок после каждого действия (?)
 		// TODO добавить тест на проверку корректности перечня элементов после каждого действия (?)
+		// TODO добавить тест на проверку корректности когда остается один элемент (?)
 	})
 }
