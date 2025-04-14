@@ -123,6 +123,7 @@ func (l *list) MoveToFront(listItem *ListItem) {
 
 //----------------------------------------------------------------------------------------------------
 // ListItem
+
 type ListItem struct {
 	value any
 	next  *ListItem
