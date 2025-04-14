@@ -1,5 +1,8 @@
 package hw04lrucache
 
+//----------------------------------------------------------------------------------------------------
+// List
+
 type List interface {
 	Len() int
 	Front() *ListItem
@@ -10,15 +13,8 @@ type List interface {
 	MoveToFront(i *ListItem)
 }
 
-type ListItem struct {
-	Value any
-	Next  *ListItem
-	Prev  *ListItem
-}
-
 type list struct {
-	List // Remove me after realization.
-	// Place your code here.
+	List  // Remove me after realization.
 	len   int
 	front *ListItem
 	back  *ListItem
@@ -38,4 +34,30 @@ func (l *list) Front() *ListItem {
 
 func (l *list) Back() *ListItem {
 	return l.back
+}
+
+func (l *list) PushFront(v any) *ListItem {
+	if l.len == 0 {
+
+	} else {
+
+	}
+
+	return l.back
+}
+
+//----------------------------------------------------------------------------------------------------
+// ListItem
+type ListItem struct {
+	Value any
+	next  *ListItem
+	prev  *ListItem
+}
+
+func (li *ListItem) Next() *ListItem {
+	return li.next
+}
+
+func (li *ListItem) Prev() *ListItem {
+	return li.prev
 }
