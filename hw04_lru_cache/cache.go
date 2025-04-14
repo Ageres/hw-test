@@ -46,18 +46,18 @@ func (l *lruCache) Set(key Key, value any) bool {
 
 func (l *lruCache) Get(key Key) (any, bool) {
 	oldListItem, ok := l.items[key]
-	oldValue := oldListItem.Value()
+	value := oldListItem.Value()
 	if !ok {
 		return nil, false
 	} else {
 		l.queue.Remove(oldListItem)
-		newListItem := l.queue.PushFront(oldValue)
+		newListItem := l.queue.PushFront(value)
 		l.items[key] = newListItem
-		return oldValue, ok
+		return value, ok
 	}
-
 }
 
 func (l *lruCache) Clear() {
-
+	l.queue = NewList()
+	l.items = make(map[Key]*ListItem, l.capacity)
 }
