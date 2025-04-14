@@ -73,21 +73,27 @@ func (l *list) Remove(listItem *ListItem) {
 	next := listItem.next
 
 	if prev != nil && next != nil {
-
+		prev.next = next
+		next.prev = prev
 	}
 
 	if prev != nil && next == nil {
-
+		prev.next = nil
+		l.back = prev
 	}
 
 	if prev == nil && next != nil {
-
+		next.prev = nil
+		l.front = next
 	}
 
 	if prev == nil && next == nil {
-
+		l.front = nil
+		l.back = nil
 	}
-
+	listItem.next = nil
+	listItem.prev = nil
+	l.len--
 	/*
 		listItemRef := &ListItem{
 			Value: v,
