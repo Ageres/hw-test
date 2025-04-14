@@ -19,16 +19,23 @@ type ListItem struct {
 type list struct {
 	List // Remove me after realization.
 	// Place your code here.
-	len int
+	len   int
+	front *ListItem
+	back  *ListItem
 }
 
 func NewList() List {
 	return new(list)
 }
 
-type MyList struct {
+func (l *list) Len() int {
+	return l.len
 }
 
-func (ml *list) Len() int {
-	return ml.len
+func (l *list) Front() *ListItem {
+	return l.front
+}
+
+func (l *list) Back() *ListItem {
+	return l.back
 }
