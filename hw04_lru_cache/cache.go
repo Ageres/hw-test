@@ -1,7 +1,5 @@
 package hw04lrucache
 
-import "sync"
-
 type Key string
 
 type Cache interface {
@@ -14,7 +12,6 @@ type lruCache struct {
 	capacity int
 	queue    List
 	items    map[Key]*ListItem
-	mu       *sync.Mutex
 }
 
 func NewCache(capacity int) Cache {
@@ -22,7 +19,6 @@ func NewCache(capacity int) Cache {
 		capacity: capacity,
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
-		mu:       new(sync.Mutex),
 	}
 }
 
