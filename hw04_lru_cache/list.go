@@ -91,9 +91,33 @@ func (l *list) Remove(listItem *ListItem) {
 		l.front = nil
 		l.back = nil
 	}
+
 	listItem.next = nil
 	listItem.prev = nil
 	l.len--
+}
+
+func (l *list) MoveToFront(listItem *ListItem) {
+	front := l.front
+	if front == listItem {
+		return
+	}
+
+	prev := listItem.prev
+	next := listItem.next
+
+	if prev != nil && next != nil {
+		prev.next = next
+		next.prev = prev
+	}
+
+	if prev != nil && next == nil {
+		prev.next = nil
+	}
+
+	listItem.next = l.front
+	listItem.prev = nil
+	l.front = listItem
 }
 
 //----------------------------------------------------------------------------------------------------
