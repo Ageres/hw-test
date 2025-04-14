@@ -66,6 +66,7 @@ func TestCache(t *testing.T) {
 
 	t.Run("purge logic", func(t *testing.T) {
 		// Write me
+		require.False(t, false)
 	})
 }
 
