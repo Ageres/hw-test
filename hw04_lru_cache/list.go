@@ -94,21 +94,6 @@ func (l *list) Remove(listItem *ListItem) {
 	listItem.next = nil
 	listItem.prev = nil
 	l.len--
-	/*
-		listItemRef := &ListItem{
-			Value: v,
-		}
-		if l.len == 0 {
-			l.back = listItemRef
-		} else {
-			frontListItem := l.front
-			frontListItem.prev = listItemRef
-			listItemRef.next = frontListItem
-		}
-		l.front = listItemRef
-		l.len++
-	*/
-
 }
 
 //----------------------------------------------------------------------------------------------------
