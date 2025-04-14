@@ -49,13 +49,12 @@ func (l *lruCache) Get(key Key) (any, bool) {
 	oldListItem, ok := l.items[key]
 	if !ok {
 		return nil, false
-	} else {
-		value := oldListItem.Value()
-		l.queue.Remove(oldListItem)
-		newListItem := l.queue.PushFront(value)
-		l.items[key] = newListItem
-		return value, ok
 	}
+	value := oldListItem.Value()
+	l.queue.Remove(oldListItem)
+	newListItem := l.queue.PushFront(value)
+	l.items[key] = newListItem
+	return value, ok
 }
 
 func (l *lruCache) Clear() {
