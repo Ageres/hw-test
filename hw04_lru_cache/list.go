@@ -37,12 +37,34 @@ func (l *list) Back() *ListItem {
 }
 
 func (l *list) PushFront(v any) *ListItem {
-	if l.len == 0 {
-
-	} else {
-
+	listItemRef := &ListItem{
+		Value: v,
 	}
+	if l.len == 0 {
+		l.back = listItemRef
+	} else {
+		frontListItem := l.front
+		frontListItem.prev = listItemRef
+		listItemRef.next = frontListItem
+	}
+	l.front = listItemRef
+	l.len++
+	return l.back
+}
 
+func (l *list) PushBack(v any) *ListItem {
+	listItemRef := &ListItem{
+		Value: v,
+	}
+	if l.len == 0 {
+		l.front = listItemRef
+	} else {
+		backListItem := l.back
+		backListItem.next = listItemRef
+		listItemRef.prev = backListItem
+	}
+	l.back = listItemRef
+	l.len++
 	return l.back
 }
 
