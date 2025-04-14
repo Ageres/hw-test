@@ -38,7 +38,7 @@ func (l *list) Back() *ListItem {
 
 func (l *list) PushFront(v any) *ListItem {
 	listItemRef := &ListItem{
-		Value: v,
+		value: v,
 	}
 	if l.len == 0 {
 		l.back = listItemRef
@@ -54,7 +54,7 @@ func (l *list) PushFront(v any) *ListItem {
 
 func (l *list) PushBack(v any) *ListItem {
 	listItemRef := &ListItem{
-		Value: v,
+		value: v,
 	}
 	if l.len == 0 {
 		l.front = listItemRef
@@ -68,12 +68,37 @@ func (l *list) PushBack(v any) *ListItem {
 	return l.back
 }
 
+func (l *list) Remove(listItem *ListItem) {
+	//prev := listItem.prev
+	//next := listItem.next
+
+	/*
+		listItemRef := &ListItem{
+			Value: v,
+		}
+		if l.len == 0 {
+			l.back = listItemRef
+		} else {
+			frontListItem := l.front
+			frontListItem.prev = listItemRef
+			listItemRef.next = frontListItem
+		}
+		l.front = listItemRef
+		l.len++
+	*/
+
+}
+
 //----------------------------------------------------------------------------------------------------
 // ListItem
 type ListItem struct {
-	Value any
+	value any
 	next  *ListItem
 	prev  *ListItem
+}
+
+func (li *ListItem) Value() any {
+	return li.Value()
 }
 
 func (li *ListItem) Next() *ListItem {
