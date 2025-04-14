@@ -69,8 +69,24 @@ func (l *list) PushBack(v any) *ListItem {
 }
 
 func (l *list) Remove(listItem *ListItem) {
-	//prev := listItem.prev
-	//next := listItem.next
+	prev := listItem.prev
+	next := listItem.next
+
+	if prev != nil && next != nil {
+
+	}
+
+	if prev != nil && next == nil {
+
+	}
+
+	if prev == nil && next != nil {
+
+	}
+
+	if prev == nil && next == nil {
+
+	}
 
 	/*
 		listItemRef := &ListItem{
@@ -98,7 +114,7 @@ type ListItem struct {
 }
 
 func (li *ListItem) Value() any {
-	return li.Value()
+	return li.value
 }
 
 func (li *ListItem) Next() *ListItem {
