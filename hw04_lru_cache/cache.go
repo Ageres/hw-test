@@ -23,18 +23,20 @@ func NewCache(capacity int) Cache {
 }
 
 func (l *lruCache) Set(key Key, value any) bool {
-	_, ok := l.items[key]
+	oldListItem, ok := l.items[key]
 	if !ok {
 		if l.queue.Len() == l.capacity {
 			backListItem := l.queue.Back()
 			for k, v := range l.items {
-				if v == backListItem.Value() {
-					delete(l.items, k) // а если добавляли несколько раз один и тот же элемент с разными ключами?
+				if v == backListItem {
+					delete(l.items, k)
 					break
 				}
 			}
 			l.queue.Remove(backListItem)
 		}
+	} else {
+		l.queue.Remove(oldListItem)
 	}
 	newListItem := l.queue.PushFront(value)
 	l.items[key] = newListItem
