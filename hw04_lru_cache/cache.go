@@ -94,7 +94,6 @@ func (l *lruCache) Get(key Key) (any, bool) {
 
 	resp := <-ch
 	return resp.Value, resp.Ok
-
 }
 
 func (l *lruCache) Clear() {
