@@ -34,11 +34,11 @@ func (l *lruCache) Set(key Key, value any) bool {
 		l.queue.Remove(oldListItem)
 	}
 
-	newCasheItem := &CacheItem{
+	newCacheItem := &CacheItem{
 		Key:   key,
 		Value: value,
 	}
-	newListItem := l.queue.PushFront(newCasheItem)
+	newListItem := l.queue.PushFront(newCacheItem)
 	l.items[key] = newListItem
 	return ok
 }
@@ -52,12 +52,12 @@ func (l *lruCache) Get(key Key) (any, bool) {
 	value := getValue(oldListItem)
 	l.queue.Remove(oldListItem)
 
-	newCasheItem := &CacheItem{
+	newCacheItem := &CacheItem{
 		Key:   key,
 		Value: value,
 	}
 
-	newListItem := l.queue.PushFront(newCasheItem)
+	newListItem := l.queue.PushFront(newCacheItem)
 	l.items[key] = newListItem
 	return value, ok
 }
