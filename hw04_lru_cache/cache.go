@@ -1,5 +1,7 @@
 package hw04lrucache
 
+import "sync"
+
 type Key string
 
 type Cache interface {
@@ -12,6 +14,7 @@ type lruCache struct {
 	capacity int
 	queue    List
 	items    map[Key]*ListItem
+	mu       *sync.Mutex
 }
 
 func NewCache(capacity int) Cache {
@@ -19,47 +22,84 @@ func NewCache(capacity int) Cache {
 		capacity: capacity,
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
+		mu:       new(sync.Mutex),
 	}
 }
 
 func (l *lruCache) Set(key Key, value any) bool {
-	oldListItem, ok := l.items[key]
-	if !ok {
-		if l.queue.Len() == l.capacity {
-			backListItem := l.queue.Back()
-			delete(l.items, getKey(backListItem))
-			l.queue.Remove(backListItem)
-		}
-	} else {
-		l.queue.Remove(oldListItem)
-	}
+	ch := make(chan bool)
 
-	newCacheItem := &cacheItem{
-		Key:   key,
-		Value: value,
-	}
-	newListItem := l.queue.PushFront(newCacheItem)
-	l.items[key] = newListItem
-	return ok
+	go func(mu *sync.Mutex, ch chan bool, key Key, value any) {
+		defer close(ch)
+		mu.Lock()
+
+		oldListItem, ok := l.items[key]
+		if !ok {
+			if l.queue.Len() == l.capacity {
+				backListItem := l.queue.Back()
+				delete(l.items, getKey(backListItem))
+				l.queue.Remove(backListItem)
+			}
+		} else {
+			l.queue.Remove(oldListItem)
+		}
+
+		newCacheItem := &cacheItem{
+			Key:   key,
+			Value: value,
+		}
+		newListItem := l.queue.PushFront(newCacheItem)
+		l.items[key] = newListItem
+		ch <- ok
+
+		mu.Unlock()
+	}(l.mu, ch, key, value)
+
+	return <-ch
+}
+
+type goGetResp struct {
+	Value any
+	Ok    bool
 }
 
 func (l *lruCache) Get(key Key) (any, bool) {
-	oldListItem, ok := l.items[key]
-	if !ok {
-		return nil, false
-	}
+	ch := make(chan goGetResp)
 
-	value := getValue(oldListItem)
-	l.queue.Remove(oldListItem)
+	go func(mu *sync.Mutex, ch chan goGetResp, key Key) {
+		defer close(ch)
+		mu.Lock()
 
-	newCacheItem := &cacheItem{
-		Key:   key,
-		Value: value,
-	}
+		oldListItem, ok := l.items[key]
+		if !ok {
+			ch <- goGetResp{
+				Ok: false,
+			}
+			mu.Unlock()
+			return
+		}
 
-	newListItem := l.queue.PushFront(newCacheItem)
-	l.items[key] = newListItem
-	return value, ok
+		value := getValue(oldListItem)
+		l.queue.Remove(oldListItem)
+
+		newCacheItem := &cacheItem{
+			Key:   key,
+			Value: value,
+		}
+
+		newListItem := l.queue.PushFront(newCacheItem)
+		l.items[key] = newListItem
+		ch <- goGetResp{
+			Value: value,
+			Ok:    ok,
+		}
+
+		mu.Unlock()
+	}(l.mu, ch, key)
+
+	resp := <-ch
+	return resp.Value, resp.Ok
+
 }
 
 func (l *lruCache) Clear() {
