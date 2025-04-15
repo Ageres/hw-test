@@ -27,7 +27,7 @@ func (l *lruCache) Set(key Key, value any) bool {
 	if !ok {
 		if l.queue.Len() == l.capacity {
 			backListItem := l.queue.Back()
-			delete(l.items, backListItem.Value().(*CacheItem).Key)
+			delete(l.items, getKey(backListItem))
 			l.queue.Remove(backListItem)
 		}
 	} else {
@@ -49,7 +49,7 @@ func (l *lruCache) Get(key Key) (any, bool) {
 		return nil, false
 	}
 
-	value := oldListItem.Value().(*CacheItem).Value
+	value := getValue(oldListItem)
 	l.queue.Remove(oldListItem)
 
 	newCasheItem := &CacheItem{
@@ -74,4 +74,12 @@ func (l *lruCache) Clear() {
 type CacheItem struct {
 	Key   Key
 	Value any
+}
+
+func getKey(i *ListItem) Key {
+	return i.Value().(*CacheItem).Key
+}
+
+func getValue(i *ListItem) any {
+	return i.Value().(*CacheItem).Value
 }
