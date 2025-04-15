@@ -12,7 +12,6 @@ type lruCache struct {
 	capacity int
 	queue    List
 	items    map[Key]*ListItem
-	keys     map[*ListItem]Key
 }
 
 func NewCache(capacity int) Cache {
@@ -20,7 +19,6 @@ func NewCache(capacity int) Cache {
 		capacity: capacity,
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
-		keys:     make(map[*ListItem]Key, capacity),
 	}
 }
 
@@ -29,19 +27,19 @@ func (l *lruCache) Set(key Key, value any) bool {
 	if !ok {
 		if l.queue.Len() == l.capacity {
 			backListItem := l.queue.Back()
-			backKey := l.keys[backListItem]
-			delete(l.items, backKey)
-			delete(l.keys, backListItem)
+			delete(l.items, backListItem.Value().(*CacheItem).Key)
 			l.queue.Remove(backListItem)
 		}
 	} else {
-		delete(l.keys, oldListItem)
 		l.queue.Remove(oldListItem)
 	}
 
-	newListItem := l.queue.PushFront(value)
+	newCasheItem := &CacheItem{
+		Key:   key,
+		Value: value,
+	}
+	newListItem := l.queue.PushFront(newCasheItem)
 	l.items[key] = newListItem
-	l.keys[newListItem] = key
 	return ok
 }
 
@@ -51,18 +49,29 @@ func (l *lruCache) Get(key Key) (any, bool) {
 		return nil, false
 	}
 
-	delete(l.keys, oldListItem)
-	value := oldListItem.Value()
+	value := oldListItem.Value().(*CacheItem).Value
 	l.queue.Remove(oldListItem)
 
-	newListItem := l.queue.PushFront(value)
+	newCasheItem := &CacheItem{
+		Key:   key,
+		Value: value,
+	}
+
+	newListItem := l.queue.PushFront(newCasheItem)
 	l.items[key] = newListItem
-	l.keys[newListItem] = key
 	return value, ok
 }
 
 func (l *lruCache) Clear() {
 	l.queue = NewList()
 	l.items = make(map[Key]*ListItem, l.capacity)
-	l.keys = make(map[*ListItem]Key, l.capacity)
+}
+
+//----------------------------------------------------------------------------------------------------
+// CasheItem
+
+// элемент, хранящийся в очереди и словаре в составе ListItem.
+type CacheItem struct {
+	Key   Key
+	Value any
 }
