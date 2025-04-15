@@ -29,8 +29,12 @@ func NewCache(capacity int) Cache {
 func (l *lruCache) Set(key Key, value any) bool {
 	ch := make(chan bool)
 
-	go func(key Key, value any) {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
 		defer close(ch)
+		defer wg.Done()
 		defer l.mu.Unlock()
 		l.mu.Lock()
 
@@ -52,16 +56,23 @@ func (l *lruCache) Set(key Key, value any) bool {
 		newListItem := l.queue.PushFront(newCacheItem)
 		l.items[key] = newListItem
 		ch <- ok
-	}(key, value)
+	}()
 
-	return <-ch
+	resp := <-ch
+	wg.Wait()
+
+	return resp
 }
 
 func (l *lruCache) Get(key Key) (any, bool) {
 	ch := make(chan goGetResp)
 
-	go func(key Key) {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
 		defer close(ch)
+		defer wg.Done()
 		defer l.mu.Unlock()
 		l.mu.Lock()
 
@@ -87,9 +98,11 @@ func (l *lruCache) Get(key Key) (any, bool) {
 			Value: value,
 			Ok:    ok,
 		}
-	}(key)
+	}()
 
 	resp := <-ch
+	wg.Wait()
+
 	return resp.Value, resp.Ok
 }
 
