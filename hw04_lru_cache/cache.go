@@ -29,9 +29,10 @@ func NewCache(capacity int) Cache {
 func (l *lruCache) Set(key Key, value any) bool {
 	ch := make(chan bool)
 
-	go func(mu *sync.Mutex, ch chan bool, key Key, value any) {
+	go func(key Key, value any) {
 		defer close(ch)
-		mu.Lock()
+		defer l.mu.Unlock()
+		l.mu.Lock()
 
 		oldListItem, ok := l.items[key]
 		if !ok {
@@ -51,9 +52,7 @@ func (l *lruCache) Set(key Key, value any) bool {
 		newListItem := l.queue.PushFront(newCacheItem)
 		l.items[key] = newListItem
 		ch <- ok
-
-		mu.Unlock()
-	}(l.mu, ch, key, value)
+	}(key, value)
 
 	return <-ch
 }
@@ -61,16 +60,16 @@ func (l *lruCache) Set(key Key, value any) bool {
 func (l *lruCache) Get(key Key) (any, bool) {
 	ch := make(chan goGetResp)
 
-	go func(mu *sync.Mutex, ch chan goGetResp, key Key) {
+	go func(key Key) {
 		defer close(ch)
-		mu.Lock()
+		defer l.mu.Unlock()
+		l.mu.Lock()
 
 		oldListItem, ok := l.items[key]
 		if !ok {
 			ch <- goGetResp{
 				Ok: false,
 			}
-			mu.Unlock()
 			return
 		}
 
@@ -88,23 +87,26 @@ func (l *lruCache) Get(key Key) (any, bool) {
 			Value: value,
 			Ok:    ok,
 		}
-
-		mu.Unlock()
-	}(l.mu, ch, key)
+	}(key)
 
 	resp := <-ch
 	return resp.Value, resp.Ok
 }
 
 func (l *lruCache) Clear() {
-	go func(mu *sync.Mutex) {
-		mu.Lock()
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		defer l.mu.Unlock()
+		l.mu.Lock()
 
 		l.queue = NewList()
 		l.items = make(map[Key]*ListItem, l.capacity)
+	}()
 
-		mu.Unlock()
-	}(l.mu)
+	wg.Wait()
 }
 
 //----------------------------------------------------------------------------------------------------
