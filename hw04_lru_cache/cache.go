@@ -27,18 +27,18 @@ func NewCache(capacity int) Cache {
 }
 
 func (l *lruCache) Set(key Key, value any) bool {
-	ch := make(chan bool)
+	var ok bool
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
 	go func() {
-		defer close(ch)
 		defer wg.Done()
 		defer l.mu.Unlock()
 		l.mu.Lock()
 
-		oldListItem, ok := l.items[key]
+		var oldListItem *ListItem
+		oldListItem, ok = l.items[key]
 		if !ok {
 			if l.queue.Len() == l.capacity {
 				backListItem := l.queue.Back()
@@ -55,36 +55,32 @@ func (l *lruCache) Set(key Key, value any) bool {
 		}
 		newListItem := l.queue.PushFront(newCacheItem)
 		l.items[key] = newListItem
-		ch <- ok
 	}()
 
-	resp := <-ch
 	wg.Wait()
 
-	return resp
+	return ok
 }
 
 func (l *lruCache) Get(key Key) (any, bool) {
-	ch := make(chan goGetResp)
+	var value any
+	var ok bool
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
 	go func() {
-		defer close(ch)
 		defer wg.Done()
 		defer l.mu.Unlock()
 		l.mu.Lock()
 
-		oldListItem, ok := l.items[key]
+		var oldListItem *ListItem
+		oldListItem, ok = l.items[key]
 		if !ok {
-			ch <- goGetResp{
-				Ok: false,
-			}
 			return
 		}
 
-		value := getValue(oldListItem)
+		value = getValue(oldListItem)
 		l.queue.Remove(oldListItem)
 
 		newCacheItem := &cacheItem{
@@ -94,16 +90,11 @@ func (l *lruCache) Get(key Key) (any, bool) {
 
 		newListItem := l.queue.PushFront(newCacheItem)
 		l.items[key] = newListItem
-		ch <- goGetResp{
-			Value: value,
-			Ok:    ok,
-		}
 	}()
 
-	resp := <-ch
 	wg.Wait()
 
-	return resp.Value, resp.Ok
+	return value, ok
 }
 
 func (l *lruCache) Clear() {
@@ -137,10 +128,4 @@ func getKey(i *ListItem) Key {
 
 func getValue(i *ListItem) any {
 	return i.Value().(*cacheItem).Value
-}
-
-// структура для возврата ответа из горутины в методе Get.
-type goGetResp struct {
-	Value any
-	Ok    bool
 }
