@@ -97,8 +97,14 @@ func (l *lruCache) Get(key Key) (any, bool) {
 }
 
 func (l *lruCache) Clear() {
-	l.queue = NewList()
-	l.items = make(map[Key]*ListItem, l.capacity)
+	go func(mu *sync.Mutex) {
+		mu.Lock()
+
+		l.queue = NewList()
+		l.items = make(map[Key]*ListItem, l.capacity)
+
+		mu.Unlock()
+	}(l.mu)
 }
 
 //----------------------------------------------------------------------------------------------------
