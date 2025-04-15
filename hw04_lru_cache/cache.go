@@ -58,11 +58,6 @@ func (l *lruCache) Set(key Key, value any) bool {
 	return <-ch
 }
 
-type goGetResp struct {
-	Value any
-	Ok    bool
-}
-
 func (l *lruCache) Get(key Key) (any, bool) {
 	ch := make(chan goGetResp)
 
@@ -108,7 +103,7 @@ func (l *lruCache) Clear() {
 }
 
 //----------------------------------------------------------------------------------------------------
-// CasheItem
+// вспомогательные структуры и методы
 
 // элемент, хранящийся в очереди и словаре в составе ListItem.
 type cacheItem struct {
@@ -122,4 +117,10 @@ func getKey(i *ListItem) Key {
 
 func getValue(i *ListItem) any {
 	return i.Value().(*cacheItem).Value
+}
+
+// структура для возврата ответа из горутины в методе Get.
+type goGetResp struct {
+	Value any
+	Ok    bool
 }
