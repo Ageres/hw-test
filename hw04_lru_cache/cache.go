@@ -34,7 +34,7 @@ func (l *lruCache) Set(key Key, value any) bool {
 		l.queue.Remove(oldListItem)
 	}
 
-	newCacheItem := &CacheItem{
+	newCacheItem := &cacheItem{
 		Key:   key,
 		Value: value,
 	}
@@ -52,7 +52,7 @@ func (l *lruCache) Get(key Key) (any, bool) {
 	value := getValue(oldListItem)
 	l.queue.Remove(oldListItem)
 
-	newCacheItem := &CacheItem{
+	newCacheItem := &cacheItem{
 		Key:   key,
 		Value: value,
 	}
@@ -71,15 +71,15 @@ func (l *lruCache) Clear() {
 // CasheItem
 
 // элемент, хранящийся в очереди и словаре в составе ListItem.
-type CacheItem struct {
+type cacheItem struct {
 	Key   Key
 	Value any
 }
 
 func getKey(i *ListItem) Key {
-	return i.Value().(*CacheItem).Key
+	return i.Value().(*cacheItem).Key
 }
 
 func getValue(i *ListItem) any {
-	return i.Value().(*CacheItem).Value
+	return i.Value().(*cacheItem).Value
 }
