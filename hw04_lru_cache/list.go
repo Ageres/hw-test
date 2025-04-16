@@ -134,3 +134,17 @@ func (li *ListItem) Next() *ListItem {
 func (li *ListItem) Prev() *ListItem {
 	return li.prev
 }
+
+// вспомогательная структура для хранения объектов, требующих доступа по ключу.
+type ListMapItem struct {
+	Key   Key
+	Value any
+}
+
+func (li *ListItem) GetListMapItemKey() Key {
+	return li.Value().(*ListMapItem).Key
+}
+
+func (li *ListItem) GetListMapItemValue() any {
+	return li.Value().(*ListMapItem).Value
+}

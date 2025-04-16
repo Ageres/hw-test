@@ -35,11 +35,11 @@ func (l *lruCache) Set(key Key, value any) bool {
 		l.queue.Remove(oldListItem)
 	} else if l.queue.Len() == l.capacity {
 		backListItem := l.queue.Back()
-		delete(l.items, getKey(backListItem))
+		delete(l.items, backListItem.GetListMapItemKey())
 		l.queue.Remove(backListItem)
 	}
 
-	newCacheItem := &cacheItem{
+	newCacheItem := &ListMapItem{
 		Key:   key,
 		Value: value,
 	}
@@ -59,10 +59,10 @@ func (l *lruCache) Get(key Key) (any, bool) {
 		return nil, ok
 	}
 
-	value := getValue(oldListItem)
+	value := oldListItem.GetListMapItemValue()
 	l.queue.Remove(oldListItem)
 
-	newCacheItem := &cacheItem{
+	newCacheItem := &ListMapItem{
 		Key:   key,
 		Value: value,
 	}
@@ -79,21 +79,4 @@ func (l *lruCache) Clear() {
 
 	l.queue = NewList()
 	l.items = make(map[Key]*ListItem, l.capacity)
-}
-
-//----------------------------------------------------------------------------------------------------
-// вспомогательные структуры и методы
-
-// элемент, хранящийся в очереди и словаре в составе ListItem.
-type cacheItem struct {
-	Key   Key
-	Value any
-}
-
-func getKey(i *ListItem) Key {
-	return i.Value().(*cacheItem).Key
-}
-
-func getValue(i *ListItem) any {
-	return i.Value().(*cacheItem).Value
 }
