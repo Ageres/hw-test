@@ -29,88 +29,88 @@ func NewCache(capacity int) Cache {
 func (l *lruCache) Set(key Key, value any) bool {
 	var ok bool
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
+	//wg := &sync.WaitGroup{}
+	//wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-		defer l.mu.Unlock()
-		l.mu.Lock()
+	//go func() {
+	//defer wg.Done()
+	defer l.mu.Unlock()
+	l.mu.Lock()
 
-		var oldListItem *ListItem
-		oldListItem, ok = l.items[key]
-		if ok {
-			l.queue.Remove(oldListItem)
-		} else {
-			if l.queue.Len() == l.capacity {
-				backListItem := l.queue.Back()
-				delete(l.items, getKey(backListItem))
-				l.queue.Remove(backListItem)
-			}
+	var oldListItem *ListItem
+	oldListItem, ok = l.items[key]
+	if ok {
+		l.queue.Remove(oldListItem)
+	} else {
+		if l.queue.Len() == l.capacity {
+			backListItem := l.queue.Back()
+			delete(l.items, getKey(backListItem))
+			l.queue.Remove(backListItem)
 		}
+	}
 
-		newCacheItem := &cacheItem{
-			Key:   key,
-			Value: value,
-		}
-		newListItem := l.queue.PushFront(newCacheItem)
-		l.items[key] = newListItem
-	}()
+	newCacheItem := &cacheItem{
+		Key:   key,
+		Value: value,
+	}
+	newListItem := l.queue.PushFront(newCacheItem)
+	l.items[key] = newListItem
+	//}()
 
-	wg.Wait()
+	//wg.Wait()
 
 	return ok
 }
 
 func (l *lruCache) Get(key Key) (any, bool) {
-	var value any
-	var ok bool
+	//var value any
+	//var ok bool
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
+	//wg := &sync.WaitGroup{}
+	//wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-		defer l.mu.Unlock()
-		l.mu.Lock()
+	//go func() {
+	//defer wg.Done()
+	defer l.mu.Unlock()
+	l.mu.Lock()
 
-		var oldListItem *ListItem
-		oldListItem, ok = l.items[key]
-		if !ok {
-			return
-		}
+	var oldListItem *ListItem
+	oldListItem, ok := l.items[key]
+	if !ok {
+		return nil, ok
+	}
 
-		value = getValue(oldListItem)
-		l.queue.Remove(oldListItem)
+	value := getValue(oldListItem)
+	l.queue.Remove(oldListItem)
 
-		newCacheItem := &cacheItem{
-			Key:   key,
-			Value: value,
-		}
+	newCacheItem := &cacheItem{
+		Key:   key,
+		Value: value,
+	}
 
-		newListItem := l.queue.PushFront(newCacheItem)
-		l.items[key] = newListItem
-	}()
+	newListItem := l.queue.PushFront(newCacheItem)
+	l.items[key] = newListItem
+	//}()
 
-	wg.Wait()
+	//wg.Wait()
 
 	return value, ok
 }
 
 func (l *lruCache) Clear() {
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
+	//wg := &sync.WaitGroup{}
+	//wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-		defer l.mu.Unlock()
-		l.mu.Lock()
+	//go func() {
+	//defer wg.Done()
+	defer l.mu.Unlock()
+	l.mu.Lock()
 
-		l.queue = NewList()
-		l.items = make(map[Key]*ListItem, l.capacity)
-	}()
+	l.queue = NewList()
+	l.items = make(map[Key]*ListItem, l.capacity)
+	//}()
 
-	wg.Wait()
+	//wg.Wait()
 }
 
 //----------------------------------------------------------------------------------------------------
