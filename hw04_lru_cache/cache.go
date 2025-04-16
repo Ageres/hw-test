@@ -39,14 +39,14 @@ func (l *lruCache) Set(key Key, value any) bool {
 
 		var oldListItem *ListItem
 		oldListItem, ok = l.items[key]
-		if !ok {
+		if ok {
+			l.queue.Remove(oldListItem)
+		} else {
 			if l.queue.Len() == l.capacity {
 				backListItem := l.queue.Back()
 				delete(l.items, getKey(backListItem))
 				l.queue.Remove(backListItem)
 			}
-		} else {
-			l.queue.Remove(oldListItem)
 		}
 
 		newCacheItem := &cacheItem{
