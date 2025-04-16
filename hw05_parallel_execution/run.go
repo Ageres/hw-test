@@ -27,19 +27,18 @@ func Run(tasks []Task, n, m int) error {
 	fmt.Println("tasksize:", tasksize)
 
 	taskCh := make(chan Task, tasksize)
-	defer close(taskCh)
+	//defer close(taskCh)
 
 	go func() {
 		for i, task := range tasks {
 			fmt.Println("------------------300--------------------")
 			taskCh <- task
 			fmt.Println("i:", i)
-			fmt.Println("------------------300--------------------")
+			fmt.Println("------------------301--------------------")
 		}
 	}()
 
 	ch := make(chan error)
-
 	defer close(ch)
 
 	go func() {
@@ -52,6 +51,22 @@ func Run(tasks []Task, n, m int) error {
 	//wgCount := 0
 
 	go func() {
+		j := 0
+		for task := range taskCh {
+			go func() {
+				fmt.Println("------------------400--------------------")
+				err := task()
+				if err != nil {
+					ch <- err
+				}
+				fmt.Println("err:", err)
+				fmt.Println("j:", j)
+				j++
+				fmt.Println("------------------401--------------------")
+			}()
+
+		}
+
 		/*
 			for {
 				if wgCount <= tasksize {
@@ -69,9 +84,11 @@ func Run(tasks []Task, n, m int) error {
 			} */
 	}()
 
-	go func() {
-		wg.Wait()
-	}()
+	/*
+		go func() {
+			wg.Wait()
+		}()
+	*/
 
 	errCount := 0
 	for _ = range ch {
