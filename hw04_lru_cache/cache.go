@@ -27,26 +27,16 @@ func NewCache(capacity int) Cache {
 }
 
 func (l *lruCache) Set(key Key, value any) bool {
-	var ok bool
-
-	//wg := &sync.WaitGroup{}
-	//wg.Add(1)
-
-	//go func() {
-	//defer wg.Done()
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
-	var oldListItem *ListItem
-	oldListItem, ok = l.items[key]
+	oldListItem, ok := l.items[key]
 	if ok {
 		l.queue.Remove(oldListItem)
-	} else {
-		if l.queue.Len() == l.capacity {
-			backListItem := l.queue.Back()
-			delete(l.items, getKey(backListItem))
-			l.queue.Remove(backListItem)
-		}
+	} else if l.queue.Len() == l.capacity {
+		backListItem := l.queue.Back()
+		delete(l.items, getKey(backListItem))
+		l.queue.Remove(backListItem)
 	}
 
 	newCacheItem := &cacheItem{
@@ -55,22 +45,11 @@ func (l *lruCache) Set(key Key, value any) bool {
 	}
 	newListItem := l.queue.PushFront(newCacheItem)
 	l.items[key] = newListItem
-	//}()
-
-	//wg.Wait()
 
 	return ok
 }
 
 func (l *lruCache) Get(key Key) (any, bool) {
-	//var value any
-	//var ok bool
-
-	//wg := &sync.WaitGroup{}
-	//wg.Add(1)
-
-	//go func() {
-	//defer wg.Done()
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
@@ -90,27 +69,16 @@ func (l *lruCache) Get(key Key) (any, bool) {
 
 	newListItem := l.queue.PushFront(newCacheItem)
 	l.items[key] = newListItem
-	//}()
-
-	//wg.Wait()
 
 	return value, ok
 }
 
 func (l *lruCache) Clear() {
-	//wg := &sync.WaitGroup{}
-	//wg.Add(1)
-
-	//go func() {
-	//defer wg.Done()
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
 	l.queue = NewList()
 	l.items = make(map[Key]*ListItem, l.capacity)
-	//}()
-
-	//wg.Wait()
 }
 
 //----------------------------------------------------------------------------------------------------
