@@ -18,10 +18,11 @@ func Run(tasks []Task, n, m int) error {
 	}
 
 	tasksize := max(n, len(tasks))
-
 	taskCh := make(chan Task, tasksize)
-
 	ch := make(chan error)
+
+	defer close(taskCh)
+	defer close(ch)
 
 	wg := new(sync.WaitGroup)
 	wgCount := 0
@@ -42,6 +43,10 @@ func Run(tasks []Task, n, m int) error {
 			}
 
 		}
+	}()
+
+	go func() {
+		wg.Wait()
 	}()
 
 	errCount := 0
