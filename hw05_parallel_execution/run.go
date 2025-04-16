@@ -3,6 +3,7 @@ package hw05parallelexecution
 import (
 	"errors"
 	"fmt"
+	"sync"
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
@@ -39,7 +40,7 @@ func Run(tasks []Task, n, m int) error {
 	}()
 
 	ch := make(chan error)
-	defer close(ch)
+	//defer close(ch)
 
 	go func() {
 		for _, task := range tasks {
@@ -47,24 +48,37 @@ func Run(tasks []Task, n, m int) error {
 		}
 	}()
 
-	//wg := new(sync.WaitGroup)
+	wg := new(sync.WaitGroup)
 	//wgCount := 0
 
+	errCount := 0
+	var out error
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		j := 0
 		for task := range taskCh {
+			wg.Add(1)
 			go func() {
+				defer wg.Done()
 				fmt.Println("------------------400--------------------")
 				err := task()
-				if err != nil {
-					ch <- err
-				}
+				//if err != nil {
+				ch <- err
+				//}
 				fmt.Println("err:", err)
 				fmt.Println("j:", j)
 				j++
 				fmt.Println("------------------401--------------------")
 			}()
-
+			result, ok := <-ch
+			if ok && result != nil {
+				errCount++
+			}
+			if errCount == m {
+				out = ErrErrorsLimitExceeded
+				return
+			}
 		}
 
 		/*
@@ -90,13 +104,16 @@ func Run(tasks []Task, n, m int) error {
 		}()
 	*/
 
-	errCount := 0
-	for _ = range ch {
-		errCount++
-		if errCount == m {
-			return ErrErrorsLimitExceeded
+	/*
+		//errCount := 0
+		for _ = range ch {
+			errCount++
+			if errCount == m {
+				return ErrErrorsLimitExceeded
+			}
 		}
-	}
+	*/
 
-	return nil
+	wg.Wait()
+	return out
 }
