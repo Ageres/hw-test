@@ -2,7 +2,7 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"sync"
+	"fmt"
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
@@ -10,18 +10,36 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 type Task func() error
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
-// m < 0 - максимум 0 ошибок
+// m <= 0 - максимум 0 ошибок
 func Run(tasks []Task, n, m int) error {
-	// Place your code here.
+	fmt.Println("------------------100--------------------")
+	fmt.Println("len(tasks):", len(tasks))
+	fmt.Println("n:", n)
+	fmt.Println("m:", m)
+
 	if m <= 0 {
 		return ErrErrorsLimitExceeded
 	}
 
-	tasksize := max(n, len(tasks))
+	fmt.Println("------------------200--------------------")
+
+	tasksize := min(n, len(tasks))
+	fmt.Println("tasksize:", tasksize)
+
 	taskCh := make(chan Task, tasksize)
+	defer close(taskCh)
+
+	go func() {
+		for i, task := range tasks {
+			fmt.Println("------------------300--------------------")
+			taskCh <- task
+			fmt.Println("i:", i)
+			fmt.Println("------------------300--------------------")
+		}
+	}()
+
 	ch := make(chan error)
 
-	defer close(taskCh)
 	defer close(ch)
 
 	go func() {
@@ -30,24 +48,25 @@ func Run(tasks []Task, n, m int) error {
 		}
 	}()
 
-	wg := new(sync.WaitGroup)
-	wgCount := 0
+	//wg := new(sync.WaitGroup)
+	//wgCount := 0
 
 	go func() {
-		for {
-			if wgCount <= tasksize {
-				wg.Add(1)
-				wgCount++
-				go func() {
-					defer wg.Done()
-					task := <-taskCh
-					err := task()
-					if err == nil {
-						ch <- err
-					}
-				}()
-			}
-		}
+		/*
+			for {
+				if wgCount <= tasksize {
+					wg.Add(1)
+					wgCount++
+					go func() {
+						defer wg.Done()
+						task := <-taskCh
+						err := task()
+						if err == nil {
+							ch <- err
+						}
+					}()
+				}
+			} */
 	}()
 
 	go func() {
