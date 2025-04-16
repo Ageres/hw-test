@@ -24,6 +24,12 @@ func Run(tasks []Task, n, m int) error {
 	defer close(taskCh)
 	defer close(ch)
 
+	go func() {
+		for _, task := range tasks {
+			taskCh <- task
+		}
+	}()
+
 	wg := new(sync.WaitGroup)
 	wgCount := 0
 
