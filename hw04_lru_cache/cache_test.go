@@ -49,29 +49,149 @@ func TestCache(t *testing.T) {
 		require.Nil(t, val)
 	})
 
-	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+	t.Run("clear cache", func(t *testing.T) {
+		c := NewCache(2)
+
+		c.Set("aaa", 100)
+		c.Set("bbb", 200)
+
+		c.Clear()
+
+		_, ok := c.Get("aaa")
+		require.False(t, ok)
+
+		_, ok = c.Get("bbb")
+		require.False(t, ok)
+	})
+
+	t.Run("purge logic due to queue size", func(t *testing.T) {
+		c := NewCache(3)
+		c.Set("aaa", 100)
+		c.Set("bbb", 200)
+		c.Set("ccc", 300)
+		c.Set("ddd", 400)
+
+		val, ok := c.Get("aaa")
+		require.False(t, ok)
+		require.Nil(t, val)
+
+		val, ok = c.Get("bbb")
+		require.True(t, ok)
+		require.Equal(t, 200, val)
+
+		val, ok = c.Get("ccc")
+		require.True(t, ok)
+		require.Equal(t, 300, val)
+
+		val, ok = c.Get("ddd")
+		require.True(t, ok)
+		require.Equal(t, 400, val)
+	})
+
+	t.Run("purge logic old items", func(t *testing.T) {
+		c := NewCache(3)
+		c.Set("aaa", 100)
+		c.Set("bbb", 200)
+		c.Set("ccc", 300)
+
+		c.Set("aaa", 101)
+		c.Set("bbb", 201)
+		c.Set("ccc", 301)
+		c.Set("aaa", 102)
+		c.Set("bbb", 202)
+		c.Get("bbb")
+		c.Get("aaa")
+		c.Set("aaa", 103)
+		c.Set("bbb", 203)
+
+		c.Set("ddd", 400)
+
+		val, ok := c.Get("aaa")
+		require.True(t, ok)
+		require.Equal(t, 103, val)
+
+		val, ok = c.Get("bbb")
+		require.True(t, ok)
+		require.Equal(t, 203, val)
+
+		val, ok = c.Get("ccc")
+		require.False(t, ok)
+		require.Nil(t, val)
+
+		val, ok = c.Get("ddd")
+		require.True(t, ok)
+		require.Equal(t, 400, val)
 	})
 }
 
-func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove me if task with asterisk completed.
-
+func TestCacheMultithreading(_ *testing.T) {
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
-		for i := 0; i < 1_000_000; i++ {
+		for i := range 1_000_000 {
 			c.Set(Key(strconv.Itoa(i)), i)
 		}
 	}()
 
 	go func() {
 		defer wg.Done()
-		for i := 0; i < 1_000_000; i++ {
+		for range 1_000_000 {
 			c.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
+		}
+	}()
+
+	wg.Wait()
+}
+
+func TestCacheMultithreadingWithClear(_ *testing.T) {
+	c1 := NewCache(10)
+	c2 := NewCache(10)
+
+	wg := &sync.WaitGroup{}
+	wg.Add(6)
+
+	go func() {
+		defer wg.Done()
+		for i := range 1_000_000 {
+			c1.Set(Key(strconv.Itoa(i)), i)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for range 1_000_000 {
+			c1.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for range 1_000_000 {
+			c1.Clear()
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for i := range 1_000_000 {
+			c2.Set(Key(strconv.Itoa(i)), i)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for range 1_000_000 {
+			c2.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for range 1_000_000 {
+			c2.Clear()
 		}
 	}()
 
