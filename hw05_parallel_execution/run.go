@@ -10,6 +10,10 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
 
+type Result struct {
+	Error error
+}
+
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 // m <= 0 - максимум 0 ошибок
 func Run(tasks []Task, n, m int) error {
@@ -22,22 +26,75 @@ func Run(tasks []Task, n, m int) error {
 		return ErrErrorsLimitExceeded
 	}
 
-	fmt.Println("------------------200--------------------")
+	taskCh := make(chan Task)
+	var endCh chan struct{}
 
-	tasksize := min(n, len(tasks))
-	fmt.Println("tasksize:", tasksize)
+	wg1 := &sync.WaitGroup{}
 
-	taskCh := make(chan Task, tasksize)
-	//defer close(taskCh)
-
+	wg1.Add(1)
 	go func() {
+		defer wg1.Done()
 		for i, task := range tasks {
 			fmt.Println("------------------300--------------------")
-			taskCh <- task
+			select {
+			case taskCh <- task:
+				fmt.Println("------------------300--------------------")
+			case <-endCh:
+				return
+			}
 			fmt.Println("i:", i)
 			fmt.Println("------------------301--------------------")
 		}
+		close(taskCh)
 	}()
+
+	go func() {
+		wg1.Wait()
+	}()
+
+	fmt.Println("------------------200--------------------")
+
+	resultCh := make(chan Result)
+
+	for i := 0; i < n; i++ {
+		wg1.Add(1)
+		go func() {
+			defer wg1.Done()
+			select {
+			case task := <-taskCh:
+				err := task()
+				resultCh <- Result{
+					Error: err,
+				}
+				/*
+					if err != nil {
+						errCh <- err
+					}
+				*/
+			case <-endCh:
+				return
+			}
+
+		}()
+	}
+
+	/*
+		tasksize := min(n, len(tasks))
+		fmt.Println("tasksize:", tasksize)
+
+		//taskCh := make(chan Task, tasksize)
+		//defer close(taskCh)
+
+
+			go func() {
+				for i, task := range tasks {
+					fmt.Println("------------------300--------------------")
+					taskCh <- task
+					fmt.Println("i:", i)
+					fmt.Println("------------------301--------------------")
+				}
+			}()
+	*/
 
 	ch := make(chan error)
 	//defer close(ch)
@@ -48,19 +105,19 @@ func Run(tasks []Task, n, m int) error {
 		}
 	}()
 
-	wg := new(sync.WaitGroup)
+	wg1 := new(sync.WaitGroup)
 	//wgCount := 0
 
 	errCount := 0
 	var out error
-	wg.Add(1)
+	wg1.Add(1)
 	go func() {
-		defer wg.Done()
+		defer wg1.Done()
 		j := 0
 		for task := range taskCh {
-			wg.Add(1)
+			wg1.Add(1)
 			go func() {
-				defer wg.Done()
+				defer wg1.Done()
 				fmt.Println("------------------400--------------------")
 				err := task()
 				//if err != nil {
@@ -114,6 +171,6 @@ func Run(tasks []Task, n, m int) error {
 		}
 	*/
 
-	wg.Wait()
+	wg1.Wait()
 	return out
 }
