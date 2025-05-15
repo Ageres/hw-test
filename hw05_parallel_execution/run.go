@@ -36,15 +36,15 @@ func Run(tasks []Task, n, m int) error {
 	go func() {
 		defer wg1.Done()
 		for i, task := range tasks {
-			fmt.Println("------------------300--------------------")
+			fmt.Println("------------------200", i, "--------------------")
 			select {
 			case taskCh <- task:
-				fmt.Println("------------------300--------------------")
+				fmt.Println("------------------201--------------------")
 			case <-endCh:
 				return
 			}
 			fmt.Println("i:", i)
-			fmt.Println("------------------301--------------------")
+			fmt.Println("------------------202--------------------")
 		}
 		close(taskCh)
 	}()
@@ -53,7 +53,7 @@ func Run(tasks []Task, n, m int) error {
 		wg1.Wait()
 	}()
 
-	fmt.Println("------------------200--------------------")
+	fmt.Println("------------------300--------------------")
 
 	resultCh := make(chan Result)
 
