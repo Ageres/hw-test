@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"sync/atomic"
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
@@ -27,7 +28,7 @@ func Run(tasks []Task, n, m int) error {
 	}
 
 	taskCh := make(chan Task)
-	var endCh chan struct{}
+	var endCh chan struct{} = make(chan struct{})
 
 	wg1 := &sync.WaitGroup{}
 
@@ -66,111 +67,32 @@ func Run(tasks []Task, n, m int) error {
 				resultCh <- Result{
 					Error: err,
 				}
-				/*
-					if err != nil {
-						errCh <- err
-					}
-				*/
 			case <-endCh:
+				close(resultCh)
 				return
 			}
-
 		}()
 	}
 
-	/*
-		tasksize := min(n, len(tasks))
-		fmt.Println("tasksize:", tasksize)
+	var errCount atomic.Int32
+	errCount.Store(0)
 
-		//taskCh := make(chan Task, tasksize)
-		//defer close(taskCh)
-
-
-			go func() {
-				for i, task := range tasks {
-					fmt.Println("------------------300--------------------")
-					taskCh <- task
-					fmt.Println("i:", i)
-					fmt.Println("------------------301--------------------")
-				}
-			}()
-	*/
-
-	ch := make(chan error)
-	//defer close(ch)
-
-	go func() {
-		for _, task := range tasks {
-			taskCh <- task
-		}
-	}()
-
-	wg1 := new(sync.WaitGroup)
-	//wgCount := 0
-
-	errCount := 0
-	var out error
 	wg1.Add(1)
 	go func() {
 		defer wg1.Done()
-		j := 0
-		for task := range taskCh {
-			wg1.Add(1)
-			go func() {
-				defer wg1.Done()
-				fmt.Println("------------------400--------------------")
-				err := task()
-				//if err != nil {
-				ch <- err
-				//}
-				fmt.Println("err:", err)
-				fmt.Println("j:", j)
-				j++
-				fmt.Println("------------------401--------------------")
-			}()
-			result, ok := <-ch
-			if ok && result != nil {
-				errCount++
+		for r := range resultCh {
+			if r.Error != nil {
+				errCount.Add(1)
 			}
-			if errCount == m {
-				out = ErrErrorsLimitExceeded
-				return
+			c := errCount.Load()
+			if int(c) >= m {
+				close(endCh)
 			}
 		}
-
-		/*
-			for {
-				if wgCount <= tasksize {
-					wg.Add(1)
-					wgCount++
-					go func() {
-						defer wg.Done()
-						task := <-taskCh
-						err := task()
-						if err == nil {
-							ch <- err
-						}
-					}()
-				}
-			} */
 	}()
 
-	/*
-		go func() {
-			wg.Wait()
-		}()
-	*/
-
-	/*
-		//errCount := 0
-		for _ = range ch {
-			errCount++
-			if errCount == m {
-				return ErrErrorsLimitExceeded
-			}
-		}
-	*/
-
-	wg1.Wait()
-	return out
+	if int(errCount.Load()) >= m {
+		return ErrErrorsLimitExceeded
+	}
+	return nil
 }
