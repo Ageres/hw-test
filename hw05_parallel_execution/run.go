@@ -27,35 +27,10 @@ func Run(tasks []Task, n, m int) error {
 		return ErrErrorsLimitExceeded
 	}
 
-	taskCh := make(chan Task)
-	var endCh chan struct{} = make(chan struct{})
+	endCh := make(chan struct{})
+	taskCh := getTaskChan(tasks, endCh)
 
 	wg1 := &sync.WaitGroup{}
-
-	//wg1.Add(1)
-	go func() {
-		defer close(taskCh)
-		//defer wg1.Done()
-		for i, task := range tasks {
-			//for {
-			log.Println("------------------200 i=", i, "--------------------")
-			select {
-			case taskCh <- task:
-				log.Println("------------------201-------------------- put task", i)
-			case <-endCh:
-				log.Println("------------------202-------------------- return")
-				//close(taskCh)
-				//continue
-				//break
-				return
-			}
-			//log.Println("i:", i)
-			log.Println("------------------203--------------------")
-			//}
-		}
-		log.Println("------------------204 end--------------------")
-	}()
-
 	/*
 		go func() {
 			wg1.Wait()
@@ -73,21 +48,23 @@ func Run(tasks []Task, n, m int) error {
 			defer wg1.Done()
 			for {
 				select {
-				case task := <-taskCh:
+				case task, ok := <-taskCh:
+					if ok {
+						err := task()
+						log.Println("---------")
+						log.Println(err)
+						log.Println("---------")
+						if err != nil {
+							log.Println("------------------401 j=", j, "err=", err, "--------------------")
+						} else {
+							log.Println("------------------402 j=", j, "err=nil--------------------")
+						}
 
-					err := task()
-					log.Println("---------")
-					log.Println(err)
-					log.Println("---------")
-					if err != nil {
-						log.Println("------------------401 j=", j, "err=", err, "--------------------")
-					} else {
-						log.Println("------------------402 j=", j, "err=nil--------------------")
+						resultCh <- Result{
+							Error: err,
+						}
 					}
 
-					resultCh <- Result{
-						Error: err,
-					}
 				case <-endCh:
 					log.Println("------------------403-------------------- endCh return")
 					//close(resultCh)
@@ -101,9 +78,9 @@ func Run(tasks []Task, n, m int) error {
 	var errCount atomic.Int32
 	errCount.Store(0)
 
-	wg1.Add(1)
+	//wg1.Add(1)
 	go func() {
-		defer wg1.Done()
+		//defer wg1.Done()
 		for r := range resultCh {
 			err := r.Error
 
@@ -124,10 +101,13 @@ func Run(tasks []Task, n, m int) error {
 		log.Println("------------------504 end--------------------")
 	}()
 
+	for r := range resultCh {
+		log.Println("------------------600 r=", r, "--------------------")
+	}
 	wg1.Wait()
 	close(resultCh)
 
-	log.Println("------------------600 c=", errCount.Load(), "--------------------")
+	log.Println("------------------700 c=", errCount.Load(), "--------------------")
 
 	if int(errCount.Load()) >= m {
 		return ErrErrorsLimitExceeded
@@ -135,4 +115,22 @@ func Run(tasks []Task, n, m int) error {
 	return nil
 }
 
-//func getTaskChan()
+func getTaskChan(tasks []Task, endCh <-chan struct{}) <-chan Task {
+	taskCh := make(chan Task)
+	go func() {
+		defer close(taskCh)
+		for i, task := range tasks {
+			log.Println("------------------200 i=", i, "--------------------")
+			select {
+			case taskCh <- task:
+				log.Println("------------------201-------------------- put task", i)
+			case <-endCh:
+				log.Println("------------------202-------------------- return")
+				return
+			}
+			log.Println("------------------203--------------------")
+		}
+		log.Println("------------------204 end--------------------")
+	}()
+	return taskCh
+}
