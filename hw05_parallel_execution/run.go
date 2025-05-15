@@ -59,15 +59,21 @@ func Run(tasks []Task, n, m int) error {
 						} else {
 							log.Println("------------------402 j=", j, "err=nil--------------------")
 						}
-
-						resultCh <- Result{
+						select {
+						case <-endCh:
+							return
+						case resultCh <- Result{
 							Error: err,
+						}:
 						}
+
+					} else {
+						log.Println(">>>---------------403-------------------- endCh return j=", j)
+						return
 					}
 
 				case <-endCh:
-					log.Println("------------------403-------------------- endCh return")
-					//close(resultCh)
+					log.Println(">>>---------------404-------------------- endCh return j=", j)
 					return
 				}
 			}
@@ -101,9 +107,9 @@ func Run(tasks []Task, n, m int) error {
 		log.Println("------------------504 end--------------------")
 	}()
 
-	for r := range resultCh {
-		log.Println("------------------600 r=", r, "--------------------")
-	}
+	//for r := range resultCh {
+	//	log.Println("------------------600 r=", r, "--------------------")
+	//}
 	wg1.Wait()
 	close(resultCh)
 
