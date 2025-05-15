@@ -88,7 +88,7 @@ func TestRunMy(t *testing.T) {
 		}
 
 		workersCount := 3
-		maxErrorsCount := 5
+		maxErrorsCount := 4
 		_ = Run(tasks, workersCount, maxErrorsCount)
 
 		//require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
