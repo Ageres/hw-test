@@ -82,15 +82,15 @@ func TestRunMy(t *testing.T) {
 		for i := 0; i < tasksCount; i++ {
 			err := fmt.Errorf("error from task %d", i)
 			tasks = append(tasks, func() error {
-				log.Println("process task ", i)
+				log.Println("process task", i)
 				time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
 				atomic.AddInt32(&runTasksCount, 1)
 				return err
 			})
 		}
 
-		workersCount := 3
-		maxErrorsCount := 5
+		workersCount := 4
+		maxErrorsCount := 7
 		err := Run(tasks, workersCount, maxErrorsCount)
 
 		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
@@ -169,7 +169,7 @@ func TestRunMy2(t *testing.T) {
 			sumTime += taskSleep
 
 			tasks = append(tasks, func() error {
-				log.Println("process task ", i)
+				log.Println("process task", i)
 				time.Sleep(taskSleep)
 				atomic.AddInt32(&runTasksCount, 1)
 				return nil

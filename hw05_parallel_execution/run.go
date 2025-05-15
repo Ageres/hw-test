@@ -45,7 +45,7 @@ func work(n int, resultCh chan Result, endCh <-chan struct{}, taskCh <-chan Task
 		wg.Add(1)
 		go func() {
 			log.Println(">>> work start gourutine", j)
-			defer log.Println("<<< work end gourutine", j)
+			//defer log.Println("<<< work end gourutine", j)
 			defer wg.Done()
 			for {
 				select {
@@ -53,15 +53,9 @@ func work(n int, resultCh chan Result, endCh <-chan struct{}, taskCh <-chan Task
 					if ok {
 						log.Println("--- work process task gourutine", j)
 						err := task()
-						/*
-							if err != nil {
-								log.Println("------------------401 j=", j, "err=", err, "--------------------")
-							} else {
-								log.Println("------------------402 j=", j, "err=nil--------------------")
-							}
-						*/
 						select {
 						case <-endCh:
+							log.Println("<<< work end 1 gourutine", j)
 							return
 						case resultCh <- Result{
 							Error: err,
@@ -70,11 +64,13 @@ func work(n int, resultCh chan Result, endCh <-chan struct{}, taskCh <-chan Task
 
 					} else {
 						//log.Println(">>>---------------403-------------------- endCh return j=", j)
+						log.Println("<<< work end 2 gourutine", j)
 						return
 					}
 
 				case <-endCh:
 					//log.Println(">>>---------------404-------------------- endCh return j=", j)
+					log.Println("<<< work end 3 gourutine", j)
 					return
 				}
 			}
@@ -89,8 +85,8 @@ func countErr(resultCh <-chan Result, m int) (<-chan struct{}, *atomic.Int32) {
 	endCh := make(chan struct{})
 	var errCount atomic.Int32
 	go func() {
-		log.Println(">>>---countErr start gourutine--------------------")
-		defer log.Println("<<<---countErr end gourutine--------------------")
+		log.Println(">>> countErr start gourutine")
+		defer log.Println("<<< countErr end gourutine")
 		for r := range resultCh {
 			err := r.Error
 
@@ -116,8 +112,8 @@ func countErr(resultCh <-chan Result, m int) (<-chan struct{}, *atomic.Int32) {
 func getTaskChan(tasks []Task, endCh <-chan struct{}) <-chan Task {
 	taskCh := make(chan Task)
 	go func() {
-		log.Println(">>>---getTaskChan start gourutine--------------------")
-		defer log.Println("<<<---getTaskChan end gourutine--------------------")
+		log.Println(">>> getTaskChan start gourutine")
+		defer log.Println("<<< getTaskChan end gourutine")
 		defer close(taskCh)
 		for _, task := range tasks {
 			//log.Println("------------------200 i=", i, "--------------------")
