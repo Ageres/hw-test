@@ -16,7 +16,7 @@ type Result struct {
 }
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
-// m <= 0 - максимум 0 ошибок
+// m <= 0 - максимум 0 ошибок.
 func Run(tasks []Task, n, m int) error {
 	log.Println("len(tasks) =", len(tasks), ", n =", n, ", m =", m)
 
