@@ -63,18 +63,19 @@ func getTaskChan(tasks []Task, endCh <-chan struct{}) <-chan Task {
 	taskCh := make(chan Task)
 	go func() {
 		log.Println(">>> getTaskChan start gourutine")
-		defer log.Println("<<< getTaskChan end gourutine")
 		defer close(taskCh)
 		defer log.Println("!!! close taskCh")
 
-		for _, task := range tasks {
+		for i, task := range tasks {
 			select {
 			case taskCh <- task:
+				log.Println("+++ getTaskChan process task", i)
 			case <-endCh:
-				log.Println("--- getTaskChan endCh gourutine")
+				log.Println("<<< getTaskChan end 1 gourutine")
 				return
 			}
 		}
+		log.Println("<<< getTaskChan end 2 gourutine")
 	}()
 	return taskCh
 }
@@ -85,29 +86,22 @@ func work(n int, resultCh chan Result, endCh <-chan struct{}, taskCh <-chan Task
 		wg.Add(1)
 		go func() {
 			log.Println(">>> work start gourutine", j)
-			//defer log.Println("<<< work end gourutine", j)
 			defer wg.Done()
 			for {
-				select {
-				case task, ok := <-taskCh:
-					if ok {
-						log.Println("--- work process task gourutine", j)
-						err := task()
-						select {
-						case <-endCh:
-							log.Println("<<< work end 1 gourutine", j)
-							return
-						case resultCh <- Result{
-							Error: err,
-						}:
-						}
-
-					} else {
-						log.Println("<<< work end 2 gourutine", j)
+				task, ok := <-taskCh
+				if ok {
+					log.Println("--- work process task gourutine", j)
+					err := task()
+					select {
+					case <-endCh:
+						log.Println("<<< work end 1 gourutine", j)
 						return
+					case resultCh <- Result{
+						Error: err,
+					}:
 					}
-				case <-endCh:
-					log.Println("<<< work end 3 gourutine", j)
+				} else {
+					log.Println("<<< work end 2 gourutine", j)
 					return
 				}
 			}
