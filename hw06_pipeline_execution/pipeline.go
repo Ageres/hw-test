@@ -2,6 +2,7 @@ package hw06pipelineexecution
 
 import (
 	"log"
+	"strconv"
 	"sync"
 )
 
@@ -23,10 +24,22 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 			defer wg.Done()
 			o := stage(in)
 			for r := range o {
-				log.Println("----201---- r:", r)
-				//ri := r.(int)
-				//rs := strconv.Itoa(ri)
-				outCh <- r
+				log.Printf("----201---- r: %v, type: %T", r, r)
+
+				ri, ok := r.(int)
+				log.Println("----202---- ok:", ok)
+				if ok {
+					log.Printf("----203---- ok: true, r: %v, type_r: %T, ri: %v", r, r, ri)
+					rs := strconv.Itoa(ri)
+					outCh <- rs
+				} else {
+					log.Printf("----204---- ok: false, r: %v, type_r: %T, ri: %v", r, r, ri)
+					outCh <- r.(string)
+				}
+
+				log.Println("----205---- ri:", ri)
+				//
+				//outCh <- ri
 			}
 		}()
 	}
