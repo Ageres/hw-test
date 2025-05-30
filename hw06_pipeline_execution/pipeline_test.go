@@ -158,10 +158,9 @@ func TestPipeline1(t *testing.T) {
 			go func() {
 				defer close(out)
 				for v := range in {
-					log.Printf("----101---- v: %v, type: %T", v, v)
 					time.Sleep(sleepPerStage)
 					o := f(v)
-					log.Printf("----102---- o: %v, type: %T", o, o)
+					log.Printf("----101---- v: %v, type_v: %T,  o: %v, type_o: %T", v, v, o, o)
 					out <- o
 				}
 			}()
@@ -170,16 +169,16 @@ func TestPipeline1(t *testing.T) {
 	}
 
 	stages := []Stage{
-		//g("Dummy", func(v interface{}) interface{} { return v }),
-		//g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
-		//g("Adder (+ 100)", func(v interface{}) interface{} { return v.(int) + 100 }),
+		g("Dummy", func(v interface{}) interface{} { return v }),
+		g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
+		g("Adder (+ 100)", func(v interface{}) interface{} { return v.(int) + 100 }),
 		g("Stringifier", func(v interface{}) interface{} { return strconv.Itoa(v.(int)) }),
 	}
 
 	t.Run("simple case", func(t *testing.T) {
 		in := make(Bi)
-		//data := []int{1, 2, 3, 4, 5}
-		data := []int{1}
+		data := []int{1, 2, 3, 4, 5}
+		//data := []int{1}
 
 		go func() {
 			for _, v := range data {
@@ -191,12 +190,14 @@ func TestPipeline1(t *testing.T) {
 		result := make([]string, 0, 10)
 		start := time.Now()
 		for s := range ExecutePipeline(in, nil, stages...) {
-			log.Printf("----301---- s: %v, type: %T", s, s)
+			//log.Printf("----301---- s: %v, type: %T", s, s)
 
 			result = append(result, s.(string))
 
-			log.Println("----301---- s:", s)
 		}
+
+		//log.Println("----302---- result:", result)
+
 		elapsed := time.Since(start)
 
 		require.Equal(t, []string{"102", "104", "106", "108", "110"}, result)
