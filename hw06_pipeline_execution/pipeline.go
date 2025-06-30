@@ -26,11 +26,12 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		wg.Add(1)
 		go func(input Bi, prev Out) {
 			doneA := false
+			doneB := false
 			defer wg.Done()
 			defer close(input)
 			for {
 				log.Println("------------101--------------:", "doneA = ", doneA)
-				if doneA {
+				if doneA || doneB {
 					return
 				}
 				select {
@@ -44,6 +45,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 					}
 					select {
 					case <-done:
+						doneB = true
 						return
 					case input <- v:
 					}
@@ -56,9 +58,10 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	}
 
 	go func() {
-		log.Println("------------201--------------:")
+		log.Println("------------201--------------")
 		wg.Wait()
-		log.Println("------------202--------------:")
+		log.Println("------------202--------------")
+		//close(current)
 	}()
 
 	return current
