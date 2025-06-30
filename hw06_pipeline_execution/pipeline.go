@@ -21,28 +21,21 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	wg := sync.WaitGroup{}
 
 	current := in
+	//current := make(Bi)
+	countGor := 0
 	for i, stage := range stages {
+		countGor = countGor + 1
 		stageInput := make(Bi)
 		wg.Add(1)
 		go func(input Bi, prev Out) {
-			doneA := false
-			doneB := false
+			defer log.Println("------------105--------------:", "i = ", i, ", end")
 			defer wg.Done()
 			defer close(input)
 			for {
-				log.Println("------------101--------------:", "i = ", i, ", doneA = ", doneA, ", doneB = ", doneB)
-				if doneA || doneB {
-					//close(input)
-					return
-				}
+				//log.Println("------------101--------------:", "i = ", i, ", doneA = ", doneA, ", doneB = ", doneB)
 				select {
 				case <-done:
 					log.Println("------------102--------------:", "i = ", i, ", done")
-					doneA = true
-					_, ok := <-input
-					if ok {
-						close(input)
-					}
 					return
 				case v, ok := <-prev:
 					if !ok {
@@ -50,28 +43,24 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 					}
 					select {
 					case <-done:
-						doneB = true
-						_, ok := <-input
-						if ok {
-							close(input)
-						}
+						log.Println("------------103--------------:", "i = ", i, ", done")
 						return
 					case input <- v:
 					}
 				}
-				log.Println("------------103--------------:", "i = ", i, "doneA = ", doneA, ", doneB = ", doneB)
+				log.Println("------------104--------------:", "i = ", i)
 			}
-			//defer close(stageInput)
+			//
 		}(stageInput, current)
 		current = stage(stageInput)
-
+		log.Println("------------106--------------:", "i = ", i)
 	}
 
 	go func() {
-		log.Println("------------201--------------")
+		log.Println("------------201--------------: countGor: ", countGor)
 		wg.Wait()
-		log.Println("------------202--------------")
 		//close(current)
+		log.Println("------------202--------------: countGor: ", countGor)
 	}()
 
 	return current

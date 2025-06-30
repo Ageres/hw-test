@@ -96,6 +96,7 @@ func TestPipeline(t *testing.T) {
 }
 */
 
+/*
 func TestAllStageStop(t *testing.T) {
 	wg := sync.WaitGroup{}
 	// Stage generator
@@ -151,6 +152,7 @@ func TestAllStageStop(t *testing.T) {
 
 	})
 }
+*/
 
 func TestPipeline1(t *testing.T) {
 	// Stage generator
@@ -203,6 +205,7 @@ func TestPipeline1(t *testing.T) {
 		elapsed := time.Since(start)
 
 		require.Equal(t, []string{"102", "104", "106", "108", "110"}, result)
+		//require.Equal(t, []string{"1", "2", "3", "4", "5"}, result)
 		require.Less(t,
 			int64(elapsed),
 			// ~0.8s for processing 5 values in 4 stages (100ms every) concurrently
@@ -234,16 +237,16 @@ func TestAllStageStop1(t *testing.T) {
 
 	stages := []Stage{
 		g("Dummy", func(v interface{}) interface{} { return v }),
-		g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
-		g("Adder (+ 100)", func(v interface{}) interface{} { return v.(int) + 100 }),
+		//g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
+		//g("Adder (+ 100)", func(v interface{}) interface{} { return v.(int) + 100 }),
 		g("Stringifier", func(v interface{}) interface{} { return strconv.Itoa(v.(int)) }),
 	}
 
 	t.Run("done case", func(t *testing.T) {
 		in := make(Bi)
 		done := make(Bi)
-		//data := []int{1, 2, 3, 4, 5}
-		data := []int{1}
+		data := []int{1, 2, 3, 4, 5}
+		//data := []int{1}
 
 		// Abort after 200ms
 		abortDur := sleepPerStage * 2
