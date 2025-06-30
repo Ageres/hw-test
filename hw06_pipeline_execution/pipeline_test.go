@@ -15,7 +15,6 @@ const (
 	fault         = sleepPerStage / 2
 )
 
-/*
 func TestPipeline(t *testing.T) {
 	// Stage generator
 	g := func(_ string, f func(v interface{}) interface{}) Stage {
@@ -94,9 +93,7 @@ func TestPipeline(t *testing.T) {
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
 }
-*/
 
-/*
 func TestAllStageStop(t *testing.T) {
 	wg := sync.WaitGroup{}
 	// Stage generator
@@ -152,7 +149,6 @@ func TestAllStageStop(t *testing.T) {
 
 	})
 }
-*/
 
 func TestPipeline1(t *testing.T) {
 	// Stage generator
@@ -227,7 +223,7 @@ func TestAllStageStop1(t *testing.T) {
 				for v := range in {
 					time.Sleep(sleepPerStage)
 					o := f(v)
-					log.Printf("----002---- v: %v, stageName: %v, type_v: %T,  o: %v, type_o: %T", v, stageName, v, o, o)
+					log.Printf("----1001---- v: %v, stageName: %v, type_v: %T,  o: %v, type_o: %T", v, stageName, v, o, o)
 					out <- o
 				}
 			}()
@@ -237,8 +233,8 @@ func TestAllStageStop1(t *testing.T) {
 
 	stages := []Stage{
 		g("Dummy", func(v interface{}) interface{} { return v }),
-		//g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
-		//g("Adder (+ 100)", func(v interface{}) interface{} { return v.(int) + 100 }),
+		g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
+		g("Adder (+ 100)", func(v interface{}) interface{} { return v.(int) + 100 }),
 		g("Stringifier", func(v interface{}) interface{} { return strconv.Itoa(v.(int)) }),
 	}
 
@@ -266,9 +262,10 @@ func TestAllStageStop1(t *testing.T) {
 		for s := range ExecutePipeline(in, done, stages...) {
 			result = append(result, s.(string))
 		}
+		log.Println("----1002----")
 		wg.Wait()
-
+		log.Println("----1003----")
 		require.Len(t, result, 0)
-
+		log.Println("----1004----")
 	})
 }

@@ -36,6 +36,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 				select {
 				case <-done:
 					log.Println("------------102--------------:", "i = ", i, ", done")
+					<-prev
 					return
 				case v, ok := <-prev:
 					if !ok {
@@ -59,8 +60,15 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	go func() {
 		log.Println("------------201--------------: countGor: ", countGor)
 		wg.Wait()
-		//close(current)
 		log.Println("------------202--------------: countGor: ", countGor)
+		for {
+			_, ok := <-current
+			log.Println("------------203--------------: ok: ", ok)
+			if !ok {
+				break
+			}
+		}
+		log.Println("------------204--------------: countGor: ", countGor)
 	}()
 
 	return current
