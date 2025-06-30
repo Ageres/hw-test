@@ -1,6 +1,9 @@
 package hw06pipelineexecution
 
-import "sync"
+import (
+	"log"
+	"sync"
+)
 
 type (
 	In  = <-chan interface{}
@@ -22,11 +25,18 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		stageInput := make(Bi)
 		wg.Add(1)
 		go func(input Bi, prev Out) {
+			doneA := false
 			defer wg.Done()
 			defer close(input)
 			for {
+				log.Println("------------101--------------:", "doneA = ", doneA)
+				if doneA {
+					return
+				}
 				select {
 				case <-done:
+					log.Println("------------102--------------:", "done")
+					doneA = true
 					return
 				case v, ok := <-prev:
 					if !ok {
@@ -38,13 +48,17 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 					case input <- v:
 					}
 				}
+				log.Println("------------103--------------:", "doneA = ", doneA)
 			}
+
 		}(stageInput, current)
 		current = stage(stageInput)
 	}
 
 	go func() {
+		log.Println("------------201--------------:")
 		wg.Wait()
+		log.Println("------------202--------------:")
 	}()
 
 	return current
