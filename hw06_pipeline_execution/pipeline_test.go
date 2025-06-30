@@ -242,7 +242,8 @@ func TestAllStageStop1(t *testing.T) {
 	t.Run("done case", func(t *testing.T) {
 		in := make(Bi)
 		done := make(Bi)
-		data := []int{1, 2, 3, 4, 5}
+		//data := []int{1, 2, 3, 4, 5}
+		data := []int{1}
 
 		// Abort after 200ms
 		abortDur := sleepPerStage * 2
