@@ -22,13 +22,17 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 
 	stageLen := len(stages)
 
-	stageChans := make([]Bi, stageLen+2)
+	stageChans := make([]Bi, stageLen+1)
+	for i := range stageChans {
+		stageChans[i] = make(Bi)
+	}
 
 	wg := sync.WaitGroup{}
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer close(stageChans[0])
 		j := 0
 		for v := range in {
 			log.Printf("------------100--------------: j = %v, v = %v", j, v)
@@ -39,27 +43,53 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		}
 	}()
 
+	//wg.Add(1)
+	//go func() {
+	//defer wg.Done()
+	/*
+		j := 0
+		for v := range stageChans[0] {
+			log.Printf("------------102--------------: j = %v, v = %v", j, v)
+			a, ok := <-stageChans[0]
+			if ok {
+				log.Printf("------------103--------------: j = %v, v = %v, a = %v", j, v, a)
+			} else {
+				log.Printf("------------104--------------: j = %v, v = %v, a = %v", j, v, a)
+			}
+
+			j = j + 1
+
+		}*/
+	//}()
+
 	for i, stage := range stages {
 		log.Printf("------------200--------------: i = %v", i)
 		//currentStageChan := stageChans[i]
 		//nextStegeChan := stageChans[i+1]
 		wg.Add(1)
 
-		var out Out = make(Out)
-		out = stage(stageChans[i])
+		var out = stage(stageChans[i])
 		go func() {
 			defer log.Printf("------------399--------------: i = %v, end", i)
 			defer wg.Done()
+			defer close(stageChans[i+1])
 			log.Printf("------------301--------------: i = %v, start", i)
 
 			for {
 				log.Printf("------------302--------------: i = %v", i)
 				select {
+				case <-done:
+					for range out {
+					}
+					log.Println("------------311--------------:", "i = ", i, ", done")
+					return
 				case o, ok := <-out:
-					log.Printf("------------302--------------: i = %v", i)
+					log.Printf("------------303--------------: i = %v", i)
 					if ok {
+						log.Printf("------------304--------------: ok, i = %v", i)
 						stageChans[i+1] <- o
 					} else {
+						log.Printf("------------305--------------: close, i = %v", i)
 						return
 					}
 
@@ -86,10 +116,11 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	go func() {
 		log.Println("------------901-------------- wg.Wait start")
 		wg.Wait()
+		//close(stageChans[stageLen])
 		log.Println("------------902-------------- wg.Wait end")
 	}()
 
-	return stageChans[stageLen+1]
+	return stageChans[stageLen]
 
 }
 

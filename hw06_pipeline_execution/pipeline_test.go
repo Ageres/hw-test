@@ -160,6 +160,7 @@ func TestPipeline1(t *testing.T) {
 		return func(in In) Out {
 			out := make(Bi)
 			go func() {
+				defer log.Printf("----002---- end: stageName: %v", stageName)
 				defer close(out)
 				for v := range in {
 					time.Sleep(sleepPerStage)
@@ -194,13 +195,13 @@ func TestPipeline1(t *testing.T) {
 		result := make([]string, 0, 10)
 		start := time.Now()
 		for s := range ExecutePipeline(in, nil, stages...) {
-			//log.Printf("----301---- s: %v, type: %T", s, s)
+			log.Printf("----901---- s: %v, type: %T", s, s)
 
 			result = append(result, s.(string))
 
 		}
 
-		//log.Println("----302---- result:", result)
+		//log.Println("----902---- result:", result)
 
 		elapsed := time.Since(start)
 
