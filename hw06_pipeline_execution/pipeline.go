@@ -21,10 +21,8 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 
 	go func() {
 		defer close(stageChans[0])
-		j := 0
 		for v := range in {
 			stageChans[0] <- v
-			j++
 		}
 	}()
 
