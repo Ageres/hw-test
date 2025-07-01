@@ -9,11 +9,11 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
-	if len(stages) == 0 {
+	stageLen := len(stages)
+	if stageLen == 0 {
 		return in
 	}
 
-	stageLen := len(stages)
 	stageChans := make([]Bi, stageLen+1)
 	for i := range stageChans {
 		stageChans[i] = make(Bi)
