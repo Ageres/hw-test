@@ -29,14 +29,15 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	}()
 
 	for i, stage := range stages {
-		var out = stage(stageChans[i])
+		out := stage(stageChans[i])
 		go func() {
 			defer close(stageChans[i+1])
 			for {
 				select {
 				case <-done:
 					go func() {
-						for _ = range out {
+						for v := range out {
+							_ = v
 						}
 					}()
 					return
