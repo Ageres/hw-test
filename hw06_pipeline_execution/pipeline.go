@@ -9,7 +9,6 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
-
 	if len(stages) == 0 {
 		return in
 	}
@@ -25,7 +24,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		j := 0
 		for v := range in {
 			stageChans[0] <- v
-			j = j + 1
+			j++
 		}
 	}()
 
@@ -37,7 +36,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 				select {
 				case <-done:
 					go func() {
-						for range out {
+						for _ = range out {
 						}
 					}()
 					return
