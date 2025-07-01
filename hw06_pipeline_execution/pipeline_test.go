@@ -154,7 +154,6 @@ func TestAllStageStop(t *testing.T) {
 }
 */
 
-/*
 func TestPipeline1(t *testing.T) {
 	// Stage generator
 	g := func(stageName string, f func(v interface{}) interface{}) Stage {
@@ -214,7 +213,6 @@ func TestPipeline1(t *testing.T) {
 	})
 
 }
-*/
 
 func TestAllStageStop1(t *testing.T) {
 	wg := sync.WaitGroup{}

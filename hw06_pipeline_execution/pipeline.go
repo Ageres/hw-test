@@ -13,7 +13,89 @@ type (
 
 type Stage func(in In) (out Out)
 
+//================================================================================
+
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
+	if len(stages) == 0 {
+		return in
+	}
+
+	stageLen := len(stages)
+
+	stageChans := make([]Bi, stageLen+2)
+
+	wg := sync.WaitGroup{}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		j := 0
+		for v := range in {
+			log.Printf("------------100--------------: j = %v, v = %v", j, v)
+			stageChans[0] <- v
+			log.Printf("------------101--------------: j = %v, v = %v", j, v)
+			j = j + 1
+
+		}
+	}()
+
+	for i, stage := range stages {
+		log.Printf("------------200--------------: i = %v", i)
+		//currentStageChan := stageChans[i]
+		//nextStegeChan := stageChans[i+1]
+		wg.Add(1)
+
+		var out Out = make(Out)
+		out = stage(stageChans[i])
+		go func() {
+			defer log.Printf("------------399--------------: i = %v, end", i)
+			defer wg.Done()
+			log.Printf("------------301--------------: i = %v, start", i)
+
+			for {
+				log.Printf("------------302--------------: i = %v", i)
+				select {
+				case o, ok := <-out:
+					log.Printf("------------302--------------: i = %v", i)
+					if ok {
+						stageChans[i+1] <- o
+					} else {
+						return
+					}
+
+				}
+			}
+
+			/*
+				wg.Add(1)
+				go func() {
+					defer log.Printf("------------499--------------: i = %v, inner end", i)
+					defer wg.Done()
+					log.Printf("------------401--------------: i = %v, inner start", i)
+					for o := range out {
+						log.Printf("------------402--------------: i = %v, o", o)
+						stageChans[i+1] <- o
+					}
+				}()
+			*/
+
+		}()
+
+	}
+
+	go func() {
+		log.Println("------------901-------------- wg.Wait start")
+		wg.Wait()
+		log.Println("------------902-------------- wg.Wait end")
+	}()
+
+	return stageChans[stageLen+1]
+
+}
+
+//================================================================================
+
+func ExecutePipelineOld1(in In, done In, stages ...Stage) Out {
 	if len(stages) == 0 {
 		return in
 	}
