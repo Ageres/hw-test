@@ -3,7 +3,6 @@ package hw06pipelineexecution
 import (
 	"log"
 	"sync"
-	"time"
 )
 
 type (
@@ -19,10 +18,17 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		return in
 	}
 
+	/*
+		in := make(Bi)
+		for v := range inn {
+			in <- v
+		}
+	*/
+
 	wg := sync.WaitGroup{}
 
 	current := in
-	//current := make(Bi)
+	//current := make(Out)
 	countGor := 0
 	for i, stage := range stages {
 		countGor = countGor + 1
@@ -32,7 +38,9 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 			//doneS := false
 			defer log.Println("------------105--------------:", "i = ", i, ", end")
 			defer wg.Done()
+			//defer closeCurrent(current, doneS, &wg)
 			defer close(input)
+			//defer closeInput(input, doneS)
 			//defer closePrev(doneS, &wg, prev)
 
 			for {
@@ -40,32 +48,53 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 				select {
 				case <-done:
 					log.Println("------------102--------------:", "i = ", i, ", done")
+
+					/*
+						go func() {
+							for range current {
+							}
+						}()
+					*/
+
+					//
+					for range prev {
+						//stage(prev)
+					}
+
 					//doneS = true
+					/*
+						wg.Add(1)
+						go func() {
+							defer wg.Done()
+							//for range prev {}
 
-					wg.Add(1)
-					go func() {
-						defer wg.Done()
-						countPrev := 0
+							countPrev := 0
 
-						timer := time.NewTimer(1 * time.Second)
+							timer := time.NewTimer(1 * time.Second)
 
-						for {
-							countPrev = countPrev + 1
-							select {
-							case <-prev:
-								log.Println("------------1021-------------: prev  ", "i = ", i, ", countPrev =", countPrev)
-							case <-timer.C:
-								log.Println("------------1021-------------: timer ", "i = ", i, ", countPrev =", countPrev)
-								return
-							}
-						}
-						/*
-							for range prev {
+							for {
 								countPrev = countPrev + 1
-								log.Println("------------1021-------------:", "i = ", i, ", countPrev =", countPrev)
+								select {
+								case v, ok := <-prev:
+									log.Println("------------1021-------------: prev  ", "i = ", i, ", countPrev =", countPrev)
+									if !ok {
+										return
+									} else {
+										input <- v
+									}
+								case <-timer.C:
+									log.Println("------------1021-------------: timer ", "i = ", i, ", countPrev =", countPrev)
+									return
+								}
 							}
-						*/
-					}()
+
+							/*
+								for range prev {
+									countPrev = countPrev + 1
+									log.Println("------------1021-------------:", "i = ", i, ", countPrev =", countPrev)
+								}
+					*/
+					//}()
 
 					//<-prev
 					return
@@ -79,21 +108,25 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 						//for range input {}
 						return
 					case input <- v:
+						log.Println("------------104--------------:", "i = ", i, ", v = ", v, ", prev")
 					}
 				}
-				log.Println("------------104--------------:", "i = ", i)
+				//log.Println("------------104--------------:", "i = ", i)
 			}
 			//
 		}(stageInput, current)
 		current = stage(stageInput)
-		log.Println("------------106--------------:", "i = ", i)
+		//log.Println("------------106--------------:", "i = ", i)
 	}
 
 	go func() {
 		log.Println("------------201--------------: countGor: ", countGor)
 		wg.Wait()
 		log.Println("------------202--------------: countGor: ", countGor)
-		//for range current {}
+
+		for v := range current {
+			log.Println("------------203--------------: v: ", v)
+		}
 		/*
 			for {
 				_, ok := <-current
@@ -103,12 +136,63 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 				}
 			}
 		*/
-		log.Println("------------204--------------: countGor: ", countGor)
+		//log.Println("------------204--------------: countGor: ", countGor)
+	}()
+
+	wg2 := sync.WaitGroup{}
+	wg2.Add(1)
+	go func() {
+		defer wg2.Done()
+		for {
+			//log.Println("------------205--------------")
+			select {
+			case <-done:
+				//log.Println("------------206-------------- done")
+				for range current {
+				}
+				return
+				/*
+					case _, ok := <-in:
+						if !ok {
+							return
+						} else {
+							in <- v
+						}*/
+
+			}
+		}
+	}()
+
+	go func() {
+		log.Println("------------301--------------: countGor: ", countGor)
+		wg2.Wait()
+		log.Println("------------302--------------: countGor: ", countGor)
 	}()
 
 	return current
 }
 
+func closeInput(input Bi, dones bool) {
+	if dones {
+		for range input {
+		}
+	}
+	close(input)
+}
+
+func closeCurrent(current In, dones bool, wg *sync.WaitGroup) {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if dones {
+			for range current {
+			}
+		}
+	}()
+
+}
+
+/*
 func closePrev(doneS bool, wg *sync.WaitGroup, prev Out) {
 	if doneS {
 		wg.Add(1)
@@ -122,3 +206,4 @@ func closePrev(doneS bool, wg *sync.WaitGroup, prev Out) {
 		}()
 	}
 }
+*/

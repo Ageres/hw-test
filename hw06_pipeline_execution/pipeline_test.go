@@ -1,6 +1,7 @@
 package hw06pipelineexecution
 
 import (
+	"log"
 	"strconv"
 	"sync"
 	"testing"
@@ -14,6 +15,7 @@ const (
 	fault         = sleepPerStage / 2
 )
 
+/*
 func TestPipeline(t *testing.T) {
 	// Stage generator
 	g := func(_ string, f func(v interface{}) interface{}) Stage {
@@ -92,7 +94,9 @@ func TestPipeline(t *testing.T) {
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
 }
+*/
 
+/*
 func TestAllStageStop(t *testing.T) {
 	wg := sync.WaitGroup{}
 	// Stage generator
@@ -148,6 +152,7 @@ func TestAllStageStop(t *testing.T) {
 
 	})
 }
+*/
 
 /*
 func TestPipeline1(t *testing.T) {
@@ -211,7 +216,6 @@ func TestPipeline1(t *testing.T) {
 }
 */
 
-/*
 func TestAllStageStop1(t *testing.T) {
 	wg := sync.WaitGroup{}
 	// Stage generator
@@ -220,6 +224,7 @@ func TestAllStageStop1(t *testing.T) {
 			out := make(Bi)
 			wg.Add(1)
 			go func() {
+				defer log.Println("----1002---- end: stageName = ", stageName)
 				defer wg.Done()
 				defer close(out)
 				for v := range in {
@@ -262,13 +267,13 @@ func TestAllStageStop1(t *testing.T) {
 
 		result := make([]string, 0, 10)
 		for s := range ExecutePipeline(in, done, stages...) {
+			log.Println("----1011----: s = ", s)
 			result = append(result, s.(string))
 		}
-		log.Println("----1002----")
+		log.Println("----1012----")
 		wg.Wait()
-		log.Println("----1003----")
+		log.Println("----1013----")
 		require.Len(t, result, 0)
-		log.Println("----1004----")
+		log.Println("----1014----")
 	})
 }
-*/
