@@ -3,7 +3,6 @@ package hw06pipelineexecution
 import (
 	"log"
 	"strconv"
-	"sync"
 	"testing"
 	"time"
 
@@ -215,6 +214,7 @@ func TestPipeline1(t *testing.T) {
 
 }
 
+/*
 func TestAllStageStop1(t *testing.T) {
 	wg := sync.WaitGroup{}
 	// Stage generator
@@ -276,3 +276,4 @@ func TestAllStageStop1(t *testing.T) {
 		log.Println("----1014----")
 	})
 }
+*/

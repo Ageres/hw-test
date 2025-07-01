@@ -43,29 +43,8 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		}
 	}()
 
-	//wg.Add(1)
-	//go func() {
-	//defer wg.Done()
-	/*
-		j := 0
-		for v := range stageChans[0] {
-			log.Printf("------------102--------------: j = %v, v = %v", j, v)
-			a, ok := <-stageChans[0]
-			if ok {
-				log.Printf("------------103--------------: j = %v, v = %v, a = %v", j, v, a)
-			} else {
-				log.Printf("------------104--------------: j = %v, v = %v, a = %v", j, v, a)
-			}
-
-			j = j + 1
-
-		}*/
-	//}()
-
 	for i, stage := range stages {
 		log.Printf("------------200--------------: i = %v", i)
-		//currentStageChan := stageChans[i]
-		//nextStegeChan := stageChans[i+1]
 		wg.Add(1)
 
 		var out = stage(stageChans[i])
@@ -92,23 +71,8 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 						log.Printf("------------305--------------: close, i = %v", i)
 						return
 					}
-
 				}
 			}
-
-			/*
-				wg.Add(1)
-				go func() {
-					defer log.Printf("------------499--------------: i = %v, inner end", i)
-					defer wg.Done()
-					log.Printf("------------401--------------: i = %v, inner start", i)
-					for o := range out {
-						log.Printf("------------402--------------: i = %v, o", o)
-						stageChans[i+1] <- o
-					}
-				}()
-			*/
-
 		}()
 
 	}
@@ -116,7 +80,6 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	go func() {
 		log.Println("------------901-------------- wg.Wait start")
 		wg.Wait()
-		//close(stageChans[stageLen])
 		log.Println("------------902-------------- wg.Wait end")
 	}()
 
