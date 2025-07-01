@@ -1,7 +1,6 @@
 package hw06pipelineexecution
 
 import (
-	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -14,7 +13,6 @@ const (
 	fault         = sleepPerStage / 2
 )
 
-/*
 func TestPipeline(t *testing.T) {
 	// Stage generator
 	g := func(_ string, f func(v interface{}) interface{}) Stage {
@@ -93,7 +91,6 @@ func TestPipeline(t *testing.T) {
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
 }
-*/
 
 /*
 func TestAllStageStop(t *testing.T) {
@@ -153,18 +150,19 @@ func TestAllStageStop(t *testing.T) {
 }
 */
 
+/*
 func TestPipeline1(t *testing.T) {
 	// Stage generator
 	g := func(stageName string, f func(v interface{}) interface{}) Stage {
 		return func(in In) Out {
 			out := make(Bi)
 			go func() {
-				defer log.Printf("----002---- end: stageName: %v", stageName)
+				//defer log.Printf("----002---- end: stageName: %v", stageName)
 				defer close(out)
 				for v := range in {
 					time.Sleep(sleepPerStage)
 					o := f(v)
-					log.Printf("----001---- v: %v, stageName: %v, type_v: %T,  o: %v, type_o: %T", v, stageName, v, o, o)
+					//log.Printf("----001---- v: %v, stageName: %v, type_v: %T,  o: %v, type_o: %T", v, stageName, v, o, o)
 					out <- o
 				}
 			}()
@@ -194,7 +192,7 @@ func TestPipeline1(t *testing.T) {
 		result := make([]string, 0, 10)
 		start := time.Now()
 		for s := range ExecutePipeline(in, nil, stages...) {
-			log.Printf("----901---- s: %v, type: %T", s, s)
+			//log.Printf("----901---- s: %v, type: %T", s, s)
 
 			result = append(result, s.(string))
 
@@ -213,6 +211,7 @@ func TestPipeline1(t *testing.T) {
 	})
 
 }
+*/
 
 /*
 func TestAllStageStop1(t *testing.T) {
