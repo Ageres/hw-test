@@ -1,4 +1,4 @@
-module github.com/Ageres/hw06_pipeline_execution
+module github.com/Ageres/hw-test/hw06_pipeline_execution
 
 go 1.23
 
