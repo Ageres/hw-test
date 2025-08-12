@@ -18,10 +18,12 @@ const (
 	ERROR LogLevel = "ERROR"
 )
 
+type LogFormat string
+
 const (
-	JSON        = "JSON"
-	TEXT        = "TEXT"
-	COLOUR_TEXT = "COLOUR_TEXT"
+	JSON        LogFormat = "JSON"
+	TEXT        LogFormat = "TEXT"
+	COLOUR_TEXT LogFormat = "COLOUR_TEXT"
 )
 
 type Logger struct {
@@ -71,7 +73,7 @@ func getLoggerLevel(logLevel string) slog.Level {
 
 func buildSlogHandler(slogLevel slog.Level, format string, output io.Writer) *slog.Handler {
 	var slogHandler slog.Handler
-	switch format {
+	switch LogFormat(format) {
 	case JSON:
 		optRef := buildSlogHandlerOptions(slogLevel)
 		slogHandler = slog.NewJSONHandler(output, optRef)
