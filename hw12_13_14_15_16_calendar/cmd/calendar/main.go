@@ -17,6 +17,7 @@ import (
 	memorystorage "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
+// запуск с аргументом: go run .\cmd\calendar\main.go --config=./configs/calendar_config.yaml
 func main() {
 	log.Println("----101----")
 	cliArgs := config.Execute()
