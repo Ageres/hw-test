@@ -1,8 +1,6 @@
 logger:
   level: INFO
 
-# TODO
-# ...
 http:
   server:
     host: localhost
