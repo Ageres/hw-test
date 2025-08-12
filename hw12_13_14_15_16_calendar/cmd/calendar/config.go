@@ -13,6 +13,20 @@ type LoggerConf struct {
 	// TODO
 }
 
+type Http struct {
+	Server Server
+}
+
+type Server struct {
+	Host string
+	Port int
+	Path Path
+}
+
+type Path struct {
+	Hello string
+}
+
 func NewConfig() Config {
 	return Config{}
 }
