@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/config"
+	cli "github.com/Ageres/hw-test/hw12_13_14_15_calendar/cmd/calendar/cli"
 )
 
 func main() {
 	log.Println("----101----")
-	cliArgs := config.Execute()
+	cliArgs := cli.Execute()
 	log.Println("----102---- configFile:", cliArgs.PathToConfigFile)
 	/*
 		flag.Parse()
