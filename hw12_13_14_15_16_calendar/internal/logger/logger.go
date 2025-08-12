@@ -25,7 +25,6 @@ func New(loggerConf model.LoggerConf) *Logger {
 	if loggerConf.Format == "JSON" {
 		logHandler = slog.NewJSONHandler(os.Stdout, logConfig)
 	} else {
-		//logHandler = slog.NewTextHandler(os.Stdout, logConfig)
 		logHandler = cslog.NewHandler(os.Stdout, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
 	}
 	logger := slog.New(logHandler)
