@@ -1,5 +1,9 @@
 logger:
-  level: INFO
+  # DEBUG, INFO, WARN, ERROR
+  level: INFO 
+  # TEXT, JSON 
+  format: JSON 
+
 
 http:
   server:
