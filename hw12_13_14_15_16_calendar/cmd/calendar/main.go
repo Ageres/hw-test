@@ -10,9 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	cli "github.com/Ageres/hw-test/hw12_13_14_15_calendar/cmd/calendar/cli"
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/cmd/calendar/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/memory"
@@ -20,7 +19,7 @@ import (
 
 func main() {
 	log.Println("----101----")
-	cliArgs := cli.Execute()
+	cliArgs := config.Execute()
 	log.Println("----102---- PathToConfigFile:", cliArgs.PathToConfigFile)
 
 	config := config.NewConfig(cliArgs.PathToConfigFile)

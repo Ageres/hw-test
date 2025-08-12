@@ -1,9 +1,8 @@
 logger:
   # DEBUG, INFO, WARN, ERROR
   level: INFO 
-  # TEXT, JSON 
-  #format: JSON
-  format: TEXT
+  # JSON, TEXT, COLOUR_TEXT 
+  format: COLOUR_TEXT
 
 
 http:

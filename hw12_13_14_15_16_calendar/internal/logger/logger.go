@@ -8,27 +8,21 @@ import (
 	cslog "github.com/phsym/console-slog"
 )
 
+const (
+	DEBUG = "DEBUG"
+	INFO  = "INFO"
+	WARN  = "WARN"
+	ERROR = "ERROR"
+)
+
+const (
+	JSON        = "JSON"
+	TEXT        = "TEXT"
+	COLOUR_TEXT = "COLOUR_TEXT"
+)
+
 type Logger struct {
 	slogLogger *slog.Logger
-}
-
-func New(loggerConf model.LoggerConf) *Logger {
-	slogLevel := getLoggerLevel(loggerConf.Level)
-
-	logConfig := &slog.HandlerOptions{
-		AddSource:   false,
-		Level:       slogLevel,
-		ReplaceAttr: nil,
-	}
-
-	var logHandler slog.Handler
-	if loggerConf.Format == "JSON" {
-		logHandler = slog.NewJSONHandler(os.Stdout, logConfig)
-	} else {
-		logHandler = cslog.NewHandler(os.Stdout, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
-	}
-	logger := slog.New(logHandler)
-	return &Logger{logger}
 }
 
 func (l *Logger) Debug(msg string, args ...any) {
@@ -47,13 +41,17 @@ func (l *Logger) Error(msg string, args ...any) {
 	l.slogLogger.Error(msg, args...)
 }
 
-const DEBUG = "DEBUG"
-const INFO = "INFO"
-const WARN = "WARN"
-const ERROR = "ERROR"
+func New(loggerConf model.LoggerConf) *Logger {
+	slogLevel := getLoggerLevel(loggerConf.Level)
+	slogHandlerRef := buildSlogHandler(slogLevel, loggerConf.Format)
+	logger := slog.New(*slogHandlerRef)
+	return &Logger{logger}
+}
 
 func getLoggerLevel(logLevel string) slog.Level {
 	switch logLevel {
+	case DEBUG:
+		return slog.LevelDebug
 	case INFO:
 		return slog.LevelInfo
 	case WARN:
@@ -62,5 +60,30 @@ func getLoggerLevel(logLevel string) slog.Level {
 		return slog.LevelError
 	default:
 		return slog.LevelDebug
+	}
+}
+
+func buildSlogHandler(slogLevel slog.Level, format string) *slog.Handler {
+	var slogHandler slog.Handler
+	switch format {
+	case JSON:
+		optRef := buildSlogHandlerOptions(slogLevel)
+		slogHandler = slog.NewJSONHandler(os.Stdout, optRef)
+	case TEXT:
+		optRef := buildSlogHandlerOptions(slogLevel)
+		slogHandler = slog.NewTextHandler(os.Stdout, optRef)
+	case COLOUR_TEXT:
+		slogHandler = cslog.NewHandler(os.Stdout, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
+	default:
+		slogHandler = cslog.NewHandler(os.Stdout, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
+	}
+	return &slogHandler
+}
+
+func buildSlogHandlerOptions(slogLevel slog.Level) *slog.HandlerOptions {
+	return &slog.HandlerOptions{
+		AddSource:   false,
+		Level:       slogLevel,
+		ReplaceAttr: nil,
 	}
 }

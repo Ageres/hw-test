@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -14,7 +13,6 @@ var (
 )
 
 func printVersion() {
-	log.Println("----201----")
 	if err := json.NewEncoder(os.Stdout).Encode(struct {
 		Release   string
 		BuildDate string
@@ -26,5 +24,4 @@ func printVersion() {
 	}); err != nil {
 		fmt.Printf("error while decode version info: %v\n", err)
 	}
-	log.Println("----201----")
 }
