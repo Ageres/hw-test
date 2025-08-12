@@ -2,6 +2,7 @@ package logger
 
 import (
 	"bytes"
+	"log"
 	"testing"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
@@ -93,5 +94,18 @@ func TestLoggerLevel(t *testing.T) {
 		require.Contains(t, output, `"level":"WARN","msg":"warn message"`)
 		require.Contains(t, output, `"level":"ERROR","msg":"error message"`)
 	})
+}
 
+func TestLoggerFormat(t *testing.T) {
+	t.Run("test json format", func(t *testing.T) {
+		var buf bytes.Buffer
+		conf := model.LoggerConf{Level: "INFO", Format: "JSON"}
+		logger := New(conf, &buf)
+
+		logger.Info("info message", "param", "one")
+
+		output := buf.String()
+		log.Println("-------:", output)
+		require.Contains(t, output, `"level":"INFO","msg":"info message","param":"one"`)
+	})
 }
