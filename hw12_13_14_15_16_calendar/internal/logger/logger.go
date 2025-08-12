@@ -14,7 +14,20 @@ type Logger struct {
 
 func New(loggerConf model.LoggerConf) *Logger {
 	slogLevel := getLoggerLevel(loggerConf.Level)
-	logHandler := cslog.NewHandler(os.Stderr, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
+
+	logConfig := &slog.HandlerOptions{
+		AddSource:   false,
+		Level:       slogLevel,
+		ReplaceAttr: nil,
+	}
+
+	var logHandler slog.Handler
+	if loggerConf.Format == "JSON" {
+		logHandler = slog.NewJSONHandler(os.Stdout, logConfig)
+	} else {
+		//logHandler = slog.NewTextHandler(os.Stdout, logConfig)
+		logHandler = cslog.NewHandler(os.Stdout, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
+	}
 	logger := slog.New(logHandler)
 	return &Logger{logger}
 }
