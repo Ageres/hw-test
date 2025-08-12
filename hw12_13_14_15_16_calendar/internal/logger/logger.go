@@ -51,8 +51,8 @@ func New(loggerConf model.LoggerConf, output io.Writer) *Logger {
 		output = os.Stdout
 	}
 	slogLevel := getLoggerLevel(loggerConf.Level)
-	slogHandlerRef := buildSlogHandler(slogLevel, loggerConf.Format, output)
-	logger := slog.New(*slogHandlerRef)
+	slogHandler := buildSlogHandler(slogLevel, loggerConf.Format, output)
+	logger := slog.New(slogHandler)
 	return &Logger{logger}
 }
 
@@ -71,7 +71,7 @@ func getLoggerLevel(logLevel string) slog.Level {
 	}
 }
 
-func buildSlogHandler(slogLevel slog.Level, format string, output io.Writer) *slog.Handler {
+func buildSlogHandler(slogLevel slog.Level, format string, output io.Writer) slog.Handler {
 	var slogHandler slog.Handler
 	switch LogFormat(format) {
 	case JSON:
@@ -85,7 +85,7 @@ func buildSlogHandler(slogLevel slog.Level, format string, output io.Writer) *sl
 	default:
 		slogHandler = cslog.NewHandler(output, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
 	}
-	return &slogHandler
+	return slogHandler
 }
 
 func buildSlogHandlerOptions(slogLevel slog.Level) *slog.HandlerOptions {
