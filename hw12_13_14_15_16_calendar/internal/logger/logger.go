@@ -9,11 +9,13 @@ import (
 	cslog "github.com/phsym/console-slog"
 )
 
+type LogLevel string
+
 const (
-	DEBUG = "DEBUG"
-	INFO  = "INFO"
-	WARN  = "WARN"
-	ERROR = "ERROR"
+	DEBUG LogLevel = "DEBUG"
+	INFO  LogLevel = "INFO"
+	WARN  LogLevel = "WARN"
+	ERROR LogLevel = "ERROR"
 )
 
 const (
@@ -53,7 +55,7 @@ func New(loggerConf model.LoggerConf, output io.Writer) *Logger {
 }
 
 func getLoggerLevel(logLevel string) slog.Level {
-	switch logLevel {
+	switch LogLevel(logLevel) {
 	case DEBUG:
 		return slog.LevelDebug
 	case INFO:
