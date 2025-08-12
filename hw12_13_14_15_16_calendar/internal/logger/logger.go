@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"io"
 	"log/slog"
 	"os"
 
@@ -41,9 +42,12 @@ func (l *Logger) Error(msg string, args ...any) {
 	l.slogLogger.Error(msg, args...)
 }
 
-func New(loggerConf model.LoggerConf) *Logger {
+func New(loggerConf model.LoggerConf, output io.Writer) *Logger {
+	if output == nil {
+		output = os.Stdout
+	}
 	slogLevel := getLoggerLevel(loggerConf.Level)
-	slogHandlerRef := buildSlogHandler(slogLevel, loggerConf.Format)
+	slogHandlerRef := buildSlogHandler(slogLevel, loggerConf.Format, output)
 	logger := slog.New(*slogHandlerRef)
 	return &Logger{logger}
 }
@@ -63,19 +67,19 @@ func getLoggerLevel(logLevel string) slog.Level {
 	}
 }
 
-func buildSlogHandler(slogLevel slog.Level, format string) *slog.Handler {
+func buildSlogHandler(slogLevel slog.Level, format string, output io.Writer) *slog.Handler {
 	var slogHandler slog.Handler
 	switch format {
 	case JSON:
 		optRef := buildSlogHandlerOptions(slogLevel)
-		slogHandler = slog.NewJSONHandler(os.Stdout, optRef)
+		slogHandler = slog.NewJSONHandler(output, optRef)
 	case TEXT:
 		optRef := buildSlogHandlerOptions(slogLevel)
-		slogHandler = slog.NewTextHandler(os.Stdout, optRef)
+		slogHandler = slog.NewTextHandler(output, optRef)
 	case COLOUR_TEXT:
-		slogHandler = cslog.NewHandler(os.Stdout, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
+		slogHandler = cslog.NewHandler(output, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
 	default:
-		slogHandler = cslog.NewHandler(os.Stdout, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
+		slogHandler = cslog.NewHandler(output, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
 	}
 	return &slogHandler
 }

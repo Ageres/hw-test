@@ -25,7 +25,7 @@ func main() {
 	config := config.NewConfig(cliArgs.PathToConfigFile)
 	log.Println("----103---- :", MarshalAny(config))
 
-	logg := logger.New(config.Logger)
+	logg := logger.New(config.Logger, nil)
 
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)
