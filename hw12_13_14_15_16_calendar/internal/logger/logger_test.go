@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bytes"
-	"log"
 	"testing"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
@@ -127,7 +126,6 @@ func TestLoggerFormat(t *testing.T) {
 		logger.Info("info message", "param", "one")
 
 		output := buf.String()
-		log.Println("-------:", output)
 		require.Contains(t, output, "INF\x1b[0m \x1b[1;97minfo message\x1b[0m \x1b[96mparam=\x1b[0mone\n")
 	})
 }
