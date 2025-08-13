@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -247,6 +248,73 @@ func TestStorageConcurrentAdd(t *testing.T) {
 	wg.Wait()
 
 	require.Len(t, dto.storage.events, 100)
+}
+
+func TestStorageConcurrentReadWrite(t *testing.T) {
+	dto := newTestMemoryStorageDto().buildNewStorage()
+	dto.now = time.Now()
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := range 100 {
+			event1 := storage.Event{
+				Title:     "Event 1",
+				StartTime: dto.now.Add(2 * time.Hour),
+				Duration:  1 * time.Hour,
+				UserID:    strconv.Itoa(i),
+			}
+			err := dto.storage.Add(&event1)
+			require.NoError(t, err)
+			time.Sleep(10 * time.Millisecond)
+		}
+	}()
+
+	for range 5 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for range 20 {
+				_, err := dto.storage.ListDay(time.Now())
+				require.NoError(t, err)
+				time.Sleep(15 * time.Millisecond)
+			}
+		}()
+	}
+	wg.Wait()
+}
+
+func TestStorageConcurrentUpdateDelete(t *testing.T) {
+	dto := newTestMemoryStorageDto().buildNewStorage()
+	events := dto.buildNewEvents().events
+	require.NoError(t, dto.storage.Add(&events[0]))
+	var wg sync.WaitGroup
+
+	for i := range 5 {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			for j := range 10 {
+				updatedEvent := events[0]
+				updatedEvent.Title = fmt.Sprintf("Updated %d-%d", idx, j)
+				err := dto.storage.Update(events[0].ID, &updatedEvent)
+				require.NoError(t, err)
+			}
+		}(i)
+	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		time.Sleep(50 * time.Millisecond)
+		err := dto.storage.Delete(events[0].ID)
+		require.NoError(t, err)
+	}()
+
+	wg.Wait()
+	_, exists := dto.storage.events[events[0].ID]
+	require.False(t, exists)
 }
 
 // -------------------------------------------------------------------------------------

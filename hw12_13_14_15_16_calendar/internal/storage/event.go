@@ -3,6 +3,7 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -73,6 +74,7 @@ func (e *Event) Validate() error {
 	}
 	if e.StartTime.Before(time.Now()) {
 		errMsgs = append(errMsgs, ErrEventTimeIsExpiredMsg)
+		log.Println("------------- e.StartTime:", e.StartTime, ", time.Now(): ", time.Now())
 	}
 	if e.UserID == "" {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
