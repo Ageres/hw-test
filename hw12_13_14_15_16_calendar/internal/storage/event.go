@@ -1,6 +1,10 @@
 package storage
 
-import "time"
+import (
+	"time"
+
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+)
 
 type Event struct {
 	ID          string //UUID
@@ -12,8 +16,8 @@ type Event struct {
 	Reminder    time.Duration
 }
 
-func (e *Event) ToNotification() Notification {
-	return Notification{
+func (e *Event) ToNotification() *model.Notification {
+	return &model.Notification{
 		ID:        e.ID,
 		Title:     e.Title,
 		StartTime: e.StartTime,
