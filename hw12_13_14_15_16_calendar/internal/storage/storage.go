@@ -10,19 +10,18 @@ import (
 )
 
 var (
-	ErrEventIsNil           = errors.New("event is nil")
-	ErrDateBusy             = errors.New("time is already taken by another event")
-	ErrUserConflict         = errors.New("user is not the owner of the event")
-	ErrEventNotFound        = errors.New("no events found")
-	ErrEventAllreadyCreated = errors.New("event with this ID has already been created")
-	ErrEmptyEventId         = errors.New(ErrEmptyEventIdMsg)
+	ErrEventIsNil          = errors.New("event is nil")
+	ErrDateBusy            = errors.New("time is already taken by another event")
+	ErrUserConflict        = errors.New("user is not the owner of the event")
+	ErrEventNotFound       = errors.New("no events found")
+	ErrEventAllreadyExists = errors.New("event with this id already exists")
+	ErrEmptyEventId        = errors.New(ErrEmptyEventIdMsg)
 )
 
 const (
 	ErrEmptyEventIdMsg       = "event id is empty"
 	ErrEmptyTitleMsg         = "title is empty"
 	ErrEventTimeIsExpiredMsg = "event time is expired"
-	ErrEmptyDescriptionMsg   = "description is empty"
 	ErrEmptyUserIdMsg        = "user id is empty"
 )
 
@@ -43,8 +42,6 @@ type Storage interface {
 	ListDay(start time.Time) ([]Event, error)
 	ListWeek(start time.Time) ([]Event, error)
 	ListMonth(start time.Time) ([]Event, error)
-	//Get(id string) (Event, error)
-	//ListPeriodByUserId(start time.Time, duration time.Duration, userId string)
 }
 
 func (e *Event) ToNotification() *model.Notification {
@@ -62,8 +59,14 @@ func (e *Event) ToNotification() *model.Notification {
 	}
 }
 
+func (e *Event) Overlaps(other *Event) bool {
+	end1 := e.StartTime.Add(e.Duration)
+	end2 := other.StartTime.Add(other.Duration)
+	return e.StartTime.Before(end2) && end1.After(other.StartTime)
+}
+
 func (e *Event) FullValidate() error {
-	errMsgs := make([]string, 0, 5)
+	errMsgs := make([]string, 0, 4)
 	if e.ID == "" {
 		errMsgs = append(errMsgs, ErrEmptyEventIdMsg)
 	}
@@ -72,9 +75,6 @@ func (e *Event) FullValidate() error {
 	}
 	if e.StartTime.Before(time.Now()) {
 		errMsgs = append(errMsgs, ErrEventTimeIsExpiredMsg)
-	}
-	if e.Description == "" {
-		errMsgs = append(errMsgs, ErrEmptyDescriptionMsg)
 	}
 	if e.UserID == "" {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
@@ -89,15 +89,12 @@ func (e *Event) FullValidate() error {
 
 // без валидации ID
 func (e *Event) Validate() error {
-	errMsgs := make([]string, 0, 4)
+	errMsgs := make([]string, 0, 3)
 	if e.Title == "" {
 		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
 	}
 	if e.StartTime.Before(time.Now()) {
 		errMsgs = append(errMsgs, ErrEventTimeIsExpiredMsg)
-	}
-	if e.Description == "" {
-		errMsgs = append(errMsgs, ErrEmptyDescriptionMsg)
 	}
 	if e.UserID == "" {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)

@@ -32,12 +32,12 @@ func (s *MemoryStorage) Add(eventRef *storage.Event) error {
 	eventRef.CheckAndGenerateId()
 
 	if _, exists := s.events[eventRef.ID]; exists {
-		return storage.ErrEventAllreadyCreated
+		return storage.ErrEventAllreadyExists
 	}
 
-	for _, createdEvent := range s.events {
-		if createdEvent.UserID == eventRef.UserID &&
-			checkTimeOverlap(createdEvent.StartTime, createdEvent.Duration, eventRef.StartTime, eventRef.Duration) {
+	for _, existingEvent := range s.events {
+		if existingEvent.UserID == eventRef.UserID &&
+			existingEvent.Overlaps(eventRef) {
 			return storage.ErrDateBusy
 		}
 	}
@@ -70,7 +70,7 @@ func (s *MemoryStorage) Update(id string, newEventRef *storage.Event) error {
 	for _, existingEvent := range s.events {
 		if existingEvent.UserID == newEventRef.UserID &&
 			existingEvent.ID != id &&
-			checkTimeOverlap(existingEvent.StartTime, existingEvent.Duration, newEventRef.StartTime, newEventRef.Duration) {
+			existingEvent.Overlaps(newEventRef) {
 			return storage.ErrDateBusy
 		}
 	}
@@ -139,10 +139,4 @@ func (s *MemoryStorage) getEventsByPeriod(startTime, endTime time.Time) []storag
 		}
 	}
 	return result
-}
-
-func checkTimeOverlap(start1 time.Time, duration1 time.Duration, start2 time.Time, duration2 time.Duration) bool {
-	end1 := start1.Add(duration1)
-	end2 := start2.Add(duration2)
-	return start1.Before(end2) && end1.After(start2)
 }
