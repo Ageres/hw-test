@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStorage_Add(t *testing.T) {
+func TestStorageAdd(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewEvents()
 	events := dto.events
 
@@ -65,7 +65,7 @@ func TestStorage_Add(t *testing.T) {
 
 }
 
-func TestStorage_Update(t *testing.T) {
+func TestStorageUpdate(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewEvents()
 	events := dto.events
 
@@ -115,7 +115,7 @@ func TestStorage_Update(t *testing.T) {
 	})
 }
 
-func TestStorage_Delete(t *testing.T) {
+func TestStorageDelete(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewEvents()
 	events := dto.events
 
@@ -151,11 +151,60 @@ func TestStorage_Delete(t *testing.T) {
 	})
 }
 
+func TestStorageListEvents(t *testing.T) {
+	dto := newTestMemoryStorageDto().buildNewEvents()
+	events := dto.events
+
+	t.Run("list day events", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.Len(t, dto.storage.events, 0)
+		require.NoError(t, dto.storage.Add(&events[0]))
+		require.NoError(t, dto.storage.Add(&events[1]))
+		require.NoError(t, dto.storage.Add(&events[2]))
+		require.Len(t, dto.storage.events, 3)
+
+		dayEvents, err := dto.storage.ListDay(dto.now)
+		require.NoError(t, err)
+		require.Len(t, dayEvents, 3)
+
+		require.NoError(t, dto.storage.Delete(events[0].ID))
+		require.NoError(t, dto.storage.Delete(events[1].ID))
+		require.Len(t, dto.storage.events, 1)
+
+		dayEvents, err = dto.storage.ListDay(dto.now)
+		require.NoError(t, err)
+		require.Equal(t, dayEvents[0].ID, events[2].ID)
+	})
+
+	t.Run("list week events", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.Len(t, dto.storage.events, 0)
+		require.NoError(t, dto.storage.Add(&events[0]))
+		require.NoError(t, dto.storage.Add(&events[1]))
+		require.NoError(t, dto.storage.Add(&events[2]))
+		require.Len(t, dto.storage.events, 3)
+
+		dayEvents, err := dto.storage.ListDay(dto.now)
+		require.NoError(t, err)
+		require.Len(t, dayEvents, 3)
+
+		require.NoError(t, dto.storage.Delete(events[0].ID))
+		require.NoError(t, dto.storage.Delete(events[1].ID))
+		require.Len(t, dto.storage.events, 1)
+
+		dayEvents, err = dto.storage.ListDay(dto.now)
+		require.NoError(t, err)
+		require.Equal(t, dayEvents[0].ID, events[2].ID)
+	})
+
+}
+
 // -------------------------------------------------------------------------------------
 // Вспомогательные функции
 type TestMemoryStorageDto struct {
 	storage *MemoryStorage
 	events  []storage.Event
+	now     time.Time
 }
 
 func newTestMemoryStorageDto() *TestMemoryStorageDto {
@@ -168,7 +217,7 @@ func (dto *TestMemoryStorageDto) buildNewStorage() *TestMemoryStorageDto {
 }
 
 func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
-	now := time.Now()
+	dto.now = time.Now()
 	correctEventId := "aaeef68f-267d-459d-bda6-c900e27f4afe"
 	wrongEventId := "459d-bda6-c900e27f4afe"
 	userIDOne := "d6e2955f-7a5b-47f2-8f03-999ad489f51a"
@@ -176,38 +225,38 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 	event0 := storage.Event{
 		ID:          correctEventId,
 		Title:       "Event 0",
-		StartTime:   now.Add(1 * time.Hour),
+		StartTime:   dto.now.Add(1 * time.Hour),
 		Duration:    30 * time.Minute,
 		Description: "Test event 0",
 		UserID:      userIDOne,
 	}
 	event1 := storage.Event{
 		Title:     "Event 1",
-		StartTime: now.Add(2 * time.Hour),
+		StartTime: dto.now.Add(2 * time.Hour),
 		Duration:  1 * time.Hour,
 		UserID:    userIDOne,
 	}
 	event2 := storage.Event{
 		Title:     "Event 2 (other user)",
-		StartTime: now.Add(1 * time.Hour),
+		StartTime: dto.now.Add(1 * time.Hour),
 		Duration:  30 * time.Minute,
 		UserID:    userIDTwo,
 	}
 	event3 := storage.Event{
 		Title:       "Event 3",
-		StartTime:   now.Add(50 * time.Minute),
+		StartTime:   dto.now.Add(50 * time.Minute),
 		Duration:    30 * time.Minute,
 		Description: "Test event 3",
 		UserID:      userIDOne,
 	}
 	event4 := storage.Event{
-		StartTime:   now.Add(-50 * time.Minute),
+		StartTime:   dto.now.Add(-50 * time.Minute),
 		Duration:    30 * time.Minute,
 		Description: "Test event 4",
 	}
 	event5 := storage.Event{
 		ID:          wrongEventId,
-		StartTime:   now.Add(-50 * time.Minute),
+		StartTime:   dto.now.Add(-50 * time.Minute),
 		Duration:    30 * time.Minute,
 		Description: "Test event 5",
 	}
