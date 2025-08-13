@@ -3,6 +3,7 @@ module github.com/Ageres/hw-test/hw12_13_14_15_calendar
 go 1.23
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/phsym/console-slog v0.3.1
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.7.1
