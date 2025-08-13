@@ -42,6 +42,7 @@ type Storage interface {
 	ListDay(day time.Time) ([]Event, error)
 	ListWeek(start time.Time) ([]Event, error)
 	ListMonth(start time.Time) ([]Event, error)
+	Get(id string) (Event, error)
 	ListPeriodByUserId(start time.Time, duration time.Duration, userId string)
 }
 
@@ -79,11 +80,13 @@ func (e *Event) Validate() error {
 	if errMsg != "" {
 		return errors.New(errMsg)
 	}
+	return nil
+}
 
+func (e *Event) CheckAndGenerateId() {
 	if e.ID == "" {
 		e.ID = uuid.New().String()
 	}
-	return nil
 }
 
 func JoinWithComma(items []string) string {
