@@ -19,13 +19,11 @@ import (
 
 // запуск с аргументом: go run .\cmd\calendar\main.go --version --config=./configs/calendar_config.yaml
 func main() {
-	log.Println("----101----")
 	cliArgs := config.Execute()
-
-	log.Println("----102---- PathToConfigFile:", cliArgs.PathToConfigFile)
+	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
 	config := config.NewConfig(cliArgs.PathToConfigFile)
-	log.Println("----103---- :", MarshalAny(config))
+	log.Println("config:", MarshalAny(config))
 
 	logg := logger.New(config.Logger, nil)
 
