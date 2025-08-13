@@ -25,7 +25,7 @@ func NewStorage(storageConfRef *model.StorageConf) storage.Storage {
 	case IN_MEMORY:
 		return memorystorage.NewMemoryStorage()
 	case SQL:
-		return sqlstorage.NewSqlStorage(&storageConfRef.PSQL)
+		return sqlstorage.NewSqlStorage(storageConfRef.PSQL)
 	default:
 		log.Printf(ErrUnknowTypeStorageMsgTemplate, sType)
 		os.Exit(1)

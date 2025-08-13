@@ -19,17 +19,17 @@ type LoggerConf struct {
 //storage config model
 type StorageConf struct {
 	Type string
-	PSQL PSQLConfig
+	PSQL *PSQLConfig
 }
 
 type PSQLConfig struct {
 	DSN       string
 	Migration string
-	Pool      PoolConf
+	Pool      *PoolConf
 }
 
 type PoolConf struct {
-	Conn ConnConf
+	Conn *ConnConf
 }
 
 type ConnConf struct {
@@ -48,7 +48,7 @@ type HttpConf struct {
 type ServerConf struct {
 	Host string
 	Port int
-	Path Path
+	Path *Path
 }
 
 type Path struct {
