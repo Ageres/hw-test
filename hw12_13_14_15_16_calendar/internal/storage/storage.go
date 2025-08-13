@@ -19,6 +19,7 @@ var (
 )
 
 const (
+	ErrEmptyIdMsg            = "id is empty"
 	ErrEmptyTitleMsg         = "title is empty"
 	ErrEventTimeIsExpiredMsg = "event time is expired"
 	ErrEmptyDescriptionMsg   = "description is empty"
@@ -42,8 +43,8 @@ type Storage interface {
 	ListDay(day time.Time) ([]Event, error)
 	ListWeek(start time.Time) ([]Event, error)
 	ListMonth(start time.Time) ([]Event, error)
-	Get(id string) (Event, error)
-	ListPeriodByUserId(start time.Time, duration time.Duration, userId string)
+	//Get(id string) (Event, error)
+	//ListPeriodByUserId(start time.Time, duration time.Duration, userId string)
 }
 
 func (e *Event) ToNotification() *model.Notification {
@@ -61,6 +62,32 @@ func (e *Event) ToNotification() *model.Notification {
 	}
 }
 
+func (e *Event) FullValidate() error {
+	errMsgs := make([]string, 0, 5)
+	if e.ID == "" {
+		errMsgs = append(errMsgs, ErrEmptyIdMsg)
+	}
+	if e.Title == "" {
+		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
+	}
+	if e.StartTime.Before(time.Now()) {
+		errMsgs = append(errMsgs, ErrEventTimeIsExpiredMsg)
+	}
+	if e.Description == "" {
+		errMsgs = append(errMsgs, ErrEmptyDescriptionMsg)
+	}
+	if e.UserID == "" {
+		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
+	}
+
+	errMsg := JoinWithComma(errMsgs)
+	if errMsg != "" {
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
+// без валидации ID
 func (e *Event) Validate() error {
 	errMsgs := make([]string, 0, 4)
 	if e.Title == "" {

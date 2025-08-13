@@ -40,9 +40,36 @@ func (s *MemoryStorage) Add(event storage.Event) error {
 	}
 
 	s.events[event.ID] = event
-
 	return nil
+}
 
+func (s *MemoryStorage) Update(id string, newEvent storage.Event) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	newEvent.ID = id
+	if err := newEvent.FullValidate(); err != nil {
+		return err
+	}
+
+	oldEvent, exists := s.events[id]
+	if !exists {
+		return storage.ErrEventNotFound
+	}
+	if oldEvent.UserID != newEvent.UserID {
+		return storage.ErrUserConflict
+	}
+
+	for _, existingEvent := range s.events {
+		if existingEvent.UserID == newEvent.UserID &&
+			existingEvent.ID != id &&
+			checkTimeOverlap(existingEvent.StartTime, existingEvent.Duration, newEvent.StartTime, newEvent.Duration) {
+			return storage.ErrDateBusy
+		}
+	}
+
+	s.events[id] = newEvent
+	return nil
 }
 
 func ListPeriodByUserId(start time.Time, duration time.Duration, userId string) ([]storage.Event, error) {
