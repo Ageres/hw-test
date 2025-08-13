@@ -1,10 +1,13 @@
 package memorystorage
 
 import (
+	"fmt"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -219,6 +222,31 @@ func TestStorageListEvents(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, monthEvents, 1)
 	})
+}
+
+func TestStorageConcurrentAdd(t *testing.T) {
+	dto := newTestMemoryStorageDto().buildNewStorage()
+	var wg sync.WaitGroup
+
+	for i := range 10 {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			for j := 1; j <= 10; j++ {
+				event := storage.Event{
+					Title:     fmt.Sprintf("Event %d-%d", idx, j),
+					StartTime: time.Now().Add(time.Duration(j) * time.Hour),
+					Duration:  30 * time.Minute,
+					UserID:    uuid.New().String(),
+				}
+				err := dto.storage.Add(&event)
+				require.NoError(t, err)
+			}
+		}(i)
+	}
+	wg.Wait()
+
+	require.Len(t, dto.storage.events, 100)
 }
 
 // -------------------------------------------------------------------------------------
