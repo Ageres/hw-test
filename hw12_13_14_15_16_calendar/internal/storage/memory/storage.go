@@ -100,21 +100,10 @@ func (s *MemoryStorage) ListDay(start time.Time) ([]storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var result []storage.Event
-	startOfDay := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
-	endOfDay := startOfDay.Add(24 * time.Hour)
+	startTime := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	endTime := startTime.Add(24 * time.Hour)
 
-	for _, event := range s.events {
-		if !event.StartTime.Before(startOfDay) && event.StartTime.Before(endOfDay) {
-			result = append(result, event)
-			continue
-		}
-		eventEndTime := event.StartTime.Add(event.Duration)
-		if !eventEndTime.Before(startOfDay) && eventEndTime.Before(endOfDay) {
-			result = append(result, event)
-		}
-	}
-
+	result := s.getEventsByPeriod(startTime, endTime)
 	if len(result) == 0 {
 		return nil, storage.ErrEventNotFound
 	}
@@ -126,21 +115,10 @@ func (s *MemoryStorage) ListWeek(start time.Time) ([]storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var result []storage.Event
-	startOfDay := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
-	endOfDay := startOfDay.Add(168 * time.Hour)
+	startTime := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	endTime := startTime.AddDate(0, 0, 7)
 
-	for _, event := range s.events {
-		if !event.StartTime.Before(startOfDay) && event.StartTime.Before(endOfDay) {
-			result = append(result, event)
-			continue
-		}
-		eventEndTime := event.StartTime.Add(event.Duration)
-		if !eventEndTime.Before(startOfDay) && eventEndTime.Before(endOfDay) {
-			result = append(result, event)
-		}
-	}
-
+	result := s.getEventsByPeriod(startTime, endTime)
 	if len(result) == 0 {
 		return nil, storage.ErrEventNotFound
 	}
@@ -152,26 +130,27 @@ func (s *MemoryStorage) ListMonth(start time.Time) ([]storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var result []storage.Event
-	startOfDay := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
-	endOfDay := startOfDay.Add(5040 * time.Hour)
+	startTime := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	endTime := startTime.AddDate(0, 1, 0)
 
-	for _, event := range s.events {
-		if !event.StartTime.Before(startOfDay) && event.StartTime.Before(endOfDay) {
-			result = append(result, event)
-			continue
-		}
-		eventEndTime := event.StartTime.Add(event.Duration)
-		if !eventEndTime.Before(startOfDay) && eventEndTime.Before(endOfDay) {
-			result = append(result, event)
-		}
-	}
-
+	result := s.getEventsByPeriod(startTime, endTime)
 	if len(result) == 0 {
 		return nil, storage.ErrEventNotFound
 	}
 
 	return result, nil
+}
+
+func (s *MemoryStorage) getEventsByPeriod(startTime, endTime time.Time) []storage.Event {
+	var result []storage.Event
+	for _, event := range s.events {
+		eventEnd := event.StartTime.Add(event.Duration)
+		if (event.StartTime.After(startTime) && event.StartTime.Before(endTime)) ||
+			(eventEnd.After(startTime) && eventEnd.Before(endTime)) {
+			result = append(result, event)
+		}
+	}
+	return result
 }
 
 func checkTimeOverlap(start1 time.Time, duration1 time.Duration, start2 time.Time, duration2 time.Duration) bool {
