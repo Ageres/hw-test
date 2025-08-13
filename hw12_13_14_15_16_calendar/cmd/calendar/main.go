@@ -14,7 +14,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/memory"
+	storage_build "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/build"
 )
 
 // запуск с аргументом: go run .\cmd\calendar\main.go --version --config=./configs/calendar_config.yaml
@@ -29,7 +29,7 @@ func main() {
 
 	logg := logger.New(config.Logger, nil)
 
-	storage := memorystorage.NewMemoryStorage(config.Storage)
+	storage := storage_build.NewStorage(config.Storage)
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)

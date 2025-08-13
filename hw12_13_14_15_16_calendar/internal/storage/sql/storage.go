@@ -1,20 +1,25 @@
 package sqlstorage
 
-import "context"
+import (
+	"context"
 
-type Storage struct { // TODO
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+)
+
+type SqlStorage struct { // TODO
 }
 
-func New() *Storage {
-	return &Storage{}
+func NewSqlStorage(psqlConfRef *model.PSQLConfig) storage.Storage {
+	return nil
 }
 
-func (s *Storage) Connect(ctx context.Context) error {
+func (s *SqlStorage) Connect(ctx context.Context) error {
 	// TODO
 	return nil
 }
 
-func (s *Storage) Close(ctx context.Context) error {
+func (s *SqlStorage) Close(ctx context.Context) error {
 	// TODO
 	return nil
 }
