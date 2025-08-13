@@ -83,7 +83,7 @@ func (s *MemoryStorage) Delete(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err := storage.ValidateId(id); err != nil {
+	if err := storage.ValidateEventId(id); err != nil {
 		return err
 	}
 

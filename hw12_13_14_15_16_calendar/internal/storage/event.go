@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -42,8 +43,10 @@ func (e *Event) Overlaps(other *Event) bool {
 
 func (e *Event) FullValidate() error {
 	errMsgs := make([]string, 0, 4)
-	if e.ID == "" {
-		errMsgs = append(errMsgs, ErrEmptyEventIdMsg)
+
+	err := uuid.Validate(e.ID)
+	if err != nil {
+		errMsgs = append(errMsgs, fmt.Sprintf(ErrEventIdMsgTemplate, err))
 	}
 	if e.Title == "" {
 		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
@@ -95,9 +98,10 @@ func ValidateEventNotNil(e *Event) error {
 	return nil
 }
 
-func ValidateId(eventId string) error {
-	if eventId == "" {
-		return ErrEmptyEventId
+func ValidateEventId(eventId string) error {
+	err := uuid.Validate(eventId)
+	if err != nil {
+		return fmt.Errorf(ErrEventIdWrapTemplate, err)
 	}
 	return nil
 }
