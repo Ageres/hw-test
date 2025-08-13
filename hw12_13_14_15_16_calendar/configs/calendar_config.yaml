@@ -6,7 +6,17 @@ logger:
 
 storage:
   # IN_MEMORY, SQL
-  type: IN_MEMORY
+  type: SQL
+  psql:
+    dsn: host=localhost port=5432 user=otus_user password=otus_password dbname=calendar sslmode=disable
+    migration: ./migrations
+    pool:
+      conn:
+        max_open: 10
+        max_idle: 2
+        max_life_time: 3600
+        max_idle_time: 3600
+
 
 http:
   server:
