@@ -178,23 +178,17 @@ func TestStorageListEvents(t *testing.T) {
 
 	t.Run("list week events", func(t *testing.T) {
 		dto.buildNewStorage()
-		require.Len(t, dto.storage.events, 0)
 		require.NoError(t, dto.storage.Add(&events[0]))
 		require.NoError(t, dto.storage.Add(&events[1]))
-		require.NoError(t, dto.storage.Add(&events[2]))
-		require.Len(t, dto.storage.events, 3)
+		require.NoError(t, dto.storage.Add(&events[6]))
 
-		dayEvents, err := dto.storage.ListDay(dto.now)
+		weekEvents, err := dto.storage.ListWeek(dto.now)
 		require.NoError(t, err)
-		require.Len(t, dayEvents, 3)
+		require.Len(t, weekEvents, 2)
 
-		require.NoError(t, dto.storage.Delete(events[0].ID))
-		require.NoError(t, dto.storage.Delete(events[1].ID))
-		require.Len(t, dto.storage.events, 1)
-
-		dayEvents, err = dto.storage.ListDay(dto.now)
-		require.NoError(t, err)
-		require.Equal(t, dayEvents[0].ID, events[2].ID)
+		for _, event := range weekEvents {
+			require.NotEqual(t, "Next Week Event", event.Title)
+		}
 	})
 
 }
@@ -260,6 +254,12 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 		Duration:    30 * time.Minute,
 		Description: "Test event 5",
 	}
-	dto.events = append(dto.events, event0, event1, event2, event3, event4, event5)
+	event6 := storage.Event{
+		Title:     "Event 6 - Next Week Event",
+		StartTime: dto.now.Add(7 * 24 * time.Hour), // +7 дней
+		Duration:  1 * time.Hour,
+		UserID:    userIDOne,
+	}
+	dto.events = append(dto.events, event0, event1, event2, event3, event4, event5, event6)
 	return dto
 }
