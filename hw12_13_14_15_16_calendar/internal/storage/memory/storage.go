@@ -104,10 +104,6 @@ func (s *MemoryStorage) ListDay(start time.Time) ([]storage.Event, error) {
 	endTime := startTime.Add(24 * time.Hour)
 
 	result := s.getEventsByPeriod(startTime, endTime)
-	if len(result) == 0 {
-		return nil, storage.ErrEventNotFound
-	}
-
 	return result, nil
 }
 
@@ -119,10 +115,6 @@ func (s *MemoryStorage) ListWeek(start time.Time) ([]storage.Event, error) {
 	endTime := startTime.AddDate(0, 0, 7)
 
 	result := s.getEventsByPeriod(startTime, endTime)
-	if len(result) == 0 {
-		return nil, storage.ErrEventNotFound
-	}
-
 	return result, nil
 }
 
@@ -134,10 +126,6 @@ func (s *MemoryStorage) ListMonth(start time.Time) ([]storage.Event, error) {
 	endTime := startTime.AddDate(0, 1, 0)
 
 	result := s.getEventsByPeriod(startTime, endTime)
-	if len(result) == 0 {
-		return nil, storage.ErrEventNotFound
-	}
-
 	return result, nil
 }
 
