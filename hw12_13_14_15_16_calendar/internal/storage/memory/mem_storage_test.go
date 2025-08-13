@@ -21,7 +21,7 @@ func TestStorage_Add(t *testing.T) {
 		require.Len(t, dto.storage.events, 3)
 	})
 
-	t.Run("add nil event error when adding", func(t *testing.T) {
+	t.Run("nil event error when adding", func(t *testing.T) {
 		dto.buildNewStorage()
 		require.NoError(t, dto.storage.Add(&events[0]))
 
@@ -70,44 +70,41 @@ func TestStorage_Update(t *testing.T) {
 		require.Len(t, dto.storage.events, 1)
 	})
 
-	/*
-		t.Run("add nil event error when adding", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
+	t.Run("nil event error when updating", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.NoError(t, dto.storage.Add(&events[0]))
 
-			err := dto.storage.Add(nil)
-			require.ErrorIs(t, err, storage.ErrEventIsNil)
-			require.Len(t, dto.storage.events, 1)
-		})
+		err := dto.storage.Update(events[0].ID, nil)
+		require.ErrorIs(t, err, storage.ErrEventIsNil)
+		require.Len(t, dto.storage.events, 1)
+	})
 
-		t.Run("validation event error when adding", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
+	t.Run("validation event error when updating", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.NoError(t, dto.storage.Add(&events[0]))
 
-			err := dto.storage.Add(&events[4])
-			require.Error(t, err)
-			require.Equal(t, err.Error(), "title is empty, event time is expired, user id is empty")
-			require.Len(t, dto.storage.events, 1)
-		})
+		err := dto.storage.Update(events[0].ID, &events[4])
+		require.Error(t, err)
+		require.Equal(t, err.Error(), "title is empty, event time is expired, user id is empty")
+		require.Len(t, dto.storage.events, 1)
+	})
 
-		t.Run("event duplication error when adding", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
+	t.Run("event not found error when updating", func(t *testing.T) {
+		dto.buildNewStorage()
 
-			err := dto.storage.Add(&events[0])
-			require.ErrorIs(t, err, storage.ErrEventAllreadyExists)
-			require.Len(t, dto.storage.events, 1)
-		})
+		err := dto.storage.Update(events[0].ID, &events[0])
+		require.ErrorIs(t, err, storage.ErrEventNotFound)
+		require.Len(t, dto.storage.events, 0)
+	})
 
-		t.Run("date busy error when adding", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
+	t.Run("user conflict error when updating", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.NoError(t, dto.storage.Add(&events[0]))
 
-			err := dto.storage.Add(&events[3])
-			require.ErrorIs(t, err, storage.ErrDateBusy)
-			require.Len(t, dto.storage.events, 1)
-		})
-	*/
+		err := dto.storage.Update(events[0].ID, &events[2])
+		require.ErrorIs(t, err, storage.ErrUserConflict)
+		require.Len(t, dto.storage.events, 1)
+	})
 }
 
 // -------------------------------------------------------------------------------------
