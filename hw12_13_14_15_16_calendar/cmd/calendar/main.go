@@ -17,27 +17,19 @@ import (
 	memorystorage "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
-// запуск с аргументом: go run .\cmd\calendar\main.go --config=./configs/calendar_config.yaml
+// запуск с аргументом: go run .\cmd\calendar\main.go --version --config=./configs/calendar_config.yaml
 func main() {
 	log.Println("----101----")
-	//TODO Добавить в кобру парсинг флага версии
-	/*
-		flag.Parse()
-
-		if flag.Arg(0) == "version" {
-			printVersion()
-			return
-		}
-	*/
 	cliArgs := config.Execute()
+
 	log.Println("----102---- PathToConfigFile:", cliArgs.PathToConfigFile)
 
 	config := config.NewConfig(cliArgs.PathToConfigFile)
 	log.Println("----103---- :", MarshalAny(config))
 
-	logg := logger.New(config.LoggerRef, nil)
+	logg := logger.New(config.Logger, nil)
 
-	storage := memorystorage.New(config.StorageRef)
+	storage := memorystorage.New(config.Storage)
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)

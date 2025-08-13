@@ -1,9 +1,9 @@
 package model
 
 type Config struct {
-	LoggerRef  *LoggerConf
-	StorageRef *StorageConf
-	HttpRef    *Http
+	Logger  *LoggerConf
+	Storage *StorageConf
+	Http    *HttpConf
 }
 
 type StorageConf struct {
@@ -15,11 +15,11 @@ type LoggerConf struct {
 	Format string
 }
 
-type Http struct {
-	ServerRef *Server
+type HttpConf struct {
+	Server *ServerConf
 }
 
-type Server struct {
+type ServerConf struct {
 	Host string
 	Port int
 	Path Path

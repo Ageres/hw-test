@@ -10,6 +10,7 @@ import (
 
 type CliArg struct {
 	PathToConfigFile string
+	version          bool
 }
 
 var cliArg CliArg
@@ -18,6 +19,11 @@ var rootCmd = &cobra.Command{
 	Use:   "calendar",
 	Short: "Календарь",
 	Long:  "Приложение \"Календарь\" - сервис для хранения календарных событий и отправки уведомлений.",
+	Run: func(cmd *cobra.Command, args []string) {
+		if cliArg.version {
+			printVersion()
+		}
+	},
 }
 
 func Execute() CliArg {
@@ -33,4 +39,5 @@ func Execute() CliArg {
 func init() {
 	cliArg = CliArg{}
 	rootCmd.PersistentFlags().StringVar(&cliArg.PathToConfigFile, "config", "./config.yaml", "config file (default is ./config.yaml)")
+	rootCmd.PersistentFlags().BoolVar(&cliArg.version, "version", false, "application version")
 }
