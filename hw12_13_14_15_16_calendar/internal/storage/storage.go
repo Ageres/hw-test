@@ -2,9 +2,11 @@ package storage
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	"github.com/google/uuid"
 )
 
 var (
@@ -13,7 +15,13 @@ var (
 	ErrUserConflict         = errors.New("user is not the owner of the event")
 	ErrEventNotFound        = errors.New("no events found")
 	ErrEventAllreadyCreated = errors.New("event with this ID has already been created")
-	ErrEmptyTitle           = errors.New("title is empty")
+	//ErrEmptyTitle           = errors.New("title is empty")
+)
+
+const (
+	ErrEmptyTitleMsg         = "title is empty"
+	ErrEventTimeIsExpiredMsg = "event time is expired"
+	ErrEmptyDescriptionMsg   = "description is empty"
 )
 
 type Event struct {
@@ -53,4 +61,34 @@ func (e *Event) ToNotification() *model.Notification {
 
 func (e *Event) Validate() error {
 
+	errMsgs := make([]string, 0, 10)
+	if e.Title == "" {
+		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
+	}
+	if e.StartTime.Before(time.Now()) {
+		errMsgs = append(errMsgs, ErrEventTimeIsExpiredMsg)
+	}
+	if e.Description == "" {
+		errMsgs = append(errMsgs, ErrEmptyDescriptionMsg)
+	}
+	if e.Title == "" {
+		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
+	}
+
+	if e.ID == "" {
+		e.ID = uuid.New().String()
+	}
+	return nil
+}
+
+func JoinWithComma(items []string) string {
+	// Создаем слайс для непустых элементов
+	var nonEmpty []string
+	for _, item := range items {
+		if item != "" {
+			nonEmpty = append(nonEmpty, item)
+		}
+	}
+	// Объединяем элементы через ", "
+	return strings.Join(nonEmpty, ", ")
 }
