@@ -72,6 +72,49 @@ func (s *MemoryStorage) Update(id string, newEvent storage.Event) error {
 	return nil
 }
 
+func (s *MemoryStorage) Delete(id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if err := storage.ValidateId(id); err != nil {
+		return err
+	}
+
+	_, exists := s.events[id]
+	if !exists {
+		return storage.ErrEventNotFound
+	}
+
+	delete(s.events, id)
+	return nil
+}
+
+func (s *MemoryStorage) ListDay(day time.Time) ([]storage.Event, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var result []storage.Event
+	startOfDay := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
+	endOfDay := startOfDay.Add(24 * time.Hour)
+
+	for _, event := range s.events {
+		if !event.StartTime.Before(startOfDay) && event.StartTime.Before(endOfDay) {
+			result = append(result, event)
+			continue
+		}
+		eventEndTime := event.StartTime.Add(event.Duration)
+		if !eventEndTime.Before(startOfDay) && eventEndTime.Before(endOfDay) {
+			result = append(result, event)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, storage.ErrEventNotFound
+	}
+
+	return result, nil
+}
+
 func ListPeriodByUserId(start time.Time, duration time.Duration, userId string) ([]storage.Event, error) {
 	return nil, nil
 }

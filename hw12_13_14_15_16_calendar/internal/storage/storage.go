@@ -15,11 +15,11 @@ var (
 	ErrUserConflict         = errors.New("user is not the owner of the event")
 	ErrEventNotFound        = errors.New("no events found")
 	ErrEventAllreadyCreated = errors.New("event with this ID has already been created")
-	//ErrEmptyTitle           = errors.New("title is empty")
+	ErrEmptyEventId         = errors.New(ErrEmptyEventIdMsg)
 )
 
 const (
-	ErrEmptyIdMsg            = "id is empty"
+	ErrEmptyEventIdMsg       = "event id is empty"
 	ErrEmptyTitleMsg         = "title is empty"
 	ErrEventTimeIsExpiredMsg = "event time is expired"
 	ErrEmptyDescriptionMsg   = "description is empty"
@@ -65,7 +65,7 @@ func (e *Event) ToNotification() *model.Notification {
 func (e *Event) FullValidate() error {
 	errMsgs := make([]string, 0, 5)
 	if e.ID == "" {
-		errMsgs = append(errMsgs, ErrEmptyIdMsg)
+		errMsgs = append(errMsgs, ErrEmptyEventIdMsg)
 	}
 	if e.Title == "" {
 		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
@@ -80,7 +80,7 @@ func (e *Event) FullValidate() error {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
 	}
 
-	errMsg := JoinWithComma(errMsgs)
+	errMsg := joinWithComma(errMsgs)
 	if errMsg != "" {
 		return errors.New(errMsg)
 	}
@@ -103,7 +103,7 @@ func (e *Event) Validate() error {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
 	}
 
-	errMsg := JoinWithComma(errMsgs)
+	errMsg := joinWithComma(errMsgs)
 	if errMsg != "" {
 		return errors.New(errMsg)
 	}
@@ -116,7 +116,14 @@ func (e *Event) CheckAndGenerateId() {
 	}
 }
 
-func JoinWithComma(items []string) string {
+func ValidateId(eventId string) error {
+	if eventId == "" {
+		return ErrEmptyEventId
+	}
+	return nil
+}
+
+func joinWithComma(items []string) string {
 	var nonEmpty []string
 	for _, item := range items {
 		if item != "" {
