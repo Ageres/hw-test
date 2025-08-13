@@ -26,10 +26,16 @@ func (s *MemoryStorage) Add(eventRef *storage.Event) error {
 		return err
 	}
 
-	if err := eventRef.Validate(); err != nil {
-		return err
+	if eventRef.ID != "" {
+		if err := eventRef.FullValidate(); err != nil {
+			return err
+		}
+	} else {
+		if err := eventRef.Validate(); err != nil {
+			return err
+		}
+		eventRef.GenerateId()
 	}
-	eventRef.CheckAndGenerateId()
 
 	if _, exists := s.events[eventRef.ID]; exists {
 		return storage.ErrEventAllreadyExists

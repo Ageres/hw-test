@@ -58,7 +58,7 @@ func (e *Event) FullValidate() error {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
 	}
 
-	errMsg := joinWithComma(errMsgs)
+	errMsg := joinString(errMsgs)
 	if errMsg != "" {
 		return errors.New(errMsg)
 	}
@@ -78,17 +78,15 @@ func (e *Event) Validate() error {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
 	}
 
-	errMsg := joinWithComma(errMsgs)
+	errMsg := joinString(errMsgs)
 	if errMsg != "" {
 		return errors.New(errMsg)
 	}
 	return nil
 }
 
-func (e *Event) CheckAndGenerateId() {
-	if e.ID == "" {
-		e.ID = uuid.New().String()
-	}
+func (e *Event) GenerateId() {
+	e.ID = uuid.New().String()
 }
 
 func ValidateEventNotNil(e *Event) error {
@@ -106,12 +104,12 @@ func ValidateEventId(eventId string) error {
 	return nil
 }
 
-func joinWithComma(items []string) string {
+func joinString(items []string) string {
 	var nonEmpty []string
 	for _, item := range items {
 		if item != "" {
 			nonEmpty = append(nonEmpty, item)
 		}
 	}
-	return strings.Join(nonEmpty, ", ")
+	return strings.Join(nonEmpty, "; ")
 }
