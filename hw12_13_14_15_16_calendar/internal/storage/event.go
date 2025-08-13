@@ -5,7 +5,7 @@ import "time"
 type Event struct {
 	ID          string //UUID
 	Title       string
-	Date        time.Time
+	StartTime   time.Time
 	Duration    time.Duration
 	Description string
 	UserID      string //UUID
