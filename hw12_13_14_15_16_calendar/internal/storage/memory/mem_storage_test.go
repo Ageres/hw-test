@@ -191,6 +191,50 @@ func TestStorageListEvents(t *testing.T) {
 		}
 	})
 
+	t.Run("event spans week boundary", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.NoError(t, dto.storage.Add(&events[7]))
+
+		weekEvents, err := dto.storage.ListWeek(dto.now)
+		require.NoError(t, err)
+		require.Len(t, weekEvents, 1)
+	})
+
+	t.Run("list month events", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.NoError(t, dto.storage.Add(&events[0]))
+		require.NoError(t, dto.storage.Add(&events[1]))
+
+		nextMonth := dto.now.AddDate(0, 1, 0)
+		nextMonthEvent := storage.Event{
+			Title:     "Next Month Event",
+			StartTime: nextMonth,
+			Duration:  1 * time.Hour,
+			UserID:    events[0].UserID,
+		}
+		require.NoError(t, dto.storage.Add(&nextMonthEvent))
+
+		monthEvents, err := dto.storage.ListMonth(dto.now)
+		require.NoError(t, err)
+		require.Len(t, monthEvents, 2)
+	})
+
+	t.Run("event spans month boundary", func(t *testing.T) {
+		dto.buildNewStorage()
+		endOfMonth := time.Date(dto.now.Year(), dto.now.Month()+1, 0, 0, 0, 0, 0, dto.now.Location())
+		longEvent := storage.Event{
+			Title:     "Month Boundary Event",
+			StartTime: endOfMonth.Add(-12 * time.Hour),
+			Duration:  36 * time.Hour,
+			UserID:    events[0].UserID,
+		}
+		require.NoError(t, dto.storage.Add(&longEvent))
+
+		monthEvents, err := dto.storage.ListMonth(dto.now)
+		require.NoError(t, err)
+		require.Len(t, monthEvents, 1)
+	})
+
 }
 
 // -------------------------------------------------------------------------------------
@@ -260,6 +304,13 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 		Duration:  1 * time.Hour,
 		UserID:    userIDOne,
 	}
-	dto.events = append(dto.events, event0, event1, event2, event3, event4, event5, event6)
+	endOfWeek := dto.now.Add(time.Duration(6-int(dto.now.Weekday())) * 24 * time.Hour)
+	event7 := storage.Event{
+		Title:     "event7 - Week Boundary Event",
+		StartTime: endOfWeek.Add(-12 * time.Hour),
+		Duration:  36 * time.Hour,
+		UserID:    userIDOne,
+	}
+	dto.events = append(dto.events, event0, event1, event2, event3, event4, event5, event6, event7)
 	return dto
 }
