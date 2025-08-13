@@ -11,7 +11,6 @@ import (
 
 var (
 	ErrDateBusy             = errors.New("time is already taken by another event")
-	ErrNotifyTooLate        = errors.New("notification time has already expired")
 	ErrUserConflict         = errors.New("user is not the owner of the event")
 	ErrEventNotFound        = errors.New("no events found")
 	ErrEventAllreadyCreated = errors.New("event with this ID has already been created")

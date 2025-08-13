@@ -115,10 +115,6 @@ func (s *MemoryStorage) ListDay(day time.Time) ([]storage.Event, error) {
 	return result, nil
 }
 
-func ListPeriodByUserId(start time.Time, duration time.Duration, userId string) ([]storage.Event, error) {
-	return nil, nil
-}
-
 func checkTimeOverlap(start1 time.Time, duration1 time.Duration, start2 time.Time, duration2 time.Duration) bool {
 	end1 := start1.Add(duration1)
 	end2 := start2.Add(duration2)
