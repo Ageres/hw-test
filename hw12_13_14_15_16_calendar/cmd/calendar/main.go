@@ -20,15 +20,24 @@ import (
 // запуск с аргументом: go run .\cmd\calendar\main.go --config=./configs/calendar_config.yaml
 func main() {
 	log.Println("----101----")
+	//TODO Добавить в кобру парсинг флага версии
+	/*
+		flag.Parse()
+
+		if flag.Arg(0) == "version" {
+			printVersion()
+			return
+		}
+	*/
 	cliArgs := config.Execute()
 	log.Println("----102---- PathToConfigFile:", cliArgs.PathToConfigFile)
 
 	config := config.NewConfig(cliArgs.PathToConfigFile)
 	log.Println("----103---- :", MarshalAny(config))
 
-	logg := logger.New(config.Logger, nil)
+	logg := logger.New(config.LoggerRef, nil)
 
-	storage := memorystorage.New()
+	storage := memorystorage.New(config.StorageRef)
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)

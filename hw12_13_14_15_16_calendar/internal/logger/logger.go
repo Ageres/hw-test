@@ -46,12 +46,12 @@ func (l *Logger) Error(msg string, args ...any) {
 	l.slogLogger.Error(msg, args...)
 }
 
-func New(loggerConf model.LoggerConf, output io.Writer) *Logger {
+func New(loggerConfRef *model.LoggerConf, output io.Writer) *Logger {
 	if output == nil {
 		output = os.Stdout
 	}
-	slogLevel := getLoggerLevel(loggerConf.Level)
-	slogHandler := buildSlogHandler(slogLevel, loggerConf.Format, output)
+	slogLevel := getLoggerLevel(loggerConfRef.Level)
+	slogHandler := buildSlogHandler(slogLevel, loggerConfRef.Format, output)
 	logger := slog.New(slogHandler)
 	return &Logger{logger}
 }

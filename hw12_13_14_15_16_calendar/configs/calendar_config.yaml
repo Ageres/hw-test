@@ -4,6 +4,9 @@ logger:
   # JSON, TEXT, COLOUR_TEXT 
   format: COLOUR_TEXT
 
+storage:
+  # IN_MEMORY, SQL
+  type: IN_MEMORY
 
 http:
   server:

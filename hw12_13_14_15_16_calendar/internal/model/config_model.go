@@ -1,8 +1,13 @@
 package model
 
 type Config struct {
-	Logger LoggerConf
-	Http   Http
+	LoggerRef  *LoggerConf
+	StorageRef *StorageConf
+	HttpRef    *Http
+}
+
+type StorageConf struct {
+	Type string
 }
 
 type LoggerConf struct {
@@ -11,7 +16,7 @@ type LoggerConf struct {
 }
 
 type Http struct {
-	Server Server
+	ServerRef *Server
 }
 
 type Server struct {

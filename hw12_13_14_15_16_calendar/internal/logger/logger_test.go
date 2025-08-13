@@ -12,7 +12,7 @@ func TestLoggerLevel(t *testing.T) {
 	t.Run("test debug level with json format", func(t *testing.T) {
 		var buf bytes.Buffer
 		conf := model.LoggerConf{Level: "DEBUG", Format: "JSON"}
-		logger := New(conf, &buf)
+		logger := New(&conf, &buf)
 
 		logger.Debug("debug message")
 		logger.Info("info message")
@@ -29,7 +29,7 @@ func TestLoggerLevel(t *testing.T) {
 	t.Run("test info level with json format", func(t *testing.T) {
 		var buf bytes.Buffer
 		conf := model.LoggerConf{Level: "INFO", Format: "JSON"}
-		logger := New(conf, &buf)
+		logger := New(&conf, &buf)
 
 		logger.Debug("debug message")
 		logger.Info("info message")
@@ -46,7 +46,7 @@ func TestLoggerLevel(t *testing.T) {
 	t.Run("test warn level with json format", func(t *testing.T) {
 		var buf bytes.Buffer
 		conf := model.LoggerConf{Level: "WARN", Format: "JSON"}
-		logger := New(conf, &buf)
+		logger := New(&conf, &buf)
 
 		logger.Debug("debug message")
 		logger.Info("info message")
@@ -63,7 +63,7 @@ func TestLoggerLevel(t *testing.T) {
 	t.Run("test error level with json format", func(t *testing.T) {
 		var buf bytes.Buffer
 		conf := model.LoggerConf{Level: "ERROR", Format: "JSON"}
-		logger := New(conf, &buf)
+		logger := New(&conf, &buf)
 
 		logger.Debug("debug message")
 		logger.Info("info message")
@@ -80,7 +80,7 @@ func TestLoggerLevel(t *testing.T) {
 	t.Run("test default level with json format", func(t *testing.T) {
 		var buf bytes.Buffer
 		conf := model.LoggerConf{Level: "UNKNOwN", Format: "JSON"}
-		logger := New(conf, &buf)
+		logger := New(&conf, &buf)
 
 		logger.Debug("debug message")
 		logger.Info("info message")
@@ -99,7 +99,7 @@ func TestLoggerFormat(t *testing.T) {
 	t.Run("test json format", func(t *testing.T) {
 		var buf bytes.Buffer
 		conf := model.LoggerConf{Level: "INFO", Format: "JSON"}
-		logger := New(conf, &buf)
+		logger := New(&conf, &buf)
 
 		logger.Info("info message", "param", "one")
 
@@ -110,7 +110,7 @@ func TestLoggerFormat(t *testing.T) {
 	t.Run("test text format", func(t *testing.T) {
 		var buf bytes.Buffer
 		conf := model.LoggerConf{Level: "INFO", Format: "TEXT"}
-		logger := New(conf, &buf)
+		logger := New(&conf, &buf)
 
 		logger.Info("info message", "param", "one")
 
@@ -121,7 +121,7 @@ func TestLoggerFormat(t *testing.T) {
 	t.Run("test colour text format", func(t *testing.T) {
 		var buf bytes.Buffer
 		conf := model.LoggerConf{Level: "INFO", Format: "COLOUR_TEXT"}
-		logger := New(conf, &buf)
+		logger := New(&conf, &buf)
 
 		logger.Info("info message", "param", "one")
 
