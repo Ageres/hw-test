@@ -11,3 +11,12 @@ type Event struct {
 	UserID      string //UUID
 	Reminder    time.Duration
 }
+
+func (e *Event) ToNotification() Notification {
+	return Notification{
+		ID:        e.ID,
+		Title:     e.Title,
+		StartTime: e.StartTime,
+		UserID:    e.UserID,
+	}
+}
