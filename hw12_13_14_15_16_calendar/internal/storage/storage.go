@@ -22,6 +22,7 @@ const (
 	ErrEmptyTitleMsg         = "title is empty"
 	ErrEventTimeIsExpiredMsg = "event time is expired"
 	ErrEmptyDescriptionMsg   = "description is empty"
+	ErrEmptyUserIdMsg        = "user id is empty"
 )
 
 type Event struct {
@@ -60,8 +61,7 @@ func (e *Event) ToNotification() *model.Notification {
 }
 
 func (e *Event) Validate() error {
-
-	errMsgs := make([]string, 0, 10)
+	errMsgs := make([]string, 0, 4)
 	if e.Title == "" {
 		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
 	}
@@ -71,8 +71,13 @@ func (e *Event) Validate() error {
 	if e.Description == "" {
 		errMsgs = append(errMsgs, ErrEmptyDescriptionMsg)
 	}
-	if e.Title == "" {
-		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
+	if e.UserID == "" {
+		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
+	}
+
+	errMsg := JoinWithComma(errMsgs)
+	if errMsg != "" {
+		return errors.New(errMsg)
 	}
 
 	if e.ID == "" {
@@ -82,13 +87,11 @@ func (e *Event) Validate() error {
 }
 
 func JoinWithComma(items []string) string {
-	// Создаем слайс для непустых элементов
 	var nonEmpty []string
 	for _, item := range items {
 		if item != "" {
 			nonEmpty = append(nonEmpty, item)
 		}
 	}
-	// Объединяем элементы через ", "
 	return strings.Join(nonEmpty, ", ")
 }

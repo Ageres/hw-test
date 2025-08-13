@@ -6,7 +6,6 @@ import (
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
-	"github.com/google/uuid"
 )
 
 type MemoryStorage struct {
@@ -23,17 +22,13 @@ func NewMemoryStorage(cfgRef *model.StorageConf) *MemoryStorage {
 func (s *MemoryStorage) Add(event storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	eventId := event.ID
-	if event.ID != "" {
-		_, exists := s.events[eventId]
-		if exists {
-			return storage.ErrEventAllreadyCreated
-		}
-	} else {
-		event.ID = uuid.New().String()
+
+	if err := event.Validate(); err != nil {
+		return err
 	}
-	if event.Title == "" {
-		return storage.ErrEmptyTitle
+
+	if _, exists := s.events[event.ID]; exists {
+		return storage.ErrEventAllreadyCreated
 	}
 
 	return nil
