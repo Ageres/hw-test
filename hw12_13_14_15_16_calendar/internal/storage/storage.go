@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	ErrEventIsNil           = errors.New("event is nil")
 	ErrDateBusy             = errors.New("time is already taken by another event")
 	ErrUserConflict         = errors.New("user is not the owner of the event")
 	ErrEventNotFound        = errors.New("no events found")
@@ -39,7 +40,7 @@ type Storage interface {
 	Add(eventRef *Event) error
 	Update(id string, eventRef *Event) error
 	Delete(id string) error
-	ListDay(day time.Time) ([]Event, error)
+	ListDay(start time.Time) ([]Event, error)
 	ListWeek(start time.Time) ([]Event, error)
 	ListMonth(start time.Time) ([]Event, error)
 	//Get(id string) (Event, error)
@@ -118,6 +119,13 @@ func (e *Event) CheckAndGenerateId() {
 func ValidateId(eventId string) error {
 	if eventId == "" {
 		return ErrEmptyEventId
+	}
+	return nil
+}
+
+func ValidateEventNotNil(e *Event) error {
+	if e == nil {
+		return ErrEventIsNil
 	}
 	return nil
 }

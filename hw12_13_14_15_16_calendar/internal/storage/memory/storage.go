@@ -13,42 +13,50 @@ type MemoryStorage struct {
 	events map[string]storage.Event // key: Event.ID
 }
 
-func NewMemoryStorage(cfgRef *model.StorageConf) *MemoryStorage {
+func NewMemoryStorage(cfgRef *model.StorageConf) storage.Storage {
 	return &MemoryStorage{
 		events: make(map[string]storage.Event),
 	}
 }
 
-func (s *MemoryStorage) Add(event storage.Event) error {
+func (s *MemoryStorage) Add(eventRef *storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err := event.Validate(); err != nil {
+	if err := storage.ValidateEventNotNil(eventRef); err != nil {
 		return err
 	}
-	event.CheckAndGenerateId()
 
-	if _, exists := s.events[event.ID]; exists {
+	if err := eventRef.Validate(); err != nil {
+		return err
+	}
+	eventRef.CheckAndGenerateId()
+
+	if _, exists := s.events[eventRef.ID]; exists {
 		return storage.ErrEventAllreadyCreated
 	}
 
 	for _, createdEvent := range s.events {
-		if createdEvent.UserID == event.UserID &&
-			checkTimeOverlap(createdEvent.StartTime, createdEvent.Duration, event.StartTime, event.Duration) {
+		if createdEvent.UserID == eventRef.UserID &&
+			checkTimeOverlap(createdEvent.StartTime, createdEvent.Duration, eventRef.StartTime, eventRef.Duration) {
 			return storage.ErrDateBusy
 		}
 	}
 
-	s.events[event.ID] = event
+	s.events[eventRef.ID] = *eventRef
 	return nil
 }
 
-func (s *MemoryStorage) Update(id string, newEvent storage.Event) error {
+func (s *MemoryStorage) Update(id string, newEventRef *storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	newEvent.ID = id
-	if err := newEvent.FullValidate(); err != nil {
+	if err := storage.ValidateEventNotNil(newEventRef); err != nil {
+		return err
+	}
+
+	newEventRef.ID = id
+	if err := newEventRef.FullValidate(); err != nil {
 		return err
 	}
 
@@ -56,19 +64,19 @@ func (s *MemoryStorage) Update(id string, newEvent storage.Event) error {
 	if !exists {
 		return storage.ErrEventNotFound
 	}
-	if oldEvent.UserID != newEvent.UserID {
+	if oldEvent.UserID != newEventRef.UserID {
 		return storage.ErrUserConflict
 	}
 
 	for _, existingEvent := range s.events {
-		if existingEvent.UserID == newEvent.UserID &&
+		if existingEvent.UserID == newEventRef.UserID &&
 			existingEvent.ID != id &&
-			checkTimeOverlap(existingEvent.StartTime, existingEvent.Duration, newEvent.StartTime, newEvent.Duration) {
+			checkTimeOverlap(existingEvent.StartTime, existingEvent.Duration, newEventRef.StartTime, newEventRef.Duration) {
 			return storage.ErrDateBusy
 		}
 	}
 
-	s.events[id] = newEvent
+	s.events[id] = *newEventRef
 	return nil
 }
 
