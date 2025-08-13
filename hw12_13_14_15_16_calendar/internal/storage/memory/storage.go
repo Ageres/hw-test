@@ -89,13 +89,65 @@ func (s *MemoryStorage) Delete(id string) error {
 	return nil
 }
 
-func (s *MemoryStorage) ListDay(day time.Time) ([]storage.Event, error) {
+func (s *MemoryStorage) ListDay(start time.Time) ([]storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	var result []storage.Event
-	startOfDay := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
+	startOfDay := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
 	endOfDay := startOfDay.Add(24 * time.Hour)
+
+	for _, event := range s.events {
+		if !event.StartTime.Before(startOfDay) && event.StartTime.Before(endOfDay) {
+			result = append(result, event)
+			continue
+		}
+		eventEndTime := event.StartTime.Add(event.Duration)
+		if !eventEndTime.Before(startOfDay) && eventEndTime.Before(endOfDay) {
+			result = append(result, event)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, storage.ErrEventNotFound
+	}
+
+	return result, nil
+}
+
+func (s *MemoryStorage) ListWeek(start time.Time) ([]storage.Event, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var result []storage.Event
+	startOfDay := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	endOfDay := startOfDay.Add(168 * time.Hour)
+
+	for _, event := range s.events {
+		if !event.StartTime.Before(startOfDay) && event.StartTime.Before(endOfDay) {
+			result = append(result, event)
+			continue
+		}
+		eventEndTime := event.StartTime.Add(event.Duration)
+		if !eventEndTime.Before(startOfDay) && eventEndTime.Before(endOfDay) {
+			result = append(result, event)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, storage.ErrEventNotFound
+	}
+
+	return result, nil
+}
+
+func (s *MemoryStorage) ListMonth(start time.Time) ([]storage.Event, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var result []storage.Event
+	startOfDay := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	endOfDay := startOfDay.Add(5040 * time.Hour)
 
 	for _, event := range s.events {
 		if !event.StartTime.Before(startOfDay) && event.StartTime.Before(endOfDay) {
