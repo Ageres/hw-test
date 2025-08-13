@@ -32,19 +32,12 @@ func (s *MemoryStorage) Add(event storage.Event) error {
 	} else {
 		event.ID = uuid.New().String()
 	}
+	if event.Title == "" {
+		return storage.ErrEmptyTitle
+	}
 
 	return nil
 
-}
-
-func (s *MemoryStorage) Get(id string) (*storage.Event, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	event, exists := s.events[id]
-	if !exists {
-		return nil, storage.ErrEventNotFound
-	}
-	return &event, nil
 }
 
 func ListPeriodByUserId(start time.Time, duration time.Duration, userId string) ([]storage.Event, error) {
