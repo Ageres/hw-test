@@ -8,10 +8,11 @@ import (
 )
 
 var (
-	ErrDateBusy      = errors.New("time is already taken by another event")
-	ErrNotifyTooLate = errors.New("notification time has already expired")
-	ErrUserConflict  = errors.New("user is not the owner of the event")
-	ErrEventNotFound = errors.New("no events found")
+	ErrDateBusy             = errors.New("time is already taken by another event")
+	ErrNotifyTooLate        = errors.New("notification time has already expired")
+	ErrUserConflict         = errors.New("user is not the owner of the event")
+	ErrEventNotFound        = errors.New("no events found")
+	ErrEventAllreadyCreated = errors.New("event with this ID has already been created")
 )
 
 type Event struct {
@@ -25,19 +26,27 @@ type Event struct {
 }
 
 type Storage interface {
-	Add(event Event) error
-	Update(id string, event Event) error
+	Add(eventRef *Event) error
+	Update(id string, eventRef *Event) error
 	Delete(id string) error
 	ListDay(day time.Time) ([]Event, error)
 	ListWeek(start time.Time) ([]Event, error)
 	ListMonth(start time.Time) ([]Event, error)
+	Get(id string) (*Event, error)
+	ListPeriodByUserId(start time.Time, duration time.Duration, userId string)
 }
 
 func (e *Event) ToNotification() *model.Notification {
 	return &model.Notification{
-		ID:        e.ID,
-		Title:     e.Title,
-		StartTime: e.StartTime,
-		UserID:    e.UserID,
+		ID:    e.ID,
+		Title: e.Title,
+		Date: time.Date( // Оставляем только дату
+			e.StartTime.Year(),
+			e.StartTime.Month(),
+			e.StartTime.Day(),
+			0, 0, 0, 0, // Часы, минуты, секунды, наносекунды = 0
+			e.StartTime.Location(),
+		),
+		UserID: e.UserID,
 	}
 }

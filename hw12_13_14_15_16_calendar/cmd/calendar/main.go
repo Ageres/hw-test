@@ -29,7 +29,7 @@ func main() {
 
 	logg := logger.New(config.Logger, nil)
 
-	storage := memorystorage.New(config.Storage)
+	storage := memorystorage.NewMemoryStorage(config.Storage)
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)
