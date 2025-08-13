@@ -14,15 +14,34 @@ func TestStorage_Add(t *testing.T) {
 	events := dto.events
 
 	t.Run("add events", func(t *testing.T) {
-		dto.buildNewstorage()
+		dto.buildNewStorage()
 		require.NoError(t, dto.storage.Add(&events[0]))
 		require.NoError(t, dto.storage.Add(&events[1]))
 		require.NoError(t, dto.storage.Add(&events[2]))
 		require.Len(t, dto.storage.events, 3)
 	})
 
+	t.Run("add nil event error when adding", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.NoError(t, dto.storage.Add(&events[0]))
+
+		err := dto.storage.Add(nil)
+		require.ErrorIs(t, err, storage.ErrEventIsNil)
+		require.Len(t, dto.storage.events, 1)
+	})
+
+	t.Run("validation event error when adding", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.NoError(t, dto.storage.Add(&events[0]))
+
+		err := dto.storage.Add(&events[4])
+		require.Error(t, err)
+		require.Equal(t, err.Error(), "title is empty, event time is expired, user id is empty")
+		require.Len(t, dto.storage.events, 1)
+	})
+
 	t.Run("event duplication error when adding", func(t *testing.T) {
-		dto.buildNewstorage()
+		dto.buildNewStorage()
 		require.NoError(t, dto.storage.Add(&events[0]))
 
 		err := dto.storage.Add(&events[0])
@@ -30,8 +49,8 @@ func TestStorage_Add(t *testing.T) {
 		require.Len(t, dto.storage.events, 1)
 	})
 
-	t.Run("error date busy when adding", func(t *testing.T) {
-		dto.buildNewstorage()
+	t.Run("date busy error when adding", func(t *testing.T) {
+		dto.buildNewStorage()
 		require.NoError(t, dto.storage.Add(&events[0]))
 
 		err := dto.storage.Add(&events[3])
@@ -50,7 +69,7 @@ func newTestMemoryStorageDto() *TestMemoryStorageDto {
 	return &TestMemoryStorageDto{}
 }
 
-func (dto *TestMemoryStorageDto) buildNewstorage() *TestMemoryStorageDto {
+func (dto *TestMemoryStorageDto) buildNewStorage() *TestMemoryStorageDto {
 	dto.storage = NewMemoryStorage().(*MemoryStorage)
 	return dto
 }
@@ -59,6 +78,7 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 	now := time.Now()
 	userID := uuid.New().String()
 	event0 := storage.Event{
+		ID:          uuid.New().String(),
 		Title:       "Event 0",
 		StartTime:   now.Add(1 * time.Hour),
 		Duration:    30 * time.Minute,
@@ -73,7 +93,7 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 	}
 	event2 := storage.Event{
 		Title:     "Event 2 (other user)",
-		StartTime: now.Add(1 * time.Hour), // Конфликт по времени, но другой пользователь
+		StartTime: now.Add(1 * time.Hour),
 		Duration:  30 * time.Minute,
 		UserID:    uuid.New().String(),
 	}
@@ -84,6 +104,11 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 		Description: "Test event 3",
 		UserID:      userID,
 	}
-	dto.events = append(dto.events, event0, event1, event2, event3)
+	event4 := storage.Event{
+		StartTime:   now.Add(-50 * time.Minute),
+		Duration:    30 * time.Minute,
+		Description: "Test event 4",
+	}
+	dto.events = append(dto.events, event0, event1, event2, event3, event4)
 	return dto
 }
