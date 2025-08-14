@@ -17,17 +17,19 @@ import (
 	storage_build "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/build"
 )
 
-// запуск с аргументом: go run .\cmd\calendar\main.go --version --config=./configs/calendar_config.yaml
+// запуск:
+// $env:DB_USER = 'sa';$env:DB_USER = 'otus_user'; $env:DB_PASSWORD = 'otus_password'
+// go run .\cmd\calendar\main.go --version --config=./configs/calendar_config.yaml
 func main() {
 	cliArgs := config.Execute()
 	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
-	config := config.NewConfig(cliArgs.PathToConfigFile)
-	log.Println("config:", MarshalAny(config))
+	configRef := config.NewConfig(cliArgs.PathToConfigFile)
+	log.Println("config:", MarshalAny(configRef))
 
-	logg := logger.New(config.Logger, nil)
+	logg := logger.New(configRef.Logger, nil)
 
-	storage := storage_build.NewStorage(config.Storage)
+	storage := storage_build.NewStorage(configRef.Storage)
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)

@@ -1,8 +1,11 @@
 module github.com/Ageres/hw-test/hw12_13_14_15_calendar
 
-go 1.23
+go 1.24
+
+toolchain go1.24.6
 
 require (
+	github.com/a8m/envsubst v1.4.3
 	github.com/google/uuid v1.6.0
 	github.com/phsym/console-slog v0.3.1
 	github.com/spf13/cobra v1.9.1
