@@ -18,7 +18,7 @@ import (
 )
 
 // запуск:
-// $env:DB_USER = 'sa';$env:DB_USER = 'otus_user'; $env:DB_PASSWORD = 'otus_password'
+// $env:DB_USER = 'otus_user'; $env:DB_PASSWORD = 'otus_password'
 // go run .\cmd\calendar\main.go --version --config=./configs/calendar_config.yaml
 func main() {
 	cliArgs := config.Execute()
