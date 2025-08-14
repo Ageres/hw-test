@@ -21,6 +21,10 @@ import (
 // $env:DB_USER = 'otus_user'; $env:DB_PASSWORD = 'otus_password'
 // go run .\cmd\calendar\main.go --version --config=./configs/calendar_config.yaml
 func main() {
+	ctx, cancel := signal.NotifyContext(context.Background(),
+		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	defer cancel()
+
 	cliArgs := config.Execute()
 	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
@@ -33,10 +37,6 @@ func main() {
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)
-
-	ctx, cancel := signal.NotifyContext(context.Background(),
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-	defer cancel()
 
 	go func() {
 		<-ctx.Done()
