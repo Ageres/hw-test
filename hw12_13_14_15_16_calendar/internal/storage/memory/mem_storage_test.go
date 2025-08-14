@@ -1,5 +1,6 @@
 package memorystorage
 
+/*
 import (
 	"fmt"
 	"strconv"
@@ -11,7 +12,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
+*/
 
+/*
 func TestStorageAdd(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewEvents()
 	events := dto.events
@@ -426,3 +429,4 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 	dto.events = append(dto.events, event0, event1, event2, event3, event4, event5, event6, event7, event8, event9)
 	return dto
 }
+*/

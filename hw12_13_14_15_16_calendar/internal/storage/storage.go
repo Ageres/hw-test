@@ -1,14 +1,15 @@
 package storage
 
 import (
+	"context"
 	"time"
 )
 
 type Storage interface {
-	Add(eventRef *Event) error
-	Update(id string, eventRef *Event) error
-	Delete(id string) error
-	ListDay(start time.Time) ([]Event, error)
-	ListWeek(start time.Time) ([]Event, error)
-	ListMonth(start time.Time) ([]Event, error)
+	Add(ctx context.Context, eventRef *Event) error
+	Update(ctx context.Context, eventRef *Event) error
+	Delete(ctx context.Context, id string) error
+	ListDay(ctx context.Context, start time.Time) ([]Event, error)
+	ListWeek(ctx context.Context, start time.Time) ([]Event, error)
+	ListMonth(ctx context.Context, start time.Time) ([]Event, error)
 }

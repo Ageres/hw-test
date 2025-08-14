@@ -45,36 +45,36 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 }
 
 // Add implements storage.Storage.
-func (s *SqlStorage) Add(eventRef *storage.Event) error {
+func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) error {
 	panic("unimplemented")
 }
 
 // Delete implements storage.Storage.
-func (s *SqlStorage) Delete(id string) error {
+func (s *SqlStorage) Delete(ctx context.Context, id string) error {
 	panic("unimplemented")
 }
 
 // ListDay implements storage.Storage.
-func (s *SqlStorage) ListDay(start time.Time) ([]storage.Event, error) {
+func (s *SqlStorage) ListDay(ctx context.Context, start time.Time) ([]storage.Event, error) {
 	panic("unimplemented")
 }
 
 // ListMonth implements storage.Storage.
-func (s *SqlStorage) ListMonth(start time.Time) ([]storage.Event, error) {
+func (s *SqlStorage) ListMonth(ctx context.Context, start time.Time) ([]storage.Event, error) {
 	panic("unimplemented")
 }
 
 // ListWeek implements storage.Storage.
-func (s *SqlStorage) ListWeek(start time.Time) ([]storage.Event, error) {
+func (s *SqlStorage) ListWeek(ctx context.Context, start time.Time) ([]storage.Event, error) {
 	panic("unimplemented")
 }
 
 // Update implements storage.Storage.
-func (s *SqlStorage) Update(id string, eventRef *storage.Event) error {
+func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error {
 	panic("unimplemented")
 }
 
-func (p *SqlStorage) listEvents(start, end time.Time) ([]storage.Event, error) {
+func (p *SqlStorage) listEvents(ctx context.Context, start, end time.Time) ([]storage.Event, error) {
 	var events []struct {
 		ID          string
 		Title       string
