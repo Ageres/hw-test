@@ -2,13 +2,19 @@ logger:
   # DEBUG, INFO, WARN, ERROR
   level: INFO 
   # JSON, TEXT, COLOUR_TEXT 
-  format: COLOUR_TEXT
+  format: JSON
 
 storage:
   # IN_MEMORY, SQL
   type: SQL
   psql:
-    dsn: host=localhost port=5432 user=otus_user password=otus_password dbname=calendar sslmode=disable
+    db:
+      host: localhost
+      port: 5432
+      name: calendar
+      user: ${DB_USER}
+      password: ${DB_PASSWORD}
+      sslmode: disable
     migration: ./migrations
     pool:
       conn:
@@ -16,7 +22,6 @@ storage:
         max_idle: 2
         max_life_time: 3600
         max_idle_time: 3600
-
 
 http:
   server:
