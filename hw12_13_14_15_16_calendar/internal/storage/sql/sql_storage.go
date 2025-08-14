@@ -2,6 +2,7 @@ package sqlstorage
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -71,4 +72,43 @@ func (s *SqlStorage) ListWeek(start time.Time) ([]storage.Event, error) {
 // Update implements storage.Storage.
 func (s *SqlStorage) Update(id string, eventRef *storage.Event) error {
 	panic("unimplemented")
+}
+
+func (p *SqlStorage) listEvents(start, end time.Time) ([]storage.Event, error) {
+	var events []struct {
+		ID          string
+		Title       string
+		StartTime   time.Time `db:"start_time"`
+		Duration    int64
+		Description string
+		UserID      string `db:"user_id"`
+		Reminder    int64
+	}
+
+	err := p.db.Select(&events, `
+        SELECT * FROM events 
+        WHERE tstzrange(start_time, start_time + (duration * INTERVAL '1 second')) 
+        && 
+        tstzrange($1::timestamptz, $2::timestamptz)`,
+		start,
+		end,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to list events: %w", err)
+	}
+
+	result := make([]storage.Event, len(events))
+	for i, e := range events {
+		result[i] = storage.Event{
+			ID:          e.ID,
+			Title:       e.Title,
+			StartTime:   e.StartTime,
+			Duration:    time.Duration(e.Duration) * time.Second,
+			Description: e.Description,
+			UserID:      e.UserID,
+			Reminder:    time.Duration(e.Reminder) * time.Second,
+		}
+	}
+	return result, nil
 }

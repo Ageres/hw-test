@@ -1,13 +1,15 @@
 -- migrations/00001_init_events.up.sql
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE events (
-    id          TEXT        PRIMARY KEY,
+    id          UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
     title       TEXT        NOT NULL,
-    start_time  TIMESTAMPTZ NOT NULL,  
-    duration    BIGINT      NOT NULL,
+    start_time  TIMESTAMPTZ NOT NULL,
+    duration    INTEGER     NOT NULL,
     description TEXT,
     user_id     TEXT        NOT NULL,
-    reminder    BIGINT,                 
+    reminder    INTEGER                 
 );
 
 CREATE INDEX user_id_idx ON events (user_id);
