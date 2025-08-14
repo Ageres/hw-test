@@ -1,27 +1,31 @@
 package config
 
 import (
-	"fmt"
 	"log"
-	"os"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	"github.com/go-playground/validator/v10"
+
+	"github.com/a8m/envsubst"
 	"gopkg.in/yaml.v3"
 )
 
-func NewConfig(pathtoConfigFile string) model.Config {
-	cfgFile, err := os.ReadFile(pathtoConfigFile)
+func NewConfig(pathtoConfigFile string) *model.Config {
+	data, err := envsubst.ReadFile(pathtoConfigFile)
 	if err != nil {
-		err = fmt.Errorf("read config file: %w", err)
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalf("read config file: %v", err)
 	}
-	var config model.Config
-	err = yaml.Unmarshal(cfgFile, &config)
+
+	config := new(model.Config)
+	err = yaml.Unmarshal(data, config)
 	if err != nil {
-		err = fmt.Errorf("unmarshal config file: %w", err)
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalf("unmarshal config file: %v", err)
 	}
+
+	validate := validator.New()
+	if err := validate.Struct(config); err != nil {
+		log.Fatalf("validate config: %v", err)
+	}
+
 	return config
 }
