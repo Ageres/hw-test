@@ -103,33 +103,33 @@ func (s *MemoryStorage) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *MemoryStorage) ListDay(ctx context.Context, start time.Time) ([]storage.Event, error) {
+func (s *MemoryStorage) ListDay(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	startTime := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.Add(24 * time.Hour)
 
 	result := s.getEventsByPeriod(ctx, startTime, endTime)
 	return result, nil
 }
 
-func (s *MemoryStorage) ListWeek(ctx context.Context, start time.Time) ([]storage.Event, error) {
+func (s *MemoryStorage) ListWeek(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	startTime := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.AddDate(0, 0, 7)
 
 	result := s.getEventsByPeriod(ctx, startTime, endTime)
 	return result, nil
 }
 
-func (s *MemoryStorage) ListMonth(ctx context.Context, start time.Time) ([]storage.Event, error) {
+func (s *MemoryStorage) ListMonth(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	startTime := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.AddDate(0, 1, 0)
 
 	result := s.getEventsByPeriod(ctx, startTime, endTime)
