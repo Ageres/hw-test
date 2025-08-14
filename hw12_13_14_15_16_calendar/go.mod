@@ -10,6 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/jmoiron/sqlx v1.4.0
+	github.com/lib/pq v1.10.9
 	github.com/phsym/console-slog v0.3.1
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.8.4

@@ -70,19 +70,32 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1000-------------------------")
 	timeLocation, _ := time.LoadLocation("Local")
 	//timeDay := time.Date(2025, 12, 31, 18, 30, 45, 0, timeLocation)
-	timeDay := time.Date(2026, 1, 1, 11, 30, 45, 0, timeLocation)
+	//timeDay := time.Date(2026, 1, 1, 11, 30, 45, 0, timeLocation)
+	timeDay := time.Date(2026, 1, 11, 11, 30, 45, 0, timeLocation)
 	log.Println("timeDay:", timeDay)
 
-	//events, err := storage.ListDay(ctx, timeDay)
+	events, err := storage.ListDay(ctx, timeDay)
 	//events, err := storage.ListWeek(ctx, timeDay)
 	//events, err := storage.ListMonth(ctx, timeDay)
-	err := storage.Delete(ctx, "bb9ac22c-903f-4529-b4eb-d63c6d3fbb18")
+	//err := storage.Delete(ctx, "bb9ac22c-903f-4529-b4eb-d63c6d3fbb18")
+
+	//event := storage.
+
 	if err != nil {
 		log.Println("-----------------------1400-------------------------")
 		log.Fatal(err)
 	}
 	log.Println("-----------------------1400-------------------------")
-	//log.Println(MarshalAny(events))
+	log.Println(MarshalAny(events))
+
+	log.Println("-----------------------1450-------------------------")
+	event := events[0]
+	event.StartTime = event.StartTime.Add(2 * time.Hour)
+	err = storage.Add(ctx, &event)
+	if err != nil {
+		log.Println("-----------------------1475-------------------------")
+		log.Fatal(err)
+	}
 
 	log.Println("-----------------------1999-------------------------")
 }
