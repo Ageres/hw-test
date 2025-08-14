@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 //-----------------------------
 //common config model
 type Config struct {
@@ -46,6 +48,13 @@ type ConnConf struct {
 	MaxIdle     int `yaml:"max_idle" validate:"gte=0"`
 	MaxLifeTime int `yaml:"max_life_time" validate:"gte=0"`
 	MaxIdleTime int `yaml:"max_idle_time" validate:"gte=0"`
+}
+
+func (d *DBConfig) DSN() string {
+	return fmt.Sprintf(
+		"host=%s port=%d dbname=%s user=%s password=%s sslmode=%s",
+		d.Host, d.Port, d.Name, d.User, d.Password, d.SSLMode,
+	)
 }
 
 //-----------------------------
