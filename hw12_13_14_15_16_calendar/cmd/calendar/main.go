@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
+
+	//"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
+	//"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
+	//"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	//internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 )
 
@@ -31,32 +33,56 @@ func main() {
 	configRef := config.NewConfig(cliArgs.PathToConfigFile)
 	log.Println("config:", MarshalAny(configRef))
 
-	logg := logger.New(configRef.Logger, nil)
+	//logg := logger.New(configRef.Logger, nil)
 
 	storage := storage_config.NewStorage(configRef.Storage)
-	calendar := app.New(logg, storage)
 
-	server := internalhttp.NewServer(logg, calendar)
+	testStorage(ctx, storage)
 
-	go func() {
-		<-ctx.Done()
+	/*
+		calendar := app.New(logg, storage)
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
+		server := internalhttp.NewServer(logg, calendar)
 
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+		go func() {
+			<-ctx.Done()
+
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+			defer cancel()
+
+			if err := server.Stop(ctx); err != nil {
+				logg.Error("failed to stop http server: " + err.Error())
+			}
+		}()
+
+		logg.Info("calendar is running...")
+
+		if err := server.Start(ctx); err != nil {
+			logg.Error("failed to start http server: " + err.Error())
+			cancel()
+			os.Exit(1) //nolint:gocritic
 		}
-	}()
+	*/
 
-	logg.Info("calendar is running...")
+}
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
+func testStorage(ctx context.Context, storage storage.Storage) {
+	log.Println("-----------------------1000-------------------------")
+	timeLocation, _ := time.LoadLocation("Local")
+	timeDay := time.Date(2025, 12, 31, 18, 30, 45, 0, timeLocation)
+	//timeDay := time.Date(2026, 1, 1, 11, 30, 45, 0, timeLocation)
+	log.Println("timeDay:", timeDay)
+
+	//events, err := storage.ListDay(ctx, timeDay)
+	events, err := storage.ListWeek(ctx, timeDay)
+	if err != nil {
+		log.Println("-----------------------1400-------------------------")
+		log.Fatal(err)
 	}
+	log.Println("-----------------------1400-------------------------")
+	log.Println(MarshalAny(events))
 
+	log.Println("-----------------------1999-------------------------")
 }
 
 type JsonError struct {
