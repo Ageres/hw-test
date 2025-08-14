@@ -317,6 +317,24 @@ func TestStorageConcurrentUpdateDelete(t *testing.T) {
 	require.False(t, exists)
 }
 
+func TestStorageDeadlock(t *testing.T) {
+	dto := newTestMemoryStorageDto().buildNewStorage()
+	event := dto.buildNewEvents().events[0]
+	require.NoError(t, dto.storage.Add(&event))
+
+	done := make(chan bool)
+	go func() {
+		dto.storage.Update(event.ID, &event)
+		done <- true
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(1 * time.Second):
+		t.Fatal("Potential deadlock detected")
+	}
+}
+
 // -------------------------------------------------------------------------------------
 // Вспомогательные функции
 type TestMemoryStorageDto struct {
