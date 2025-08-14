@@ -14,7 +14,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
-	storage_build "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/build"
+	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 )
 
 // запуск:
@@ -29,7 +29,7 @@ func main() {
 
 	logg := logger.New(configRef.Logger, nil)
 
-	storage := storage_build.NewStorage(configRef.Storage)
+	storage := storage_config.NewStorage(configRef.Storage)
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)

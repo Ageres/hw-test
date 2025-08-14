@@ -1,4 +1,4 @@
-package storage_build
+package storage_config
 
 import (
 	"log"
