@@ -3,54 +3,63 @@ package model
 //-----------------------------
 //common config model
 type Config struct {
-	Logger  *LoggerConf
-	Storage *StorageConf
-	Http    *HttpConf
+	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
+	Storage *StorageConf `yaml:"storage" validate:"required"`
+	Http    *HttpConf    `yaml:"http" validate:"required"`
 }
 
 //-----------------------------
 //logger config model
 type LoggerConf struct {
-	Level  string
-	Format string
+	Level  string `yaml:"level" validate:"oneof=DEBUG INFO WARN ERROR"`
+	Format string `yaml:"format" validate:"oneof=JSON TEXT COLOUR_TEXT"`
 }
 
 //-----------------------------
 //storage config model
 type StorageConf struct {
-	Type string
-	PSQL *PSQLConfig
+	Type string      `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
+	PSQL *PSQLConfig `yaml:"psql"`
 }
 
 type PSQLConfig struct {
-	DSN       string
-	Migration string
-	Pool      *PoolConf
+	DB        DBConfig `yaml:"db" validate:"required"`
+	Migration string   `yaml:"migration" validate:"required"`
+	Pool      PoolConf `yaml:"pool" validate:"required"`
+}
+
+type DBConfig struct {
+	Host     string `yaml:"host" validate:"required"`
+	Port     int    `yaml:"port" validate:"required,gt=0"`
+	Name     string `yaml:"name" validate:"required"`
+	User     string `yaml:"user" validate:"required"`
+	Password string `yaml:"password" validate:"required"`
+	SSLMode  string `yaml:"sslmode" validate:"required"`
 }
 
 type PoolConf struct {
-	Conn *ConnConf
+	Conn *ConnConf `yaml:"conn" validate:"required"`
 }
 
 type ConnConf struct {
-	MaxOpen     int `yaml:"max_open"`
-	MaxIdle     int `yaml:"max_idle"`
-	MaxLifeTime int `yaml:"max_life_time"`
-	MaxIdleTime int `yaml:"max_idle_time"`
+	MaxOpen     int `yaml:"max_open" validate:"gt=0"`
+	MaxIdle     int `yaml:"max_idle" validate:"gte=0"`
+	MaxLifeTime int `yaml:"max_life_time" validate:"gte=0"`
+	MaxIdleTime int `yaml:"max_idle_time" validate:"gte=0"`
 }
 
 //-----------------------------
 //http config model
 type HttpConf struct {
-	Server *ServerConf
+	Server *ServerConf `yaml:"server" validate:"required"`
 }
 
 type ServerConf struct {
-	Host string
-	Port int
-	Path *Path
+	Host string    `yaml:"host" validate:"required"`
+	Port int       `yaml:"port" validate:"required,gt=0"`
+	Path *PathConf `yaml:"path" validate:"required"`
 }
 
-type Path struct {
-	Hello string
+type PathConf struct {
+	Hello string `yaml:"hello" validate:"required,startswith=/"`
 }
