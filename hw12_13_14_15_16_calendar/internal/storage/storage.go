@@ -6,7 +6,7 @@ import (
 )
 
 type Storage interface {
-	Add(ctx context.Context, eventRef *Event) error
+	Add(ctx context.Context, eventRef *Event) (*Event, error)
 	Update(ctx context.Context, eventRef *Event) error
 	Delete(ctx context.Context, id string) error
 	ListDay(ctx context.Context, startDay time.Time) ([]Event, error)

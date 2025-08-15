@@ -91,11 +91,12 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1450-------------------------")
 	event := events[0]
 	event.StartTime = event.StartTime.Add(2 * time.Hour)
-	err = storage.Add(ctx, &event)
+	res, err := storage.Add(ctx, &event)
 	if err != nil {
 		log.Println("-----------------------1475-------------------------")
 		log.Fatal(err)
 	}
+	log.Println(MarshalAny(res))
 
 	log.Println("-----------------------1999-------------------------")
 }

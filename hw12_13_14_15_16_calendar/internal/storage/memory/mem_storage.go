@@ -19,38 +19,39 @@ func NewMemoryStorage() storage.Storage {
 	}
 }
 
-func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) error {
+func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if err := storage.ValidateEventNotNil(eventRef); err != nil {
-		return err
+		return nil, err
 	}
 
 	if eventRef.ID != "" {
 		if err := eventRef.FullValidate(); err != nil {
-			return err
+			return nil, err
 		}
 	} else {
 		if err := eventRef.Validate(); err != nil {
-			return err
+			return nil, err
 		}
 		eventRef.GenerateId()
 	}
 
 	if _, exists := s.events[eventRef.ID]; exists {
-		return storage.ErrEventAllreadyExists
+		return nil, storage.ErrEventAllreadyExists
 	}
 
 	for _, existingEvent := range s.events {
 		if existingEvent.UserID == eventRef.UserID &&
 			existingEvent.Overlaps(eventRef) {
-			return storage.ErrDateBusy
+			return nil, storage.ErrDateBusy
 		}
 	}
 
 	s.events[eventRef.ID] = *eventRef
-	return nil
+	result := *eventRef
+	return &result, nil
 }
 
 func (s *MemoryStorage) Update(ctx context.Context, newEventRef *storage.Event) error {

@@ -45,27 +45,42 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 	return s.db.Close()
 }
 
-func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) error {
-	_, err := s.db.ExecContext(ctx, `
+func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
+	// Создаем копию события, чтобы не модифицировать исходный объект
+	savedEvent := *eventRef
+
+	err := s.db.QueryRowContext(ctx, `
         INSERT INTO events 
         (title, start_time, duration, description, user_id, reminder)
-        VALUES ($1, $2, $3, $4, $5, $6)`,
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, title, start_time, duration, description, user_id, reminder`,
 		eventRef.Title,
 		eventRef.StartTime,
 		int(eventRef.Duration.Seconds()),
 		eventRef.Description,
 		eventRef.UserID,
 		int(eventRef.Reminder.Seconds()),
+	).Scan(
+		&savedEvent.ID,
+		&savedEvent.Title,
+		&savedEvent.StartTime,
+		&savedEvent.Duration,
+		&savedEvent.Description,
+		&savedEvent.UserID,
+		&savedEvent.Reminder,
 	)
 
 	if err != nil {
-		fmt.Printf("----------------------Тип ошибки: %T\n", err)
 		if pqErr, ok := err.(*pgconn.PgError); ok && pqErr.Code == "23P01" {
-			return storage.ErrDateBusy
+			return nil, storage.ErrDateBusy
 		}
-		return fmt.Errorf("failed to insert event: %w", err)
+		return nil, fmt.Errorf("failed to insert event: %w", err)
 	}
-	return nil
+
+	savedEvent.Duration = time.Duration(savedEvent.Duration) * time.Second
+	savedEvent.Reminder = time.Duration(savedEvent.Reminder) * time.Second
+
+	return &savedEvent, nil
 }
 
 // Update implements storage.Storage.
