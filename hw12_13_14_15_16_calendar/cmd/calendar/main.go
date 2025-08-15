@@ -66,7 +66,7 @@ func main() {
 
 }
 
-func testStorage(ctx context.Context, storage storage.Storage) {
+func testStorage_02(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1000-------------------------")
 	timeLocation, _ := time.LoadLocation("Local")
 	timeDay := time.Date(2025, 12, 1, 18, 30, 45, 0, timeLocation)
@@ -105,7 +105,7 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1999-------------------------")
 }
 
-func testStorage_01(ctx context.Context, storage storage.Storage) {
+func testStorage(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1000-------------------------")
 	timeLocation, _ := time.LoadLocation("Local")
 	//timeDay := time.Date(2025, 12, 31, 18, 30, 45, 0, timeLocation)
@@ -135,7 +135,7 @@ func testStorage_01(ctx context.Context, storage storage.Storage) {
 		log.Println("-----------------------1475-------------------------")
 		log.Fatal(err)
 	}
-	log.Println(MarshalAny(res))
+	log.Println("res:", MarshalAny(res))
 
 	log.Println("-----------------------1999-------------------------")
 }
