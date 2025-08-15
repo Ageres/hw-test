@@ -28,7 +28,7 @@ CREATE OR REPLACE FUNCTION public.update_event(
     p_reminder INTEGER,
     OUT status_code INTEGER,
     OUT error_message TEXT,
-    OUT conflict_event_id UUID,
+    OUT conflict_event_id TEXT,
     OUT conflict_user_id TEXT
 ) 
 LANGUAGE plpgsql
@@ -41,7 +41,7 @@ BEGIN
     SET LOCAL statement_timeout = '60s';
     
     -- Инициализация выходных параметров
-    conflict_event_id := '00000000-0000-0000-0000-000000000000'::UUID;
+    conflict_event_id := '';
     conflict_user_id := '';
     RAISE LOG 'Update event attempt. Event ID: %, User ID: %', p_id, p_user_id;
 
@@ -86,7 +86,7 @@ BEGIN
             RAISE NOTICE 'Time conflict detected for event: %', p_id;
             status_code := 409;
             error_message := 'TIME_CONFLICT';
-            conflict_event_id := v_conflict_event_id;
+            conflict_event_id := v_conflict_event_id::TEXT;
             RETURN;
         END IF;
 
