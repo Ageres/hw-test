@@ -2,8 +2,6 @@ package sqlstorage
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -48,7 +46,7 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 }
 
 func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
-	// Создаем копию события, чтобы не модифицировать исходный объект
+	// копия события, чтобы не модифицировать исходный объект
 	savedEvent := *eventRef
 
 	err := s.db.QueryRowContext(ctx, `
@@ -85,63 +83,37 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	return &savedEvent, nil
 }
 
-func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error {
-	tx, err := s.db.BeginTxx(ctx, nil)
+func (s *SqlStorage) Update(ctx context.Context, event *storage.Event) error {
+	var statusCode int
+	var errMsg string
+	err := s.db.QueryRowContext(ctx, `
+        SELECT status_code, error_message 
+        FROM update_event($1, $2, $3, $4, $5, $6, $7)`,
+		event.ID,
+		event.Title,
+		event.StartTime,
+		int(event.Duration.Seconds()),
+		event.Description,
+		event.UserID,
+		int(event.Reminder.Seconds()),
+	).Scan(&statusCode, &errMsg)
+
 	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	defer tx.Rollback()
-
-	var currentUserID string
-	err = tx.GetContext(ctx, &currentUserID,
-		"SELECT user_id FROM events WHERE id = $1",
-		eventRef.ID)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return storage.ErrEventNotFound
-		}
-		return fmt.Errorf("failed to check event owner: %w", err)
+		return fmt.Errorf("update failed: %w", err)
 	}
 
-	if currentUserID != eventRef.UserID {
+	switch statusCode {
+	case 200:
+		return nil
+	case 404:
+		return storage.ErrEventNotFound
+	case 403:
 		return storage.ErrUserConflict
+	case 409:
+		return storage.ErrDateBusy
+	default:
+		return fmt.Errorf("database error [%d]: %s", statusCode, errMsg)
 	}
-
-	_, err = tx.ExecContext(ctx, `
-        UPDATE events SET
-            title = $1,
-            start_time = $2,
-            duration = $3,
-            description = $4,
-            reminder = $5
-        WHERE id = $6`,
-		eventRef.Title,
-		eventRef.StartTime,
-		int(eventRef.Duration.Seconds()),
-		eventRef.Description,
-		int(eventRef.Reminder.Seconds()),
-		eventRef.ID,
-	)
-
-	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			switch pgErr.Code {
-			case "23P01":
-				return storage.ErrDateBusy
-			case "23514":
-				return fmt.Errorf("invalid event data: %w", err)
-			}
-		}
-		return fmt.Errorf("failed to update event: %w", err)
-	}
-
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
 }
 
 func (s *SqlStorage) Delete(ctx context.Context, id string) error {

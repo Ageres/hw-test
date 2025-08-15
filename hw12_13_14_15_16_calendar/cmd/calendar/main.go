@@ -69,9 +69,48 @@ func main() {
 func testStorage(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1000-------------------------")
 	timeLocation, _ := time.LoadLocation("Local")
+	timeDay := time.Date(2025, 12, 1, 18, 30, 45, 0, timeLocation)
+	log.Println("timeDay:", timeDay)
+
+	events, err := storage.ListDay(ctx, timeDay)
+	if err != nil {
+		log.Println("-----------------------1400-------------------------")
+		log.Fatal(err)
+	}
+	log.Println("-----------------------1425-------------------------")
+	log.Println(MarshalAny(events))
+
+	log.Println("-----------------------1450-------------------------")
+
+	event := events[0]
+	//event.ID = "2aeef68f-267d-459d-bda6-c900e27f4afb"
+	//event.UserID = "www"
+	//event.StartTime = event.StartTime.Add(30 * time.Minute)
+	event.StartTime = event.StartTime.Add(3 * time.Hour)
+
+	err = storage.Update(ctx, &event)
+	if err != nil {
+		log.Println("-----------------------1475-------------------------")
+		log.Fatal("err:", err)
+	}
+
+	/*
+
+
+		res, err := storage.Add(ctx, &event)
+
+		log.Println(MarshalAny(res))
+	*/
+
+	log.Println("-----------------------1999-------------------------")
+}
+
+func testStorage_01(ctx context.Context, storage storage.Storage) {
+	log.Println("-----------------------1000-------------------------")
+	timeLocation, _ := time.LoadLocation("Local")
 	//timeDay := time.Date(2025, 12, 31, 18, 30, 45, 0, timeLocation)
 	//timeDay := time.Date(2026, 1, 1, 11, 30, 45, 0, timeLocation)
-	timeDay := time.Date(2026, 1, 11, 11, 30, 45, 0, timeLocation)
+	timeDay := time.Date(2025, 12, 1, 11, 30, 45, 0, timeLocation)
 	log.Println("timeDay:", timeDay)
 
 	events, err := storage.ListDay(ctx, timeDay)
@@ -101,6 +140,7 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1999-------------------------")
 }
 
+// TODO перенести в логер
 type JsonError struct {
 	Value string `json:"value"`
 	Error string `json:"error"`
