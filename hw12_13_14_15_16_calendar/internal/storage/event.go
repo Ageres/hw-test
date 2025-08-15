@@ -80,7 +80,10 @@ func (e *Event) Validate() error {
 
 	errMsg := joinString(errMsgs)
 	if errMsg != "" {
-		return errors.New(errMsg)
+		return &StorageError{
+			StatusCode: 400,
+			Message:    errMsg,
+		}
 	}
 	return nil
 }

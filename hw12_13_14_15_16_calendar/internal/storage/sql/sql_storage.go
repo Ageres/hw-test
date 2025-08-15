@@ -50,13 +50,10 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		return nil, err
 	}
 
-	var statusCode int
-	var errMsg string
 	var eventID string
-	var conflictEventID string
-
+	serr := storage.StorageError{}
 	err = s.db.QueryRowContext(ctx, `
-        SELECT status_code, error_message, event_id, conflict_event_id 
+        SELECT event_id, status_code, error_message, conflict_event_id 
         FROM add_event($1, $2, $3, $4, $5, $6)`,
 		eventRef.Title,
 		eventRef.StartTime,
@@ -64,13 +61,20 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		eventRef.Description,
 		eventRef.UserID,
 		int(eventRef.Reminder.Seconds()),
-	).Scan(&statusCode, &errMsg, &eventID, &conflictEventID)
+	).Scan(
+		&eventID,
+		&serr.StatusCode,
+		&serr.ErrorMessage,
+		&serr.ConflictEventId,
+	)
 
 	if err != nil {
-		return nil, fmt.Errorf("add failed: %w", err)
+		serr.Message = fmt.Sprintf("add failed: %v", err)
+		serr.Cause = err
+		return nil, &serr
 	}
 
-	switch statusCode {
+	switch serr.StatusCode {
 	case 200:
 		savedEvent := *eventRef
 		savedEvent.ID = eventID
@@ -78,11 +82,14 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		savedEvent.Reminder = time.Duration(savedEvent.Reminder) * time.Second
 		return &savedEvent, nil
 	case 409:
-		return nil, fmt.Errorf(storage.ErrDateBusyMsgTemplate, conflictEventID)
+		serr.Message = fmt.Sprintf(storage.ErrDateBusyMsgTemplate, serr.ConflictEventId)
+		return nil, &serr
 	case 504:
-		return nil, fmt.Errorf("database timeout: %s", errMsg)
+		serr.Message = fmt.Sprintf("database timeout: %s", serr.ErrorMessage)
+		return nil, &serr
 	default:
-		return nil, fmt.Errorf("database error [%d]: %s", statusCode, errMsg)
+		serr.Message = fmt.Sprintf("database error [%d]: %s", serr.StatusCode, serr.ErrorMessage)
+		return nil, &serr
 	}
 }
 
