@@ -31,51 +31,68 @@ CREATE OR REPLACE FUNCTION public.add_event(
 ) 
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    conflict_event_id UUID;
 BEGIN
+    -- таймаут выполнения
+    SET LOCAL statement_timeout = '60s';
+    
+    event_id := '00000000-0000-0000-0000-000000000000'::UUID;
     RAISE LOG 'Add event attempt. User ID: %, Title: %', p_user_id, p_title;
 
-    event_id := '00000000-0000-0000-0000-000000000000'::UUID;
-
-    -- проверка конфликта времени
-    IF EXISTS (
-        SELECT 1 FROM events
+    -- старт транзакции
+    BEGIN
+        -- блокировка пользователя для предотвращения гонки условий
+        PERFORM pg_advisory_xact_lock(hashtext(p_user_id));
+        
+        -- проверка конфликта времени с блокировкой найденных записей
+        SELECT id INTO conflict_event_id
+        FROM events
         WHERE user_id = p_user_id
           AND immutable_tstzrange(start_time, duration) 
               && immutable_tstzrange(p_start_time, p_duration)
-    ) THEN
-        RAISE NOTICE 'Time conflict detected for user: %', p_user_id;
-        status_code := 409;
-        error_message := 'TIME_CONFLICT';
-        RETURN;
-    END IF;
+        LIMIT 1
+        FOR UPDATE SKIP LOCKED;
+        
+        IF conflict_event_id IS NOT NULL THEN
+            RAISE NOTICE 'Time conflict detected for user: %', p_user_id;
+            status_code := 409;
+            error_message := 'TIME_CONFLICT';
+            RETURN;
+        END IF;
 
-    -- вставка события
-    INSERT INTO events (
-        title, 
-        start_time, 
-        duration, 
-        description, 
-        user_id, 
-        reminder
-    ) VALUES (
-        p_title,
-        p_start_time,
-        p_duration,
-        p_description,
-        p_user_id,
-        p_reminder
-    )
-    RETURNING id INTO event_id;
-    
-    RAISE LOG 'Event added successfully. ID: %', event_id;
-    status_code := 200;
-    error_message := 'SUCCESS';
-EXCEPTION
-    WHEN others THEN
-        RAISE EXCEPTION 'Add failed. Error: %', SQLERRM;
-        status_code := 500;
-        error_message := 'INTERNAL_ERROR: ' || SQLERRM;
-        event_id := NULL;
+        -- вставка события
+        INSERT INTO events (
+            title, 
+            start_time, 
+            duration, 
+            description, 
+            user_id, 
+            reminder
+        ) VALUES (
+            p_title,
+            p_start_time,
+            p_duration,
+            p_description,
+            p_user_id,
+            p_reminder
+        )
+        RETURNING id INTO event_id;
+        
+        RAISE LOG 'Event added successfully. ID: %', event_id;
+        status_code := 200;
+        error_message := 'SUCCESS';
+        
+    EXCEPTION
+        WHEN statement_timeout THEN
+            RAISE EXCEPTION 'Add event timeout for user: %', p_user_id;
+            status_code := 503;
+            error_message := 'TIMEOUT: Operation took too long';
+        WHEN others THEN
+            RAISE EXCEPTION 'Add failed. Error: %', SQLERRM;
+            status_code := 500;
+            error_message := 'INTERNAL_ERROR: ' || SQLERRM;
+    END;
 END;
 $$;
 
