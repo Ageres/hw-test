@@ -2,6 +2,8 @@ package sqlstorage
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -83,9 +85,63 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	return &savedEvent, nil
 }
 
-// Update implements storage.Storage.
 func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error {
-	panic("unimplemented")
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	var currentUserID string
+	err = tx.GetContext(ctx, &currentUserID,
+		"SELECT user_id FROM events WHERE id = $1",
+		eventRef.ID)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return storage.ErrEventNotFound
+		}
+		return fmt.Errorf("failed to check event owner: %w", err)
+	}
+
+	if currentUserID != eventRef.UserID {
+		return storage.ErrUserConflict
+	}
+
+	_, err = tx.ExecContext(ctx, `
+        UPDATE events SET
+            title = $1,
+            start_time = $2,
+            duration = $3,
+            description = $4,
+            reminder = $5
+        WHERE id = $6`,
+		eventRef.Title,
+		eventRef.StartTime,
+		int(eventRef.Duration.Seconds()),
+		eventRef.Description,
+		int(eventRef.Reminder.Seconds()),
+		eventRef.ID,
+	)
+
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			switch pgErr.Code {
+			case "23P01":
+				return storage.ErrDateBusy
+			case "23514":
+				return fmt.Errorf("invalid event data: %w", err)
+			}
+		}
+		return fmt.Errorf("failed to update event: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }
 
 func (s *SqlStorage) Delete(ctx context.Context, id string) error {
