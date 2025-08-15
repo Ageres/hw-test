@@ -73,6 +73,8 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		return &savedEvent, nil
 	case 409:
 		return nil, storage.ErrDateBusy
+	case 504: // Добавляем обработку таймаута
+		return nil, fmt.Errorf("database timeout: %s", errMsg)
 	default:
 		return nil, fmt.Errorf("database error [%d]: %s", statusCode, errMsg)
 	}

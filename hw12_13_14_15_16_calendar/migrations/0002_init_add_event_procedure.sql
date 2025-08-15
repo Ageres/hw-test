@@ -27,18 +27,21 @@ CREATE OR REPLACE FUNCTION public.add_event(
     p_reminder INTEGER,
     OUT status_code INTEGER,
     OUT error_message TEXT,
-    OUT event_id UUID
+    OUT event_id UUID,
+    OUT conflict_event_id UUID
 ) 
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    conflict_event_id UUID;
+    v_conflict_event_id UUID;
     timeout_constraint TEXT := 'statement_timeout';
 BEGIN
     -- таймаут выполнения
     SET LOCAL statement_timeout = '60s';
     
+    -- инициализация выходных параметров
     event_id := '00000000-0000-0000-0000-000000000000'::UUID;
+    conflict_event_id := '00000000-0000-0000-0000-000000000000'::UUID;
     RAISE LOG 'Add event attempt. User ID: %, Title: %', p_user_id, p_title;
 
     -- старт транзакции
@@ -47,7 +50,7 @@ BEGIN
         PERFORM pg_advisory_xact_lock(hashtext(p_user_id));
         
         -- проверка конфликта времени с блокировкой найденных записей
-        SELECT id INTO conflict_event_id
+        SELECT id INTO v_conflict_event_id
         FROM events
         WHERE user_id = p_user_id
           AND immutable_tstzrange(start_time, duration) 
@@ -55,10 +58,11 @@ BEGIN
         LIMIT 1
         FOR UPDATE SKIP LOCKED;
         
-        IF conflict_event_id IS NOT NULL THEN
+        IF v_conflict_event_id IS NOT NULL THEN
             RAISE NOTICE 'Time conflict detected for user: %', p_user_id;
             status_code := 409;
             error_message := 'TIME_CONFLICT';
+            conflict_event_id := v_conflict_event_id; -- Устанавливаем ID конфликта
             RETURN;
         END IF;
 
