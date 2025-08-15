@@ -125,7 +125,8 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 		log.Fatal(err)
 	}
 	log.Println("-----------------------1400-------------------------")
-	log.Println(MarshalAny(events))
+	//log.Println(MarshalAny(events))
+	log.Println("len(events):", len(events))
 
 	log.Println("-----------------------1450-------------------------")
 	event := events[0]
