@@ -11,6 +11,7 @@ var (
 )
 
 const (
+	ErrDateBusyMsgTemplate   = "time is already taken by another event: %s"
 	ErrEventIdMsgTemplate    = "validate event id: %s"
 	ErrEventIdWrapTemplate   = "validate event id: %w"
 	ErrEmptyTitleMsg         = "title is empty"
