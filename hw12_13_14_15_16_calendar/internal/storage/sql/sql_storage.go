@@ -48,6 +48,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	var statusCode int
 	var errMsg string
 	var eventID string
+	var conflictEventID string
 
 	err := s.db.QueryRowContext(ctx, `
         SELECT status_code, error_message, event_id 
@@ -58,7 +59,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		eventRef.Description,
 		eventRef.UserID,
 		int(eventRef.Reminder.Seconds()),
-	).Scan(&statusCode, &errMsg, &eventID)
+	).Scan(&statusCode, &errMsg, &eventID, &conflictEventID)
 
 	if err != nil {
 		return nil, fmt.Errorf("add failed: %w", err)
@@ -72,8 +73,8 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		savedEvent.Reminder = time.Duration(savedEvent.Reminder) * time.Second
 		return &savedEvent, nil
 	case 409:
-		return nil, storage.ErrDateBusy
-	case 504: // Добавляем обработку таймаута
+		return nil, fmt.Errorf(storage.ErrDateBusyMsgTemplate, conflictEventID)
+	case 504:
 		return nil, fmt.Errorf("database timeout: %s", errMsg)
 	default:
 		return nil, fmt.Errorf("database error [%d]: %s", statusCode, errMsg)
