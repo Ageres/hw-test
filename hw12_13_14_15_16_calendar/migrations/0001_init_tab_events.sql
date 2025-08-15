@@ -1,4 +1,5 @@
 -- создание таблицы событий и индексов
+
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE events (
