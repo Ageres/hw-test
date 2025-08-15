@@ -34,6 +34,8 @@ AS $$
 BEGIN
     RAISE LOG 'Add event attempt. User ID: %, Title: %', p_user_id, p_title;
 
+    event_id := '00000000-0000-0000-0000-000000000000'::UUID;
+
     -- проверка конфликта времени
     IF EXISTS (
         SELECT 1 FROM events
@@ -44,7 +46,6 @@ BEGIN
         RAISE NOTICE 'Time conflict detected for user: %', p_user_id;
         status_code := 409;
         error_message := 'TIME_CONFLICT';
-        event_id := NULL;
         RETURN;
     END IF;
 
