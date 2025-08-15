@@ -1,4 +1,5 @@
--- удаление процедуры обновления события
+-- удаление хранимой процедуры обновления события
+
 BEGIN;
 DROP FUNCTION IF EXISTS public.update_event;
 DROP INDEX IF EXISTS idx_events_id_user;
