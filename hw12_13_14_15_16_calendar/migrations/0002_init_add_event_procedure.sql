@@ -33,6 +33,7 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     conflict_event_id UUID;
+    timeout_constraint TEXT := 'statement_timeout';
 BEGIN
     -- таймаут выполнения
     SET LOCAL statement_timeout = '60s';
@@ -84,9 +85,9 @@ BEGIN
         error_message := 'SUCCESS';
         
     EXCEPTION
-        WHEN statement_timeout THEN
+        WHEN SQLSTATE '57014' THEN -- Код ошибки для statement_timeout
             RAISE EXCEPTION 'Add event timeout for user: %', p_user_id;
-            status_code := 503;
+            status_code := 504;
             error_message := 'TIMEOUT: Operation took too long';
         WHEN others THEN
             RAISE EXCEPTION 'Add failed. Error: %', SQLERRM;
