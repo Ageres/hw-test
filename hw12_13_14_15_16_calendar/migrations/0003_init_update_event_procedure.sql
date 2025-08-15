@@ -27,60 +27,83 @@ CREATE OR REPLACE FUNCTION public.update_event(
     p_user_id TEXT,
     p_reminder INTEGER,
     OUT status_code INTEGER,
-    OUT error_message TEXT
+    OUT error_message TEXT,
+    OUT conflict_event_id UUID
 ) 
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    v_conflict_event_id UUID;
 BEGIN
+    -- Устанавливаем таймаут выполнения (60 секунд)
+    SET LOCAL statement_timeout = '60s';
+    
+    -- Инициализация выходных параметров
+    conflict_event_id := '00000000-0000-0000-0000-000000000000'::UUID;
     RAISE LOG 'Update event attempt. Event ID: %, User ID: %', p_id, p_user_id;
 
-    -- проверка существования события
-    IF NOT EXISTS (SELECT 1 FROM events WHERE id = p_id) THEN
-        RAISE NOTICE 'Event not found. ID: %', p_id;
-        status_code := 404;
-        error_message := 'EVENT_NOT_FOUND';
-        RETURN;
-    END IF;
+    -- Начинаем транзакционный блок
+    BEGIN
+        -- Блокировка пользователя для предотвращения гонки условий
+        PERFORM pg_advisory_xact_lock(hashtext(p_user_id));
+        
+        -- проверка существования события с блокировкой
+        IF NOT EXISTS (SELECT 1 FROM events WHERE id = p_id FOR UPDATE) THEN
+            RAISE NOTICE 'Event not found. ID: %', p_id;
+            status_code := 404;
+            error_message := 'EVENT_NOT_FOUND';
+            RETURN;
+        END IF;
 
-    -- проверка владельца
-    IF NOT EXISTS (SELECT 1 FROM events WHERE id = p_id AND user_id = p_user_id) THEN
-        RAISE NOTICE 'Ownership conflict. Event ID: %, Requested User: %', p_id, p_user_id;
-        status_code := 403;
-        error_message := 'OWNERSHIP_CONFLICT';
-        RETURN;
-    END IF;
+        -- проверка владельца
+        IF NOT EXISTS (SELECT 1 FROM events WHERE id = p_id AND user_id = p_user_id) THEN
+            RAISE NOTICE 'Ownership conflict. Event ID: %, Requested User: %', p_id, p_user_id;
+            status_code := 403;
+            error_message := 'OWNERSHIP_CONFLICT';
+            RETURN;
+        END IF;
 
-    -- проверка конфликта времени с использованием IMMUTABLE-функции
-    IF EXISTS (
-        SELECT 1 FROM events
+        -- проверка конфликта времени с блокировкой
+        SELECT id INTO v_conflict_event_id
+        FROM events
         WHERE user_id = p_user_id
           AND id != p_id
           AND immutable_tstzrange(start_time, duration) 
               && immutable_tstzrange(p_start_time, p_duration)
-    ) THEN
-        RAISE NOTICE 'Time conflict detected for event: %', p_id;
-        status_code := 409;
-        error_message := 'TIME_CONFLICT';
-        RETURN;
-    END IF;
+        LIMIT 1
+        FOR UPDATE SKIP LOCKED;
+        
+        IF v_conflict_event_id IS NOT NULL THEN
+            RAISE NOTICE 'Time conflict detected for event: %', p_id;
+            status_code := 409;
+            error_message := 'TIME_CONFLICT';
+            conflict_event_id := v_conflict_event_id;
+            RETURN;
+        END IF;
 
-    -- обновление
-    UPDATE events SET
-        title = p_title,
-        start_time = p_start_time,
-        duration = p_duration,
-        description = p_description,
-        reminder = p_reminder
-    WHERE id = p_id;
-    
-    RAISE LOG 'Event updated successfully. ID: %', p_id;
-    status_code := 200;
-    error_message := 'SUCCESS';
-EXCEPTION
-    WHEN others THEN
-        RAISE EXCEPTION 'Update failed for event %. Error: %', p_id, SQLERRM;
-        status_code := 500;
-        error_message := 'INTERNAL_ERROR: ' || SQLERRM;
+        -- обновление события
+        UPDATE events SET
+            title = p_title,
+            start_time = p_start_time,
+            duration = p_duration,
+            description = p_description,
+            reminder = p_reminder
+        WHERE id = p_id;
+        
+        RAISE LOG 'Event updated successfully. ID: %', p_id;
+        status_code := 200;
+        error_message := 'SUCCESS';
+        
+    EXCEPTION
+        WHEN SQLSTATE '57014' THEN -- Код ошибки для statement_timeout
+            RAISE EXCEPTION 'Update event timeout for event: %', p_id;
+            status_code := 504;
+            error_message := 'TIMEOUT: Operation took too long';
+        WHEN others THEN
+            RAISE EXCEPTION 'Update failed for event %. Error: %', p_id, SQLERRM;
+            status_code := 500;
+            error_message := 'INTERNAL_ERROR: ' || SQLERRM;
+    END;
 END;
 $$;
 
