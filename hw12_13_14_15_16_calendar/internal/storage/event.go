@@ -55,15 +55,7 @@ func (e *Event) FullValidate() error {
 	if e.UserID == "" {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
 	}
-
-	errMsg := joinString(errMsgs)
-	if errMsg != "" {
-		return &StorageError{
-			StatusCode: 400,
-			Message:    errMsg,
-		}
-	}
-	return nil
+	return NewStorageError(errMsgs...)
 }
 
 // без валидации ID
@@ -78,15 +70,7 @@ func (e *Event) Validate() error {
 	if e.UserID == "" {
 		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
 	}
-
-	errMsg := joinString(errMsgs)
-	if errMsg != "" {
-		return &StorageError{
-			StatusCode: 400,
-			Message:    errMsg,
-		}
-	}
-	return nil
+	return NewStorageError(errMsgs...)
 }
 
 func (e *Event) GenerateId() {
@@ -106,4 +90,40 @@ func ValidateEventId(eventId string) error {
 		return fmt.Errorf(ErrEventIdWrapTemplate, err)
 	}
 	return nil
+}
+
+func ValidateEventIdStr(eventId string) string {
+	err := uuid.Validate(eventId)
+	if err != nil {
+		return fmt.Sprintf(ErrEventIdMsgTemplate, err)
+	}
+	return ""
+}
+
+func (e *Event) ValidateStr() []string {
+	errMsgs := make([]string, 0, 3)
+	if e.Title == "" {
+		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
+	}
+	if e.StartTime.Before(time.Now()) {
+		errMsgs = append(errMsgs, ErrEventTimeIsExpiredMsg)
+	}
+	if e.UserID == "" {
+		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
+	}
+	return errMsgs
+}
+
+func FullValidateEvent(e *Event) error {
+	if e == nil {
+		return NewStorageError(ErrEventIsNilMsg)
+	}
+	return e.FullValidate()
+}
+
+func ValidateEvent(e *Event) error {
+	if e == nil {
+		return NewStorageError(ErrEventIsNilMsg)
+	}
+	return e.Validate()
 }

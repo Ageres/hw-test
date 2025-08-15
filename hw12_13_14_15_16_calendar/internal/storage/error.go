@@ -14,6 +14,7 @@ var (
 )
 
 const (
+	ErrEventIsNilMsg         = "event is nil"
 	ErrDateBusyMsgTemplate   = "time is already taken by another event: %s"
 	ErrEventIdMsgTemplate    = "validate event id: %s"
 	ErrEventIdWrapTemplate   = "validate event id: %w"
@@ -36,8 +37,12 @@ func (serr *StorageError) Error() string {
 }
 
 func NewStorageError(messages ...string) *StorageError {
+	message := joinString(messages)
+	if message == "" {
+		return nil
+	}
 	return &StorageError{
-		Message: joinString(messages),
+		Message: message,
 	}
 }
 

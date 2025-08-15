@@ -45,7 +45,7 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 }
 
 func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
-	if err := eventRef.Validate(); err != nil {
+	if err := storage.ValidateEvent(eventRef); err != nil {
 		return nil, err
 	}
 
@@ -93,7 +93,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 }
 
 func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error {
-	if err := eventRef.FullValidate(); err != nil {
+	if err := storage.FullValidateEvent(eventRef); err != nil {
 		return err
 	}
 
