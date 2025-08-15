@@ -17,10 +17,7 @@ CREATE TABLE events (
 CREATE INDEX user_id_idx ON events (user_id);
 CREATE INDEX start_time_idx ON events (start_time);
 CREATE INDEX user_id_start_time_idx ON events (user_id, start_time);
-CREATE INDEX events_time_range_idx ON events USING gist (
-    user_id,
-    immutable_tstzrange(start_time, duration)
-);
+CREATE INDEX events_time_range_idx ON events USING gist (user_id, immutable_tstzrange(start_time, duration));
 
 
 CREATE OR REPLACE FUNCTION immutable_tstzrange(start_time TIMESTAMPTZ, duration INTEGER)
@@ -30,7 +27,6 @@ AS $$
     SELECT tstzrange(start_time, start_time + (duration * INTERVAL '1 second'))
 $$;
 
--- Затем создаем ограничение с использованием этой функции
 ALTER TABLE events ADD CONSTRAINT no_time_overlaps
     EXCLUDE USING gist (
         user_id WITH =,
