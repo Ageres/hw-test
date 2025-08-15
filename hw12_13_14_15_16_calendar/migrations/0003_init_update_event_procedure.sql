@@ -28,18 +28,21 @@ CREATE OR REPLACE FUNCTION public.update_event(
     p_reminder INTEGER,
     OUT status_code INTEGER,
     OUT error_message TEXT,
-    OUT conflict_event_id UUID
+    OUT conflict_event_id UUID,
+    OUT conflict_user_id TEXT
 ) 
 LANGUAGE plpgsql
 AS $$
 DECLARE
     v_conflict_event_id UUID;
+    v_actual_user_id TEXT;
 BEGIN
     -- Устанавливаем таймаут выполнения (60 секунд)
     SET LOCAL statement_timeout = '60s';
     
     -- Инициализация выходных параметров
     conflict_event_id := '00000000-0000-0000-0000-000000000000'::UUID;
+    conflict_user_id := '';
     RAISE LOG 'Update event attempt. Event ID: %, User ID: %', p_id, p_user_id;
 
     -- Начинаем транзакционный блок
@@ -56,10 +59,16 @@ BEGIN
         END IF;
 
         -- проверка владельца
-        IF NOT EXISTS (SELECT 1 FROM events WHERE id = p_id AND user_id = p_user_id) THEN
-            RAISE NOTICE 'Ownership conflict. Event ID: %, Requested User: %', p_id, p_user_id;
+        SELECT user_id INTO v_actual_user_id
+        FROM events 
+        WHERE id = p_id;
+        
+        IF v_actual_user_id != p_user_id THEN
+            RAISE NOTICE 'Ownership conflict. Event ID: %, Requested User: %, Actual User: %', 
+                         p_id, p_user_id, v_actual_user_id;
             status_code := 403;
             error_message := 'OWNERSHIP_CONFLICT';
+            conflict_user_id := v_actual_user_id;
             RETURN;
         END IF;
 
