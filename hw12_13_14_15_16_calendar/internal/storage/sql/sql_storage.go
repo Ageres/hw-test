@@ -8,7 +8,6 @@ import (
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
-	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
@@ -46,41 +45,37 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 }
 
 func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
-	// копия события, чтобы не модифицировать исходный объект
-	savedEvent := *eventRef
+	var statusCode int
+	var errMsg string
+	var eventID string
 
 	err := s.db.QueryRowContext(ctx, `
-        INSERT INTO events 
-        (title, start_time, duration, description, user_id, reminder)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, title, start_time, duration, description, user_id, reminder`,
+        SELECT status_code, error_message, id 
+        FROM add_event($1, $2, $3, $4, $5, $6)`,
 		eventRef.Title,
 		eventRef.StartTime,
 		int(eventRef.Duration.Seconds()),
 		eventRef.Description,
 		eventRef.UserID,
 		int(eventRef.Reminder.Seconds()),
-	).Scan(
-		&savedEvent.ID,
-		&savedEvent.Title,
-		&savedEvent.StartTime,
-		&savedEvent.Duration,
-		&savedEvent.Description,
-		&savedEvent.UserID,
-		&savedEvent.Reminder,
-	)
+	).Scan(&statusCode, &errMsg, &eventID)
 
 	if err != nil {
-		if pqErr, ok := err.(*pgconn.PgError); ok && pqErr.Code == "23P01" {
-			return nil, storage.ErrDateBusy
-		}
-		return nil, fmt.Errorf("failed to insert event: %w", err)
+		return nil, fmt.Errorf("add failed: %w", err)
 	}
 
-	savedEvent.Duration = time.Duration(savedEvent.Duration) * time.Second
-	savedEvent.Reminder = time.Duration(savedEvent.Reminder) * time.Second
-
-	return &savedEvent, nil
+	switch statusCode {
+	case 200:
+		savedEvent := *eventRef
+		savedEvent.ID = eventID
+		savedEvent.Duration = time.Duration(savedEvent.Duration) * time.Second
+		savedEvent.Reminder = time.Duration(savedEvent.Reminder) * time.Second
+		return &savedEvent, nil
+	case 409:
+		return nil, storage.ErrDateBusy
+	default:
+		return nil, fmt.Errorf("database error [%d]: %s", statusCode, errMsg)
+	}
 }
 
 func (s *SqlStorage) Update(ctx context.Context, event *storage.Event) error {
