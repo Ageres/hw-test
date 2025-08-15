@@ -49,6 +49,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 100 юзеров, по 100 эвентов на каждого
+-- рандомно в периоде +- 1,5 года от текукщего момента
 SELECT seed_test_events(100, 100);
 
 DROP FUNCTION seed_test_events;
