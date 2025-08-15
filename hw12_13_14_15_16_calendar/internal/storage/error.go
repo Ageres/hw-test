@@ -1,6 +1,30 @@
 package storage
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/jackc/pgx/v5/pgconn"
+)
+
+type StorageError struct {
+	StatusCode      int
+	ErrorMessage    string
+	ConflictEventId string
+	ConflictUserId  string
+	Message         string
+	Cause           error
+	Zxx             *pgconn.PgError
+}
+
+func (se *StorageError) Error() string {
+	return se.Message
+}
+
+func NewStorageError(message string) StorageError {
+	return StorageError{
+		Message: message,
+	}
+}
 
 var (
 	ErrEventIsNil          = errors.New("event is nil")

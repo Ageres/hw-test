@@ -95,9 +95,10 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	var statusCode int
 	var errMsg string
 	var conflictEventID string
+	var conflictUserId string
 
 	err = s.db.QueryRowContext(ctx, `
-        SELECT status_code, error_message, conflict_event_id 
+        SELECT status_code, error_message, conflict_event_id, conflict_user_id 
         FROM update_event($1, $2, $3, $4, $5, $6, $7)`,
 		eventRef.ID,
 		eventRef.Title,
@@ -106,7 +107,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		eventRef.Description,
 		eventRef.UserID,
 		int(eventRef.Reminder.Seconds()),
-	).Scan(&statusCode, &errMsg, &conflictEventID)
+	).Scan(&statusCode, &errMsg, &conflictEventID, &conflictUserId)
 
 	if err != nil {
 		return fmt.Errorf("update failed: %w", err)
