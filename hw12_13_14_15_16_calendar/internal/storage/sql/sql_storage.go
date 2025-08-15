@@ -45,12 +45,17 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 }
 
 func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
+	err := eventRef.Validate()
+	if err := eventRef.Validate(); err != nil {
+		return nil, err
+	}
+
 	var statusCode int
 	var errMsg string
 	var eventID string
 	var conflictEventID string
 
-	err := s.db.QueryRowContext(ctx, `
+	err = s.db.QueryRowContext(ctx, `
         SELECT status_code, error_message, event_id, conflict_event_id 
         FROM add_event($1, $2, $3, $4, $5, $6)`,
 		eventRef.Title,
@@ -81,20 +86,27 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	}
 }
 
-func (s *SqlStorage) Update(ctx context.Context, event *storage.Event) error {
+func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error {
+	err := eventRef.Validate()
+	if err := eventRef.FullValidate(); err != nil {
+		return err
+	}
+
 	var statusCode int
 	var errMsg string
-	err := s.db.QueryRowContext(ctx, `
-        SELECT status_code, error_message 
+	var conflictEventID string
+
+	err = s.db.QueryRowContext(ctx, `
+        SELECT status_code, error_message, conflict_event_id 
         FROM update_event($1, $2, $3, $4, $5, $6, $7)`,
-		event.ID,
-		event.Title,
-		event.StartTime,
-		int(event.Duration.Seconds()),
-		event.Description,
-		event.UserID,
-		int(event.Reminder.Seconds()),
-	).Scan(&statusCode, &errMsg)
+		eventRef.ID,
+		eventRef.Title,
+		eventRef.StartTime,
+		int(eventRef.Duration.Seconds()),
+		eventRef.Description,
+		eventRef.UserID,
+		int(eventRef.Reminder.Seconds()),
+	).Scan(&statusCode, &errMsg, &conflictEventID)
 
 	if err != nil {
 		return fmt.Errorf("update failed: %w", err)
@@ -108,7 +120,9 @@ func (s *SqlStorage) Update(ctx context.Context, event *storage.Event) error {
 	case 403:
 		return storage.ErrUserConflict
 	case 409:
-		return storage.ErrDateBusy
+		return fmt.Errorf(storage.ErrDateBusyMsgTemplate, conflictEventID)
+	case 504:
+		return fmt.Errorf("database timeout: %s", errMsg)
 	default:
 		return fmt.Errorf("database error [%d]: %s", statusCode, errMsg)
 	}
