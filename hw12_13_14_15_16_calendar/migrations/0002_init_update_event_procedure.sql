@@ -1,7 +1,7 @@
--- накат
+-- создание хранимой процедуры обновления события обновления события
 
 BEGIN;
-
+CREATE EXTENSION IF NOT EXISTS btree_gist;
 -- IMMUTABLE-функция для работы с диапазонами
 CREATE OR REPLACE FUNCTION immutable_tstzrange(start_time TIMESTAMPTZ, duration INTEGER)
 RETURNS TSTZRANGE
@@ -83,14 +83,5 @@ END;
 $$;
 
 COMMENT ON FUNCTION public.update_event IS 'Обновляет событие с проверкой прав доступа и временных конфликтов';
-
--- откат
-
-BEGIN;
-
-DROP FUNCTION IF EXISTS public.update_event;
-DROP INDEX IF EXISTS idx_events_id_user;
-DROP INDEX IF EXISTS idx_events_user_time;
-DROP FUNCTION IF EXISTS immutable_tstzrange;
 
 COMMIT;
