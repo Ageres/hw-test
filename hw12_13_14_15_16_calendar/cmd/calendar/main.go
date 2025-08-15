@@ -130,7 +130,8 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 
 	log.Println("-----------------------1450-------------------------")
 	event := events[0]
-	event.StartTime = event.StartTime.Add(2 * time.Hour)
+	event.StartTime = event.StartTime.Add(121 * time.Hour)
+	event.Title = ""
 	res, err := storage.Add(ctx, &event)
 	if err != nil {
 		log.Println("-----------------------1475-------------------------")

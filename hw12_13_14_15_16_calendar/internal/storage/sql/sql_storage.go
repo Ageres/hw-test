@@ -51,7 +51,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	var conflictEventID string
 
 	err := s.db.QueryRowContext(ctx, `
-        SELECT status_code, error_message, event_id 
+        SELECT status_code, error_message, event_id, conflict_event_id 
         FROM add_event($1, $2, $3, $4, $5, $6)`,
 		eventRef.Title,
 		eventRef.StartTime,
