@@ -2,17 +2,15 @@ package sqlstorage
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 )
 
 type SqlStorage struct {
@@ -50,33 +48,6 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) error {
 	_, err := s.db.ExecContext(ctx, `
         INSERT INTO events 
-        (id, title, start_time, duration, description, user_id, reminder)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		eventRef.ID,
-		eventRef.Title,
-		eventRef.StartTime,
-		int(eventRef.Duration.Seconds()),
-		eventRef.Description,
-		eventRef.UserID,
-		int(eventRef.Reminder.Seconds()),
-	)
-
-	if err != nil {
-		var pqErr *pq.Error
-		if errors.As(err, &pqErr) {
-			switch pqErr.Code {
-			case "23P01":
-				return storage.ErrDateBusy
-			}
-		}
-		return fmt.Errorf("failed to insert event: %w", err)
-	}
-	return nil
-}
-
-func (s *SqlStorage) Add02(ctx context.Context, eventRef *storage.Event) error {
-	_, err := s.db.ExecContext(ctx, `
-        INSERT INTO events 
         (title, start_time, duration, description, user_id, reminder)
         VALUES ($1, $2, $3, $4, $5, $6)`,
 		eventRef.Title,
@@ -88,57 +59,11 @@ func (s *SqlStorage) Add02(ctx context.Context, eventRef *storage.Event) error {
 	)
 
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23P01" {
+		fmt.Printf("----------------------Тип ошибки: %T\n", err)
+		if pqErr, ok := err.(*pgconn.PgError); ok && pqErr.Code == "23P01" {
 			return storage.ErrDateBusy
 		}
 		return fmt.Errorf("failed to insert event: %w", err)
-	}
-	return nil
-}
-
-func (s *SqlStorage) AddOld(ctx context.Context, eventRef *storage.Event) error {
-	tx, err := s.db.BeginTxx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	defer tx.Rollback()
-
-	var conflictID string
-	err = tx.GetContext(ctx, &conflictID, `
-        SELECT id FROM events 
-        WHERE user_id = $1
-        AND tstzrange(start_time, start_time + (duration * INTERVAL '1 second')) && 
-            tstzrange($2::timestamptz, ($2::timestamptz + $3 * INTERVAL '1 second'))`,
-		eventRef.UserID,
-		eventRef.StartTime,
-		eventRef.Duration.Seconds(),
-	)
-
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return fmt.Errorf("failed to check time conflicts: %w", err)
-	}
-	if conflictID != "" {
-		return storage.ErrDateBusy
-	}
-
-	_, err = tx.ExecContext(ctx, `
-        INSERT INTO events 
-        (title, start_time, duration, description, user_id, reminder) 
-        VALUES ($1, $2, $3, $4, $5, $6)`,
-		eventRef.Title,
-		eventRef.StartTime,
-		int(eventRef.Duration.Seconds()),
-		eventRef.Description,
-		eventRef.UserID,
-		int(eventRef.Reminder.Seconds()),
-	)
-
-	if err != nil {
-		return fmt.Errorf("failed to insert event: %w", err)
-	}
-
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 	return nil
 }
