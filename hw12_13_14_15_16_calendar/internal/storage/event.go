@@ -1,9 +1,7 @@
 package storage
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
@@ -60,7 +58,10 @@ func (e *Event) FullValidate() error {
 
 	errMsg := joinString(errMsgs)
 	if errMsg != "" {
-		return errors.New(errMsg)
+		return &StorageError{
+			StatusCode: 400,
+			Message:    errMsg,
+		}
 	}
 	return nil
 }
@@ -105,14 +106,4 @@ func ValidateEventId(eventId string) error {
 		return fmt.Errorf(ErrEventIdWrapTemplate, err)
 	}
 	return nil
-}
-
-func joinString(items []string) string {
-	var nonEmpty []string
-	for _, item := range items {
-		if item != "" {
-			nonEmpty = append(nonEmpty, item)
-		}
-	}
-	return strings.Join(nonEmpty, "; ")
 }

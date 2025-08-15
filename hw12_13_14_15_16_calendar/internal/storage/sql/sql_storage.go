@@ -45,14 +45,13 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 }
 
 func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
-	err := eventRef.Validate()
 	if err := eventRef.Validate(); err != nil {
 		return nil, err
 	}
 
 	var eventID string
 	serr := storage.StorageError{}
-	err = s.db.QueryRowContext(ctx, `
+	err := s.db.QueryRowContext(ctx, `
         SELECT event_id, status_code, error_message, conflict_event_id 
         FROM add_event($1, $2, $3, $4, $5, $6)`,
 		eventRef.Title,
@@ -94,7 +93,6 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 }
 
 func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error {
-	err := eventRef.Validate()
 	if err := eventRef.FullValidate(); err != nil {
 		return err
 	}
@@ -104,7 +102,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	var conflictEventID string
 	var conflictUserId string
 
-	err = s.db.QueryRowContext(ctx, `
+	err := s.db.QueryRowContext(ctx, `
         SELECT status_code, error_message, conflict_event_id, conflict_user_id 
         FROM update_event($1, $2, $3, $4, $5, $6, $7)`,
 		eventRef.ID,

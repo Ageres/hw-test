@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"strings"
 )
 
 var (
@@ -34,8 +35,18 @@ func (serr *StorageError) Error() string {
 	return serr.Message
 }
 
-func NewStorageError(message string) *StorageError {
+func NewStorageError(messages ...string) *StorageError {
 	return &StorageError{
-		Message: message,
+		Message: joinString(messages),
 	}
+}
+
+func joinString(items []string) string {
+	var nonEmpty []string
+	for _, item := range items {
+		if item != "" {
+			nonEmpty = append(nonEmpty, item)
+		}
+	}
+	return strings.Join(nonEmpty, "; ")
 }
