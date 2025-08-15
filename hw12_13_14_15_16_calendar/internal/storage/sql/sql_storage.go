@@ -84,10 +84,10 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		serr.Message = fmt.Sprintf(storage.ErrDateBusyMsgTemplate, serr.ConflictEventId)
 		return nil, &serr
 	case 504:
-		serr.Message = fmt.Sprintf("database timeout: %s", serr.ErrorMessage)
+		serr.Message = fmt.Sprintf(storage.ErrDatabaseTimeoutMsgTemplate, serr.ErrorMessage)
 		return nil, &serr
 	default:
-		serr.Message = fmt.Sprintf("database error [%d]: %s", serr.StatusCode, serr.ErrorMessage)
+		serr.Message = fmt.Sprintf(storage.ErrDatabaseMsgTemplate, serr.ErrorMessage)
 		return nil, &serr
 	}
 }
@@ -98,10 +98,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	}
 
 	var statusCode int
-	var errMsg string
-	var conflictEventID string
-	var conflictUserId string
-
+	serr := storage.StorageError{}
 	err := s.db.QueryRowContext(ctx, `
         SELECT status_code, error_message, conflict_event_id, conflict_user_id 
         FROM update_event($1, $2, $3, $4, $5, $6, $7)`,
@@ -112,25 +109,38 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		eventRef.Description,
 		eventRef.UserID,
 		int(eventRef.Reminder.Seconds()),
-	).Scan(&statusCode, &errMsg, &conflictEventID, &conflictUserId)
+	).Scan(
+		&serr.StatusCode,
+		&serr.ErrorMessage,
+		&serr.ConflictEventId,
+		&serr.ConflictUserId,
+	)
 
 	if err != nil {
-		return fmt.Errorf("update failed: %w", err)
+		serr.Message = fmt.Sprintf("update failed: %v", err)
+		serr.Cause = err
+		return &serr
 	}
 
 	switch statusCode {
 	case 200:
 		return nil
-	case 404:
-		return storage.ErrEventNotFound
 	case 403:
-		return storage.ErrUserConflict
+		//return storage.ErrUserConflict
+		serr.Message = fmt.Sprintf(storage.ErrUserConflictMsgTemplate, eventRef.UserID, serr.ConflictUserId)
+		return &serr
+	case 404:
+		serr.Message = storage.ErrEventNotFoundMsg
+		return &serr
 	case 409:
-		return fmt.Errorf(storage.ErrDateBusyMsgTemplate, conflictEventID)
+		serr.Message = fmt.Sprintf(storage.ErrDateBusyMsgTemplate, serr.ConflictEventId)
+		return &serr
 	case 504:
-		return fmt.Errorf("database timeout: %s", errMsg)
+		serr.Message = fmt.Sprintf(storage.ErrDatabaseTimeoutMsgTemplate, serr.ErrorMessage)
+		return &serr
 	default:
-		return fmt.Errorf("database error [%d]: %s", statusCode, errMsg)
+		serr.Message = fmt.Sprintf(storage.ErrDatabaseMsgTemplate, serr.ErrorMessage)
+		return &serr
 	}
 }
 

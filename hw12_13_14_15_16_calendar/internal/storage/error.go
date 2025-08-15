@@ -14,13 +14,20 @@ var (
 )
 
 const (
+	ErrDateBusyMsgTemplate        = "time is already taken by another event: %s"
+	ErrEventIdMsgTemplate         = "validate event id: %s"
+	ErrEventIdWrapTemplate        = "validate event id: %w"
+	ErrDatabaseTimeoutMsgTemplate = "database timeout: %s"
+	ErrDatabaseMsgTemplate        = "database error: %s"
+	ErrUserConflictMsgTemplate    = "user '%s' is not the owner of the event, conflict with '%s'"
+)
+
+const (
 	ErrEventIsNilMsg         = "event is nil"
-	ErrDateBusyMsgTemplate   = "time is already taken by another event: %s"
-	ErrEventIdMsgTemplate    = "validate event id: %s"
-	ErrEventIdWrapTemplate   = "validate event id: %w"
 	ErrEmptyTitleMsg         = "title is empty"
 	ErrEventTimeIsExpiredMsg = "event time is expired"
 	ErrEmptyUserIdMsg        = "user id is empty"
+	ErrEventNotFoundMsg      = "no events found"
 )
 
 type StorageError struct {
