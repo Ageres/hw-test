@@ -22,6 +22,7 @@ type LoggerConf struct {
 type StorageConf struct {
 	Type string      `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
 	PSQL *PSQLConfig `yaml:"psql"`
+	Init *InitConfig
 }
 
 type PSQLConfig struct {
@@ -37,6 +38,11 @@ type DBConfig struct {
 	User     string `yaml:"user" validate:"required"`
 	Password string `yaml:"password" validate:"required"`
 	SSLMode  string `yaml:"sslmode" validate:"required"`
+}
+
+type InitConfig struct {
+	Configure    bool `yaml:"configure" validate:"required"`
+	LoadTestData bool `yaml:"load_test_data" validate:"required"`
 }
 
 type PoolConf struct {

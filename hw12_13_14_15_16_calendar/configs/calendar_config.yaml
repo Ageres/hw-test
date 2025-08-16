@@ -24,7 +24,7 @@ storage:
         max_idle_time: 3600
   init:
     configure: true # только для sql, применение миграций при старте
-    load_test_event: true # генерация и загрузка тестовых событий в хранилище при старте
+    load_test_data: true # генерация и загрузка тестовых событий в хранилище при старте
 
 http:
   server:

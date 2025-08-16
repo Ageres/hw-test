@@ -2,6 +2,8 @@ package logger
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -140,5 +142,28 @@ func buildSlogHandlerOptions(slogLevel slog.Level) *slog.HandlerOptions {
 		AddSource:   false,
 		Level:       slogLevel,
 		ReplaceAttr: nil,
+	}
+}
+
+type JsonError struct {
+	Value string `json:"value"`
+	Error string `json:"error"`
+}
+
+// использовать только для логирования объектов
+func MarshalAny(v any) string {
+	data, err := json.Marshal(v)
+	if err != nil {
+		errMetadata := JsonError{
+			Error: err.Error(),
+			Value: fmt.Sprintf("%v", v),
+		}
+		errData, err1 := json.Marshal(errMetadata)
+		if err1 != nil {
+			return fmt.Sprintf("{\"MarshalError\":\"cannot make string error: %v\"}", err1)
+		}
+		return string(errData)
+	} else {
+		return string(data)
 	}
 }

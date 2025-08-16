@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 
 	//"os"
@@ -34,7 +32,7 @@ func main() {
 	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
 	configRef := config.NewConfig(cliArgs.PathToConfigFile)
-	log.Println("config:", MarshalAny(configRef))
+	log.Println("config:", logger.MarshalAny(configRef))
 
 	ctx = logger.SetLogger(ctx, configRef.Logger, nil)
 
@@ -80,7 +78,7 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 		log.Fatal(err)
 	}
 	log.Println("-----------------------1425-------------------------")
-	log.Println(MarshalAny(events))
+	log.Println(logger.MarshalAny(events))
 
 	log.Println("-----------------------1450-------------------------")
 
@@ -143,30 +141,7 @@ func testStorage_01(ctx context.Context, storage storage.Storage) {
 		log.Println("-----------------------1475-------------------------")
 		log.Fatal(err)
 	}
-	log.Println("res:", MarshalAny(res))
+	log.Println("res:", logger.MarshalAny(res))
 
 	log.Println("-----------------------1999-------------------------")
-}
-
-// TODO перенести в логер
-type JsonError struct {
-	Value string `json:"value"`
-	Error string `json:"error"`
-}
-
-func MarshalAny(v any) string {
-	data, err := json.Marshal(v)
-	if err != nil {
-		errMetadata := JsonError{
-			Error: err.Error(),
-			Value: fmt.Sprintf("%v", v),
-		}
-		errData, err1 := json.Marshal(errMetadata)
-		if err1 != nil {
-			return "{\"Error\":\"cannot make string from error\"}"
-		}
-		return string(errData)
-	} else {
-		return string(data)
-	}
 }
