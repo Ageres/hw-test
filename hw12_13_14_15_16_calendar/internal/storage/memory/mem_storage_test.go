@@ -1,18 +1,21 @@
 package memorystorage
 
-/*
 import (
 	"fmt"
-	"strconv"
-	"sync"
 	"testing"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/require"
-)
-*/
+	/*
+		"fmt"
+		"strconv"
+		"sync"
+		"testing"
+		"time"
+		"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+		"github.com/google/uuid"
+		"github.com/stretchr/testify/require"
+	*/)
 
 /*
 func TestStorageAdd(t *testing.T) {
@@ -430,3 +433,28 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 	return dto
 }
 */
+
+func TestGenerateTestEvents(t *testing.T) {
+	storage := &MemoryStorage{
+		events: make(map[string]storage.Event),
+	}
+
+	startTime := time.Date(2050, 1, 1, 0, 0, 0, 0, time.UTC)
+	period := time.Hour
+	userCount := 10
+	eventsPerUser := 5
+
+	storage.generateTestEvents(startTime, period, userCount, eventsPerUser)
+
+	count := 0
+	for _, event := range storage.events {
+		/*
+			if count >= 3 {
+				break
+			}
+		*/
+		fmt.Printf("Event: %+v\n", event)
+		count++
+	}
+
+}
