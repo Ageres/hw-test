@@ -7,28 +7,27 @@ import (
 )
 
 var (
-	ErrEventIsNil          = errors.New("event is nil")
-	ErrDateBusy            = errors.New("time is already taken by another event")
-	ErrUserConflict        = errors.New("user is not the owner of the event")
-	ErrEventNotFound       = errors.New("no events found")
+	ErrEventIsNil    = NewSimpleStorageError("event is nil")
+	ErrEventNotFound = NewSimpleStorageError("events not found")
+	ErrDateBusy      = errors.New("time is already taken by another event")
+	ErrUserConflict  = errors.New("user is not the owner of the event")
+
 	ErrEventAllreadyExists = errors.New("event with this id already exists")
 )
 
 const (
-	ErrDateBusyMsgTemplate        = "time is already taken by another event: %s"
-	ErrEventIdMsgTemplate         = "validate event id: %s"
-	ErrEventIdWrapTemplate        = "validate event id: %w"
-	ErrDatabaseTimeoutMsgTemplate = "database timeout: %s"
-	ErrDatabaseMsgTemplate        = "database error: %s"
-	ErrUserConflictMsgTemplate    = "user '%s' is not the owner of the event, conflict with '%s'"
-	ErrFailedAddEventTemplate     = "failed to add event: %v"
-	ErrFailedUpdateEventTemplate  = "failed to update event: %v"
-	ErrFailedDeleteEventTemplate  = "failed to delete event: %v"
-	ErrFailedListEventTemplate    = "failed to list event: %v"
+	ErrDateBusyMsgTemplate           = "time is already taken by another event: %s"
+	ErrFailedValidateEventIdTemplate = "failed to validate event id: %v"
+	ErrDatabaseTimeoutMsgTemplate    = "database timeout: %s"
+	ErrDatabaseMsgTemplate           = "database error: %s"
+	ErrUserConflictMsgTemplate       = "user '%s' is not the owner of the event, conflict with '%s'"
+	ErrFailedAddEventTemplate        = "failed to add event: %v"
+	ErrFailedUpdateEventTemplate     = "failed to update event: %v"
+	ErrFailedDeleteEventTemplate     = "failed to delete event: %v"
+	ErrFailedListEventTemplate       = "failed to list event: %v"
 )
 
 const (
-	ErrEventIsNilMsg         = "event is nil"
 	ErrEmptyTitleMsg         = "title is empty"
 	ErrEventTimeIsExpiredMsg = "event time is expired"
 	ErrEmptyUserIdMsg        = "user id is empty"
@@ -48,7 +47,19 @@ func (serr *StorageError) Error() string {
 	return serr.Message
 }
 
-func NewStorageError(messages ...string) error {
+func NewSimpleStorageError(message string) error {
+	return &StorageError{
+		Message: message,
+	}
+}
+
+func NewStorageErrorWithTemplate(template string, messages ...string) error {
+	return &StorageError{
+		Message: fmt.Sprintf(template, messages),
+	}
+}
+
+func NewStorageErrorWithMsgArr(messages ...string) error {
 	message := joinString(messages)
 	if message == "" {
 		return nil
@@ -58,9 +69,9 @@ func NewStorageError(messages ...string) error {
 	}
 }
 
-func NewStorageErrorWithCause(err error, messageTemplate string) error {
+func NewStorageErrorWithCause(template string, err error) error {
 	return &StorageError{
-		Message: fmt.Sprintf(messageTemplate, err),
+		Message: fmt.Sprintf(template, err),
 		Cause:   err,
 	}
 }

@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -20,32 +21,22 @@ func NewMemoryStorage() storage.Storage {
 }
 
 func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
+	if err := storage.ValidateEvent(eventRef); err != nil {
+		return nil, err
+	}
+	eventRef.GenerateEventId()
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err := storage.ValidateEventNotNil(eventRef); err != nil {
-		return nil, err
-	}
-
-	if eventRef.ID != "" {
-		if err := eventRef.FullValidate(); err != nil {
-			return nil, err
-		}
-	} else {
-		if err := eventRef.Validate(); err != nil {
-			return nil, err
-		}
-		eventRef.GenerateId()
-	}
-
 	if _, exists := s.events[eventRef.ID]; exists {
-		return nil, storage.ErrEventAllreadyExists
+		return nil, storage.NewSimpleStorageError("failed to add event: event with this id already exists")
 	}
 
 	for _, existingEvent := range s.events {
 		if existingEvent.UserID == eventRef.UserID &&
 			existingEvent.Overlaps(eventRef) {
-			return nil, storage.ErrDateBusy
+			return nil, storage.NewStorageErrorWithMsgArr(fmt.Sprintf(storage.ErrDateBusyMsgTemplate, existingEvent.ID))
 		}
 	}
 
@@ -55,16 +46,13 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 }
 
 func (s *MemoryStorage) Update(ctx context.Context, newEventRef *storage.Event) error {
+
+	if err := storage.FullValidateEvent(newEventRef); err != nil {
+		return err
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	if err := storage.ValidateEventNotNil(newEventRef); err != nil {
-		return err
-	}
-
-	if err := newEventRef.FullValidate(); err != nil {
-		return err
-	}
 
 	id := newEventRef.ID
 	oldEvent, exists := s.events[id]
@@ -88,12 +76,12 @@ func (s *MemoryStorage) Update(ctx context.Context, newEventRef *storage.Event) 
 }
 
 func (s *MemoryStorage) Delete(ctx context.Context, id string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if err := storage.ValidateEventId(id); err != nil {
 		return err
 	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	_, exists := s.events[id]
 	if !exists {

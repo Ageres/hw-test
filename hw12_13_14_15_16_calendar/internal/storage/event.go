@@ -62,7 +62,7 @@ func FullValidateEvent(e *Event) error {
 		errMsgs = append(errMsgs, fmt.Sprintf(ErrFailedValidateEventIdTemplate, err))
 	}
 	errMsgs = append(errMsgs, e.simpleValidate()...)
-	return NewStorageError(errMsgs...)
+	return NewStorageErrorWithMsgArr(errMsgs...)
 }
 
 // без валидации ID
@@ -71,7 +71,7 @@ func ValidateEvent(e *Event) error {
 		return ErrEventIsNil
 	}
 	errMsgs := e.simpleValidate()
-	return NewStorageError(errMsgs...)
+	return NewStorageErrorWithMsgArr(errMsgs...)
 }
 
 func (e *Event) simpleValidate() []string {
