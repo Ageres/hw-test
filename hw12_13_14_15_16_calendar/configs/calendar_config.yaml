@@ -7,6 +7,7 @@ logger:
 storage:
   # IN_MEMORY, SQL
   type: SQL
+  load_test_data: true # генерация и загрузка тестовых событий в хранилище при старте
   sql:
     db:
       host: localhost
@@ -24,8 +25,6 @@ storage:
         max_idle: 2
         max_life_time: 3600
         max_idle_time: 3600
-  init:
-    load_test_data: true # генерация и загрузка тестовых событий в хранилище при старте
 
 http:
   server:

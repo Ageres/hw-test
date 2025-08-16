@@ -20,15 +20,15 @@ type LoggerConf struct {
 //-----------------------------
 //storage config model
 type StorageConf struct {
-	Type string     `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
-	SQL  *SQLConfig `yaml:"sql"`
-	Init *InitConfig
+	Type         string     `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
+	LoadTestData bool       `yaml:"load_test_data" validate:"required"`
+	SQL          *SQLConfig `yaml:"sql"`
 }
 
 type SQLConfig struct {
-	DB        DBConfig `yaml:"db" validate:"required"`
-	Migration string   `yaml:"migration" validate:"required"`
-	Pool      PoolConf `yaml:"pool" validate:"required"`
+	DB        DBConfig        `yaml:"db" validate:"required"`
+	Migration MigrationConfig `yaml:"migration" validate:"required"`
+	Pool      PoolConf        `yaml:"pool" validate:"required"`
 }
 
 type DBConfig struct {
@@ -40,9 +40,9 @@ type DBConfig struct {
 	SSLMode  string `yaml:"sslmode" validate:"required"`
 }
 
-type InitConfig struct {
-	Configure    bool `yaml:"configure" validate:"required"`
-	LoadTestData bool `yaml:"load_test_data" validate:"required"`
+type MigrationConfig struct {
+	Path     string `yaml:"path" validate:"required"`
+	Applying bool   `yaml:"applying" validate:"required"`
 }
 
 type PoolConf struct {
