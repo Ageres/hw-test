@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	l "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -24,13 +25,15 @@ type dbResp struct {
 	conflictUserId  string
 }
 
-func NewSqlStorage(psqlConfRef *model.PSQLConfig) storage.Storage {
-	dsn := psqlConfRef.DB.DSN()
-	log.Println("dsc:", dsn)
+func NewSqlStorage(ctx context.Context, psqlConfRef *model.PSQLConfig) storage.Storage {
+	logger := l.GetLogger(ctx)
 
+	dsn := psqlConfRef.DB.DSN()
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
-		log.Fatalf("failed to load driver: %v", err)
+		logger.Error("failed to load driver", err, map[string]any{
+			"error": err,
+		})
 	}
 
 	db.SetMaxOpenConns(psqlConfRef.Pool.Conn.MaxOpen)

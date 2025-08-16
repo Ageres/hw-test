@@ -38,7 +38,7 @@ func main() {
 
 	ctx = logger.SetLogger(ctx, configRef.Logger, nil)
 
-	storage := storage_config.NewStorage(configRef.Storage)
+	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
 	testStorage(ctx, storage)
 

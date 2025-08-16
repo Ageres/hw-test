@@ -1,10 +1,12 @@
 package storage_config
 
 import (
-	"log"
+	"context"
+	"os"
 
+	l "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	s "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/sql"
 )
@@ -18,15 +20,23 @@ const (
 	SQL       StorageType = "SQL"
 )
 
-func NewStorage(storageConfRef *model.StorageConf) storage.Storage {
+func NewStorage(ctx context.Context, storageConfRef *model.StorageConf) s.Storage {
+	logger := l.GetLogger(ctx)
 	sType := storageConfRef.Type
+	var storage s.Storage
 	switch StorageType(sType) {
 	case IN_MEMORY:
-		return memorystorage.NewMemoryStorage()
+		storage = memorystorage.NewMemoryStorage()
 	case SQL:
-		return sqlstorage.NewSqlStorage(storageConfRef.PSQL)
+		storage = sqlstorage.NewSqlStorage(ctx, storageConfRef.PSQL)
 	default:
-		log.Fatalln(ErrUnknowTypeStorageMsgTemplate, sType)
+		logger.Error("unknow type storage", map[string]any{
+			"storageType": sType,
+		})
+		os.Exit(1)
 	}
-	return nil
+	logger.Info("storage configured", map[string]any{
+		"storageType": sType,
+	})
+	return storage
 }

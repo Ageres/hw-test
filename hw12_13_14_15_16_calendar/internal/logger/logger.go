@@ -2,7 +2,6 @@ package logger
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -33,10 +32,10 @@ const (
 )
 
 type Logger interface {
-	Debug(msg string, args ...any)
-	Info(msg string, args ...any)
-	Warn(msg string, args ...any)
-	Error(msg string, args ...any)
+	Debug(msg string, mapArgs ...map[string]any)
+	Info(msg string, mapArgs ...map[string]any)
+	Warn(msg string, mapArgs ...map[string]any)
+	Error(msg string, mapArgs ...map[string]any)
 }
 
 type logger struct {
@@ -44,19 +43,20 @@ type logger struct {
 	loggerConfRef *model.LoggerConf
 }
 
-func (l *logger) Debug(msg string, args ...any) {
+func (l *logger) Debug(msg string, mapArgs ...map[string]any) {
 	l.slogLogger.Debug(msg, args...)
 }
 
-func (l *logger) Info(msg string, args ...any) {
+func (l *logger) Info(msg string, mapArgs ...map[string]any) {
+	args := mapToArr(mapArgs...)
 	l.slogLogger.Info(msg, args...)
 }
 
-func (l *logger) Warn(msg string, args ...any) {
+func (l *logger) Warn(msg string, mapArgs ...map[string]any) {
 	l.slogLogger.Warn(msg, args...)
 }
 
-func (l *logger) Error(msg string, args ...any) {
+func (l *logger) Error(msg string, mapArgs ...map[string]any) {
 	l.slogLogger.Error(msg, args...)
 }
 
@@ -71,12 +71,28 @@ func SetLogger(ctx context.Context, loggerConfRef *model.LoggerConf, output io.W
 		slogLogger:    logg,
 		loggerConfRef: loggerConfRef,
 	}
-	return context.WithValue(ctx, CurrentLoggerKey, logger)
+	ctx = context.WithValue(ctx, CurrentLoggerKey, logger)
+	logger.Info("logger configured", map[string]any{
+		"logLevel":  loggerConfRef.Level,
+		"logFormat": loggerConfRef.Format,
+	})
+	return ctx
+}
+
+func mapToArr(arrMapArgs ...map[string]any) []any {
+	res := make([]any, 0)
+	for _, mapArg := range arrMapArgs {
+		for k, v := range mapArg {
+			res = append(res, k)
+			res = append(res, v)
+		}
+	}
+
+	return res
 }
 
 func GetLogger(ctx context.Context) Logger {
 	value := ctx.Value(CurrentLoggerKey)
-	fmt.Println("----value:", value)
 	if value != nil {
 		logger := value.(Logger)
 		return logger
