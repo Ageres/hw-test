@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var FnUuidGenerator = func() uuid.UUID { return uuid.New() }
+
 type Event struct {
 	ID          string //UUID
 	Title       string
@@ -47,7 +49,7 @@ func (e *Event) Overlaps(other *Event) bool {
 }
 
 func (e *Event) GenerateEventId() {
-	e.ID = uuid.New().String()
+	e.ID = FnUuidGenerator().String()
 }
 
 func ValidateEventId(eventId string) error {
