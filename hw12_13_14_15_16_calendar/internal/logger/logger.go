@@ -32,24 +32,31 @@ const (
 	COLOUR_TEXT LogFormat = "COLOUR_TEXT"
 )
 
-type Logger struct {
+type Logger interface {
+	Debug(msg string, args ...any)
+	Info(msg string, args ...any)
+	Warn(msg string, args ...any)
+	Error(msg string, args ...any)
+}
+
+type logger struct {
 	slogLogger    *slog.Logger
 	loggerConfRef *model.LoggerConf
 }
 
-func (l *Logger) Debug(msg string, args ...any) {
+func (l *logger) Debug(msg string, args ...any) {
 	l.slogLogger.Debug(msg, args...)
 }
 
-func (l *Logger) Info(msg string, args ...any) {
+func (l *logger) Info(msg string, args ...any) {
 	l.slogLogger.Info(msg, args...)
 }
 
-func (l *Logger) Warn(msg string, args ...any) {
+func (l *logger) Warn(msg string, args ...any) {
 	l.slogLogger.Warn(msg, args...)
 }
 
-func (l *Logger) Error(msg string, args ...any) {
+func (l *logger) Error(msg string, args ...any) {
 	l.slogLogger.Error(msg, args...)
 }
 
@@ -60,18 +67,18 @@ func SetLogger(ctx context.Context, loggerConfRef *model.LoggerConf, output io.W
 	slogLevel := getLoggerLevel(loggerConfRef.Level)
 	slogHandler := buildSlogHandler(slogLevel, loggerConfRef.Format, output)
 	logg := slog.New(slogHandler)
-	logger := &Logger{
+	logger := &logger{
 		slogLogger:    logg,
 		loggerConfRef: loggerConfRef,
 	}
 	return context.WithValue(ctx, CurrentLoggerKey, logger)
 }
 
-func GetLogger(ctx context.Context) *Logger {
+func GetLogger(ctx context.Context) Logger {
 	value := ctx.Value(CurrentLoggerKey)
 	fmt.Println("----value:", value)
 	if value != nil {
-		logger := value.(*Logger)
+		logger := value.(Logger)
 		return logger
 	}
 	return nil

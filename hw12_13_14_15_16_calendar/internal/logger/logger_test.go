@@ -133,7 +133,7 @@ func TestLoggerFormat(t *testing.T) {
 	})
 }
 
-func buildTestLogger(buf *bytes.Buffer, conf *model.LoggerConf) *Logger {
+func buildTestLogger(buf *bytes.Buffer, conf *model.LoggerConf) Logger {
 	ctx := context.Background()
 	ctx = SetLogger(ctx, conf, buf)
 	return GetLogger(ctx)
