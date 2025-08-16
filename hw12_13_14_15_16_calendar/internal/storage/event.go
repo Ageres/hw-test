@@ -38,6 +38,7 @@ func (e *Event) ToNotification() *model.Notification {
 	}
 }
 
+// TO DO перенести в in-memory реализацию
 // проверка двух эвентов на пересечение времени
 func (e *Event) Overlaps(other *Event) bool {
 	if e == nil || other == nil {
@@ -60,6 +61,15 @@ func ValidateEventId(eventId string) error {
 	return nil
 }
 
+// без валидации ID
+func ValidateEvent(e *Event) error {
+	if e == nil {
+		return ErrEventIsNil
+	}
+	errMsgs := e.simpleValidate()
+	return NewSErrorWithMsgArr(errMsgs)
+}
+
 func FullValidateEvent(e *Event) error {
 	if e == nil {
 		return ErrEventIsNil
@@ -70,15 +80,6 @@ func FullValidateEvent(e *Event) error {
 		errMsgs = append(errMsgs, fmt.Sprintf(ErrFailedValidateEventIdTemplate, err))
 	}
 	errMsgs = append(errMsgs, e.simpleValidate()...)
-	return NewSErrorWithMsgArr(errMsgs)
-}
-
-// без валидации ID
-func ValidateEvent(e *Event) error {
-	if e == nil {
-		return ErrEventIsNil
-	}
-	errMsgs := e.simpleValidate()
 	return NewSErrorWithMsgArr(errMsgs)
 }
 

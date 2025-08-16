@@ -1,6 +1,7 @@
 package storage_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -46,4 +47,258 @@ func TestEvent_GenerateEventId(t *testing.T) {
 
 	err := uuid.Validate(event.ID)
 	require.NoError(t, err)
+}
+
+func TestEvent_Overlaps(t *testing.T) {
+	now := time.Now()
+	testCases := []struct {
+		name     string
+		event1   *storage.Event
+		event2   *storage.Event
+		expected bool
+	}{
+		{
+			name: "no overlap",
+			event1: &storage.Event{
+				StartTime: now,
+				Duration:  time.Hour,
+			},
+			event2: &storage.Event{
+				StartTime: now.Add(2 * time.Hour),
+				Duration:  time.Hour,
+			},
+			expected: false,
+		},
+		{
+			name: "overlap",
+			event1: &storage.Event{
+				StartTime: now,
+				Duration:  2 * time.Hour,
+			},
+			event2: &storage.Event{
+				StartTime: now.Add(time.Hour),
+				Duration:  time.Hour,
+			},
+			expected: true,
+		},
+		{
+			name:     "nil events",
+			event1:   nil,
+			event2:   nil,
+			expected: false,
+		},
+		{
+			name:   "first event nil",
+			event1: nil,
+			event2: &storage.Event{
+				StartTime: now,
+				Duration:  time.Hour,
+			},
+			expected: false,
+		},
+		{
+			name: "second event nil",
+			event1: &storage.Event{
+				StartTime: now,
+				Duration:  time.Hour,
+			},
+			event2:   nil,
+			expected: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := tc.event1.Overlaps(tc.event2)
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+func TestValidateEventId(t *testing.T) {
+	testCases := []struct {
+		name     string
+		id       string
+		expected error
+	}{
+		{
+			name:     "valid uuid",
+			id:       uuid.New().String(),
+			expected: nil,
+		},
+		{
+			name:     "invalid uuid",
+			id:       "invalid",
+			expected: storage.NewSErrorWithCause(storage.ErrFailedValidateEventIdTemplate, fmt.Errorf("invalid UUID length: 7")),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := storage.ValidateEventId(tc.id)
+			if tc.expected == nil {
+				require.NoError(t, err)
+			} else {
+				require.EqualError(t, err, tc.expected.Error())
+			}
+		})
+	}
+}
+
+func TestValidateEvent(t *testing.T) {
+	now := time.Now()
+	futureTime := now.Add(2 * time.Hour)
+	pastTime := now.Add(-2 * time.Hour)
+
+	testCases := []struct {
+		name     string
+		event    *storage.Event
+		expected error
+	}{
+		{
+			name: "valid event",
+			event: &storage.Event{
+				Title:     "Valid Event",
+				StartTime: futureTime,
+				Duration:  time.Hour,
+				UserID:    "user1",
+			},
+			expected: nil,
+		},
+		{
+			name:     "nil event",
+			event:    nil,
+			expected: storage.ErrEventIsNil,
+		},
+		{
+			name: "empty title",
+			event: &storage.Event{
+				Title:     "",
+				StartTime: futureTime,
+				Duration:  time.Hour,
+				UserID:    "user1",
+			},
+			expected: storage.NewSErrorWithMsgArr([]string{"title is empty"}),
+		},
+		{
+			name: "expired event time",
+			event: &storage.Event{
+				Title:     "Past Event",
+				StartTime: pastTime,
+				Duration:  time.Hour,
+				UserID:    "user1",
+			},
+			expected: storage.NewSErrorWithMsgArr([]string{"event time is expired"}),
+		},
+		{
+			name: "invalid duration",
+			event: &storage.Event{
+				Title:     "Invalid Duration",
+				StartTime: futureTime,
+				Duration:  0,
+				UserID:    "user1",
+			},
+			expected: storage.NewSErrorWithMsgArr([]string{"duration must be positive"}),
+		},
+		{
+			name: "empty user id",
+			event: &storage.Event{
+				Title:     "No User",
+				StartTime: futureTime,
+				Duration:  time.Hour,
+				UserID:    "",
+			},
+			expected: storage.NewSErrorWithMsgArr([]string{"user id is empty"}),
+		},
+		{
+			name: "multiple errors",
+			event: &storage.Event{
+				Title:     "",
+				StartTime: pastTime,
+				Duration:  0,
+				UserID:    "",
+			},
+			expected: storage.NewSErrorWithMsgArr([]string{
+				"title is empty",
+				"event time is expired",
+				"duration must be positive",
+				"user id is empty",
+			}),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := storage.ValidateEvent(tc.event)
+			if tc.expected == nil {
+				require.NoError(t, err)
+			} else {
+				require.Equal(t, tc.expected.Error(), err.Error())
+			}
+		})
+	}
+}
+
+func TestFullValidateEvent(t *testing.T) {
+	now := time.Now()
+	validID := uuid.New().String()
+
+	testCases := []struct {
+		name     string
+		event    *storage.Event
+		expected error
+	}{
+		{
+			name: "fully valid event",
+			event: &storage.Event{
+				ID:        validID,
+				Title:     "Valid Event",
+				StartTime: now.Add(time.Hour),
+				Duration:  time.Hour,
+				UserID:    "user1",
+			},
+			expected: nil,
+		},
+		{
+			name: "invalid uuid",
+			event: &storage.Event{
+				ID:        "invalid-uuid",
+				Title:     "Test Event",
+				StartTime: now.Add(time.Hour),
+				Duration:  time.Hour,
+				UserID:    "user1",
+			},
+			expected: storage.NewSErrorWithMsgArr([]string{
+				fmt.Sprintf(storage.ErrFailedValidateEventIdTemplate, fmt.Errorf("invalid UUID length: 12")),
+			}),
+		},
+		{
+			name: "invalid uuid and other errors",
+			event: &storage.Event{
+				ID:        "invalid",
+				Title:     "",
+				StartTime: now.Add(-time.Hour),
+				Duration:  0,
+				UserID:    "",
+			},
+			expected: storage.NewSErrorWithMsgArr([]string{
+				fmt.Sprintf(storage.ErrFailedValidateEventIdTemplate, fmt.Errorf("invalid UUID length: 7")),
+				"title is empty",
+				"event time is expired",
+				"duration must be positive",
+				"user id is empty",
+			}),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := storage.FullValidateEvent(tc.event)
+			if tc.expected == nil {
+				require.NoError(t, err)
+			} else {
+				require.Equal(t, tc.expected.Error(), err.Error())
+			}
+		})
+	}
 }
