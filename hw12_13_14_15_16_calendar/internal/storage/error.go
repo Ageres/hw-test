@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -20,6 +21,10 @@ const (
 	ErrDatabaseTimeoutMsgTemplate = "database timeout: %s"
 	ErrDatabaseMsgTemplate        = "database error: %s"
 	ErrUserConflictMsgTemplate    = "user '%s' is not the owner of the event, conflict with '%s'"
+	ErrFailedAddEventTemplate     = "failed to add event: %v"
+	ErrFailedUpdateEventTemplate  = "failed to update event: %v"
+	ErrFailedDeleteEventTemplate  = "failed to delete event: %v"
+	ErrFailedListEventTemplate    = "failed to list event: %v"
 )
 
 const (
@@ -50,6 +55,13 @@ func NewStorageError(messages ...string) error {
 	}
 	return &StorageError{
 		Message: message,
+	}
+}
+
+func NewStorageErrorWithCause(err error, messageTemplate string) error {
+	return &StorageError{
+		Message: fmt.Sprintf(messageTemplate, err),
+		Cause:   err,
 	}
 }
 
