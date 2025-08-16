@@ -1,10 +1,11 @@
-package logger
+package logger_test
 
 import (
 	"bytes"
 	"context"
 	"testing"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/stretchr/testify/require"
 )
@@ -138,8 +139,8 @@ func TestLoggerFormat(t *testing.T) {
 	})
 }
 
-func buildTestLogger(buf *bytes.Buffer, conf *model.LoggerConf) Logger {
+func buildTestLogger(buf *bytes.Buffer, conf *model.LoggerConf) logger.Logger {
 	ctx := context.Background()
-	ctx = SetLogger(ctx, conf, buf)
-	return GetLogger(ctx)
+	ctx = logger.SetLogger(ctx, conf, buf)
+	return logger.GetLogger(ctx)
 }

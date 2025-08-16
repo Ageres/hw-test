@@ -1,10 +1,13 @@
 package memorystorage
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 	/*
 		"fmt"
@@ -17,64 +20,72 @@ import (
 		"github.com/stretchr/testify/require"
 	*/)
 
-/*
 func TestStorageAdd(t *testing.T) {
-	dto := newTestMemoryStorageDto().buildNewEvents()
-	events := dto.events
 
-	t.Run("add event", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.Len(t, dto.storage.events, 0)
-		require.NoError(t, dto.storage.Add(&events[0]))
-		require.NoError(t, dto.storage.Add(&events[1]))
-		require.NoError(t, dto.storage.Add(&events[2]))
-		require.Len(t, dto.storage.events, 3)
-	})
+	/*
+		dto := newTestMemoryStorageDto().buildNewEvents()
+		events := dto.events
 
-	t.Run("nil event error when adding", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.NoError(t, dto.storage.Add(&events[0]))
+		t.Run("add event", func(t *testing.T) {
+			dto.buildNewStorage()
 
-		err := dto.storage.Add(nil)
-		require.ErrorIs(t, err, storage.ErrEventIsNil)
-		require.Len(t, dto.storage.events, 1)
-	})
+			require.Len(t, dto.storage.events, 0)
 
-	t.Run("validation event error when adding", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.NoError(t, dto.storage.Add(&events[0]))
+			dto.storage.Add(dto.testContext, &events[0])
+			dto.storage.Add(dto.testContext, &events[1])
+			dto.storage.Add(dto.testContext, &events[2])
 
-		err := dto.storage.Add(&events[4])
-		require.Error(t, err)
-		require.Equal(t, err.Error(), "title is empty; event time is expired; user id is empty")
-		require.Len(t, dto.storage.events, 1)
+			require.NoError(t, dto.storage.Add(&events[0]))
+			require.NoError(t, dto.storage.Add(&events[1]))
+			require.NoError(t, dto.storage.Add(&events[2]))
+			require.Len(t, dto.storage.events, 3)
+		})
 
-		err = dto.storage.Add(&events[5])
-		require.Error(t, err)
-		require.Equal(t, err.Error(), "validate event id: invalid UUID length: 22; title is empty; event time is expired; user id is empty")
-		require.Len(t, dto.storage.events, 1)
-	})
+		t.Run("nil event error when adding", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.NoError(t, dto.storage.Add(&events[0]))
 
-	t.Run("event duplication error when adding", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.NoError(t, dto.storage.Add(&events[0]))
+			err := dto.storage.Add(nil)
+			require.ErrorIs(t, err, storage.ErrEventIsNil)
+			require.Len(t, dto.storage.events, 1)
+		})
 
-		err := dto.storage.Add(&events[0])
-		require.ErrorIs(t, err, storage.ErrEventAllreadyExists)
-		require.Len(t, dto.storage.events, 1)
-	})
+		t.Run("validation event error when adding", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.NoError(t, dto.storage.Add(&events[0]))
 
-	t.Run("date busy error when adding", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.NoError(t, dto.storage.Add(&events[0]))
+			err := dto.storage.Add(&events[4])
+			require.Error(t, err)
+			require.Equal(t, err.Error(), "title is empty; event time is expired; user id is empty")
+			require.Len(t, dto.storage.events, 1)
 
-		err := dto.storage.Add(&events[3])
-		require.ErrorIs(t, err, storage.ErrDateBusy)
-		require.Len(t, dto.storage.events, 1)
-	})
+			err = dto.storage.Add(&events[5])
+			require.Error(t, err)
+			require.Equal(t, err.Error(), "validate event id: invalid UUID length: 22; title is empty; event time is expired; user id is empty")
+			require.Len(t, dto.storage.events, 1)
+		})
 
+		t.Run("event duplication error when adding", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.NoError(t, dto.storage.Add(&events[0]))
+
+			err := dto.storage.Add(&events[0])
+			require.ErrorIs(t, err, storage.ErrEventAllreadyExists)
+			require.Len(t, dto.storage.events, 1)
+		})
+
+		t.Run("date busy error when adding", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.NoError(t, dto.storage.Add(&events[0]))
+
+			err := dto.storage.Add(&events[3])
+			require.ErrorIs(t, err, storage.ErrDateBusy)
+			require.Len(t, dto.storage.events, 1)
+		})
+	*/
 }
 
+/*
 func TestStorageUpdate(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewEvents()
 	events := dto.events
@@ -340,21 +351,56 @@ func TestStorageDeadlock(t *testing.T) {
 		t.Fatal("Potential deadlock detected")
 	}
 }
+*/
+
+func TestGenerateTestEvents(t *testing.T) {
+	storage := &MemoryStorage{
+		events: make(map[string]storage.Event),
+	}
+
+	/*
+		startTime := time.Date(2050, 1, 1, 0, 0, 0, 0, time.UTC)
+		period := time.Hour
+		userCount := 10
+		eventsPerUser := 5
+	*/
+
+	storage.generateTestEvents()
+
+	count := 0
+	for _, event := range storage.events {
+		/*
+			if count >= 3 {
+				break
+			}
+		*/
+		fmt.Printf("Event: %+v\n", event)
+		count++
+	}
+
+}
 
 // -------------------------------------------------------------------------------------
 // Вспомогательные функции
 type TestMemoryStorageDto struct {
-	storage *MemoryStorage
-	events  []storage.Event
-	now     time.Time
+	storage     *MemoryStorage
+	events      []storage.Event
+	now         time.Time
+	testContext context.Context
 }
 
 func newTestMemoryStorageDto() *TestMemoryStorageDto {
-	return &TestMemoryStorageDto{}
+	ctx := logger.SetDefaultLogger(context.Background())
+	return &TestMemoryStorageDto{
+		testContext: ctx,
+	}
 }
 
 func (dto *TestMemoryStorageDto) buildNewStorage() *TestMemoryStorageDto {
-	dto.storage = NewMemoryStorage().(*MemoryStorage)
+	storageConfRef := model.StorageConf{
+		LoadTestData: false,
+	}
+	dto.storage = NewMemoryStorage(dto.testContext, &storageConfRef).(*MemoryStorage)
 	return dto
 }
 
@@ -431,30 +477,4 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 	}
 	dto.events = append(dto.events, event0, event1, event2, event3, event4, event5, event6, event7, event8, event9)
 	return dto
-}
-*/
-
-func TestGenerateTestEvents(t *testing.T) {
-	storage := &MemoryStorage{
-		events: make(map[string]storage.Event),
-	}
-
-	startTime := time.Date(2050, 1, 1, 0, 0, 0, 0, time.UTC)
-	period := time.Hour
-	userCount := 10
-	eventsPerUser := 5
-
-	storage.generateTestEvents(startTime, period, userCount, eventsPerUser)
-
-	count := 0
-	for _, event := range storage.events {
-		/*
-			if count >= 3 {
-				break
-			}
-		*/
-		fmt.Printf("Event: %+v\n", event)
-		count++
-	}
-
 }
