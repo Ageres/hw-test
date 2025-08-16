@@ -2,7 +2,6 @@ package sqlstorage
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -12,8 +11,17 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var ErrDatabaseMsgTemplate = "database error: %s"
+
 type SqlStorage struct {
 	db *sqlx.DB
+}
+
+type dbResp struct {
+	statusCode      int
+	errorMessage    string
+	conflictEventId string
+	conflictUserId  string
 }
 
 func NewSqlStorage(psqlConfRef *model.PSQLConfig) storage.Storage {
@@ -50,7 +58,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	}
 
 	var eventID string
-	serr := storage.StorageError{}
+	dbResp := dbResp{}
 	err := s.db.QueryRowContext(ctx, `
         SELECT event_id, status_code, error_message, conflict_event_id 
         FROM add_event($1, $2, $3, $4, $5, $6)`,
@@ -62,16 +70,16 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		int(eventRef.Reminder.Seconds()),
 	).Scan(
 		&eventID,
-		&serr.StatusCode,
-		&serr.ErrorMessage,
-		&serr.ConflictEventId,
+		&dbResp.statusCode,
+		&dbResp.errorMessage,
+		&dbResp.conflictEventId,
 	)
 
 	if err != nil {
-		return nil, storage.NewSErrorWithCause("failed to add event: %v", err)
+		return nil, storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
 	}
 
-	switch serr.StatusCode {
+	switch dbResp.statusCode {
 	case 200:
 		savedEvent := *eventRef
 		savedEvent.ID = eventID
@@ -79,14 +87,9 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		savedEvent.Reminder = time.Duration(savedEvent.Reminder) * time.Second
 		return &savedEvent, nil
 	case 409:
-		serr.Message = fmt.Sprintf(storage.ErrDateBusyMsgTemplate, serr.ConflictEventId)
-		return nil, &serr
-	case 504:
-		serr.Message = fmt.Sprintf(storage.ErrDatabaseTimeoutMsgTemplate, serr.ErrorMessage)
-		return nil, &serr
+		return nil, storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventId)
 	default:
-		serr.Message = fmt.Sprintf(storage.ErrDatabaseMsgTemplate, serr.ErrorMessage)
-		return nil, &serr
+		return nil, storage.NewSErrorWithTemplate(ErrDatabaseMsgTemplate, dbResp.errorMessage)
 	}
 }
 
@@ -96,7 +99,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	}
 
 	var statusCode int
-	serr := storage.StorageError{}
+	dbResp := dbResp{}
 	err := s.db.QueryRowContext(ctx, `
         SELECT status_code, error_message, conflict_event_id, conflict_user_id 
         FROM update_event($1, $2, $3, $4, $5, $6, $7)`,
@@ -108,48 +111,41 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		eventRef.UserID,
 		int(eventRef.Reminder.Seconds()),
 	).Scan(
-		&serr.StatusCode,
-		&serr.ErrorMessage,
-		&serr.ConflictEventId,
-		&serr.ConflictUserId,
+		&dbResp.statusCode,
+		&dbResp.errorMessage,
+		&dbResp.conflictEventId,
+		&dbResp.conflictUserId,
 	)
 
 	if err != nil {
-		return storage.NewSErrorWithCause(storage.ErrFailedUpdateEventTemplate, err)
+		return storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
 	}
 
 	switch statusCode {
 	case 200:
 		return nil
 	case 403:
-		serr.Message = fmt.Sprintf(storage.ErrUserConflictMsgTemplate, eventRef.UserID, serr.ConflictUserId)
-		return &serr
+		return storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, dbResp.conflictUserId)
 	case 404:
-		serr.Message = storage.ErrEventNotFoundMsg
-		return &serr
+		return storage.ErrEventNotFound
 	case 409:
-		serr.Message = fmt.Sprintf(storage.ErrDateBusyMsgTemplate, serr.ConflictEventId)
-		return &serr
-	case 504:
-		serr.Message = fmt.Sprintf(storage.ErrDatabaseTimeoutMsgTemplate, serr.ErrorMessage)
-		return &serr
+		return storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventId)
 	default:
-		serr.Message = fmt.Sprintf(storage.ErrDatabaseMsgTemplate, serr.ErrorMessage)
-		return &serr
+		return storage.NewSErrorWithTemplate(ErrDatabaseMsgTemplate, dbResp.errorMessage)
 	}
 }
 
 func (s *SqlStorage) Delete(ctx context.Context, id string) error {
 	res, err := s.db.Exec("DELETE FROM events WHERE id = $1", id)
 	if err != nil {
-		return storage.NewSErrorWithCause(storage.ErrFailedDeleteEventTemplate, err)
+		return storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
 	}
 
 	rows, err := res.RowsAffected()
 	if err != nil {
 		return storage.NewSErrorWithCause("failed to get rows affected when deleting event: %v", err)
 	} else if rows == 0 {
-		return storage.NewSErrorWithMsgArr(storage.ErrEventNotFoundMsg)
+		return storage.ErrEventNotFound
 	}
 	return nil
 }
@@ -185,7 +181,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, start, end time.Time) ([]st
         && tstzrange($1::timestamptz, $2::timestamptz)`,
 		start, end)
 	if err != nil {
-		return nil, storage.NewSErrorWithCause(storage.ErrFailedListEventTemplate, err)
+		return nil, storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
 	}
 	defer rows.Close()
 
@@ -213,6 +209,13 @@ func (p *SqlStorage) listEvents(ctx context.Context, start, end time.Time) ([]st
 			UserID:      e.UserID,
 			Reminder:    time.Duration(e.Reminder) * time.Second,
 		})
+
+		select {
+		case <-ctx.Done():
+			return nil, storage.NewSErrorWithCause(storage.ErrContextDoneTemplate, ctx.Err())
+		default:
+		}
+
 	}
 
 	if err := rows.Err(); err != nil {

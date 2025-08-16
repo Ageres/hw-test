@@ -1,53 +1,32 @@
 package storage
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
 
 var (
-	ErrEventIsNil    = NewSimpleSError("event is nil")
-	ErrEventNotFound = NewSimpleSError("events not found")
-	ErrDateBusy      = errors.New("time is already taken by another event")
-	ErrUserConflict  = errors.New("user is not the owner of the event")
-
-	ErrEventAllreadyExists = errors.New("event with this id already exists")
+	ErrEventIsNil    = NewSError("event is nil")
+	ErrEventNotFound = NewSError("event not found")
 )
 
 const (
 	ErrDateBusyMsgTemplate           = "time is already taken by another event: %s"
 	ErrFailedValidateEventIdTemplate = "failed to validate event id: %v"
-	ErrDatabaseTimeoutMsgTemplate    = "database timeout: %s"
-	ErrDatabaseMsgTemplate           = "database error: %s"
 	ErrUserConflictMsgTemplate       = "user '%s' is not the owner of the event, conflict with '%s'"
-	ErrFailedAddEventTemplate        = "failed to add event: %v"
-	ErrFailedUpdateEventTemplate     = "failed to update event: %v"
-	ErrFailedDeleteEventTemplate     = "failed to delete event: %v"
-	ErrFailedListEventTemplate       = "failed to list event: %v"
-)
-
-const (
-	ErrEmptyTitleMsg         = "title is empty"
-	ErrEventTimeIsExpiredMsg = "event time is expired"
-	ErrEmptyUserIdMsg        = "user id is empty"
-	ErrEventNotFoundMsg      = "no events found"
+	ErrContextDoneTemplate           = "context done: '%s'"
 )
 
 type StorageError struct {
-	StatusCode      int
-	ErrorMessage    string
-	ConflictEventId string
-	ConflictUserId  string
-	Message         string
-	Cause           error
+	Message string
+	Cause   error
 }
 
 func (serr *StorageError) Error() string {
 	return serr.Message
 }
 
-func NewSimpleSError(message string) error {
+func NewSError(message string) error {
 	return &StorageError{
 		Message: message,
 	}
@@ -59,7 +38,7 @@ func NewSErrorWithTemplate(template string, messages ...string) error {
 	}
 }
 
-func NewSErrorWithMsgArr(messages ...string) error {
+func NewSErrorWithMsgArr(messages []string) error {
 	message := joinString(messages)
 	if message == "" {
 		return nil

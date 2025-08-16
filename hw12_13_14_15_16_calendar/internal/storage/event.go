@@ -62,7 +62,7 @@ func FullValidateEvent(e *Event) error {
 		errMsgs = append(errMsgs, fmt.Sprintf(ErrFailedValidateEventIdTemplate, err))
 	}
 	errMsgs = append(errMsgs, e.simpleValidate()...)
-	return NewSErrorWithMsgArr(errMsgs...)
+	return NewSErrorWithMsgArr(errMsgs)
 }
 
 // без валидации ID
@@ -71,19 +71,19 @@ func ValidateEvent(e *Event) error {
 		return ErrEventIsNil
 	}
 	errMsgs := e.simpleValidate()
-	return NewSErrorWithMsgArr(errMsgs...)
+	return NewSErrorWithMsgArr(errMsgs)
 }
 
 func (e *Event) simpleValidate() []string {
 	errMsgs := make([]string, 0, 3)
 	if e.Title == "" {
-		errMsgs = append(errMsgs, ErrEmptyTitleMsg)
+		errMsgs = append(errMsgs, "title is empty")
 	}
 	if e.StartTime.Before(time.Now().Add(1 * time.Minute)) {
-		errMsgs = append(errMsgs, ErrEventTimeIsExpiredMsg)
+		errMsgs = append(errMsgs, "event time is expired")
 	}
 	if e.UserID == "" {
-		errMsgs = append(errMsgs, ErrEmptyUserIdMsg)
+		errMsgs = append(errMsgs, "user id is empty")
 	}
 	return errMsgs
 }

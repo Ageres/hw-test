@@ -9,7 +9,7 @@ import (
 )
 
 type MemoryStorage struct {
-	mu     sync.RWMutex             //nolint:unused
+	mu     sync.RWMutex
 	events map[string]storage.Event // key: Event.ID
 }
 
@@ -59,7 +59,7 @@ func (s *MemoryStorage) Update(ctx context.Context, newEventRef *storage.Event) 
 		return storage.ErrEventNotFound
 	}
 	if oldEvent.UserID != newEventRef.UserID {
-		return storage.ErrUserConflict
+		return storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, oldEvent.UserID)
 	}
 
 	for _, existingEvent := range s.events {
@@ -92,46 +92,40 @@ func (s *MemoryStorage) Delete(ctx context.Context, id string) error {
 }
 
 func (s *MemoryStorage) ListDay(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.Add(24 * time.Hour)
-
-	result := s.getEventsByPeriod(ctx, startTime, endTime)
-	return result, nil
+	return s.listEvents(ctx, startTime, endTime)
 }
 
 func (s *MemoryStorage) ListWeek(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.AddDate(0, 0, 7)
-
-	result := s.getEventsByPeriod(ctx, startTime, endTime)
-	return result, nil
+	return s.listEvents(ctx, startTime, endTime)
 }
 
 func (s *MemoryStorage) ListMonth(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.AddDate(0, 1, 0)
-
-	result := s.getEventsByPeriod(ctx, startTime, endTime)
-	return result, nil
+	return s.listEvents(ctx, startTime, endTime)
 }
 
-func (s *MemoryStorage) getEventsByPeriod(ctx context.Context, startTime, endTime time.Time) []storage.Event {
+func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	var result []storage.Event
 	for _, event := range s.events {
+
+		select {
+		case <-ctx.Done():
+			return nil, storage.NewSErrorWithCause(storage.ErrContextDoneTemplate, ctx.Err())
+		default:
+		}
+
 		eventEnd := event.StartTime.Add(event.Duration)
 		if (event.StartTime.After(startTime) && event.StartTime.Before(endTime)) ||
 			(eventEnd.After(startTime) && eventEnd.Before(endTime)) {
 			result = append(result, event)
 		}
 	}
-	return result
+	return result, nil
 }
