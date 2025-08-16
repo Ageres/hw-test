@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,4 +35,15 @@ func TestEvent_ToNotification(t *testing.T) {
 	require.Zero(t, notification.Date.Hour())
 	require.Zero(t, notification.Date.Minute())
 	require.Zero(t, notification.Date.Second())
+}
+
+func TestEvent_GenerateEventId(t *testing.T) {
+	event := &storage.Event{}
+	require.Empty(t, event.ID)
+
+	event.GenerateEventId()
+	require.NotEmpty(t, event.ID)
+
+	err := uuid.Validate(event.ID)
+	require.NoError(t, err)
 }
