@@ -181,66 +181,21 @@ func (p *SqlStorage) getStartDayTime(start time.Time) time.Time {
 	return time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
 }
 
-func (p *SqlStorage) listEvents0(ctx context.Context, start, end time.Time) ([]storage.Event, error) {
-	var events []struct {
-		ID          string
-		Title       string
-		StartTime   time.Time `db:"start_time"`
-		Duration    int64
-		Description string
-		UserID      string `db:"user_id"`
-		Reminder    int64
-	}
-
-	err := p.db.Select(&events, `
-        SELECT * FROM events 
-        WHERE tstzrange(start_time, start_time + (duration * INTERVAL '1 second')) 
-        && 
-        tstzrange($1::timestamptz, $2::timestamptz)`,
-		start,
-		end,
-	)
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to list events: %w", err)
-	}
-
-	result := make([]storage.Event, len(events))
-	for i, e := range events {
-		result[i] = storage.Event{
-			ID:          e.ID,
-			Title:       e.Title,
-			StartTime:   e.StartTime,
-			Duration:    time.Duration(e.Duration) * time.Second,
-			Description: e.Description,
-			UserID:      e.UserID,
-			Reminder:    time.Duration(e.Reminder) * time.Second,
-		}
-	}
-	return result, nil
-}
-
 func (p *SqlStorage) listEvents(ctx context.Context, start, end time.Time) ([]storage.Event, error) {
-	//размер пачки для выгрузки
-	batchSize := 1000
-
-	// общее количество событий
-	var totalEvents int
-	err := p.db.GetContext(ctx, &totalEvents, `
-        SELECT COUNT(*) FROM events 
+	result := make([]storage.Event, 0, 100)
+	rows, err := p.db.QueryxContext(ctx, `
+        SELECT id, title, start_time, duration, description, user_id, reminder 
+        FROM events 
         WHERE tstzrange(start_time, start_time + (duration * INTERVAL '1 second')) 
         && tstzrange($1::timestamptz, $2::timestamptz)`,
 		start, end)
 	if err != nil {
-		return nil, fmt.Errorf("failed to count events: %w", err)
+		return nil, fmt.Errorf("failed to list events: %w", err)
 	}
+	defer rows.Close()
 
-	result := make([]storage.Event, 0, totalEvents)
-
-	// выгрузка данных пачками
-	offset := 0
-	for {
-		var batch []struct {
+	for rows.Next() {
+		var e struct {
 			ID          string
 			Title       string
 			StartTime   time.Time `db:"start_time"`
@@ -250,37 +205,23 @@ func (p *SqlStorage) listEvents(ctx context.Context, start, end time.Time) ([]st
 			Reminder    int64
 		}
 
-		err := p.db.SelectContext(ctx, &batch, `
-            SELECT id, title, start_time, duration, description, user_id, reminder
-            FROM events 
-            WHERE tstzrange(start_time, start_time + (duration * INTERVAL '1 second')) 
-            && tstzrange($1::timestamptz, $2::timestamptz)
-            ORDER BY start_time, id
-            LIMIT $3 OFFSET $4`,
-			start, end, batchSize, offset)
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to fetch events batch: %w", err)
+		if err := rows.StructScan(&e); err != nil {
+			return nil, fmt.Errorf("failed to scan event: %w", err)
 		}
 
-		// Обрабатываем полученную пачку
-		for _, e := range batch {
-			result = append(result, storage.Event{
-				ID:          e.ID,
-				Title:       e.Title,
-				StartTime:   e.StartTime,
-				Duration:    time.Duration(e.Duration) * time.Second,
-				Description: e.Description,
-				UserID:      e.UserID,
-				Reminder:    time.Duration(e.Reminder) * time.Second,
-			})
-		}
+		result = append(result, storage.Event{
+			ID:          e.ID,
+			Title:       e.Title,
+			StartTime:   e.StartTime,
+			Duration:    time.Duration(e.Duration) * time.Second,
+			Description: e.Description,
+			UserID:      e.UserID,
+			Reminder:    time.Duration(e.Reminder) * time.Second,
+		})
+	}
 
-		// Проверяем, нужно ли продолжать
-		if len(batch) < batchSize {
-			break
-		}
-		offset += batchSize
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
 	}
 
 	return result, nil
