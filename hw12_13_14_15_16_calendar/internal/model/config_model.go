@@ -20,12 +20,12 @@ type LoggerConf struct {
 //-----------------------------
 //storage config model
 type StorageConf struct {
-	Type string      `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
-	PSQL *PSQLConfig `yaml:"psql"`
+	Type string     `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
+	SQL  *SQLConfig `yaml:"sql"`
 	Init *InitConfig
 }
 
-type PSQLConfig struct {
+type SQLConfig struct {
 	DB        DBConfig `yaml:"db" validate:"required"`
 	Migration string   `yaml:"migration" validate:"required"`
 	Pool      PoolConf `yaml:"pool" validate:"required"`
