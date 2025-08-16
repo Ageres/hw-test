@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -8,6 +10,10 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	cslog "github.com/phsym/console-slog"
 )
+
+type loggerContextKeyType int
+
+const CurrentLoggerKey loggerContextKeyType = iota
 
 type LogLevel string
 
@@ -27,7 +33,8 @@ const (
 )
 
 type Logger struct {
-	slogLogger *slog.Logger
+	slogLogger    *slog.Logger
+	loggerConfRef *model.LoggerConf
 }
 
 func (l *Logger) Debug(msg string, args ...any) {
@@ -46,14 +53,28 @@ func (l *Logger) Error(msg string, args ...any) {
 	l.slogLogger.Error(msg, args...)
 }
 
-func New(loggerConfRef *model.LoggerConf, output io.Writer) *Logger {
+func SetLogger(ctx context.Context, loggerConfRef *model.LoggerConf, output io.Writer) context.Context {
 	if output == nil {
 		output = os.Stdout
 	}
 	slogLevel := getLoggerLevel(loggerConfRef.Level)
 	slogHandler := buildSlogHandler(slogLevel, loggerConfRef.Format, output)
-	logger := slog.New(slogHandler)
-	return &Logger{logger}
+	logg := slog.New(slogHandler)
+	logger := &Logger{
+		slogLogger:    logg,
+		loggerConfRef: loggerConfRef,
+	}
+	return context.WithValue(ctx, CurrentLoggerKey, logger)
+}
+
+func GetLogger(ctx context.Context) *Logger {
+	value := ctx.Value(CurrentLoggerKey)
+	fmt.Println("----value:", value)
+	if value != nil {
+		logger := value.(*Logger)
+		return logger
+	}
+	return nil
 }
 
 func getLoggerLevel(logLevel string) slog.Level {

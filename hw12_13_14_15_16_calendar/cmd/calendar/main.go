@@ -12,7 +12,10 @@ import (
 	"time"
 
 	//"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
+
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+
 	//"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	//internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
@@ -33,7 +36,7 @@ func main() {
 	configRef := config.NewConfig(cliArgs.PathToConfigFile)
 	log.Println("config:", MarshalAny(configRef))
 
-	//logg := logger.New(configRef.Logger, nil)
+	ctx = logger.SetLogger(ctx, configRef.Logger, nil)
 
 	storage := storage_config.NewStorage(configRef.Storage)
 
