@@ -32,9 +32,9 @@ func NewSError(message string) error {
 	}
 }
 
-func NewSErrorWithTemplate(template string, messages ...string) error {
+func NewSErrorWithTemplate(template string, messages ...any) error {
 	return &StorageError{
-		Message: fmt.Sprintf(template, messages),
+		Message: fmt.Sprintf(template, messages...),
 	}
 }
 

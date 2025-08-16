@@ -66,10 +66,10 @@ func main() {
 
 }
 
-func testStorage_02(ctx context.Context, storage storage.Storage) {
+func testStorage(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1000-------------------------")
 	timeLocation, _ := time.LoadLocation("Local")
-	timeDay := time.Date(2025, 12, 1, 18, 30, 45, 0, timeLocation)
+	timeDay := time.Date(2025, 12, 31, 18, 30, 45, 0, timeLocation)
 	log.Println("timeDay:", timeDay)
 
 	events, err := storage.ListDay(ctx, timeDay)
@@ -83,6 +83,8 @@ func testStorage_02(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1450-------------------------")
 
 	event := events[0]
+	eventId := "00000000-0000-0000-0000-000000000000"
+	event.ID = eventId
 	//event.ID = "2aeef68f-267d-459d-bda6-c900e27f4afb"
 	//event.UserID = "www"
 	//event.StartTime = event.StartTime.Add(30 * time.Minute)
@@ -105,7 +107,7 @@ func testStorage_02(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1999-------------------------")
 }
 
-func testStorage(ctx context.Context, storage storage.Storage) {
+func testStorage_01(ctx context.Context, storage storage.Storage) {
 	log.Println("-----------------------1000-------------------------")
 	timeLocation, _ := time.LoadLocation("Local")
 	timeDay := time.Date(2025, 12, 31, 18, 30, 45, 0, timeLocation)
@@ -130,7 +132,9 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 
 	log.Println("-----------------------1450-------------------------")
 	event := events[0]
-	event.StartTime = event.StartTime.Add(121 * time.Hour)
+	eventId := "00000000-0000-0000-0000-000000000000"
+	event.ID = eventId
+	event.StartTime = time.Now().Add(121 * time.Hour)
 	//event.Title = ""
 	res, err := storage.Add(ctx, &event)
 	if err != nil {

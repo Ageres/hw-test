@@ -98,7 +98,6 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		return err
 	}
 
-	var statusCode int
 	dbResp := dbResp{}
 	err := s.db.QueryRowContext(ctx, `
         SELECT status_code, error_message, conflict_event_id, conflict_user_id 
@@ -121,11 +120,11 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		return storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
 	}
 
-	switch statusCode {
+	switch dbResp.statusCode {
 	case 200:
 		return nil
 	case 403:
-		return storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, dbResp.conflictUserId)
+		return storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, eventRef.UserID, dbResp.conflictUserId)
 	case 404:
 		return storage.ErrEventNotFound
 	case 409:
