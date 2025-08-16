@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -13,7 +14,7 @@ type MemoryStorage struct {
 	events map[string]storage.Event // key: Event.ID
 }
 
-func NewMemoryStorage() storage.Storage {
+func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
 	return &MemoryStorage{
 		events: make(map[string]storage.Event),
 	}

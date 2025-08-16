@@ -25,10 +25,11 @@ type dbResp struct {
 	conflictUserId  string
 }
 
-func NewSqlStorage(ctx context.Context, psqlConfRef *model.SQLConfig) storage.Storage {
+func NewSqlStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
 	logger := l.GetLogger(ctx)
 
-	dsn := psqlConfRef.DB.DSN()
+	sqlConfRef := storageConfRef.SQL
+	dsn := sqlConfRef.DB.DSN()
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
 		logger.Error("failed to load driver", map[string]any{
@@ -37,10 +38,10 @@ func NewSqlStorage(ctx context.Context, psqlConfRef *model.SQLConfig) storage.St
 		os.Exit(1)
 	}
 
-	db.SetMaxOpenConns(psqlConfRef.Pool.Conn.MaxOpen)
-	db.SetMaxIdleConns(psqlConfRef.Pool.Conn.MaxIdle)
-	db.SetConnMaxLifetime(time.Duration(psqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
-	db.SetConnMaxIdleTime(time.Duration(psqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
+	db.SetMaxOpenConns(sqlConfRef.Pool.Conn.MaxOpen)
+	db.SetMaxIdleConns(sqlConfRef.Pool.Conn.MaxIdle)
+	db.SetConnMaxLifetime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
+	db.SetConnMaxIdleTime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
 
 	err = db.Ping()
 	if err != nil {
