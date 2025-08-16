@@ -44,6 +44,7 @@ type logger struct {
 }
 
 func (l *logger) Debug(msg string, mapArgs ...map[string]any) {
+	args := mapToArr(mapArgs...)
 	l.slogLogger.Debug(msg, args...)
 }
 
@@ -53,10 +54,12 @@ func (l *logger) Info(msg string, mapArgs ...map[string]any) {
 }
 
 func (l *logger) Warn(msg string, mapArgs ...map[string]any) {
+	args := mapToArr(mapArgs...)
 	l.slogLogger.Warn(msg, args...)
 }
 
 func (l *logger) Error(msg string, mapArgs ...map[string]any) {
+	args := mapToArr(mapArgs...)
 	l.slogLogger.Error(msg, args...)
 }
 
