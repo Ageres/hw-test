@@ -2,7 +2,7 @@ package sqlstorage
 
 import (
 	"context"
-	"log"
+	"os"
 	"time"
 
 	l "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
@@ -31,9 +31,10 @@ func NewSqlStorage(ctx context.Context, psqlConfRef *model.PSQLConfig) storage.S
 	dsn := psqlConfRef.DB.DSN()
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
-		logger.Error("failed to load driver", err, map[string]any{
+		logger.Error("failed to load driver", map[string]any{
 			"error": err,
 		})
+		os.Exit(1)
 	}
 
 	db.SetMaxOpenConns(psqlConfRef.Pool.Conn.MaxOpen)
@@ -43,7 +44,10 @@ func NewSqlStorage(ctx context.Context, psqlConfRef *model.PSQLConfig) storage.S
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("failed to connect to db: %v", err)
+		logger.Error("failed to connect to db", map[string]any{
+			"error": err,
+		})
+		os.Exit(1)
 	}
 
 	return &SqlStorage{
