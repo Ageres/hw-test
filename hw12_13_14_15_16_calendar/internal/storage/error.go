@@ -23,6 +23,9 @@ type StorageError struct {
 }
 
 func (serr *StorageError) Error() string {
+	if serr.Cause != nil {
+		return fmt.Sprintf("%s: %v", serr.Message, serr.Cause)
+	}
 	return serr.Message
 }
 
@@ -33,6 +36,9 @@ func NewSError(message string) error {
 }
 
 func NewSErrorWithTemplate(template string, messages ...any) error {
+	if template == "" {
+		return nil
+	}
 	return &StorageError{
 		Message: fmt.Sprintf(template, messages...),
 	}
@@ -56,11 +62,19 @@ func NewSErrorWithCause(template string, err error) error {
 }
 
 func joinString(items []string) string {
+	if len(items) == 0 {
+		return ""
+	}
+
 	var nonEmpty []string
 	for _, item := range items {
 		if item != "" {
 			nonEmpty = append(nonEmpty, item)
 		}
+	}
+
+	if len(nonEmpty) == 0 {
+		return ""
 	}
 	return strings.Join(nonEmpty, "; ")
 }
