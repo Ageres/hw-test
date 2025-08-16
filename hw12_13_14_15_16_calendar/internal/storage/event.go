@@ -56,7 +56,7 @@ func FullValidateEvent(e *Event) error {
 	if e == nil {
 		return ErrEventIsNil
 	}
-	errMsgs := make([]string, 0, 4)
+	errMsgs := make([]string, 0, 5)
 	err := uuid.Validate(e.ID)
 	if err != nil {
 		errMsgs = append(errMsgs, fmt.Sprintf(ErrFailedValidateEventIdTemplate, err))
@@ -75,12 +75,15 @@ func ValidateEvent(e *Event) error {
 }
 
 func (e *Event) simpleValidate() []string {
-	errMsgs := make([]string, 0, 3)
+	errMsgs := make([]string, 0, 4)
 	if e.Title == "" {
 		errMsgs = append(errMsgs, "title is empty")
 	}
 	if e.StartTime.Before(time.Now().Add(1 * time.Minute)) {
 		errMsgs = append(errMsgs, "event time is expired")
+	}
+	if e.Duration <= 0 {
+		errMsgs = append(errMsgs, "duration must be positive")
 	}
 	if e.UserID == "" {
 		errMsgs = append(errMsgs, "user id is empty")
