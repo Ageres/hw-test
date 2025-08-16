@@ -105,6 +105,10 @@ func GetLogger(ctx context.Context) Logger {
 	return nil
 }
 
+func SetDefaultLogger(ctx context.Context) context.Context {
+	return SetLogger(ctx, &model.LoggerConf{}, nil)
+}
+
 func getLoggerLevel(logLevel string) slog.Level {
 	switch LogLevel(logLevel) {
 	case DEBUG:
