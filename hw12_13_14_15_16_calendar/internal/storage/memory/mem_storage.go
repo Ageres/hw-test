@@ -2,9 +2,12 @@ package memorystorage
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 )
@@ -15,9 +18,18 @@ type MemoryStorage struct {
 }
 
 func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
-	return &MemoryStorage{
+	storage := &MemoryStorage{
 		events: make(map[string]storage.Event),
 	}
+	if storageConfRef.LoadTestData {
+		startTime := time.Date(2050, 1, 1, 0, 0, 0, 0, time.UTC)
+		period := time.Hour
+		userCount := 10
+		eventsPerUser := 5
+		storage.generateTestEvents(startTime, period, userCount, eventsPerUser)
+		logger.GetLogger(ctx).Info("test data loaded")
+	}
+	return storage
 }
 
 func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
@@ -46,7 +58,6 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 }
 
 func (s *MemoryStorage) Update(ctx context.Context, newEventRef *storage.Event) error {
-
 	if err := storage.FullValidateEvent(newEventRef); err != nil {
 		return err
 	}
@@ -129,4 +140,45 @@ func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.
 		}
 	}
 	return result, nil
+}
+
+func (m *MemoryStorage) generateTestEvents(
+	startTime time.Time,
+	period time.Duration,
+	userCount int,
+	eventsPerUser int,
+) {
+	eventID := 0
+	for userID := 1; userID <= userCount; userID++ {
+		userIDStr := fmt.Sprintf("user-%04d", userID)
+		currentTime := startTime
+
+		for eventNum := 1; eventNum <= eventsPerUser; eventNum++ {
+			// генерация ID эвента
+			eventIDStr := fmt.Sprintf("%08d-%04d-%04d-%04d-%012d",
+				0, 0, 0, 0, eventID)
+			eventID++
+			// генерация тайтла эвента
+			title := fmt.Sprintf("title_%s_%d", userIDStr, eventNum)
+			// генерация описания эвента
+			description := fmt.Sprintf("%s_desc", title)
+			// генерация случайной длительности эвента (1 мин - 2 суток)
+			duration := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second
+			// генерация случайного периода напоминания до эвента (1 мин - 2 суток)
+			reminder := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second
+			// эвент
+			event := storage.Event{
+				ID:          eventIDStr,
+				Title:       title,
+				StartTime:   currentTime,
+				Duration:    duration,
+				Description: description,
+				UserID:      userIDStr,
+				Reminder:    reminder,
+			}
+			m.events[eventIDStr] = event
+			// время для следующего события
+			currentTime = currentTime.Add(period)
+		}
+	}
 }
