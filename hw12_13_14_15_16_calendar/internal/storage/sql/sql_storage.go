@@ -25,7 +25,7 @@ type dbResp struct {
 	conflictUserId  string
 }
 
-func NewSqlStorage(ctx context.Context, psqlConfRef *model.PSQLConfig) storage.Storage {
+func NewSqlStorage(ctx context.Context, psqlConfRef *model.SQLConfig) storage.Storage {
 	logger := l.GetLogger(ctx)
 
 	dsn := psqlConfRef.DB.DSN()

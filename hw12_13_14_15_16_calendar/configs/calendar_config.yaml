@@ -7,7 +7,7 @@ logger:
 storage:
   # IN_MEMORY, SQL
   type: SQL
-  psql:
+  sql:
     db:
       host: localhost
       port: 5432
@@ -15,7 +15,9 @@ storage:
       user: ${DB_USER:=user}
       password: ${DB_PASSWORD:=password}
       sslmode: disable
-    migration: ./migrations
+    migration:
+      path: ./migrations
+      applying: true
     pool:
       conn:
         max_open: 10
@@ -23,7 +25,6 @@ storage:
         max_life_time: 3600
         max_idle_time: 3600
   init:
-    configure: true # только для sql, применение миграций при старте
     load_test_data: true # генерация и загрузка тестовых событий в хранилище при старте
 
 http:
