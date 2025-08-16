@@ -14,7 +14,7 @@ type Event struct {
 	StartTime   time.Time
 	Duration    time.Duration
 	Description string
-	UserID      string //UUID
+	UserID      string
 	Reminder    time.Duration
 }
 
