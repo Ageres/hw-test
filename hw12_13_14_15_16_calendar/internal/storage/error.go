@@ -43,7 +43,7 @@ func (serr *StorageError) Error() string {
 	return serr.Message
 }
 
-func NewStorageError(messages ...string) *StorageError {
+func NewStorageError(messages ...string) error {
 	message := joinString(messages)
 	if message == "" {
 		return nil
