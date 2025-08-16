@@ -68,9 +68,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	)
 
 	if err != nil {
-		serr.Message = fmt.Sprintf("add failed: %v", err)
-		serr.Cause = err
-		return nil, &serr
+		return nil, storage.NewStorageErrorWithCause(err, "failed to add event: %v")
 	}
 
 	switch serr.StatusCode {
@@ -117,16 +115,13 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	)
 
 	if err != nil {
-		serr.Message = fmt.Sprintf("update failed: %v", err)
-		serr.Cause = err
-		return &serr
+		return storage.NewStorageErrorWithCause(err, storage.ErrFailedUpdateEventTemplate)
 	}
 
 	switch statusCode {
 	case 200:
 		return nil
 	case 403:
-		//return storage.ErrUserConflict
 		serr.Message = fmt.Sprintf(storage.ErrUserConflictMsgTemplate, eventRef.UserID, serr.ConflictUserId)
 		return &serr
 	case 404:
@@ -147,14 +142,14 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 func (s *SqlStorage) Delete(ctx context.Context, id string) error {
 	res, err := s.db.Exec("DELETE FROM events WHERE id = $1", id)
 	if err != nil {
-		return fmt.Errorf("failed to delete event: %w", err)
+		return storage.NewStorageErrorWithCause(err, storage.ErrFailedDeleteEventTemplate)
 	}
 
 	rows, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("failed to get rows affected when deleting event: %w", err)
+		return storage.NewStorageErrorWithCause(err, "failed to get rows affected when deleting event: %v")
 	} else if rows == 0 {
-		return storage.ErrEventNotFound
+		return storage.NewStorageError(storage.ErrEventNotFoundMsg)
 	}
 	return nil
 }
@@ -190,7 +185,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, start, end time.Time) ([]st
         && tstzrange($1::timestamptz, $2::timestamptz)`,
 		start, end)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list events: %w", err)
+		return nil, storage.NewStorageErrorWithCause(err, storage.ErrFailedListEventTemplate)
 	}
 	defer rows.Close()
 
@@ -206,7 +201,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, start, end time.Time) ([]st
 		}
 
 		if err := rows.StructScan(&e); err != nil {
-			return nil, fmt.Errorf("failed to scan event: %w", err)
+			return nil, storage.NewStorageErrorWithCause(err, "failed to scan event: %v")
 		}
 
 		result = append(result, storage.Event{
@@ -221,7 +216,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, start, end time.Time) ([]st
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows iteration error: %w", err)
+		return nil, storage.NewStorageErrorWithCause(err, "rows iteration error: %v")
 	}
 
 	return result, nil
