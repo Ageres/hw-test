@@ -38,6 +38,9 @@ func (e *Event) ToNotification() *model.Notification {
 
 // проверка двух эвентов на пересечение времени
 func (e *Event) Overlaps(other *Event) bool {
+	if e == nil || other == nil {
+		return false
+	}
 	end1 := e.StartTime.Add(e.Duration)
 	end2 := other.StartTime.Add(other.Duration)
 	return e.StartTime.Before(end2) && end1.After(other.StartTime)
