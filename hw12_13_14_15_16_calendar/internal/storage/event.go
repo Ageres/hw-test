@@ -19,6 +19,9 @@ type Event struct {
 }
 
 func (e *Event) ToNotification() *model.Notification {
+	if e == nil {
+		return nil
+	}
 	return &model.Notification{
 		ID:    e.ID,
 		Title: e.Title,
