@@ -2,7 +2,6 @@ package memorystorage
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -30,13 +29,13 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 	defer s.mu.Unlock()
 
 	if _, exists := s.events[eventRef.ID]; exists {
-		return nil, storage.NewSimpleStorageError("failed to add event: event with this id already exists")
+		return nil, storage.NewSErrorWithTemplate("failed to add event, event with this id already exists: %s", eventRef.ID)
 	}
 
 	for _, existingEvent := range s.events {
 		if existingEvent.UserID == eventRef.UserID &&
 			existingEvent.Overlaps(eventRef) {
-			return nil, storage.NewStorageErrorWithMsgArr(fmt.Sprintf(storage.ErrDateBusyMsgTemplate, existingEvent.ID))
+			return nil, storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
 		}
 	}
 
@@ -67,7 +66,7 @@ func (s *MemoryStorage) Update(ctx context.Context, newEventRef *storage.Event) 
 		if existingEvent.UserID == newEventRef.UserID &&
 			existingEvent.ID != id &&
 			existingEvent.Overlaps(newEventRef) {
-			return storage.ErrDateBusy
+			return storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
 		}
 	}
 

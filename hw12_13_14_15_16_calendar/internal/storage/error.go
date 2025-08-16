@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	ErrEventIsNil    = NewSimpleStorageError("event is nil")
-	ErrEventNotFound = NewSimpleStorageError("events not found")
+	ErrEventIsNil    = NewSimpleSError("event is nil")
+	ErrEventNotFound = NewSimpleSError("events not found")
 	ErrDateBusy      = errors.New("time is already taken by another event")
 	ErrUserConflict  = errors.New("user is not the owner of the event")
 
@@ -47,19 +47,19 @@ func (serr *StorageError) Error() string {
 	return serr.Message
 }
 
-func NewSimpleStorageError(message string) error {
+func NewSimpleSError(message string) error {
 	return &StorageError{
 		Message: message,
 	}
 }
 
-func NewStorageErrorWithTemplate(template string, messages ...string) error {
+func NewSErrorWithTemplate(template string, messages ...string) error {
 	return &StorageError{
 		Message: fmt.Sprintf(template, messages),
 	}
 }
 
-func NewStorageErrorWithMsgArr(messages ...string) error {
+func NewSErrorWithMsgArr(messages ...string) error {
 	message := joinString(messages)
 	if message == "" {
 		return nil
@@ -69,7 +69,7 @@ func NewStorageErrorWithMsgArr(messages ...string) error {
 	}
 }
 
-func NewStorageErrorWithCause(template string, err error) error {
+func NewSErrorWithCause(template string, err error) error {
 	return &StorageError{
 		Message: fmt.Sprintf(template, err),
 		Cause:   err,

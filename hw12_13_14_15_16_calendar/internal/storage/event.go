@@ -47,7 +47,7 @@ func (e *Event) GenerateEventId() {
 func ValidateEventId(eventId string) error {
 	err := uuid.Validate(eventId)
 	if err != nil {
-		return NewStorageErrorWithCause(ErrFailedValidateEventIdTemplate, err)
+		return NewSErrorWithCause(ErrFailedValidateEventIdTemplate, err)
 	}
 	return nil
 }
@@ -62,7 +62,7 @@ func FullValidateEvent(e *Event) error {
 		errMsgs = append(errMsgs, fmt.Sprintf(ErrFailedValidateEventIdTemplate, err))
 	}
 	errMsgs = append(errMsgs, e.simpleValidate()...)
-	return NewStorageErrorWithMsgArr(errMsgs...)
+	return NewSErrorWithMsgArr(errMsgs...)
 }
 
 // без валидации ID
@@ -71,7 +71,7 @@ func ValidateEvent(e *Event) error {
 		return ErrEventIsNil
 	}
 	errMsgs := e.simpleValidate()
-	return NewStorageErrorWithMsgArr(errMsgs...)
+	return NewSErrorWithMsgArr(errMsgs...)
 }
 
 func (e *Event) simpleValidate() []string {
