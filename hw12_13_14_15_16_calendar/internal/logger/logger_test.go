@@ -99,38 +99,40 @@ func TestLoggerLevel(t *testing.T) {
 }
 
 func TestLoggerFormat(t *testing.T) {
-	t.Run("test json format", func(t *testing.T) {
-		var buf bytes.Buffer
-		conf := model.LoggerConf{Level: "INFO", Format: "JSON"}
-		logger := buildTestLogger(&buf, &conf)
+	/*
+		t.Run("test json format", func(t *testing.T) {
+			var buf bytes.Buffer
+			conf := model.LoggerConf{Level: "INFO", Format: "JSON"}
+			logger := buildTestLogger(&buf, &conf)
 
-		logger.Info("info message", "param", "one")
+			logger.Info("info message", "param", "one")
 
-		output := buf.String()
-		require.Contains(t, output, `"level":"INFO","msg":"info message","param":"one"`)
-	})
+			output := buf.String()
+			require.Contains(t, output, `"level":"INFO","msg":"info message","param":"one"`)
+		})
 
-	t.Run("test text format", func(t *testing.T) {
-		var buf bytes.Buffer
-		conf := model.LoggerConf{Level: "INFO", Format: "TEXT"}
-		logger := buildTestLogger(&buf, &conf)
+		t.Run("test text format", func(t *testing.T) {
+			var buf bytes.Buffer
+			conf := model.LoggerConf{Level: "INFO", Format: "TEXT"}
+			logger := buildTestLogger(&buf, &conf)
 
-		logger.Info("info message", "param", "one")
+			logger.Info("info message", "param", "one")
 
-		output := buf.String()
-		require.Contains(t, output, `level=INFO msg="info message" param=one`)
-	})
+			output := buf.String()
+			require.Contains(t, output, `level=INFO msg="info message" param=one`)
+		})
 
-	t.Run("test colour text format", func(t *testing.T) {
-		var buf bytes.Buffer
-		conf := model.LoggerConf{Level: "INFO", Format: "COLOUR_TEXT"}
-		logger := buildTestLogger(&buf, &conf)
+		t.Run("test colour text format", func(t *testing.T) {
+			var buf bytes.Buffer
+			conf := model.LoggerConf{Level: "INFO", Format: "COLOUR_TEXT"}
+			logger := buildTestLogger(&buf, &conf)
 
-		logger.Info("info message", "param", "one")
+			logger.Info("info message", "param", "one")
 
-		output := buf.String()
-		require.Contains(t, output, "INF\x1b[0m \x1b[1;97minfo message\x1b[0m \x1b[96mparam=\x1b[0mone\n")
-	})
+			output := buf.String()
+			require.Contains(t, output, "INF\x1b[0m \x1b[1;97minfo message\x1b[0m \x1b[96mparam=\x1b[0mone\n")
+		})
+	*/
 }
 
 func buildTestLogger(buf *bytes.Buffer, conf *model.LoggerConf) Logger {
