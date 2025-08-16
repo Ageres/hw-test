@@ -22,12 +22,8 @@ func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) st
 		events: make(map[string]storage.Event),
 	}
 	if storageConfRef.LoadTestData {
-		startTime := time.Date(2050, 1, 1, 0, 0, 0, 0, time.UTC)
-		period := time.Hour
-		userCount := 10
-		eventsPerUser := 5
-		storage.generateTestEvents(startTime, period, userCount, eventsPerUser)
-		logger.GetLogger(ctx).Info("test data loaded")
+		storage.generateTestEvents()
+		logger.GetLogger(ctx).Info("test event loaded")
 	}
 	return storage
 }
@@ -142,12 +138,13 @@ func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.
 	return result, nil
 }
 
-func (m *MemoryStorage) generateTestEvents(
-	startTime time.Time,
-	period time.Duration,
-	userCount int,
-	eventsPerUser int,
-) {
+func (m *MemoryStorage) generateTestEvents() {
+	// параметры генерации
+	startTime := time.Date(2050, 1, 1, 0, 0, 0, 0, time.UTC)
+	period := 12 * time.Hour
+	userCount := 100
+	eventsPerUser := 100
+
 	eventID := 0
 	for userID := 1; userID <= userCount; userID++ {
 		userIDStr := fmt.Sprintf("user-%04d", userID)
