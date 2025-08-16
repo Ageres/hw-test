@@ -42,10 +42,9 @@ func main() {
 
 	testStorage(ctx, storage)
 
-	/*
-		calendar := app.New(logg, storage)
+	//calendar := app.New(logg, storage)
 
-		server := internalhttp.NewServer(logg, calendar)
+	/*	server := internalhttp.NewServer(logg, calendar)
 
 		go func() {
 			<-ctx.Done()
