@@ -59,7 +59,7 @@ func (s *MemoryStorage) Update(ctx context.Context, newEventRef *storage.Event) 
 		return storage.ErrEventNotFound
 	}
 	if oldEvent.UserID != newEventRef.UserID {
-		return storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, oldEvent.UserID)
+		return storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, newEventRef.UserID, oldEvent.UserID)
 	}
 
 	for _, existingEvent := range s.events {
