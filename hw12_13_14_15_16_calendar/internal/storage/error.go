@@ -29,6 +29,10 @@ func (serr *StorageError) Error() string {
 	return serr.Message
 }
 
+func (serr *StorageError) Unwrap() error {
+	return serr.Cause
+}
+
 func NewSError(message string) error {
 	return &StorageError{
 		Message: message,
