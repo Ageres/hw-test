@@ -6,46 +6,6 @@ import (
 	"time"
 )
 
-type MyMiddleware struct {
-}
-
-func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-
-		ctx := r.Context()
-		ctx = s.logger.SetLoggerToCtx(ctx)
-		r.WithContext(ctx)
-
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			s.logger.WithError(err).Error("get remote ip address")
-			ip = r.RemoteAddr
-		}
-
-		userAgent := "-"
-		if len(r.UserAgent()) > 0 {
-			userAgent = r.UserAgent()
-		} else {
-			s.logger.Warn("get user agent", map[string]any{"userAgent": "not found"})
-		}
-
-		rw := &responseWriter{ResponseWriter: w}
-
-		next.ServeHTTP(rw, r)
-
-		s.logger.Info("request", map[string]any{
-			"ip":         ip,
-			"method":     r.Method,
-			"path":       r.URL.Path,
-			"proto":      r.Proto,
-			"status":     rw.status,
-			"latency":    time.Since(start).Milliseconds(),
-			"user_agent": userAgent,
-		})
-	})
-}
-
 type responseWriter struct {
 	http.ResponseWriter
 	status int
@@ -56,17 +16,36 @@ func (rw *responseWriter) WriteHeader(code int) {
 	rw.ResponseWriter.WriteHeader(code)
 }
 
-func (s *AppServer) helloHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("405 Method Not Allowed"))
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hello, World!"))
-}
+func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 
-func (s *AppServer) methodNotAllowed(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write([]byte("405 Method Not Allowed"))
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			ip = r.RemoteAddr
+			s.logger.WithError(err).Error("get remote ip address", map[string]interface{}{
+				"ip": ip,
+			})
+		}
+
+		userAgent := r.UserAgent()
+		if userAgent == "" {
+			userAgent = "-"
+			s.logger.Warn("get user agent", map[string]any{"userAgent": "not found"})
+		}
+
+		rw := &responseWriter{w, http.StatusOK}
+
+		next.ServeHTTP(rw, r)
+
+		s.logger.Info("request", map[string]any{
+			"ip":         ip,
+			"method":     r.Method,
+			"path":       r.URL.Path,
+			"protocol":   r.Proto,
+			"status":     rw.status,
+			"latency_ms": time.Since(start).Milliseconds(),
+			"user_agent": userAgent,
+		})
+	})
 }
