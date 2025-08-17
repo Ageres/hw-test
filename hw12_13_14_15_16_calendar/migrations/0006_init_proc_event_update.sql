@@ -1,20 +1,5 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE EXTENSION IF NOT EXISTS btree_gist;
-
-CREATE OR REPLACE FUNCTION immutable_tstzrange(start_time TIMESTAMPTZ, duration INTEGER)
-RETURNS TSTZRANGE
-LANGUAGE SQL IMMUTABLE
-AS $$
-    SELECT tstzrange(start_time, start_time + (duration * INTERVAL '1 second'))
-$$;
-
-CREATE INDEX IF NOT EXISTS idx_events_id_user ON events (id, user_id);
-CREATE INDEX IF NOT EXISTS idx_events_user_time ON events USING gist (
-    user_id,
-    immutable_tstzrange(start_time, duration)
-);
-
 CREATE OR REPLACE FUNCTION public.update_event(
     p_id UUID,
     p_title TEXT,
@@ -108,8 +93,4 @@ $$;
 -- +goose Down
 -- +goose StatementBegin
 DROP FUNCTION IF EXISTS public.update_event;
-DROP INDEX IF EXISTS idx_events_id_user;
-DROP INDEX IF EXISTS idx_events_user_time;
-DROP FUNCTION IF EXISTS immutable_tstzrange;
-DROP EXTENSION IF EXISTS btree_gist;
 -- +goose StatementEnd
