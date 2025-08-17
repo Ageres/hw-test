@@ -12,16 +12,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	/*
-		"fmt"
-		"strconv"
-		"sync"
-		"testing"
-		"time"
-		"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
-		"github.com/google/uuid"
-		"github.com/stretchr/testify/require"
-	*/)
+)
 
 func TestStorageAdd(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewEvents()
