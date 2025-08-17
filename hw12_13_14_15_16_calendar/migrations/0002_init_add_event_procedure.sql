@@ -1,10 +1,7 @@
--- создание хранимой процедуры добавления события
-
-BEGIN;
-
+-- +goose Up
+-- +goose StatementBegin
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
--- IMMUTABLE-функция для работы с диапазонами
 CREATE OR REPLACE FUNCTION immutable_tstzrange(start_time TIMESTAMPTZ, duration INTEGER)
 RETURNS TSTZRANGE
 LANGUAGE SQL IMMUTABLE
@@ -37,20 +34,14 @@ DECLARE
     v_event_id UUID;
     timeout_constraint TEXT := 'statement_timeout';
 BEGIN
-    -- таймаут выполнения
     SET LOCAL statement_timeout = '60s';
-    
-    -- инициализация выходных параметров
     event_id := '';
     conflict_event_id := '';
     RAISE LOG 'Add event attempt. User ID: %, Title: %', p_user_id, p_title;
 
-    -- старт транзакции
     BEGIN
-        -- блокировка пользователя для предотвращения гонки условий
         PERFORM pg_advisory_xact_lock(hashtext(p_user_id));
         
-        -- проверка конфликта времени с блокировкой найденных записей
         SELECT id INTO v_conflict_event_id
         FROM events
         WHERE user_id = p_user_id
@@ -67,7 +58,6 @@ BEGIN
             RETURN;
         END IF;
 
-        -- вставка события
         INSERT INTO events (
             title, 
             start_time, 
@@ -91,7 +81,7 @@ BEGIN
         error_message := 'SUCCESS';
         
     EXCEPTION
-        WHEN SQLSTATE '57014' THEN -- Код ошибки для statement_timeout
+        WHEN SQLSTATE '57014' THEN
             RAISE EXCEPTION 'Add event timeout for user: %', p_user_id;
             status_code := 504;
             error_message := 'TIMEOUT: Operation took too long';
@@ -102,7 +92,13 @@ BEGIN
     END;
 END;
 $$;
+-- +goose StatementEnd
 
-COMMENT ON FUNCTION public.add_event IS 'Добавляет новое событие с проверкой временных конфликтов';
-
-COMMIT;
+-- +goose Down
+-- +goose StatementBegin
+DROP FUNCTION IF EXISTS public.add_event;
+DROP INDEX IF EXISTS idx_events_id_user;
+DROP INDEX IF EXISTS idx_events_user_time;
+DROP FUNCTION IF EXISTS immutable_tstzrange;
+DROP EXTENSION IF EXISTS btree_gist;
+-- +goose StatementEnd
