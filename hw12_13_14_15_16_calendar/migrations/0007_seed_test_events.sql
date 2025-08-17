@@ -50,6 +50,5 @@ DROP FUNCTION seed_test_events;
 
 -- +goose Down
 -- +goose StatementBegin
--- Для отката тестовых данных можно очистить таблицу
 TRUNCATE TABLE events;
 -- +goose StatementEnd
