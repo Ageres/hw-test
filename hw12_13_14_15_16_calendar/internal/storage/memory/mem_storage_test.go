@@ -3,6 +3,7 @@ package memorystorage
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -616,6 +617,40 @@ func TestStorageListEvents(t *testing.T) {
 
 }
 
+func TestStorageConcurrent(t *testing.T) {
+	dto := newTestMemoryStorageDto().buildNewStorage()
+	var wg sync.WaitGroup
+
+	// concurrent adds
+	for i := 0; i < 10000; i++ {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			event := storage.Event{
+				Title:     fmt.Sprintf("Event %d", idx),
+				StartTime: time.Now().Add(time.Duration(idx+1) * time.Hour),
+				Duration:  30 * time.Minute,
+				UserID:    uuid.New().String(),
+			}
+			_, err := dto.storage.Add(dto.testContext, &event)
+			require.NoError(t, err)
+		}(i)
+	}
+
+	// concurrent reads
+	for i := 0; i < 500; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, err := dto.storage.ListDay(dto.testContext, time.Now())
+			require.NoError(t, err)
+		}()
+	}
+
+	wg.Wait()
+	require.Len(t, dto.storage.events, 10000)
+}
+
 /*
 func TestStorageConcurrentAdd(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewStorage()
@@ -732,27 +767,25 @@ func TestGenerateTestEvents(t *testing.T) {
 	storage := &MemoryStorage{
 		events: make(map[string]storage.Event),
 	}
-
-	/*
-		startTime := time.Date(2050, 1, 1, 0, 0, 0, 0, time.UTC)
-		period := time.Hour
-		userCount := 10
-		eventsPerUser := 5
-	*/
-
 	storage.generateTestEvents()
+
+	require.NotEmpty(t, storage.events)
 
 	count := 0
 	for _, event := range storage.events {
-		/*
-			if count >= 3 {
-				break
-			}
-		*/
-		fmt.Printf("Event: %+v\n", event)
-		count++
-	}
+		require.NotEmpty(t, event.ID)
+		require.NotEmpty(t, event.Title)
+		require.NotEmpty(t, event.UserID)
+		require.True(t, event.Duration > 0)
 
+		_, err := uuid.Parse(event.ID)
+		require.NoError(t, err)
+
+		count++
+		if count >= 3 {
+			break
+		}
+	}
 }
 
 // -------------------------------------------------------------------------------------
