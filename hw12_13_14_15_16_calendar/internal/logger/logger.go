@@ -38,11 +38,14 @@ type Logger interface {
 	Info(msg string, mapArgs ...map[string]any)
 	Warn(msg string, mapArgs ...map[string]any)
 	Error(msg string, mapArgs ...map[string]any)
+	With(fields map[string]any) Logger
+	SetLoggerToCtx(ctx context.Context) context.Context
 }
 
 type logger struct {
 	slogLogger    *slog.Logger
 	loggerConfRef *model.LoggerConf
+	fields        []any
 }
 
 func (l *logger) Debug(msg string, mapArgs ...map[string]any) {
@@ -65,6 +68,34 @@ func (l *logger) Error(msg string, mapArgs ...map[string]any) {
 	l.slogLogger.Error(msg, args...)
 }
 
+func (l *logger) With(fields map[string]any) Logger {
+	args := mapToArr(fields)
+	newLogger := l.slogLogger.With(args...)
+
+	return &logger{
+		slogLogger:    newLogger,
+		loggerConfRef: l.loggerConfRef,
+		fields:        append(l.fields, args...), // Сохраняем поля для возможного дальнейшего использования
+	}
+}
+
+func (l *logger) SetLoggerToCtx(ctx context.Context) context.Context {
+	ctx = context.WithValue(ctx, CurrentLoggerKey, l)
+	return ctx
+}
+
+func mapToArr(arrMapArgs ...map[string]any) []any {
+	res := make([]any, 0)
+	for _, mapArg := range arrMapArgs {
+		for k, v := range mapArg {
+			res = append(res, k)
+			res = append(res, v)
+		}
+	}
+
+	return res
+}
+
 func SetNewLogger(ctx context.Context, loggerConfRef *model.LoggerConf, output io.Writer) context.Context {
 	if output == nil {
 		output = os.Stdout
@@ -84,18 +115,6 @@ func SetNewLogger(ctx context.Context, loggerConfRef *model.LoggerConf, output i
 	return ctx
 }
 
-func mapToArr(arrMapArgs ...map[string]any) []any {
-	res := make([]any, 0)
-	for _, mapArg := range arrMapArgs {
-		for k, v := range mapArg {
-			res = append(res, k)
-			res = append(res, v)
-		}
-	}
-
-	return res
-}
-
 func GetLogger(ctx context.Context) Logger {
 	value := ctx.Value(CurrentLoggerKey)
 	if value != nil {
@@ -107,11 +126,6 @@ func GetLogger(ctx context.Context) Logger {
 
 func SetDefaultLogger(ctx context.Context) context.Context {
 	return SetNewLogger(ctx, &model.LoggerConf{}, nil)
-}
-
-func SetLogger(ctx context.Context, logger Logger) context.Context {
-	ctx = context.WithValue(ctx, CurrentLoggerKey, logger)
-	return ctx
 }
 
 func getLoggerLevel(logLevel string) slog.Level {

@@ -4,8 +4,6 @@ import (
 	"net"
 	"net/http"
 	"time"
-
-	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 )
 
 type MyMiddleware struct {
@@ -16,7 +14,7 @@ func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
 		start := time.Now()
 
 		ctx := r.Context()
-		ctx = lg.SetLogger(ctx, s.logger)
+		ctx = s.logger.SetLoggerToCtx(ctx)
 		r.WithContext(ctx)
 
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -37,8 +35,7 @@ func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(rw, r)
 
 		s.logger.Info("request", map[string]any{
-			"ip": ip,
-			//"time":       time.Now().Format("02/Jan/2006:15:04:05 -0700"),
+			"ip":         ip,
 			"method":     r.Method,
 			"path":       r.URL.Path,
 			"proto":      r.Proto,
