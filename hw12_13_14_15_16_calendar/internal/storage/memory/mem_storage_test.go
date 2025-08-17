@@ -132,18 +132,38 @@ func TestStorageAdd(t *testing.T) {
 		require.True(t, exists)
 		require.Equal(t, addedEvent, &storedEvent)
 	})
-	/*
 
+	t.Run("date busy error when adding", func(t *testing.T) {
+		dto.buildNewStorage()
+		_, err := dto.storage.Add(dto.testContext, &events[0])
+		require.NoError(t, err)
 
-		t.Run("date busy error when adding", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
+		_, err = dto.storage.Add(dto.testContext, &events[3])
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "time is already taken")
+		require.Len(t, dto.storage.events, 1)
+	})
 
-			err := dto.storage.Add(&events[3])
-			require.ErrorIs(t, err, storage.ErrDateBusy)
-			require.Len(t, dto.storage.events, 1)
-		})
-	*/
+	t.Run("generated ID is valid UUID", func(t *testing.T) {
+		dto.buildNewStorage()
+
+		oldGenerator := storage.FnUuidGenerator
+		defer func() { storage.FnUuidGenerator = oldGenerator }()
+
+		fixedUUID := uuid.MustParse("123e4567-e89b-12d3-a456-426614174000")
+		storage.FnUuidGenerator = func() uuid.UUID { return fixedUUID }
+
+		event := storage.Event{
+			Title:     "Test Event",
+			StartTime: time.Now().Add(1 * time.Hour),
+			Duration:  30 * time.Minute,
+			UserID:    "test-user",
+		}
+
+		result, err := dto.storage.Add(dto.testContext, &event)
+		require.NoError(t, err)
+		require.Equal(t, fixedUUID.String(), result.ID)
+	})
 }
 
 /*
