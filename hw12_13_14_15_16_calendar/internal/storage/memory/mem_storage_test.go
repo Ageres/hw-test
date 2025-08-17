@@ -234,25 +234,25 @@ func TestStorageUpdate(t *testing.T) {
 		require.ErrorIs(t, err, storage.ErrEventIsNil)
 	})
 
+	t.Run("validation event error when updating", func(t *testing.T) {
+		dto.buildNewStorage()
+		_, err := dto.storage.Add(dto.testContext, &events[0])
+		require.NoError(t, err)
+
+		invalidEvent := events[4]
+		invalidEvent.ID = events[0].ID
+		err = dto.storage.Update(dto.testContext, &invalidEvent)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "title is empty")
+	})
+
+	t.Run("event not found error when updating", func(t *testing.T) {
+		dto.buildNewStorage()
+		err := dto.storage.Update(dto.testContext, &events[0])
+		require.ErrorIs(t, err, storage.ErrEventNotFound)
+	})
+
 	/*
-
-		t.Run("validation event error when updating", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
-
-			err := dto.storage.Update("", &events[4])
-			require.Error(t, err)
-			require.Equal(t, err.Error(), "validate event id: invalid UUID length: 0; title is empty; event time is expired; user id is empty")
-			require.Len(t, dto.storage.events, 1)
-		})
-
-		t.Run("event not found error when updating", func(t *testing.T) {
-			dto.buildNewStorage()
-
-			err := dto.storage.Update(events[0].ID, &events[0])
-			require.ErrorIs(t, err, storage.ErrEventNotFound)
-			require.Len(t, dto.storage.events, 0)
-		})
 
 		t.Run("user conflict error when updating", func(t *testing.T) {
 			dto.buildNewStorage()
