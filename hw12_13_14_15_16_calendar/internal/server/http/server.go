@@ -37,7 +37,7 @@ func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) S
 
 	s.server.Handler = s.createRouter()
 
-	s.logger.Info("server configured", map[string]any{"address": address})
+	s.logger.Info("server configured")
 	return s
 }
 
