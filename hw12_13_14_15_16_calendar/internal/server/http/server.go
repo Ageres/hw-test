@@ -17,7 +17,7 @@ type Server interface {
 type AppServer struct {
 	httpServer *http.Server
 	app        Application
-	Logger     lg.Logger
+	logger     lg.Logger
 }
 
 type Application interface { // TODO
@@ -37,7 +37,7 @@ func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) S
 			Addr: address,
 		},
 		app:    app,
-		Logger: loggger,
+		logger: loggger,
 	}
 	server := appServer.configureMux()
 	logger.GetLogger(ctx).Info("server configured", map[string]any{"address": address})

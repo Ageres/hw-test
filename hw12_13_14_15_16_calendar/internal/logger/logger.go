@@ -65,7 +65,7 @@ func (l *logger) Error(msg string, mapArgs ...map[string]any) {
 	l.slogLogger.Error(msg, args...)
 }
 
-func SetLogger(ctx context.Context, loggerConfRef *model.LoggerConf, output io.Writer) context.Context {
+func SetNewLogger(ctx context.Context, loggerConfRef *model.LoggerConf, output io.Writer) context.Context {
 	if output == nil {
 		output = os.Stdout
 	}
@@ -106,7 +106,12 @@ func GetLogger(ctx context.Context) Logger {
 }
 
 func SetDefaultLogger(ctx context.Context) context.Context {
-	return SetLogger(ctx, &model.LoggerConf{}, nil)
+	return SetNewLogger(ctx, &model.LoggerConf{}, nil)
+}
+
+func SetLogger(ctx context.Context, logger Logger) context.Context {
+	ctx = context.WithValue(ctx, CurrentLoggerKey, logger)
+	return ctx
 }
 
 func getLoggerLevel(logLevel string) slog.Level {

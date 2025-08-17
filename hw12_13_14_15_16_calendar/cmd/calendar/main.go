@@ -37,7 +37,7 @@ func main() {
 	configRef := config.NewConfig(cliArgs.PathToConfigFile)
 	log.Println("config:", logger.MarshalAny(configRef))
 
-	ctx = logger.SetLogger(ctx, configRef.Logger, nil)
+	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 

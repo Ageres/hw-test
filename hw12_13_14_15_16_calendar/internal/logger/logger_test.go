@@ -141,6 +141,6 @@ func TestLoggerFormat(t *testing.T) {
 
 func buildTestLogger(buf *bytes.Buffer, conf *model.LoggerConf) logger.Logger {
 	ctx := context.Background()
-	ctx = logger.SetLogger(ctx, conf, buf)
+	ctx = logger.SetNewLogger(ctx, conf, buf)
 	return logger.GetLogger(ctx)
 }
