@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	//"os"
 	"os/signal"
@@ -11,8 +12,10 @@ import (
 
 	//"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 
 	//"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	//internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
@@ -40,29 +43,28 @@ func main() {
 
 	testStorage(ctx, storage)
 
-	//calendar := app.New(logg, storage)
+	calendar := app.New(ctx, storage)
 
-	/*	server := internalhttp.NewServer(logg, calendar)
+	server := internalhttp.NewServer(ctx, calendar)
 
-		go func() {
-			<-ctx.Done()
+	go func() {
+		<-ctx.Done()
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-			defer cancel()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
 
-			if err := server.Stop(ctx); err != nil {
-				logg.Error("failed to stop http server: " + err.Error())
-			}
-		}()
-
-		logg.Info("calendar is running...")
-
-		if err := server.Start(ctx); err != nil {
-			logg.Error("failed to start http server: " + err.Error())
-			cancel()
-			os.Exit(1) //nolint:gocritic
+		if err := server.Stop(ctx); err != nil {
+			logger.GetLogger(ctx).Error("failed to stop http server: " + err.Error())
 		}
-	*/
+	}()
+
+	logger.GetLogger(ctx).Info("calendar is running...")
+
+	if err := server.Start(ctx); err != nil {
+		logger.GetLogger(ctx).Error("failed to start http server: " + err.Error())
+		cancel()
+		os.Exit(1) //nolint:gocritic
+	}
 
 }
 
