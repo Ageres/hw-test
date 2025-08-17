@@ -1,7 +1,5 @@
--- создание таблицы событий и ее индексов
-
-BEGIN;
-
+-- +goose Up
+-- +goose StatementBegin
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
@@ -15,7 +13,6 @@ CREATE TABLE events (
     reminder    INTEGER     CHECK (reminder IS NULL OR reminder > 0)
 );
 
--- IMMUTABLE-функция для работы с диапазонами
 CREATE OR REPLACE FUNCTION immutable_tstzrange(start_time TIMESTAMPTZ, duration INTEGER)
 RETURNS TSTZRANGE
 LANGUAGE SQL IMMUTABLE
@@ -28,5 +25,12 @@ CREATE INDEX idx_start_time_idx ON events (start_time);
 CREATE INDEX idx_user_id_start_time ON events (user_id, start_time);
 CREATE INDEX idx_events_time_range ON events USING gist 
     (user_id, immutable_tstzrange(start_time, duration));
+-- +goose StatementEnd
 
-COMMIT;
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS events;
+DROP FUNCTION IF EXISTS immutable_tstzrange;
+DROP EXTENSION IF EXISTS "uuid-ossp";
+DROP EXTENSION IF EXISTS btree_gist;
+-- +goose StatementEnd
