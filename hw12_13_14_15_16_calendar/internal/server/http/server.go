@@ -7,8 +7,14 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 )
 
-type Server struct {
+type Server interface {
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
+}
+
+type MyServer struct {
 	httpServer *http.Server
+	app        Application
 }
 
 type Logger interface { // TODO
@@ -18,26 +24,23 @@ type Logger interface { // TODO
 type Application interface { // TODO
 }
 
-func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) *Server {
+func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", helloHandler)
-	return &Server{
+	mux.HandleFunc("/", notFoundHandler)
+	return &MyServer{
 		httpServer: &http.Server{
 			Addr:    httpConf.Server.GetAddress(),
 			Handler: loggingMiddleware(mux),
 		},
+		app: app,
 	}
 }
 
-func (s *Server) Start(ctx context.Context) error {
-	// TODO
-	//<-ctx.Done()
+func (s *MyServer) Start(ctx context.Context) error {
 	return s.httpServer.ListenAndServe()
 }
 
-func (s *Server) Stop(ctx context.Context) error {
-	// TODO
+func (s *MyServer) Stop(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }
-
-// TODO
