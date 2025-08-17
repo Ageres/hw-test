@@ -13,7 +13,7 @@ type Logger interface { // TODO
 type Application interface { // TODO
 }
 
-func NewServer(logger Logger, app Application) *Server {
+func NewServer(ctx context.Context, app Application) *Server {
 	return &Server{}
 }
 
