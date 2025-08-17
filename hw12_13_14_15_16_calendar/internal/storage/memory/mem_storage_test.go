@@ -321,7 +321,7 @@ func TestStorageUpdate(t *testing.T) {
 
 func TestStorageDelete(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewEvents()
-	//events := dto.events
+	events := dto.events
 
 	t.Run("delete event", func(t *testing.T) {
 		dto.buildNewStorage()
@@ -379,100 +379,155 @@ func TestStorageDelete(t *testing.T) {
 		require.False(t, exists, "First event should be deleted")
 	})
 
-	/*
-		t.Run("validation id error when deleting", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
-			require.Len(t, dto.storage.events, 1)
+	t.Run("validation id error when deleting", func(t *testing.T) {
+		dto.buildNewStorage()
+		_, err := dto.storage.Add(dto.testContext, &events[0])
+		require.NoError(t, err)
 
-			err := dto.storage.Delete("")
-			require.Error(t, err)
-			require.Equal(t, err.Error(), "validate event id: invalid UUID length: 0")
-			require.Len(t, dto.storage.events, 1)
-		})
+		err = dto.storage.Delete(dto.testContext, "")
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "validate event id")
+	})
 
-		t.Run("event not found error when deleting", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[1]))
-			require.NoError(t, dto.storage.Add(&events[2]))
-			require.Len(t, dto.storage.events, 2)
-			err := dto.storage.Delete(events[0].ID)
-			require.ErrorIs(t, err, storage.ErrEventNotFound)
-			require.Len(t, dto.storage.events, 2)
-		})*/
+	t.Run("event not found error when deleting", func(t *testing.T) {
+		dto.buildNewStorage()
+		err := dto.storage.Delete(dto.testContext, events[0].ID)
+		require.ErrorIs(t, err, storage.ErrEventNotFound)
+	})
 }
 
-/*
 func TestStorageListEvents(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewEvents()
-	events := dto.events
+	//events := dto.events
 
 	t.Run("list day events", func(t *testing.T) {
 		dto.buildNewStorage()
-		require.Len(t, dto.storage.events, 0)
-		require.NoError(t, dto.storage.Add(&events[0]))
-		require.NoError(t, dto.storage.Add(&events[1]))
-		require.NoError(t, dto.storage.Add(&events[2]))
-		require.Len(t, dto.storage.events, 3)
 
-		dayEvents, err := dto.storage.ListDay(dto.now)
+		oldGenerator := storage.FnUuidGenerator
+		defer func() { storage.FnUuidGenerator = oldGenerator }()
+
+		fixedUUIDs := []uuid.UUID{
+			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+		}
+		callCount := 0
+		storage.FnUuidGenerator = func() uuid.UUID {
+			u := fixedUUIDs[callCount]
+			callCount++
+			return u
+		}
+
+		startDate := time.Now().Add(1 * time.Hour)
+		event1 := storage.Event{
+			Title:     "Morning Event",
+			StartTime: time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 10, 0, 0, 0, startDate.Location()),
+			Duration:  1 * time.Hour,
+			UserID:    "user-1",
+		}
+
+		event2 := storage.Event{
+			Title:     "Evening Event",
+			StartTime: time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 18, 0, 0, 0, startDate.Location()),
+			Duration:  2 * time.Hour,
+			UserID:    "user-1",
+		}
+
+		addedEvent1, err := dto.storage.Add(dto.testContext, &event1)
 		require.NoError(t, err)
-		require.Len(t, dayEvents, 3)
-
-		require.NoError(t, dto.storage.Delete(events[0].ID))
-		require.NoError(t, dto.storage.Delete(events[1].ID))
-		require.Len(t, dto.storage.events, 1)
-
-		dayEvents, err = dto.storage.ListDay(dto.now)
+		addedEvent2, err := dto.storage.Add(dto.testContext, &event2)
 		require.NoError(t, err)
-		require.Equal(t, dayEvents[0].ID, events[2].ID)
-	})
 
-	t.Run("list week events", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.NoError(t, dto.storage.Add(&events[0]))
-		require.NoError(t, dto.storage.Add(&events[1]))
-		require.NoError(t, dto.storage.Add(&events[6]))
-
-		weekEvents, err := dto.storage.ListWeek(dto.now)
+		dayEvents, err := dto.storage.ListDay(dto.testContext, startDate)
 		require.NoError(t, err)
-		require.Len(t, weekEvents, 2)
+		require.Len(t, dayEvents, 2)
 
-		for _, event := range weekEvents {
-			require.NotEqual(t, "Next Week Event", event.Title)
+		for _, returnedEvent := range dayEvents {
+			switch returnedEvent.ID {
+			case addedEvent1.ID:
+				require.Equal(t, event1.Title, returnedEvent.Title)
+				require.Equal(t, event1.StartTime, returnedEvent.StartTime)
+				require.Equal(t, event1.Duration, returnedEvent.Duration)
+				require.Equal(t, event1.UserID, returnedEvent.UserID)
+			case addedEvent2.ID:
+				require.Equal(t, event2.Title, returnedEvent.Title)
+				require.Equal(t, event2.StartTime, returnedEvent.StartTime)
+				require.Equal(t, event2.Duration, returnedEvent.Duration)
+				require.Equal(t, event2.UserID, returnedEvent.UserID)
+			default:
+				t.Fatalf("Unexpected event ID: %s", returnedEvent.ID)
+			}
 		}
 	})
 
-	t.Run("event spans week boundary", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.NoError(t, dto.storage.Add(&events[7]))
+	/*
+		t.Run("list day events", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.Len(t, dto.storage.events, 0)
+			require.NoError(t, dto.storage.Add(&events[0]))
+			require.NoError(t, dto.storage.Add(&events[1]))
+			require.NoError(t, dto.storage.Add(&events[2]))
+			require.Len(t, dto.storage.events, 3)
 
-		weekEvents, err := dto.storage.ListWeek(dto.now)
-		require.NoError(t, err)
-		require.Len(t, weekEvents, 1)
-	})
+			dayEvents, err := dto.storage.ListDay(dto.now)
+			require.NoError(t, err)
+			require.Len(t, dayEvents, 3)
 
-	t.Run("list month events", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.NoError(t, dto.storage.Add(&events[0]))
-		require.NoError(t, dto.storage.Add(&events[1]))
-		require.NoError(t, dto.storage.Add(&events[8]))
+			require.NoError(t, dto.storage.Delete(events[0].ID))
+			require.NoError(t, dto.storage.Delete(events[1].ID))
+			require.Len(t, dto.storage.events, 1)
 
-		monthEvents, err := dto.storage.ListMonth(dto.now)
-		require.NoError(t, err)
-		require.Len(t, monthEvents, 2)
-	})
+			dayEvents, err = dto.storage.ListDay(dto.now)
+			require.NoError(t, err)
+			require.Equal(t, dayEvents[0].ID, events[2].ID)
+		})
 
-	t.Run("event spans month boundary", func(t *testing.T) {
-		dto.buildNewStorage()
-		require.NoError(t, dto.storage.Add(&events[9]))
+		t.Run("list week events", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.NoError(t, dto.storage.Add(&events[0]))
+			require.NoError(t, dto.storage.Add(&events[1]))
+			require.NoError(t, dto.storage.Add(&events[6]))
 
-		monthEvents, err := dto.storage.ListMonth(dto.now)
-		require.NoError(t, err)
-		require.Len(t, monthEvents, 1)
-	})
+			weekEvents, err := dto.storage.ListWeek(dto.now)
+			require.NoError(t, err)
+			require.Len(t, weekEvents, 2)
+
+			for _, event := range weekEvents {
+				require.NotEqual(t, "Next Week Event", event.Title)
+			}
+		})
+
+		t.Run("event spans week boundary", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.NoError(t, dto.storage.Add(&events[7]))
+
+			weekEvents, err := dto.storage.ListWeek(dto.now)
+			require.NoError(t, err)
+			require.Len(t, weekEvents, 1)
+		})
+
+		t.Run("list month events", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.NoError(t, dto.storage.Add(&events[0]))
+			require.NoError(t, dto.storage.Add(&events[1]))
+			require.NoError(t, dto.storage.Add(&events[8]))
+
+			monthEvents, err := dto.storage.ListMonth(dto.now)
+			require.NoError(t, err)
+			require.Len(t, monthEvents, 2)
+		})
+
+		t.Run("event spans month boundary", func(t *testing.T) {
+			dto.buildNewStorage()
+			require.NoError(t, dto.storage.Add(&events[9]))
+
+			monthEvents, err := dto.storage.ListMonth(dto.now)
+			require.NoError(t, err)
+			require.Len(t, monthEvents, 1)
+		})
+	*/
 }
 
+/*
 func TestStorageConcurrentAdd(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewStorage()
 	var wg sync.WaitGroup
