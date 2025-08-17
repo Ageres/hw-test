@@ -41,7 +41,7 @@ func main() {
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
-	testStorage(ctx, storage)
+	//testStorage(ctx, storage)
 
 	calendar := app.New(ctx, storage)
 
