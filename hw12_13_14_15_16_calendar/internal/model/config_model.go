@@ -70,9 +70,8 @@ type HttpConf struct {
 }
 
 type ServerConf struct {
-	Host string    `yaml:"host" validate:"required"`
-	Port int       `yaml:"port" validate:"required,gt=0"`
-	Path *PathConf `yaml:"path" validate:"required"`
+	Host string `yaml:"host" validate:"required"`
+	Port int    `yaml:"port" validate:"required,gt=0"`
 }
 
 func (sc *ServerConf) GetAddress() string {
