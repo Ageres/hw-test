@@ -156,6 +156,9 @@ type JsonError struct {
 
 // использовать только для логирования объектов
 func MarshalAny(v any) string {
+	if v == nil {
+		return ""
+	}
 	data, err := json.Marshal(v)
 	if err != nil {
 		errMetadata := JsonError{
