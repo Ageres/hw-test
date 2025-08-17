@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 )
 
@@ -16,6 +17,7 @@ type Server interface {
 type AppServer struct {
 	httpServer *http.Server
 	app        Application
+	Logger     lg.Logger
 }
 
 type Application interface { // TODO
@@ -27,27 +29,19 @@ type AppHandler struct {
 	Handler func(w http.ResponseWriter, r *http.Request) `json:"-"`
 }
 
-var appHandlers = []AppHandler{
-	{"get", "/hello", helloHandler},
-	{"any other", "/", notFoundHandler},
-}
-
 func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) Server {
 	address := httpConf.Server.GetAddress()
-	mux := configureMux()
-
-	server := AppServer{
+	loggger := lg.GetLogger(ctx)
+	appServer := AppServer{
 		httpServer: &http.Server{
-			Addr:    address,
-			Handler: loggingMiddleware(mux),
+			Addr: address,
 		},
-		app: app,
+		app:    app,
+		Logger: loggger,
 	}
-	logger.GetLogger(ctx).Info("server configured", map[string]any{
-		"Addr":     address,
-		"handlers": appHandlers,
-	})
-	return &server
+	server := appServer.configureMux()
+	logger.GetLogger(ctx).Info("server configured", map[string]any{"address": address})
+	return server
 }
 
 func (s *AppServer) Start(ctx context.Context) error {
@@ -58,10 +52,10 @@ func (s *AppServer) Stop(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }
 
-func configureMux() *http.ServeMux {
+func (s *AppServer) configureMux() Server {
 	mux := http.NewServeMux()
-	for _, handler := range appHandlers {
-		mux.HandleFunc(handler.Path, handler.Handler)
-	}
-	return mux
+	mux.HandleFunc("/hello", s.helloHandler)
+	mux.HandleFunc("/", s.methodNotAllowed)
+	s.httpServer.Handler = s.loggingMiddleware(mux)
+	return s
 }

@@ -7,23 +7,23 @@ import (
 type MyMiddleware struct {
 }
 
-func loggingMiddleware(next http.Handler) http.Handler {
+func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 	})
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
+func (s *AppServer) helloHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("404 Not Found"))
+		w.Write([]byte("405 Method Not Allowed"))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Hello, World!"))
 }
 
-func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("404 Not Found"))
+func (s *AppServer) methodNotAllowed(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	w.Write([]byte("405 Method Not Allowed"))
 }
