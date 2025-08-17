@@ -54,14 +54,14 @@ func main() {
 		defer cancel()
 
 		if err := server.Stop(ctx); err != nil {
-			logger.GetLogger(ctx).Error("failed to stop http server: " + err.Error())
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop http server")
 		}
 	}()
 
 	logger.GetLogger(ctx).Info("calendar is running...")
 
 	if err := server.Start(ctx); err != nil {
-		logger.GetLogger(ctx).Error("failed to start http server: " + err.Error())
+		logger.GetLogger(ctx).WithError(err).Error("failed to start http server")
 		cancel()
 		os.Exit(1)
 	}
