@@ -32,9 +32,7 @@ func NewSqlStorage(ctx context.Context, storageConfRef *model.StorageConf) stora
 	dsn := sqlConfRef.DB.DSN()
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
-		logger.Error("failed to load driver", map[string]any{
-			"error": err,
-		})
+		logger.WithError(err).Error("failed to load driver")
 		os.Exit(1)
 	}
 
@@ -45,9 +43,7 @@ func NewSqlStorage(ctx context.Context, storageConfRef *model.StorageConf) stora
 
 	err = db.Ping()
 	if err != nil {
-		logger.Error("failed to connect to db", map[string]any{
-			"error": err,
-		})
+		logger.WithError(err).Error("failed to connect to db")
 		os.Exit(1)
 	}
 
@@ -65,7 +61,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	logger.Info("add event", map[string]any{"event": lg.MarshalAny(eventRef)})
 
 	if err := storage.ValidateEvent(eventRef); err != nil {
-		logger.Error("add event", map[string]any{"error": err})
+		logger.WithError(err).Error("add event")
 		return nil, err
 	}
 
@@ -89,7 +85,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 
 	if err != nil {
 		err = storage.NewSError(ErrDatabaseMsg, err)
-		logger.Error("add event", map[string]any{"error": err})
+		logger.WithError(err).Error("add event", map[string]any{"error": err})
 		return nil, err
 	}
 
@@ -102,17 +98,11 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		return &savedEvent, nil
 	case 409:
 		err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventId)
-		logger.Error("add event", map[string]any{
-			"databaseResponse": dbResp,
-			"error":            err,
-		})
+		logger.WithError(err).Error("add event", map[string]any{"databaseResponse": dbResp})
 		return nil, err
 	default:
 		err := storage.NewSErrorWithTemplate(ErrDatabaseMsg, dbResp.errorMessage)
-		logger.Error("add event", map[string]any{
-			"databaseResponse": dbResp,
-			"error":            err,
-		})
+		logger.WithError(err).Error("add event", map[string]any{"databaseResponse": dbResp})
 		return nil, err
 	}
 }
@@ -122,7 +112,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	logger.Info("update event", map[string]any{"event": lg.MarshalAny(eventRef)})
 
 	if err := storage.FullValidateEvent(eventRef); err != nil {
-		logger.Error("update event", map[string]any{"error": err})
+		logger.WithError(err).Error("update event")
 		return err
 	}
 
@@ -146,7 +136,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 
 	if err != nil {
 		err = storage.NewSError(ErrDatabaseMsg, err)
-		logger.Error("update event", map[string]any{"error": err})
+		logger.WithError(err).Error("update event")
 		return err
 	}
 
@@ -155,24 +145,15 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		return nil
 	case 403:
 		err := storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, eventRef.UserID, dbResp.conflictUserId)
-		logger.Error("update event", map[string]any{
-			"databaseResponse": dbResp,
-			"error":            err,
-		})
+		logger.WithError(err).Error("update event", map[string]any{"databaseResponse": dbResp})
 		return err
 	case 404:
 		err := storage.ErrEventNotFound
-		logger.Error("update event", map[string]any{
-			"databaseResponse": dbResp,
-			"error":            err,
-		})
+		logger.WithError(err).Error("update event", map[string]any{"databaseResponse": dbResp})
 		return err
 	case 409:
 		err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventId)
-		logger.Error("update event", map[string]any{
-			"databaseResponse": dbResp,
-			"error":            err,
-		})
+		logger.WithError(err).Error("update event", map[string]any{"databaseResponse": dbResp})
 		return err
 	default:
 		return storage.NewSErrorWithTemplate(ErrDatabaseMsg, dbResp.errorMessage)
@@ -186,14 +167,14 @@ func (s *SqlStorage) Delete(ctx context.Context, id string) error {
 	res, err := s.db.Exec("DELETE FROM events WHERE id = $1", id)
 	if err != nil {
 		err = storage.NewSError(ErrDatabaseMsg, err)
-		logger.Error("delete event", map[string]any{"error": err})
+		logger.WithError(err).Error("delete event")
 		return err
 	}
 
 	rows, err := res.RowsAffected()
 	if err != nil {
 		err = storage.NewSError("failed to get rows affected when deleting event", err)
-		logger.Error("delete event", map[string]any{"error": err})
+		logger.WithError(err).Error("delete event")
 		return err
 	} else if rows == 0 {
 		return storage.ErrEventNotFound
@@ -248,7 +229,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 		startTime, endTime)
 	if err != nil {
 		err = storage.NewSError(ErrDatabaseMsg, err)
-		logger.Error("list events", map[string]any{"error": err})
+		logger.WithError(err).Error("list events")
 		return nil, err
 	}
 	defer rows.Close()
@@ -266,7 +247,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 
 		if err := rows.StructScan(&e); err != nil {
 			err = storage.NewSError("failed to scan event", err)
-			logger.Error("list events", map[string]any{"error": err})
+			logger.WithError(err).Error("list events")
 			return nil, err
 		}
 
@@ -283,7 +264,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 		select {
 		case <-ctx.Done():
 			err = storage.NewSError(storage.ErrContextDone, ctx.Err())
-			logger.Error("list events", map[string]any{"error": err})
+			logger.WithError(err).Error("list events")
 			return nil, err
 		default:
 		}
@@ -292,7 +273,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 
 	if err := rows.Err(); err != nil {
 		err = storage.NewSError("rows iteration error", err)
-		logger.Error("list events", map[string]any{"error": err})
+		logger.WithError(err).Error("list events")
 		return nil, err
 	}
 	logger.Info("list events", map[string]any{"found": len(result)})
