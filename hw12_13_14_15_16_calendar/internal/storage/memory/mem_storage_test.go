@@ -772,7 +772,6 @@ func (dto *TestMemoryStorageDto) buildNewStorage() *TestMemoryStorageDto {
 func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 	dto.now = time.Now()
 	correctEventId := "aaeef68f-267d-459d-bda6-c900e27f4afe"
-	wrongEventId := "459d-bda6-c900e27f4afe"
 	userIDOne := "d6e2955f-7a5b-47f2-8f03-999ad489f51a"
 	userIDTwo := "6cf51d87-ab61-437e-9c8c-193984d07bf6"
 	event0 := storage.Event{
@@ -807,39 +806,13 @@ func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 		Duration:    30 * time.Minute,
 		Description: "Test event 4",
 	}
-	event5 := storage.Event{
-		ID:          wrongEventId,
-		StartTime:   dto.now.Add(-50 * time.Minute),
-		Duration:    30 * time.Minute,
-		Description: "Test event 5",
-	}
-	event6 := storage.Event{
-		Title:     "Event 6 - Next Week Event",
-		StartTime: dto.now.Add(7 * 24 * time.Hour), // +7 дней
-		Duration:  1 * time.Hour,
-		UserID:    userIDOne,
-	}
-	endOfWeek := dto.now.Add(time.Duration(6-int(dto.now.Weekday())) * 24 * time.Hour)
-	event7 := storage.Event{
-		Title:     "event7 - Week Boundary Event",
-		StartTime: endOfWeek.Add(-12 * time.Hour),
-		Duration:  36 * time.Hour,
-		UserID:    userIDOne,
-	}
-	nextMonth := dto.now.AddDate(0, 1, 0)
-	event8 := storage.Event{
-		Title:     "event8 - Next Month Event",
-		StartTime: nextMonth,
-		Duration:  1 * time.Hour,
-		UserID:    userIDOne,
-	}
-	endOfMonth := time.Date(dto.now.Year(), dto.now.Month()+1, 0, 0, 0, 0, 0, dto.now.Location())
-	event9 := storage.Event{
-		Title:     "event9 - Month Boundary Event",
-		StartTime: endOfMonth.Add(-12 * time.Hour),
-		Duration:  36 * time.Hour,
-		UserID:    userIDOne,
-	}
-	dto.events = append(dto.events, event0, event1, event2, event3, event4, event5, event6, event7, event8, event9)
+	dto.events = append(
+		dto.events,
+		event0,
+		event1,
+		event2,
+		event3,
+		event4,
+	)
 	return dto
 }
