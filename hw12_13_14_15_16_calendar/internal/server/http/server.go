@@ -26,13 +26,14 @@ type Application interface { // TODO
 }
 
 type Myhandler struct {
+	Method  string                                       `json:"method"`
 	Path    string                                       `json:"path"`
 	Handler func(w http.ResponseWriter, r *http.Request) `json:"-"`
 }
 
 var myHandlers = []Myhandler{
-	{"/hello", helloHandler},
-	{"/", notFoundHandler},
+	{"get", "/hello", helloHandler},
+	{"any other", "/", notFoundHandler},
 }
 
 func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) Server {
@@ -48,7 +49,7 @@ func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) S
 	}
 	logger.GetLogger(ctx).Info("server configured", map[string]any{
 		"Addr":     address,
-		"handlers": myhandlerToList(myHandlers),
+		"handlers": myHandlers,
 	})
 	return &server
 }
@@ -67,12 +68,4 @@ func configureMux() *http.ServeMux {
 		mux.HandleFunc(handler.Path, handler.Handler)
 	}
 	return mux
-}
-
-func myhandlerToList(myHandlers []Myhandler) []string {
-	res := make([]string, len(myHandlers))
-	for _, h := range myHandlers {
-		res = append(res, h.Path)
-	}
-	return res
 }
