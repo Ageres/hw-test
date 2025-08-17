@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 )
@@ -23,13 +23,17 @@ func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) st
 	}
 	if storageConfRef.LoadTestData {
 		storage.generateTestEvents()
-		logger.GetLogger(ctx).Info("test event loaded")
+		lg.GetLogger(ctx).Info("test event loaded")
 	}
 	return storage
 }
 
 func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Info("add event", map[string]any{"event": lg.MarshalAny(eventRef)})
+
 	if err := storage.ValidateEvent(eventRef); err != nil {
+		logger.Error("add event", map[string]any{"error": err})
 		return nil, err
 	}
 	eventRef.GenerateEventId()
@@ -38,13 +42,17 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 	defer s.mu.Unlock()
 
 	if _, exists := s.events[eventRef.ID]; exists {
-		return nil, storage.NewSErrorWithTemplate("failed to add event, event with this id already exists: %s", eventRef.ID)
+		err := storage.NewSErrorWithTemplate("failed to add event, event with this id already exists: %s", eventRef.ID)
+		logger.Error("add event", map[string]any{"error": err})
+		return nil, err
 	}
 
 	for _, existingEvent := range s.events {
 		if existingEvent.UserID == eventRef.UserID &&
-			existingEvent.Overlaps(eventRef) {
-			return nil, storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
+			overlaps(&existingEvent, eventRef) {
+			err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
+			logger.Error("add event", map[string]any{"error": err})
+			return nil, err
 		}
 	}
 
@@ -53,37 +61,49 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 	return &result, nil
 }
 
-func (s *MemoryStorage) Update(ctx context.Context, newEventRef *storage.Event) error {
-	if err := storage.FullValidateEvent(newEventRef); err != nil {
+func (s *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) error {
+	logger := lg.GetLogger(ctx)
+	logger.Info("update event", map[string]any{"event": lg.MarshalAny(eventRef)})
+
+	if err := storage.FullValidateEvent(eventRef); err != nil {
+		logger.Error("update event", map[string]any{"error": err})
 		return err
 	}
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	id := newEventRef.ID
+	id := eventRef.ID
 	oldEvent, exists := s.events[id]
 	if !exists {
 		return storage.ErrEventNotFound
 	}
-	if oldEvent.UserID != newEventRef.UserID {
-		return storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, newEventRef.UserID, oldEvent.UserID)
+	if oldEvent.UserID != eventRef.UserID {
+		err := storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, eventRef.UserID, oldEvent.UserID)
+		logger.Error("update event", map[string]any{"error": err})
+		return err
 	}
 
 	for _, existingEvent := range s.events {
-		if existingEvent.UserID == newEventRef.UserID &&
+		if existingEvent.UserID == eventRef.UserID &&
 			existingEvent.ID != id &&
-			existingEvent.Overlaps(newEventRef) {
-			return storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
+			overlaps(&existingEvent, eventRef) {
+			err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
+			logger.Error("update event", map[string]any{"error": err})
+			return err
 		}
 	}
 
-	s.events[id] = *newEventRef
+	s.events[id] = *eventRef
 	return nil
 }
 
 func (s *MemoryStorage) Delete(ctx context.Context, id string) error {
+	logger := lg.GetLogger(ctx)
+	logger.Info("delete event", map[string]any{"eventId": id})
+
 	if err := storage.ValidateEventId(id); err != nil {
+		logger.Error("delete event", map[string]any{"error": err})
 		return err
 	}
 
@@ -100,24 +120,39 @@ func (s *MemoryStorage) Delete(ctx context.Context, id string) error {
 }
 
 func (s *MemoryStorage) ListDay(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Info("list day events", map[string]any{"startDay": startDay})
+
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.Add(24 * time.Hour)
 	return s.listEvents(ctx, startTime, endTime)
 }
 
 func (s *MemoryStorage) ListWeek(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Info("list week events", map[string]any{"startDay": startDay})
+
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.AddDate(0, 0, 7)
 	return s.listEvents(ctx, startTime, endTime)
 }
 
 func (s *MemoryStorage) ListMonth(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Info("list month events", map[string]any{"startDay": startDay})
+
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.AddDate(0, 1, 0)
 	return s.listEvents(ctx, startTime, endTime)
 }
 
 func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Info("list events", map[string]any{
+		"startTime": startTime,
+		"endTime":   endTime,
+	})
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	var result []storage.Event
@@ -125,7 +160,8 @@ func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.
 
 		select {
 		case <-ctx.Done():
-			return nil, storage.NewSErrorWithCause(storage.ErrContextDoneTemplate, ctx.Err())
+			err := storage.NewSErrorWithCause(storage.ErrContextDoneTemplate, ctx.Err())
+			logger.Error("list events", map[string]any{"error": err})
 		default:
 		}
 
@@ -135,6 +171,7 @@ func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.
 			result = append(result, event)
 		}
 	}
+	logger.Info("list events", map[string]any{"found": len(result)})
 	return result, nil
 }
 
@@ -178,4 +215,14 @@ func (m *MemoryStorage) generateTestEvents() {
 			currentTime = currentTime.Add(period)
 		}
 	}
+}
+
+// проверка двух эвентов на пересечение времени
+func overlaps(e, other *storage.Event) bool {
+	if e == nil || other == nil {
+		return false
+	}
+	end1 := e.StartTime.Add(e.Duration)
+	end2 := other.StartTime.Add(other.Duration)
+	return e.StartTime.Before(end2) && end1.After(other.StartTime)
 }
