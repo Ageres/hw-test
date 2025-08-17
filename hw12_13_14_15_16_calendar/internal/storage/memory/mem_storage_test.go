@@ -459,72 +459,125 @@ func TestStorageListEvents(t *testing.T) {
 		}
 	})
 
-	/*
-		t.Run("list day events", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.Len(t, dto.storage.events, 0)
-			require.NoError(t, dto.storage.Add(&events[0]))
-			require.NoError(t, dto.storage.Add(&events[1]))
-			require.NoError(t, dto.storage.Add(&events[2]))
-			require.Len(t, dto.storage.events, 3)
+	t.Run("list week events", func(t *testing.T) {
+		dto.buildNewStorage()
 
-			dayEvents, err := dto.storage.ListDay(dto.now)
-			require.NoError(t, err)
-			require.Len(t, dayEvents, 3)
+		oldGenerator := storage.FnUuidGenerator
+		defer func() { storage.FnUuidGenerator = oldGenerator }()
 
-			require.NoError(t, dto.storage.Delete(events[0].ID))
-			require.NoError(t, dto.storage.Delete(events[1].ID))
-			require.Len(t, dto.storage.events, 1)
+		fixedUUIDs := []uuid.UUID{
+			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+		}
+		callCount := 0
+		storage.FnUuidGenerator = func() uuid.UUID {
+			u := fixedUUIDs[callCount]
+			callCount++
+			return u
+		}
 
-			dayEvents, err = dto.storage.ListDay(dto.now)
-			require.NoError(t, err)
-			require.Equal(t, dayEvents[0].ID, events[2].ID)
-		})
+		now := time.Now().AddDate(0, 0, 2)
 
-		t.Run("list week events", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
-			require.NoError(t, dto.storage.Add(&events[1]))
-			require.NoError(t, dto.storage.Add(&events[6]))
+		event1 := storage.Event{
+			Title:     "Start Week Event",
+			StartTime: now.AddDate(0, 0, 2),
+			Duration:  1 * time.Hour,
+			UserID:    "user-1",
+		}
 
-			weekEvents, err := dto.storage.ListWeek(dto.now)
-			require.NoError(t, err)
-			require.Len(t, weekEvents, 2)
+		event2 := storage.Event{
+			Title:     "End Week Event",
+			StartTime: now.AddDate(0, 0, 4),
+			Duration:  2 * time.Hour,
+			UserID:    "user-1",
+		}
 
-			for _, event := range weekEvents {
-				require.NotEqual(t, "Next Week Event", event.Title)
+		addedEvent1, err := dto.storage.Add(dto.testContext, &event1)
+		require.NoError(t, err)
+		addedEvent2, err := dto.storage.Add(dto.testContext, &event2)
+		require.NoError(t, err)
+
+		weekEvents, err := dto.storage.ListWeek(dto.testContext, now)
+		require.NoError(t, err)
+		require.Len(t, weekEvents, 2)
+
+		for _, returnedEvent := range weekEvents {
+			switch returnedEvent.ID {
+			case addedEvent1.ID:
+				require.Equal(t, event1.Title, returnedEvent.Title)
+				require.Equal(t, event1.StartTime, returnedEvent.StartTime)
+				require.Equal(t, event1.Duration, returnedEvent.Duration)
+				require.Equal(t, event1.UserID, returnedEvent.UserID)
+			case addedEvent2.ID:
+				require.Equal(t, event2.Title, returnedEvent.Title)
+				require.Equal(t, event2.StartTime, returnedEvent.StartTime)
+				require.Equal(t, event2.Duration, returnedEvent.Duration)
+				require.Equal(t, event2.UserID, returnedEvent.UserID)
+			default:
+				t.Fatalf("Unexpected event ID: %s", returnedEvent.ID)
 			}
-		})
+		}
+	})
 
-		t.Run("event spans week boundary", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[7]))
+	t.Run("list month events", func(t *testing.T) {
+		dto.buildNewStorage()
 
-			weekEvents, err := dto.storage.ListWeek(dto.now)
-			require.NoError(t, err)
-			require.Len(t, weekEvents, 1)
-		})
+		oldGenerator := storage.FnUuidGenerator
+		defer func() { storage.FnUuidGenerator = oldGenerator }()
 
-		t.Run("list month events", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
-			require.NoError(t, dto.storage.Add(&events[1]))
-			require.NoError(t, dto.storage.Add(&events[8]))
+		fixedUUIDs := []uuid.UUID{
+			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+		}
+		callCount := 0
+		storage.FnUuidGenerator = func() uuid.UUID {
+			u := fixedUUIDs[callCount]
+			callCount++
+			return u
+		}
 
-			monthEvents, err := dto.storage.ListMonth(dto.now)
-			require.NoError(t, err)
-			require.Len(t, monthEvents, 2)
-		})
+		now := time.Now()
 
-		t.Run("event spans month boundary", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[9]))
+		event1 := storage.Event{
+			Title:     "Start Month Event",
+			StartTime: now.AddDate(0, 0, 5),
+			Duration:  1 * time.Hour,
+			UserID:    "user-1",
+		}
 
-			monthEvents, err := dto.storage.ListMonth(dto.now)
-			require.NoError(t, err)
-			require.Len(t, monthEvents, 1)
-		})
-	*/
+		event2 := storage.Event{
+			Title:     "End Month Event",
+			StartTime: now.AddDate(0, 0, 10),
+			Duration:  2 * time.Hour,
+			UserID:    "user-1",
+		}
+
+		addedEvent1, err := dto.storage.Add(dto.testContext, &event1)
+		require.NoError(t, err)
+		addedEvent2, err := dto.storage.Add(dto.testContext, &event2)
+		require.NoError(t, err)
+
+		monthEvents, err := dto.storage.ListMonth(dto.testContext, now)
+		require.NoError(t, err)
+		require.Len(t, monthEvents, 2)
+
+		for _, returnedEvent := range monthEvents {
+			switch returnedEvent.ID {
+			case addedEvent1.ID:
+				require.Equal(t, event1.Title, returnedEvent.Title)
+				require.Equal(t, event1.StartTime, returnedEvent.StartTime)
+				require.Equal(t, event1.Duration, returnedEvent.Duration)
+				require.Equal(t, event1.UserID, returnedEvent.UserID)
+			case addedEvent2.ID:
+				require.Equal(t, event2.Title, returnedEvent.Title)
+				require.Equal(t, event2.StartTime, returnedEvent.StartTime)
+				require.Equal(t, event2.Duration, returnedEvent.Duration)
+				require.Equal(t, event2.UserID, returnedEvent.UserID)
+			default:
+				t.Fatalf("Unexpected event ID: %s", returnedEvent.ID)
+			}
+		}
+	})
 }
 
 /*
