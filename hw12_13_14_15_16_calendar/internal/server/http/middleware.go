@@ -19,7 +19,7 @@ func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
 
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
-			s.logger.Error("get remote ip address", map[string]any{"error": err})
+			s.logger.WithError(err).Error("get remote ip address")
 			ip = r.RemoteAddr
 		}
 
