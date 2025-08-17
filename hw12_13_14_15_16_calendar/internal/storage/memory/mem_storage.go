@@ -33,7 +33,7 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 	logger.Info("add event", map[string]any{"event": lg.MarshalAny(eventRef)})
 
 	if err := storage.ValidateEvent(eventRef); err != nil {
-		logger.Error("add event", map[string]any{"error": err})
+		logger.WithError(err).Error("add event")
 		return nil, err
 	}
 	eventRef.GenerateEventId()
@@ -43,7 +43,7 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 
 	if _, exists := s.events[eventRef.ID]; exists {
 		err := storage.NewSErrorWithTemplate("failed to add event, event with this id already exists: %s", eventRef.ID)
-		logger.Error("add event", map[string]any{"error": err})
+		logger.WithError(err).Error("add event")
 		return nil, err
 	}
 
@@ -51,7 +51,7 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 		if existingEvent.UserID == eventRef.UserID &&
 			overlaps(&existingEvent, eventRef) {
 			err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
-			logger.Error("add event", map[string]any{"error": err})
+			logger.WithError(err).Error("add event")
 			return nil, err
 		}
 	}
@@ -66,7 +66,7 @@ func (s *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) err
 	logger.Info("update event", map[string]any{"event": lg.MarshalAny(eventRef)})
 
 	if err := storage.FullValidateEvent(eventRef); err != nil {
-		logger.Error("update event", map[string]any{"error": err})
+		logger.WithError(err).Error("update event")
 		return err
 	}
 
@@ -80,7 +80,7 @@ func (s *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) err
 	}
 	if oldEvent.UserID != eventRef.UserID {
 		err := storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, eventRef.UserID, oldEvent.UserID)
-		logger.Error("update event", map[string]any{"error": err})
+		logger.WithError(err).Error("update event")
 		return err
 	}
 
@@ -89,7 +89,7 @@ func (s *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) err
 			existingEvent.ID != id &&
 			overlaps(&existingEvent, eventRef) {
 			err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
-			logger.Error("update event", map[string]any{"error": err})
+			logger.WithError(err).Error("update event")
 			return err
 		}
 	}
@@ -103,7 +103,7 @@ func (s *MemoryStorage) Delete(ctx context.Context, id string) error {
 	logger.Info("delete event", map[string]any{"eventId": id})
 
 	if err := storage.ValidateEventId(id); err != nil {
-		logger.Error("delete event", map[string]any{"error": err})
+		logger.WithError(err).Error("delete event")
 		return err
 	}
 
@@ -161,7 +161,7 @@ func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.
 		select {
 		case <-ctx.Done():
 			err := storage.NewSError(storage.ErrContextDone, ctx.Err())
-			logger.Error("list events", map[string]any{"error": err})
+			logger.WithError(err).Error("list events")
 			return nil, err
 		default:
 		}
