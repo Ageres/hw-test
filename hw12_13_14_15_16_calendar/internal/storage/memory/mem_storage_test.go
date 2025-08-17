@@ -82,41 +82,28 @@ func TestStorageAdd(t *testing.T) {
 		}
 	})
 
+	t.Run("nil event error when adding", func(t *testing.T) {
+		dto.buildNewStorage()
+		_, err := dto.storage.Add(dto.testContext, nil)
+		require.ErrorIs(t, err, storage.ErrEventIsNil)
+		require.Len(t, dto.storage.events, 0)
+	})
+
+	t.Run("validation event error when adding", func(t *testing.T) {
+		dto.buildNewStorage()
+		_, err := dto.storage.Add(dto.testContext, &events[0])
+		require.NoError(t, err)
+
+		_, err = dto.storage.Add(dto.testContext, &events[4])
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "title is empty")
+		require.Contains(t, err.Error(), "event time is expired")
+		require.Contains(t, err.Error(), "user id is empty")
+		require.Len(t, dto.storage.events, 1)
+	})
+
 	/*
 
-
-		t.Run("nil event error when adding", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
-
-			err := dto.storage.Add(nil)
-			require.ErrorIs(t, err, storage.ErrEventIsNil)
-			require.Len(t, dto.storage.events, 1)
-		})
-
-		t.Run("validation event error when adding", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
-
-			err := dto.storage.Add(&events[4])
-			require.Error(t, err)
-			require.Equal(t, err.Error(), "title is empty; event time is expired; user id is empty")
-			require.Len(t, dto.storage.events, 1)
-
-			err = dto.storage.Add(&events[5])
-			require.Error(t, err)
-			require.Equal(t, err.Error(), "validate event id: invalid UUID length: 22; title is empty; event time is expired; user id is empty")
-			require.Len(t, dto.storage.events, 1)
-		})
-
-		t.Run("event duplication error when adding", func(t *testing.T) {
-			dto.buildNewStorage()
-			require.NoError(t, dto.storage.Add(&events[0]))
-
-			err := dto.storage.Add(&events[0])
-			require.ErrorIs(t, err, storage.ErrEventAllreadyExists)
-			require.Len(t, dto.storage.events, 1)
-		})
 
 		t.Run("date busy error when adding", func(t *testing.T) {
 			dto.buildNewStorage()
