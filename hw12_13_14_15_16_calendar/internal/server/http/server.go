@@ -21,7 +21,6 @@ type Application interface { // TODO
 func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", helloHandler)
-
 	return &Server{
 		httpServer: &http.Server{
 			Addr:    httpConf.Server.GetAddress(),
