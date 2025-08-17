@@ -578,6 +578,42 @@ func TestStorageListEvents(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("context cancellation", func(t *testing.T) {
+		dto.buildNewStorage()
+
+		startDate := time.Now().Add(1 * time.Hour)
+		event1 := storage.Event{
+			Title:     "Morning Event",
+			StartTime: time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 10, 0, 0, 0, startDate.Location()),
+			Duration:  1 * time.Hour,
+			UserID:    "user-1",
+		}
+
+		event2 := storage.Event{
+			Title:     "Evening Event",
+			StartTime: time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 18, 0, 0, 0, startDate.Location()),
+			Duration:  2 * time.Hour,
+			UserID:    "user-1",
+		}
+
+		_, err := dto.storage.Add(dto.testContext, &event1)
+		require.NoError(t, err)
+		_, err = dto.storage.Add(dto.testContext, &event2)
+		require.NoError(t, err)
+
+		dayEvents, err := dto.storage.ListDay(dto.testContext, startDate)
+		require.NoError(t, err)
+		require.Len(t, dayEvents, 2)
+
+		ctx, cancel := context.WithCancel(dto.testContext)
+		cancel()
+
+		_, err = dto.storage.ListDay(ctx, dto.now)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "context done")
+	})
+
 }
 
 /*
