@@ -3,6 +3,7 @@ package memorystorage
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -676,7 +677,6 @@ func TestStorageConcurrentAdd(t *testing.T) {
 	require.Len(t, dto.storage.events, 1000)
 }
 
-/*
 func TestStorageConcurrentReadWrite(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewStorage()
 	dto.now = time.Now()
@@ -692,7 +692,7 @@ func TestStorageConcurrentReadWrite(t *testing.T) {
 				Duration:  1 * time.Hour,
 				UserID:    strconv.Itoa(i),
 			}
-			err := dto.storage.Add(&event1)
+			_, err := dto.storage.Add(dto.testContext, &event1)
 			require.NoError(t, err)
 			time.Sleep(10 * time.Millisecond)
 		}
@@ -703,7 +703,7 @@ func TestStorageConcurrentReadWrite(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			for range 20 {
-				_, err := dto.storage.ListDay(time.Now())
+				_, err := dto.storage.ListDay(dto.testContext, time.Now())
 				require.NoError(t, err)
 				time.Sleep(15 * time.Millisecond)
 			}
@@ -715,7 +715,8 @@ func TestStorageConcurrentReadWrite(t *testing.T) {
 func TestStorageConcurrentUpdateDelete(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewStorage()
 	events := dto.buildNewEvents().events
-	require.NoError(t, dto.storage.Add(&events[0]))
+	_, err := dto.storage.Add(dto.testContext, &events[0])
+	require.NoError(t, err)
 	var wg sync.WaitGroup
 
 	for i := range 5 {
@@ -725,7 +726,7 @@ func TestStorageConcurrentUpdateDelete(t *testing.T) {
 			for j := range 10 {
 				updatedEvent := events[0]
 				updatedEvent.Title = fmt.Sprintf("Updated %d-%d", idx, j)
-				err := dto.storage.Update(events[0].ID, &updatedEvent)
+				err := dto.storage.Update(dto.testContext, &updatedEvent)
 				require.NoError(t, err)
 			}
 		}(i)
@@ -735,7 +736,7 @@ func TestStorageConcurrentUpdateDelete(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		time.Sleep(50 * time.Millisecond)
-		err := dto.storage.Delete(events[0].ID)
+		err := dto.storage.Delete(dto.testContext, events[0].ID)
 		require.NoError(t, err)
 	}()
 
@@ -747,11 +748,12 @@ func TestStorageConcurrentUpdateDelete(t *testing.T) {
 func TestStorageDeadlock(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewStorage()
 	event := dto.buildNewEvents().events[0]
-	require.NoError(t, dto.storage.Add(&event))
+	_, err := dto.storage.Add(dto.testContext, &event)
+	require.NoError(t, err)
 
 	done := make(chan bool)
 	go func() {
-		dto.storage.Update(event.ID, &event)
+		dto.storage.Update(dto.testContext, &event)
 		done <- true
 	}()
 
@@ -761,7 +763,6 @@ func TestStorageDeadlock(t *testing.T) {
 		t.Fatal("Potential deadlock detected")
 	}
 }
-*/
 
 func TestGenerateTestEvents(t *testing.T) {
 	storage := &MemoryStorage{
