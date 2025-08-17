@@ -14,6 +14,11 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte("404 Not Found"))
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Hello, World!"))
 }
