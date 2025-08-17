@@ -13,7 +13,7 @@ var (
 const (
 	ErrDateBusyMsgTemplate     = "time is already taken by another event: %s"
 	ErrUserConflictMsgTemplate = "user '%s' is not the owner of the event, conflict with '%s'"
-	ErrContextDoneTemplate     = "context done: '%s'"
+	ErrContextDone             = "context done"
 )
 
 type StorageError struct {

@@ -12,7 +12,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var ErrDatabaseMsgTemplate = "database error: %s"
+var ErrDatabaseMsg = "database error"
 
 type SqlStorage struct {
 	db *sqlx.DB
@@ -88,7 +88,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	)
 
 	if err != nil {
-		err = storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
+		err = storage.NewSError(ErrDatabaseMsg, err)
 		logger.Error("add event", map[string]any{"error": err})
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		})
 		return nil, err
 	default:
-		err := storage.NewSErrorWithTemplate(ErrDatabaseMsgTemplate, dbResp.errorMessage)
+		err := storage.NewSErrorWithTemplate(ErrDatabaseMsg, dbResp.errorMessage)
 		logger.Error("add event", map[string]any{
 			"databaseResponse": dbResp,
 			"error":            err,
@@ -145,7 +145,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	)
 
 	if err != nil {
-		err = storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
+		err = storage.NewSError(ErrDatabaseMsg, err)
 		logger.Error("update event", map[string]any{"error": err})
 		return err
 	}
@@ -175,7 +175,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		})
 		return err
 	default:
-		return storage.NewSErrorWithTemplate(ErrDatabaseMsgTemplate, dbResp.errorMessage)
+		return storage.NewSErrorWithTemplate(ErrDatabaseMsg, dbResp.errorMessage)
 	}
 }
 
@@ -185,14 +185,14 @@ func (s *SqlStorage) Delete(ctx context.Context, id string) error {
 
 	res, err := s.db.Exec("DELETE FROM events WHERE id = $1", id)
 	if err != nil {
-		err = storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
+		err = storage.NewSError(ErrDatabaseMsg, err)
 		logger.Error("delete event", map[string]any{"error": err})
 		return err
 	}
 
 	rows, err := res.RowsAffected()
 	if err != nil {
-		err = storage.NewSErrorWithCause("failed to get rows affected when deleting event: %v", err)
+		err = storage.NewSError("failed to get rows affected when deleting event", err)
 		logger.Error("delete event", map[string]any{"error": err})
 		return err
 	} else if rows == 0 {
@@ -247,7 +247,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
         && tstzrange($1::timestamptz, $2::timestamptz)`,
 		startTime, endTime)
 	if err != nil {
-		err = storage.NewSErrorWithCause(ErrDatabaseMsgTemplate, err)
+		err = storage.NewSError(ErrDatabaseMsg, err)
 		logger.Error("list events", map[string]any{"error": err})
 		return nil, err
 	}
@@ -265,7 +265,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 		}
 
 		if err := rows.StructScan(&e); err != nil {
-			err = storage.NewSErrorWithCause("failed to scan event: %v", err)
+			err = storage.NewSError("failed to scan event", err)
 			logger.Error("list events", map[string]any{"error": err})
 			return nil, err
 		}
@@ -282,7 +282,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 
 		select {
 		case <-ctx.Done():
-			err = storage.NewSErrorWithCause(storage.ErrContextDoneTemplate, ctx.Err())
+			err = storage.NewSError(storage.ErrContextDone, ctx.Err())
 			logger.Error("list events", map[string]any{"error": err})
 			return nil, err
 		default:
@@ -291,7 +291,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 	}
 
 	if err := rows.Err(); err != nil {
-		err = storage.NewSErrorWithCause("rows iteration error: %v", err)
+		err = storage.NewSError("rows iteration error", err)
 		logger.Error("list events", map[string]any{"error": err})
 		return nil, err
 	}
