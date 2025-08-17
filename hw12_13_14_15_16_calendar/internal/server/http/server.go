@@ -13,25 +13,21 @@ type Server interface {
 	Stop(ctx context.Context) error
 }
 
-type MyServer struct {
+type AppServer struct {
 	httpServer *http.Server
 	app        Application
-}
-
-type Logger interface { // TODO
-	//code
 }
 
 type Application interface { // TODO
 }
 
-type Myhandler struct {
+type AppHandler struct {
 	Method  string                                       `json:"method"`
 	Path    string                                       `json:"path"`
 	Handler func(w http.ResponseWriter, r *http.Request) `json:"-"`
 }
 
-var myHandlers = []Myhandler{
+var appHandlers = []AppHandler{
 	{"get", "/hello", helloHandler},
 	{"any other", "/", notFoundHandler},
 }
@@ -40,7 +36,7 @@ func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) S
 	address := httpConf.Server.GetAddress()
 	mux := configureMux()
 
-	server := MyServer{
+	server := AppServer{
 		httpServer: &http.Server{
 			Addr:    address,
 			Handler: loggingMiddleware(mux),
@@ -49,22 +45,22 @@ func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) S
 	}
 	logger.GetLogger(ctx).Info("server configured", map[string]any{
 		"Addr":     address,
-		"handlers": myHandlers,
+		"handlers": appHandlers,
 	})
 	return &server
 }
 
-func (s *MyServer) Start(ctx context.Context) error {
+func (s *AppServer) Start(ctx context.Context) error {
 	return s.httpServer.ListenAndServe()
 }
 
-func (s *MyServer) Stop(ctx context.Context) error {
+func (s *AppServer) Stop(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }
 
 func configureMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	for _, handler := range myHandlers {
+	for _, handler := range appHandlers {
 		mux.HandleFunc(handler.Path, handler.Handler)
 	}
 	return mux
