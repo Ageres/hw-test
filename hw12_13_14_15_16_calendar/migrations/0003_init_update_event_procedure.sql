@@ -1,10 +1,7 @@
--- создание хранимой процедуры обновления события
-
-BEGIN;
-
+-- +goose Up
+-- +goose StatementBegin
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
--- IMMUTABLE-функция для работы с диапазонами
 CREATE OR REPLACE FUNCTION immutable_tstzrange(start_time TIMESTAMPTZ, duration INTEGER)
 RETURNS TSTZRANGE
 LANGUAGE SQL IMMUTABLE
@@ -37,20 +34,14 @@ DECLARE
     v_conflict_event_id UUID;
     v_actual_user_id TEXT;
 BEGIN
-    -- Устанавливаем таймаут выполнения (60 секунд)
     SET LOCAL statement_timeout = '60s';
-    
-    -- Инициализация выходных параметров
     conflict_event_id := '';
     conflict_user_id := '';
     RAISE LOG 'Update event attempt. Event ID: %, User ID: %', p_id, p_user_id;
 
-    -- Начинаем транзакционный блок
     BEGIN
-        -- Блокировка пользователя для предотвращения гонки условий
         PERFORM pg_advisory_xact_lock(hashtext(p_user_id));
         
-        -- проверка существования события с блокировкой
         IF NOT EXISTS (SELECT 1 FROM events WHERE id = p_id FOR UPDATE) THEN
             RAISE NOTICE 'Event not found. ID: %', p_id;
             status_code := 404;
@@ -58,7 +49,6 @@ BEGIN
             RETURN;
         END IF;
 
-        -- проверка владельца
         SELECT user_id INTO v_actual_user_id
         FROM events 
         WHERE id = p_id;
@@ -72,7 +62,6 @@ BEGIN
             RETURN;
         END IF;
 
-        -- проверка конфликта времени с блокировкой
         SELECT id INTO v_conflict_event_id
         FROM events
         WHERE user_id = p_user_id
@@ -90,7 +79,6 @@ BEGIN
             RETURN;
         END IF;
 
-        -- обновление события
         UPDATE events SET
             title = p_title,
             start_time = p_start_time,
@@ -104,7 +92,7 @@ BEGIN
         error_message := 'SUCCESS';
         
     EXCEPTION
-        WHEN SQLSTATE '57014' THEN -- Код ошибки для statement_timeout
+        WHEN SQLSTATE '57014' THEN
             RAISE EXCEPTION 'Update event timeout for event: %', p_id;
             status_code := 504;
             error_message := 'TIMEOUT: Operation took too long';
@@ -115,7 +103,13 @@ BEGIN
     END;
 END;
 $$;
+-- +goose StatementEnd
 
-COMMENT ON FUNCTION public.update_event IS 'Обновляет событие с проверкой прав доступа и временных конфликтов';
-
-COMMIT;
+-- +goose Down
+-- +goose StatementBegin
+DROP FUNCTION IF EXISTS public.update_event;
+DROP INDEX IF EXISTS idx_events_id_user;
+DROP INDEX IF EXISTS idx_events_user_time;
+DROP FUNCTION IF EXISTS immutable_tstzrange;
+DROP EXTENSION IF EXISTS btree_gist;
+-- +goose StatementEnd
