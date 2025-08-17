@@ -75,6 +75,10 @@ type ServerConf struct {
 	Path *PathConf `yaml:"path" validate:"required"`
 }
 
+func (sc *ServerConf) GetAddress() string {
+	return fmt.Sprintf("%s:%d", sc.Host, sc.Port)
+}
+
 type PathConf struct {
 	Hello string `yaml:"hello" validate:"required,startswith=/"`
 }
