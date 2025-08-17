@@ -622,7 +622,7 @@ func TestStorageConcurrent(t *testing.T) {
 	var wg sync.WaitGroup
 
 	// concurrent adds
-	for i := 0; i < 10000; i++ {
+	for i := range 10000 {
 		wg.Add(1)
 		go func(idx int) {
 			defer wg.Done()
@@ -638,7 +638,7 @@ func TestStorageConcurrent(t *testing.T) {
 	}
 
 	// concurrent reads
-	for i := 0; i < 500; i++ {
+	for range 500 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -651,12 +651,11 @@ func TestStorageConcurrent(t *testing.T) {
 	require.Len(t, dto.storage.events, 10000)
 }
 
-/*
 func TestStorageConcurrentAdd(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewStorage()
 	var wg sync.WaitGroup
 
-	for i := range 10 {
+	for i := range 100 {
 		wg.Add(1)
 		go func(idx int) {
 			defer wg.Done()
@@ -667,16 +666,17 @@ func TestStorageConcurrentAdd(t *testing.T) {
 					Duration:  30 * time.Minute,
 					UserID:    uuid.New().String(),
 				}
-				err := dto.storage.Add(&event)
+				_, err := dto.storage.Add(dto.testContext, &event)
 				require.NoError(t, err)
 			}
 		}(i)
 	}
 	wg.Wait()
 
-	require.Len(t, dto.storage.events, 100)
+	require.Len(t, dto.storage.events, 1000)
 }
 
+/*
 func TestStorageConcurrentReadWrite(t *testing.T) {
 	dto := newTestMemoryStorageDto().buildNewStorage()
 	dto.now = time.Now()
