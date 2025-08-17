@@ -162,6 +162,7 @@ func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.
 		case <-ctx.Done():
 			err := storage.NewSErrorWithCause(storage.ErrContextDoneTemplate, ctx.Err())
 			logger.Error("list events", map[string]any{"error": err})
+			return nil, err
 		default:
 		}
 
