@@ -9,7 +9,7 @@ import (
 
 func TestStorageError(t *testing.T) {
 	t.Run("simple error", func(t *testing.T) {
-		err := NewSError("test error")
+		err := NewSimpleSError("test error")
 		require.NotNil(t, err)
 		require.Equal(t, "test error", err.Error())
 	})

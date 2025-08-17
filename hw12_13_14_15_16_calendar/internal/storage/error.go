@@ -6,15 +6,14 @@ import (
 )
 
 var (
-	ErrEventIsNil    = NewSError("event is nil")
-	ErrEventNotFound = NewSError("event not found")
+	ErrEventIsNil    = NewSimpleSError("event is nil")
+	ErrEventNotFound = NewSimpleSError("event not found")
 )
 
 const (
-	ErrDateBusyMsgTemplate           = "time is already taken by another event: %s"
-	ErrFailedValidateEventIdTemplate = "failed to validate event id: %v"
-	ErrUserConflictMsgTemplate       = "user '%s' is not the owner of the event, conflict with '%s'"
-	ErrContextDoneTemplate           = "context done: '%s'"
+	ErrDateBusyMsgTemplate     = "time is already taken by another event: %s"
+	ErrUserConflictMsgTemplate = "user '%s' is not the owner of the event, conflict with '%s'"
+	ErrContextDoneTemplate     = "context done: '%s'"
 )
 
 type StorageError struct {
@@ -33,9 +32,16 @@ func (serr *StorageError) Unwrap() error {
 	return serr.Cause
 }
 
-func NewSError(message string) error {
+func NewSimpleSError(message string) error {
 	return &StorageError{
 		Message: message,
+	}
+}
+
+func NewSError(message string, err error) error {
+	return &StorageError{
+		Message: message,
+		Cause:   err,
 	}
 }
 

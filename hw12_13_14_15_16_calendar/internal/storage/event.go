@@ -45,7 +45,7 @@ func (e *Event) GenerateEventId() {
 func ValidateEventId(eventId string) error {
 	err := uuid.Validate(eventId)
 	if err != nil {
-		return NewSErrorWithCause(ErrFailedValidateEventIdTemplate, err)
+		return NewSError("failed to validate event id", err)
 	}
 	return nil
 }
@@ -66,7 +66,7 @@ func FullValidateEvent(e *Event) error {
 	errMsgs := make([]string, 0, 5)
 	err := uuid.Validate(e.ID)
 	if err != nil {
-		errMsgs = append(errMsgs, fmt.Sprintf(ErrFailedValidateEventIdTemplate, err))
+		errMsgs = append(errMsgs, fmt.Sprintf("failed to validate event id: %v", err))
 	}
 	errMsgs = append(errMsgs, e.simpleValidate()...)
 	return NewSErrorWithMsgArr(errMsgs)

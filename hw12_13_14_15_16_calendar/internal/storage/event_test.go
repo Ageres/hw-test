@@ -63,7 +63,7 @@ func TestValidateEventId(t *testing.T) {
 		{
 			name:     "invalid uuid",
 			id:       "invalid",
-			expected: storage.NewSErrorWithCause(storage.ErrFailedValidateEventIdTemplate, fmt.Errorf("invalid UUID length: 7")),
+			expected: storage.NewSError("failed to validate event id", fmt.Errorf("invalid UUID length: 7")),
 		},
 	}
 
@@ -203,7 +203,7 @@ func TestFullValidateEvent(t *testing.T) {
 				UserID:    "user1",
 			},
 			expected: storage.NewSErrorWithMsgArr([]string{
-				fmt.Sprintf(storage.ErrFailedValidateEventIdTemplate, fmt.Errorf("invalid UUID length: 12")),
+				fmt.Sprintf("failed to validate event id: %v", fmt.Errorf("invalid UUID length: 12")),
 			}),
 		},
 		{
@@ -216,7 +216,7 @@ func TestFullValidateEvent(t *testing.T) {
 				UserID:    "",
 			},
 			expected: storage.NewSErrorWithMsgArr([]string{
-				fmt.Sprintf(storage.ErrFailedValidateEventIdTemplate, fmt.Errorf("invalid UUID length: 7")),
+				fmt.Sprintf("failed to validate event id: %v", fmt.Errorf("invalid UUID length: 7")),
 				"title is empty",
 				"event time is expired",
 				"duration must be positive",
