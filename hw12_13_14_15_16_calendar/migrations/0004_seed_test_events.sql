@@ -1,6 +1,5 @@
--- наполнение таблицы событий тестовыми данными
-BEGIN;
-
+-- +goose Up
+-- +goose StatementBegin
 CREATE OR REPLACE FUNCTION seed_test_events(user_count INTEGER, events_per_user INTEGER) 
 RETURNS VOID AS $$
 DECLARE
@@ -13,18 +12,15 @@ DECLARE
     i INTEGER;
     j INTEGER;
 BEGIN
-    -- перебор по юзерам
     FOR i IN 1..user_count LOOP
-        user_id := 'user-' || LPAD(i::TEXT, 4, '0'); -- пример "user-0001"
+        user_id := 'user-' || LPAD(i::TEXT, 4, '0');
         
-        -- перебор по событиям юзеров
         FOR j IN 1..events_per_user LOOP
-            -- сборка полей шаблну
-            event_title := 'title_' || user_id || '_' || j; -- пример "title_user-0001_1"
-            event_desc := event_title || '_desc'; -- пример "title_user-0001_1_desc"
-            event_duration := (60 + random() * 172799)::INTEGER; -- период от 1 мин до 2 суток
+            event_title := 'title_' || user_id || '_' || j;
+            event_desc := event_title || '_desc';
+            event_duration := (60 + random() * 172799)::INTEGER;
             event_reminder := (60 + random() * 172799)::INTEGER; 
-            event_start := NOW() + (random() * 1095 - 547.5) * INTERVAL '1 day'; -- период ±1.5 года
+            event_start := NOW() + (random() * 1095 - 547.5) * INTERVAL '1 day';
             
             INSERT INTO events (
                 title,
@@ -48,10 +44,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 100 юзеров, по 100 эвентов на каждого
--- рандомно в периоде +- 1,5 года от текукщего момента
 SELECT seed_test_events(100, 100);
-
 DROP FUNCTION seed_test_events;
+-- +goose StatementEnd
 
-COMMIT;
+-- +goose Down
+-- +goose StatementBegin
+-- Для отката тестовых данных можно очистить таблицу
+TRUNCATE TABLE events;
+-- +goose StatementEnd
