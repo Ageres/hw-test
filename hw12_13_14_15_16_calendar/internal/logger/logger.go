@@ -39,6 +39,7 @@ type Logger interface {
 	Warn(msg string, mapArgs ...map[string]any)
 	Error(msg string, mapArgs ...map[string]any)
 	With(fields map[string]any) Logger
+	WithError(err error) Logger
 	SetLoggerToCtx(ctx context.Context) context.Context
 }
 
@@ -77,6 +78,10 @@ func (l *logger) With(fields map[string]any) Logger {
 		loggerConfRef: l.loggerConfRef,
 		fields:        append(l.fields, args...), // Сохраняем поля для возможного дальнейшего использования
 	}
+}
+
+func (l *logger) WithError(err error) Logger {
+	return l.With(map[string]any{"error": err.Error()})
 }
 
 func (l *logger) SetLoggerToCtx(ctx context.Context) context.Context {
