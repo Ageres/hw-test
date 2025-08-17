@@ -9,6 +9,8 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 	/*
 		"fmt"
 		"strconv"
@@ -21,25 +23,67 @@ import (
 	*/)
 
 func TestStorageAdd(t *testing.T) {
+	dto := newTestMemoryStorageDto().buildNewEvents()
+	events := dto.events
+
+	t.Run("add event", func(t *testing.T) {
+		dto.buildNewStorage()
+		require.Len(t, dto.storage.events, 0)
+
+		oldGenerator := storage.FnUuidGenerator
+		defer func() { storage.FnUuidGenerator = oldGenerator }()
+
+		mockUUIDs := []uuid.UUID{
+			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+			uuid.MustParse("33333333-3333-3333-3333-333333333333"),
+		}
+		callCount := 0
+		storage.FnUuidGenerator = func() uuid.UUID {
+			if callCount >= len(mockUUIDs) {
+				t.Fatal("Unexpected call to UUID generator")
+			}
+			u := mockUUIDs[callCount]
+			callCount++
+			return u
+		}
+
+		testEvents := []storage.Event{events[0], events[1], events[2]}
+		for i := range testEvents {
+			testEvents[i].ID = ""
+		}
+
+		var err error
+		addedEvents := make([]*storage.Event, 3)
+		for i := range testEvents {
+			addedEvents[i], err = dto.storage.Add(dto.testContext, &testEvents[i])
+			require.NoError(t, err)
+		}
+
+		require.Len(t, dto.storage.events, 3)
+		require.Equal(t, 3, callCount, "UUID generator should be called 3 times")
+
+		for i, event := range addedEvents {
+
+			expectedID := mockUUIDs[i].String()
+			require.Equal(t, expectedID, event.ID, "Event ID should match mock UUID")
+
+			storedEvent, exists := dto.storage.events[expectedID]
+			require.True(t, exists, "Event should exist in storage")
+
+			require.Equal(t, testEvents[i].Title, storedEvent.Title)
+			require.Equal(t, testEvents[i].StartTime, storedEvent.StartTime)
+			require.Equal(t, testEvents[i].Duration, storedEvent.Duration)
+			require.Equal(t, testEvents[i].Description, storedEvent.Description)
+			require.Equal(t, testEvents[i].UserID, storedEvent.UserID)
+			require.Equal(t, testEvents[i].Reminder, storedEvent.Reminder)
+
+			require.Equal(t, storedEvent, *addedEvents[i])
+		}
+	})
 
 	/*
-		dto := newTestMemoryStorageDto().buildNewEvents()
-		events := dto.events
 
-		t.Run("add event", func(t *testing.T) {
-			dto.buildNewStorage()
-
-			require.Len(t, dto.storage.events, 0)
-
-			dto.storage.Add(dto.testContext, &events[0])
-			dto.storage.Add(dto.testContext, &events[1])
-			dto.storage.Add(dto.testContext, &events[2])
-
-			require.NoError(t, dto.storage.Add(&events[0]))
-			require.NoError(t, dto.storage.Add(&events[1]))
-			require.NoError(t, dto.storage.Add(&events[2]))
-			require.Len(t, dto.storage.events, 3)
-		})
 
 		t.Run("nil event error when adding", func(t *testing.T) {
 			dto.buildNewStorage()
@@ -393,6 +437,7 @@ func newTestMemoryStorageDto() *TestMemoryStorageDto {
 	ctx := logger.SetDefaultLogger(context.Background())
 	return &TestMemoryStorageDto{
 		testContext: ctx,
+		now:         time.Now(),
 	}
 }
 
