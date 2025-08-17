@@ -102,6 +102,36 @@ func TestStorageAdd(t *testing.T) {
 		require.Len(t, dto.storage.events, 1)
 	})
 
+	t.Run("event duplication error when adding", func(t *testing.T) {
+		dto.buildNewStorage()
+
+		oldGenerator := storage.FnUuidGenerator
+		defer func() { storage.FnUuidGenerator = oldGenerator }()
+
+		fixedUUID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
+		storage.FnUuidGenerator = func() uuid.UUID { return fixedUUID }
+
+		testEvent := storage.Event{
+			Title:     "Test Event",
+			StartTime: time.Now().Add(1 * time.Hour),
+			Duration:  30 * time.Minute,
+			UserID:    "test-user",
+		}
+
+		addedEvent, err := dto.storage.Add(dto.testContext, &testEvent)
+		require.NoError(t, err)
+		require.Equal(t, fixedUUID.String(), addedEvent.ID)
+		require.Len(t, dto.storage.events, 1)
+
+		_, err = dto.storage.Add(dto.testContext, &testEvent)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "event with this id already exists")
+		require.Len(t, dto.storage.events, 1)
+
+		storedEvent, exists := dto.storage.events[fixedUUID.String()]
+		require.True(t, exists)
+		require.Equal(t, addedEvent, &storedEvent)
+	})
 	/*
 
 
