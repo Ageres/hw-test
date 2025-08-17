@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 )
 
@@ -24,17 +25,32 @@ type Logger interface { // TODO
 type Application interface { // TODO
 }
 
+type Myhandler struct {
+	Path    string                                       `json:"path"`
+	Handler func(w http.ResponseWriter, r *http.Request) `json:"-"`
+}
+
+var myHandlers = []Myhandler{
+	{"/hello", helloHandler},
+	{"/", notFoundHandler},
+}
+
 func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) Server {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", helloHandler)
-	mux.HandleFunc("/", notFoundHandler)
-	return &MyServer{
+	address := httpConf.Server.GetAddress()
+	mux := configureMux()
+
+	server := MyServer{
 		httpServer: &http.Server{
-			Addr:    httpConf.Server.GetAddress(),
+			Addr:    address,
 			Handler: loggingMiddleware(mux),
 		},
 		app: app,
 	}
+	logger.GetLogger(ctx).Info("server configured", map[string]any{
+		"Addr":     address,
+		"handlers": myhandlerToList(myHandlers),
+	})
+	return &server
 }
 
 func (s *MyServer) Start(ctx context.Context) error {
@@ -43,4 +59,20 @@ func (s *MyServer) Start(ctx context.Context) error {
 
 func (s *MyServer) Stop(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
+}
+
+func configureMux() *http.ServeMux {
+	mux := http.NewServeMux()
+	for _, handler := range myHandlers {
+		mux.HandleFunc(handler.Path, handler.Handler)
+	}
+	return mux
+}
+
+func myhandlerToList(myHandlers []Myhandler) []string {
+	res := make([]string, len(myHandlers))
+	for _, h := range myHandlers {
+		res = append(res, h.Path)
+	}
+	return res
 }
