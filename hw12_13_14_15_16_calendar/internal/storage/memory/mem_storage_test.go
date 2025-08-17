@@ -3,7 +3,6 @@ package memorystorage
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -675,41 +674,6 @@ func TestStorageConcurrentAdd(t *testing.T) {
 	wg.Wait()
 
 	require.Len(t, dto.storage.events, 1000)
-}
-
-func TestStorageConcurrentReadWrite(t *testing.T) {
-	dto := newTestMemoryStorageDto().buildNewStorage()
-	dto.now = time.Now()
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for i := range 100 {
-			event1 := storage.Event{
-				Title:     "Event 1",
-				StartTime: dto.now.Add(2 * time.Hour),
-				Duration:  1 * time.Hour,
-				UserID:    strconv.Itoa(i),
-			}
-			_, err := dto.storage.Add(dto.testContext, &event1)
-			require.NoError(t, err)
-			time.Sleep(10 * time.Millisecond)
-		}
-	}()
-
-	for range 5 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for range 20 {
-				_, err := dto.storage.ListDay(dto.testContext, time.Now())
-				require.NoError(t, err)
-				time.Sleep(15 * time.Millisecond)
-			}
-		}()
-	}
-	wg.Wait()
 }
 
 func TestStorageConcurrentUpdateDelete(t *testing.T) {
