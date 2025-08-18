@@ -10,8 +10,8 @@ import (
 	yml "gopkg.in/yaml.v3"
 )
 
-func NewConfig(pathtoConfigFile string) *model.Config {
-	data, err := envsubst.ReadFile(pathtoConfigFile)
+func NewConfig(pathToConfigFile string) *model.Config {
+	data, err := envsubst.ReadFile(pathToConfigFile)
 	if err != nil {
 		log.Fatalf("read config file: %v", err)
 	}

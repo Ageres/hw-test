@@ -21,7 +21,7 @@ type LoggerConf struct {
 //storage config model
 type StorageConf struct {
 	Type         string     `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
-	LoadTestData bool       `yaml:"load_test_data" validate:"required"`
+	LoadTestData bool       `yaml:"loadTestData" validate:"required"`
 	SQL          *SQLConfig `yaml:"sql"`
 }
 
@@ -50,10 +50,10 @@ type PoolConf struct {
 }
 
 type ConnConf struct {
-	MaxOpen     int `yaml:"max_open" validate:"gt=0"`
-	MaxIdle     int `yaml:"max_idle" validate:"gte=0"`
-	MaxLifeTime int `yaml:"max_life_time" validate:"gte=0"`
-	MaxIdleTime int `yaml:"max_idle_time" validate:"gte=0"`
+	MaxOpen     int `yaml:"maxOpen" validate:"gt=0"`
+	MaxIdle     int `yaml:"maxIdle" validate:"gte=0"`
+	MaxLifeTime int `yaml:"maxLifeTime" validate:"gte=0"`
+	MaxIdleTime int `yaml:"maxIdleTime" validate:"gte=0"`
 }
 
 func (d *DBConfig) DSN() string {
