@@ -70,8 +70,12 @@ type HTTPConf struct {
 }
 
 type ServerConf struct {
-	Host string `yaml:"host" validate:"required"`
-	Port int    `yaml:"port" validate:"required,gt=0"`
+	Host              string `yaml:"host" validate:"required"`
+	Port              int    `yaml:"port" validate:"required,gt=0"`
+	ReadHeaderTimeout int    `yaml:"readHeaderTimeout" validate:"gte=0"`
+	ReadTimeout       int    `yaml:"readTimeout" validate:"gte=0"`
+	WriteTimeout      int    `yaml:"writeTimeout" validate:"gte=0"`
+	IdleTimeout       int    `yaml:"idleTimeout" validate:"gte=0"`
 }
 
 func (sc *ServerConf) GetAddress() string {

@@ -3,6 +3,7 @@ package internalhttp
 import (
 	"context"
 	"net/http"
+	"time"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
@@ -28,7 +29,11 @@ func NewServer(ctx context.Context, httpConf *model.HTTPConf, app Application) S
 
 	s := &AppServer{
 		server: &http.Server{
-			Addr: address,
+			Addr:              address,
+			ReadHeaderTimeout: time.Duration(httpConf.Server.ReadHeaderTimeout) * time.Second,
+			ReadTimeout:       time.Duration(httpConf.Server.ReadTimeout) * time.Second,
+			WriteTimeout:      time.Duration(httpConf.Server.WriteTimeout) * time.Second,
+			IdleTimeout:       time.Duration(httpConf.Server.IdleTimeout) * time.Second,
 		},
 		logger:  lg.GetLogger(ctx),
 		app:     app,

@@ -30,3 +30,7 @@ http:
   server:
     host: localhost
     port: 8080
+    readHeaderTimeout: 5
+    readTimeout: 10
+    writeTimeout: 30
+    idleTimeout: 90
