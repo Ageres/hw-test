@@ -194,7 +194,6 @@ func MarshalAny(v any) string {
 			return fmt.Sprintf("{\"MarshalError\":\"cannot make string error: %v\"}", err1)
 		}
 		return string(errData)
-	} else {
-		return string(data)
 	}
+	return string(data)
 }
