@@ -16,30 +16,30 @@ const (
 	ErrContextDone             = "context done"
 )
 
-type StorageError struct {
+type SError struct {
 	Message string
 	Cause   error
 }
 
-func (serr *StorageError) Error() string {
+func (serr *SError) Error() string {
 	if serr.Cause != nil {
 		return fmt.Sprintf("%s: %v", serr.Message, serr.Cause)
 	}
 	return serr.Message
 }
 
-func (serr *StorageError) Unwrap() error {
+func (serr *SError) Unwrap() error {
 	return serr.Cause
 }
 
 func NewSimpleSError(message string) error {
-	return &StorageError{
+	return &SError{
 		Message: message,
 	}
 }
 
 func NewSError(message string, err error) error {
-	return &StorageError{
+	return &SError{
 		Message: message,
 		Cause:   err,
 	}
@@ -49,7 +49,7 @@ func NewSErrorWithTemplate(template string, messages ...any) error {
 	if template == "" {
 		return nil
 	}
-	return &StorageError{
+	return &SError{
 		Message: fmt.Sprintf(template, messages...),
 	}
 }
@@ -59,13 +59,13 @@ func NewSErrorWithMsgArr(messages []string) error {
 	if message == "" {
 		return nil
 	}
-	return &StorageError{
+	return &SError{
 		Message: message,
 	}
 }
 
 func NewSErrorWithCause(template string, err error) error {
-	return &StorageError{
+	return &SError{
 		Message: fmt.Sprintf(template, err),
 		Cause:   err,
 	}

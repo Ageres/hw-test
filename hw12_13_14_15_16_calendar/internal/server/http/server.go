@@ -48,7 +48,7 @@ func (s *AppServer) createRouter() http.Handler {
 	return s.loggingMiddleware(mux)
 }
 
-func (s *AppServer) Start(ctx context.Context) error {
+func (s *AppServer) Start(_ context.Context) error {
 	s.logger.Info("Starting HTTP server", map[string]any{
 		"address": s.address,
 	})

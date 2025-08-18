@@ -8,7 +8,7 @@ import (
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib" //nolint:revive
 	"github.com/jmoiron/sqlx"
 )
 

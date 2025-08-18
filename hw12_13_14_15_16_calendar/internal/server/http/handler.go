@@ -11,6 +11,6 @@ func (s *AppServer) helloHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello, World!"))
 }
 
-func (s *AppServer) methodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
+func (s *AppServer) methodNotAllowedHandler(w http.ResponseWriter, _ *http.Request) {
 	http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 }
