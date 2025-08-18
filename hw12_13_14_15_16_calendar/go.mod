@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.12
 
 require (
-	github.com/a8m/envsubst v1.4.1
+	github.com/a8m/envsubst v1.4.2
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
