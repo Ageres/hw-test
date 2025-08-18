@@ -45,9 +45,9 @@ linters:
     - copyloopvar
     - funlen
     #- gci
-    #- gocognit
-    #- goconst
-    #- gocritic
+    - gocognit
+    - goconst
+    - gocritic
     #- gocyclo
     #- godot
     #- gofmt
