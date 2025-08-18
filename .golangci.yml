@@ -30,12 +30,27 @@ issues:
         - dupl
         - gocyclo
         - gosec
+    - path: "(/|\\\\)config(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)logger(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)storage(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)server(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "cmd/calendar/main\\.go"
+      linters:
+        - depguard
 
 linters:
   disable-all: true
   enable:
     - asciicheck
-    #- depguard
+    - depguard
     - dogsled
     - dupl
     - bodyclose
