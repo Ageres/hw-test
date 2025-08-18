@@ -209,11 +209,11 @@ func (s *SqlStorage) ListMonth(ctx context.Context, startDay time.Time) ([]stora
 	return s.listEvents(ctx, start, end)
 }
 
-func (p *SqlStorage) getStartDayTime(start time.Time) time.Time {
+func (s *SqlStorage) getStartDayTime(start time.Time) time.Time {
 	return time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
 }
 
-func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+func (s *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list events", map[string]any{
 		"startTime": startTime,
@@ -221,7 +221,7 @@ func (p *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 	})
 
 	result := make([]storage.Event, 0, 100)
-	rows, err := p.db.QueryxContext(ctx, `
+	rows, err := s.db.QueryxContext(ctx, `
         SELECT id, title, start_time, duration, description, user_id, reminder 
         FROM events 
         WHERE tstzrange(start_time, start_time + (duration * INTERVAL '1 second')) 
