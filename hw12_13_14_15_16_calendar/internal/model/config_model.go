@@ -2,7 +2,7 @@ package model
 
 import "fmt"
 
-//-----------------------------
+// -----------------------------
 // common config model.
 type Config struct {
 	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
@@ -10,14 +10,14 @@ type Config struct {
 	HTTP    *HTTPConf    `yaml:"http" validate:"required"`
 }
 
-//-----------------------------
+// -----------------------------
 // logger config model.
 type LoggerConf struct {
 	Level  string `yaml:"level" validate:"oneof=DEBUG INFO WARN ERROR"`
 	Format string `yaml:"format" validate:"oneof=JSON TEXT COLOUR_TEXT"`
 }
 
-//-----------------------------
+// -----------------------------
 // storage config model.
 type StorageConf struct {
 	Type         string     `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
@@ -63,7 +63,7 @@ func (d *DBConfig) DSN() string {
 	)
 }
 
-//-----------------------------
+// -----------------------------
 // http config model.
 type HTTPConf struct {
 	Server *ServerConf `yaml:"server" validate:"required"`
