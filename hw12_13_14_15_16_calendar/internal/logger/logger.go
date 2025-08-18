@@ -30,7 +30,7 @@ type LogFormat string
 const (
 	JSON        LogFormat = "JSON"
 	TEXT        LogFormat = "TEXT"
-	COLOUR_TEXT LogFormat = "COLOUR_TEXT"
+	COLOUR_TEXT LogFormat = "COLOUR_TEXT" //nolint:stylecheck
 )
 
 type Logger interface {
