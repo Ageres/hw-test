@@ -1,6 +1,8 @@
 BIN := "./bin/calendar"
 DOCKER_IMG="calendar:develop"
-DB_DSN="host=localhost port=5432 user=user password=password dbname=calendar sslmode=disable"
+DB_USER ?= user
+DB_PASSWORD ?= password
+DB_DSN="host=localhost port=5432 user=$(DB_USER) password=$(DB_PASSWORD) dbname=calendar sslmode=disable"
 MIGRATIONS_DIR="./migrations"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
