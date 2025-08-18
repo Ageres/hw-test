@@ -765,8 +765,11 @@ func newTestMemoryStorageDto() *TestMemoryStorageDto {
 }
 
 func (dto *TestMemoryStorageDto) buildNewStorage() *TestMemoryStorageDto {
-	storageConfRef := model.StorageConf{
+	im := model.InMemoryConf{
 		LoadTestData: false,
+	}
+	storageConfRef := model.StorageConf{
+		InMemory: &im,
 	}
 	dto.storage = NewMemoryStorage(dto.testContext, &storageConfRef).(*MemoryStorage)
 	return dto

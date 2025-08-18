@@ -21,7 +21,7 @@ func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) st
 	storage := &MemoryStorage{
 		events: make(map[string]storage.Event),
 	}
-	if storageConfRef.LoadTestData {
+	if storageConfRef.InMemory.LoadTestData {
 		storage.generateTestEvents()
 		lg.GetLogger(ctx).Info("test event loaded")
 	}
@@ -177,43 +177,38 @@ func (m *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.
 
 func (m *MemoryStorage) generateTestEvents() {
 	// параметры генерации
-	startTime := time.Date(2050, 1, 1, 0, 0, 0, 0, time.UTC)
-	period := 12 * time.Hour
 	userCount := 100
 	eventsPerUser := 100
+	eventCounter := 0
 
-	eventID := 0
 	for userID := 1; userID <= userCount; userID++ {
 		userIDStr := fmt.Sprintf("user-%04d", userID)
-		currentTime := startTime
 
 		for eventNum := 1; eventNum <= eventsPerUser; eventNum++ {
-			// генерация ID эвента
-			eventIDStr := fmt.Sprintf("%08d-%04d-%04d-%04d-%012d",
-				0, 0, 0, 0, eventID)
-			eventID++
-			// генерация тайтла эвента
+			eventID := fmt.Sprintf("00000000-0000-0000-0000-%012d", eventCounter)
+			eventCounter++
+
 			title := fmt.Sprintf("title_%s_%d", userIDStr, eventNum)
-			// генерация описания эвента
 			description := fmt.Sprintf("%s_desc", title)
-			// генерация случайной длительности эвента (1 мин - 2 суток)
+
 			duration := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second //nolint:gosec // генерация тестовых данных
-			// генерация случайного периода напоминания до эвента (1 мин - 2 суток)
+
+			startOffset := rand.Float64()*1095 - 547.5 // дней
+			startTime := time.Now().Add(time.Duration(startOffset * 24 * float64(time.Hour)))
 
 			reminder := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second //nolint:gosec // генерация тестовых данных
-			// эвент
+
 			event := storage.Event{
-				ID:          eventIDStr,
+				ID:          eventID,
 				Title:       title,
-				StartTime:   currentTime,
+				StartTime:   startTime,
 				Duration:    duration,
 				Description: description,
 				UserID:      userIDStr,
 				Reminder:    reminder,
 			}
-			m.events[eventIDStr] = event
-			// время для следующего события
-			currentTime = currentTime.Add(period)
+
+			m.events[eventID] = event
 		}
 	}
 }
