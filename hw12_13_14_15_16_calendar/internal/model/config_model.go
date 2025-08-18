@@ -20,9 +20,13 @@ type LoggerConf struct {
 // -----------------------------
 // storage config model.
 type StorageConf struct {
-	Type         string     `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
-	LoadTestData bool       `yaml:"loadTestData" validate:"required"`
-	SQL          *SQLConfig `yaml:"sql"`
+	Type     string        `yaml:"type" validate:"oneof=IN_MEMORY SQL"`
+	InMemory *InMemoryConf `yaml:"inMemory"`
+	SQL      *SQLConfig    `yaml:"sql"`
+}
+
+type InMemoryConf struct {
+	LoadTestData bool `yaml:"loadTestData" validate:"required"`
 }
 
 type SQLConfig struct {
