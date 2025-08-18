@@ -1,4 +1,4 @@
-package storage_config
+package config
 
 import (
 	"context"
@@ -16,7 +16,7 @@ var ErrUnknowTypeStorageMsgTemplate = "unknow type storage: %s"
 type StorageType string
 
 const (
-	IN_MEMORY StorageType = "IN_MEMORY"
+	IN_MEMORY StorageType = "IN_MEMORY" //nolint:stylecheck
 	SQL       StorageType = "SQL"
 )
 
