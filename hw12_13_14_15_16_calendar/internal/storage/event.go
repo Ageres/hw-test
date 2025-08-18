@@ -38,7 +38,7 @@ func (e *Event) ToNotification() *model.Notification {
 	}
 }
 
-func (e *Event) GenerateEventId() {
+func (e *Event) GenerateEventID() {
 	e.ID = FnUUIDGenerator().String()
 }
 

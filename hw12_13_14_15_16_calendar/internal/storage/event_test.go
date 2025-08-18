@@ -42,7 +42,7 @@ func TestEvent_GenerateEventId(t *testing.T) {
 	event := &storage.Event{}
 	require.Empty(t, event.ID)
 
-	event.GenerateEventId()
+	event.GenerateEventID()
 	require.NotEmpty(t, event.ID)
 
 	err := uuid.Validate(event.ID)

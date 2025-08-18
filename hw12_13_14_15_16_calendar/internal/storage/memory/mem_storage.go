@@ -36,7 +36,7 @@ func (m *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 		logger.WithError(err).Error("add event")
 		return nil, err
 	}
-	eventRef.GenerateEventId()
+	eventRef.GenerateEventID()
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
