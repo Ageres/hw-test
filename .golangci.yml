@@ -34,12 +34,12 @@ issues:
 linters:
   disable-all: true
   enable:
-    #- asciicheck
+    - asciicheck
     #- depguard
-    #- dogsled
-    #- dupl
-    #- bodyclose
-    #- durationcheck
+    - dogsled
+    - dupl
+    - bodyclose
+    - durationcheck
     #- errorlint
     #- exhaustive
     #- copyloopvar
