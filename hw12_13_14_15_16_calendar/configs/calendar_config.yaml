@@ -6,7 +6,7 @@ logger:
 
 storage:
   # IN_MEMORY, SQL
-  type: IN_MEMORY
+  type: SQL
   loadTestData: true # генерация и загрузка тестовых событий в хранилище при старте
   sql:
     db:
