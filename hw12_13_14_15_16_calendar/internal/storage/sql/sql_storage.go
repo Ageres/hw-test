@@ -52,7 +52,7 @@ func NewSqlStorage(ctx context.Context, storageConfRef *model.StorageConf) stora
 	}
 }
 
-func (s *SqlStorage) Close(ctx context.Context) error {
+func (s *SqlStorage) Close() error {
 	return s.db.Close()
 }
 
