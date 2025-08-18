@@ -193,7 +193,7 @@ func (m *MemoryStorage) generateTestEvents() {
 
 			duration := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second //nolint:gosec // генерация тестовых данных
 
-			startOffset := rand.Float64()*1095 - 547.5 // дней
+			startOffset := rand.Float64()*1095 - 547.5 //nolint:gosec // генерация тестовых данных
 			startTime := time.Now().Add(time.Duration(startOffset * 24 * float64(time.Hour)))
 
 			reminder := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second //nolint:gosec // генерация тестовых данных
