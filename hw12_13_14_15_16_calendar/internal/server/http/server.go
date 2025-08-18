@@ -23,7 +23,7 @@ type AppServer struct {
 type Application interface { // TODO
 }
 
-func NewServer(ctx context.Context, httpConf *model.HttpConf, app Application) Server {
+func NewServer(ctx context.Context, httpConf *model.HTTPConf, app Application) Server {
 	address := httpConf.Server.GetAddress()
 
 	s := &AppServer{

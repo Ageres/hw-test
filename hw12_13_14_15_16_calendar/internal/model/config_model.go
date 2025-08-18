@@ -7,7 +7,7 @@ import "fmt"
 type Config struct {
 	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
 	Storage *StorageConf `yaml:"storage" validate:"required"`
-	HTTP    *HttpConf    `yaml:"http" validate:"required"`
+	HTTP    *HTTPConf    `yaml:"http" validate:"required"`
 }
 
 //-----------------------------
@@ -65,7 +65,7 @@ func (d *DBConfig) DSN() string {
 
 //-----------------------------
 // http config model.
-type HttpConf struct {
+type HTTPConf struct {
 	Server *ServerConf `yaml:"server" validate:"required"`
 }
 
