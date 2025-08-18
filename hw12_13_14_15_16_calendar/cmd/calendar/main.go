@@ -19,7 +19,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 
 	// "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
-	//internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
+	// internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 )
@@ -62,7 +62,7 @@ func main() {
 	if err := server.Start(ctx); err != nil {
 		logger.GetLogger(ctx).WithError(err).Error("failed to start http server")
 		cancel()
-		os.Exit(1)
+		os.Exit(1) //nolint:gocritic
 	}
 
 }
