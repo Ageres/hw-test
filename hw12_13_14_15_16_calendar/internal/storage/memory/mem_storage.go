@@ -3,7 +3,6 @@ package memorystorage
 import (
 	"context"
 	"fmt"
-
 	"math/rand"
 	"sync"
 	"time"

@@ -84,7 +84,6 @@ func (s *SQLStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		&dbResp.errorMessage,
 		&dbResp.conflictEventID,
 	)
-
 	if err != nil {
 		err = storage.NewSError(ErrDatabaseMsg, err)
 		logger.WithError(err).Error("add event", map[string]any{"error": err})
@@ -133,7 +132,6 @@ func (s *SQLStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		&dbResp.conflictEventID,
 		&dbResp.conflictUserID,
 	)
-
 	if err != nil {
 		err = storage.NewSError(ErrDatabaseMsg, err)
 		logger.WithError(err).Error("update event")
