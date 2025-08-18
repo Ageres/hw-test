@@ -28,7 +28,7 @@ func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) st
 	return storage
 }
 
-func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
+func (m *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("add event", map[string]any{"event": lg.MarshalAny(eventRef)})
 
@@ -38,16 +38,16 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 	}
 	eventRef.GenerateEventId()
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-	if _, exists := s.events[eventRef.ID]; exists {
+	if _, exists := m.events[eventRef.ID]; exists {
 		err := storage.NewSErrorWithTemplate("failed to add event, event with this id already exists: %s", eventRef.ID)
 		logger.WithError(err).Error("add event")
 		return nil, err
 	}
 
-	for _, existingEvent := range s.events {
+	for _, existingEvent := range m.events {
 		if existingEvent.UserID == eventRef.UserID &&
 			overlaps(&existingEvent, eventRef) {
 			err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, existingEvent.ID)
@@ -56,12 +56,12 @@ func (s *MemoryStorage) Add(ctx context.Context, eventRef *storage.Event) (*stor
 		}
 	}
 
-	s.events[eventRef.ID] = *eventRef
+	m.events[eventRef.ID] = *eventRef
 	result := *eventRef
 	return &result, nil
 }
 
-func (s *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) error {
+func (m *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) error {
 	logger := lg.GetLogger(ctx)
 	logger.Info("update event", map[string]any{"event": lg.MarshalAny(eventRef)})
 
@@ -70,11 +70,11 @@ func (s *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) err
 		return err
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
 	id := eventRef.ID
-	oldEvent, exists := s.events[id]
+	oldEvent, exists := m.events[id]
 	if !exists {
 		return storage.ErrEventNotFound
 	}
@@ -84,7 +84,7 @@ func (s *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) err
 		return err
 	}
 
-	for _, existingEvent := range s.events {
+	for _, existingEvent := range m.events {
 		if existingEvent.UserID == eventRef.UserID &&
 			existingEvent.ID != id &&
 			overlaps(&existingEvent, eventRef) {
@@ -94,11 +94,11 @@ func (s *MemoryStorage) Update(ctx context.Context, eventRef *storage.Event) err
 		}
 	}
 
-	s.events[id] = *eventRef
+	m.events[id] = *eventRef
 	return nil
 }
 
-func (s *MemoryStorage) Delete(ctx context.Context, id string) error {
+func (m *MemoryStorage) Delete(ctx context.Context, id string) error {
 	logger := lg.GetLogger(ctx)
 	logger.Info("delete event", map[string]any{"eventId": id})
 
@@ -107,56 +107,56 @@ func (s *MemoryStorage) Delete(ctx context.Context, id string) error {
 		return err
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-	_, exists := s.events[id]
+	_, exists := m.events[id]
 	if !exists {
 		return storage.ErrEventNotFound
 	}
 
-	delete(s.events, id)
+	delete(m.events, id)
 	return nil
 }
 
-func (s *MemoryStorage) ListDay(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+func (m *MemoryStorage) ListDay(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list day events", map[string]any{"startDay": startDay})
 
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.Add(24 * time.Hour)
-	return s.listEvents(ctx, startTime, endTime)
+	return m.listEvents(ctx, startTime, endTime)
 }
 
-func (s *MemoryStorage) ListWeek(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+func (m *MemoryStorage) ListWeek(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list week events", map[string]any{"startDay": startDay})
 
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.AddDate(0, 0, 7)
-	return s.listEvents(ctx, startTime, endTime)
+	return m.listEvents(ctx, startTime, endTime)
 }
 
-func (s *MemoryStorage) ListMonth(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+func (m *MemoryStorage) ListMonth(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list month events", map[string]any{"startDay": startDay})
 
 	startTime := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	endTime := startTime.AddDate(0, 1, 0)
-	return s.listEvents(ctx, startTime, endTime)
+	return m.listEvents(ctx, startTime, endTime)
 }
 
-func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+func (m *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list events", map[string]any{
 		"startTime": startTime,
 		"endTime":   endTime,
 	})
 
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	var result []storage.Event
-	for _, event := range s.events {
+	for _, event := range m.events {
 		select {
 		case <-ctx.Done():
 			err := storage.NewSError(storage.ErrContextDone, ctx.Err())

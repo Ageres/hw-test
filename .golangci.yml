@@ -70,7 +70,7 @@ linters:
     - predeclared
     #- revive
     - staticcheck
-    #- stylecheck
+    - stylecheck
     - tagliatelle
     - thelper
     - typecheck

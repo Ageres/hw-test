@@ -774,11 +774,11 @@ func (dto *TestMemoryStorageDto) buildNewStorage() *TestMemoryStorageDto {
 
 func (dto *TestMemoryStorageDto) buildNewEvents() *TestMemoryStorageDto {
 	dto.now = time.Now()
-	correctEventId := "aaeef68f-267d-459d-bda6-c900e27f4afe"
+	correctEventID := "aaeef68f-267d-459d-bda6-c900e27f4afe"
 	userIDOne := "d6e2955f-7a5b-47f2-8f03-999ad489f51a"
 	userIDTwo := "6cf51d87-ab61-437e-9c8c-193984d07bf6"
 	event0 := storage.Event{
-		ID:          correctEventId,
+		ID:          correctEventID,
 		Title:       "Event 0",
 		StartTime:   dto.now.Add(1 * time.Hour),
 		Duration:    30 * time.Minute,
