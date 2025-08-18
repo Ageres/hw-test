@@ -69,7 +69,7 @@ func TestValidateEventId(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := storage.ValidateEventId(tc.id)
+			err := storage.ValidateEventID(tc.id)
 			if tc.expected == nil {
 				require.NoError(t, err)
 			} else {

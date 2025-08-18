@@ -42,7 +42,7 @@ func (e *Event) GenerateEventId() {
 	e.ID = FnUuidGenerator().String()
 }
 
-func ValidateEventId(eventId string) error {
+func ValidateEventID(eventId string) error {
 	err := uuid.Validate(eventId)
 	if err != nil {
 		return NewSError("failed to validate event id", err)

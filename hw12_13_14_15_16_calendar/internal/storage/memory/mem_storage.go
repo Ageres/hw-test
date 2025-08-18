@@ -102,7 +102,7 @@ func (m *MemoryStorage) Delete(ctx context.Context, id string) error {
 	logger := lg.GetLogger(ctx)
 	logger.Info("delete event", map[string]any{"eventId": id})
 
-	if err := storage.ValidateEventId(id); err != nil {
+	if err := storage.ValidateEventID(id); err != nil {
 		logger.WithError(err).Error("delete event")
 		return err
 	}
