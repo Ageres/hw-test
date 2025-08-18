@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Use:   "calendar",
 	Short: "Календарь",
 	Long:  "Приложение \"Календарь\" - сервис для хранения календарных событий и отправки уведомлений.",
-	Run: func(_ *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		if cliArg.version {
 			printVersion()
 		}
