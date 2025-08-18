@@ -28,7 +28,7 @@ func NewStorage(ctx context.Context, storageConfRef *model.StorageConf) s.Storag
 	case IN_MEMORY:
 		storage = memorystorage.NewMemoryStorage(ctx, storageConfRef)
 	case SQL:
-		storage = sqlstorage.NewSqlStorage(ctx, storageConfRef)
+		storage = sqlstorage.NewSQLStorage(ctx, storageConfRef)
 	default:
 		logger.Error("unknow type storage", map[string]any{
 			"storageType": sType,

@@ -14,18 +14,18 @@ import (
 
 var ErrDatabaseMsg = "database error"
 
-type SqlStorage struct {
+type SQLStorage struct {
 	db *sqlx.DB
 }
 
 type dbResp struct {
 	statusCode      int
 	errorMessage    string
-	conflictEventId string
-	conflictUserId  string
+	conflictEventID string
+	conflictUserID  string
 }
 
-func NewSqlStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
+func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
 	logger := lg.GetLogger(ctx)
 
 	sqlConfRef := storageConfRef.SQL
@@ -47,16 +47,16 @@ func NewSqlStorage(ctx context.Context, storageConfRef *model.StorageConf) stora
 		os.Exit(1)
 	}
 
-	return &SqlStorage{
+	return &SQLStorage{
 		db: db,
 	}
 }
 
-func (s *SqlStorage) Close() error {
+func (s *SQLStorage) Close() error {
 	return s.db.Close()
 }
 
-func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
+func (s *SQLStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("add event", map[string]any{"event": lg.MarshalAny(eventRef)})
 
@@ -80,7 +80,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		&eventID,
 		&dbResp.statusCode,
 		&dbResp.errorMessage,
-		&dbResp.conflictEventId,
+		&dbResp.conflictEventID,
 	)
 
 	if err != nil {
@@ -95,7 +95,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 		savedEvent.ID = eventID
 		return &savedEvent, nil
 	case 409:
-		err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventId)
+		err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventID)
 		logger.WithError(err).Error("add event", map[string]any{"databaseResponse": dbResp})
 		return nil, err
 	default:
@@ -105,7 +105,7 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	}
 }
 
-func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error {
+func (s *SQLStorage) Update(ctx context.Context, eventRef *storage.Event) error {
 	logger := lg.GetLogger(ctx)
 	logger.Info("update event", map[string]any{"event": lg.MarshalAny(eventRef)})
 
@@ -128,8 +128,8 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	).Scan(
 		&dbResp.statusCode,
 		&dbResp.errorMessage,
-		&dbResp.conflictEventId,
-		&dbResp.conflictUserId,
+		&dbResp.conflictEventID,
+		&dbResp.conflictUserID,
 	)
 
 	if err != nil {
@@ -142,7 +142,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	case 200:
 		return nil
 	case 403:
-		err := storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, eventRef.UserID, dbResp.conflictUserId)
+		err := storage.NewSErrorWithTemplate(storage.ErrUserConflictMsgTemplate, eventRef.UserID, dbResp.conflictUserID)
 		logger.WithError(err).Error("update event", map[string]any{"databaseResponse": dbResp})
 		return err
 	case 404:
@@ -150,7 +150,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		logger.WithError(err).Error("update event", map[string]any{"databaseResponse": dbResp})
 		return err
 	case 409:
-		err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventId)
+		err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventID)
 		logger.WithError(err).Error("update event", map[string]any{"databaseResponse": dbResp})
 		return err
 	default:
@@ -158,7 +158,7 @@ func (s *SqlStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 	}
 }
 
-func (s *SqlStorage) Delete(ctx context.Context, id string) error {
+func (s *SQLStorage) Delete(ctx context.Context, id string) error {
 	logger := lg.GetLogger(ctx)
 	logger.Info("delete event", map[string]any{"eventId": id})
 
@@ -180,7 +180,7 @@ func (s *SqlStorage) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *SqlStorage) ListDay(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+func (s *SQLStorage) ListDay(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list day events", map[string]any{"startDay": startDay})
 
@@ -189,7 +189,7 @@ func (s *SqlStorage) ListDay(ctx context.Context, startDay time.Time) ([]storage
 	return s.listEvents(ctx, start, end)
 }
 
-func (s *SqlStorage) ListWeek(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+func (s *SQLStorage) ListWeek(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list week events", map[string]any{"startDay": startDay})
 
@@ -198,7 +198,7 @@ func (s *SqlStorage) ListWeek(ctx context.Context, startDay time.Time) ([]storag
 	return s.listEvents(ctx, start, end)
 }
 
-func (s *SqlStorage) ListMonth(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
+func (s *SQLStorage) ListMonth(ctx context.Context, startDay time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list month events", map[string]any{"startDay": startDay})
 
@@ -207,11 +207,11 @@ func (s *SqlStorage) ListMonth(ctx context.Context, startDay time.Time) ([]stora
 	return s.listEvents(ctx, start, end)
 }
 
-func (s *SqlStorage) getStartDayTime(start time.Time) time.Time {
+func (s *SQLStorage) getStartDayTime(start time.Time) time.Time {
 	return time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
 }
 
-func (s *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+func (s *SQLStorage) listEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list events", map[string]any{
 		"startTime": startTime,

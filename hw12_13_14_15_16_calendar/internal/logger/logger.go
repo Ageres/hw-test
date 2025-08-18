@@ -173,7 +173,7 @@ func buildSlogHandlerOptions(slogLevel slog.Level) *slog.HandlerOptions {
 	}
 }
 
-type JsonError struct {
+type JSONError struct {
 	Value string `json:"value"`
 	Error string `json:"error"`
 }
@@ -185,7 +185,7 @@ func MarshalAny(v any) string {
 	}
 	data, err := json.Marshal(v)
 	if err != nil {
-		errMetadata := JsonError{
+		errMetadata := JSONError{
 			Error: err.Error(),
 			Value: fmt.Sprintf("%v", v),
 		}
