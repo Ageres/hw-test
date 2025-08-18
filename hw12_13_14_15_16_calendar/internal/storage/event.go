@@ -50,7 +50,7 @@ func ValidateEventId(eventId string) error {
 	return nil
 }
 
-// без валидации ID
+// без валидации ID.
 func ValidateEvent(e *Event) error {
 	if e == nil {
 		return ErrEventIsNil

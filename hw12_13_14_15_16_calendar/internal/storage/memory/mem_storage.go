@@ -218,7 +218,7 @@ func (m *MemoryStorage) generateTestEvents() {
 	}
 }
 
-// проверка двух эвентов на пересечение времени
+// проверка двух эвентов на пересечение времени.
 func overlaps(e, other *storage.Event) bool {
 	if e == nil || other == nil {
 		return false

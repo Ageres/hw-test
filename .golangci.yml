@@ -48,8 +48,8 @@ linters:
     - gocognit
     - goconst
     - gocritic
-    #- gocyclo
-    #- godot
+    - gocyclo
+    - godot
     #- gofmt
     #- gofumpt
     #- goheader

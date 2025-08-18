@@ -751,7 +751,7 @@ func TestGenerateTestEvents(t *testing.T) {
 }
 
 // -------------------------------------------------------------------------------------
-// Вспомогательные функции
+// Вспомогательные функции.
 type TestMemoryStorageDto struct {
 	storage     *MemoryStorage
 	events      []storage.Event

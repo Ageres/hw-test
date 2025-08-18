@@ -178,7 +178,7 @@ type JsonError struct {
 	Error string `json:"error"`
 }
 
-// использовать только для логирования объектов
+// использовать только для логирования объектов.
 func MarshalAny(v any) string {
 	if v == nil {
 		return ""

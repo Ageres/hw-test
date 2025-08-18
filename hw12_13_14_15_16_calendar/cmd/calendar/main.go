@@ -4,13 +4,9 @@ import (
 	"context"
 	"log"
 	"os"
-
-	// "os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	// "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
@@ -18,15 +14,13 @@ import (
 	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 
-	// "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
-	// internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
-
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 )
 
 // запуск:
 // $env:DB_USER = 'otus_user'; $env:DB_PASSWORD = 'otus_password'
 // go run .\cmd\calendar\main.go --version --config=./configs/calendar_config.yaml
+
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -41,6 +35,8 @@ func main() {
 	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
+
+	testStorage(ctx, storage)
 
 	calendar := app.New(ctx, storage)
 
