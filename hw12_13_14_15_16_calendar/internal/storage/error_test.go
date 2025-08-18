@@ -51,8 +51,8 @@ func TestStorageError(t *testing.T) {
 		err := NewSErrorWithCause("wrapper: %v", cause)
 		require.Equal(t, "wrapper: original error: original error", err.Error())
 
-		// Проверяем Unwrap
-		storageErr, ok := err.(*StorageError)
+		var storageErr *StorageError
+		ok := errors.As(err, &storageErr)
 		require.True(t, ok)
 		require.Equal(t, cause, storageErr.Cause)
 		require.Equal(t, cause, errors.Unwrap(err))

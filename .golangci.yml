@@ -40,10 +40,10 @@ linters:
     - dupl
     - bodyclose
     - durationcheck
-    #- errorlint
-    #- exhaustive
-    #- copyloopvar
-    #- funlen
+    - errorlint
+    - exhaustive
+    - copyloopvar
+    - funlen
     #- gci
     #- gocognit
     #- goconst
