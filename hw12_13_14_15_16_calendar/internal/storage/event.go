@@ -11,7 +11,7 @@ import (
 var FnUuidGenerator = func() uuid.UUID { return uuid.New() }
 
 type Event struct {
-	ID          string //UUID
+	ID          string // UUID
 	Title       string
 	StartTime   time.Time
 	Duration    time.Duration
