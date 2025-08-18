@@ -56,7 +56,6 @@ func TestStorageAdd(t *testing.T) {
 		require.Equal(t, 3, callCount, "UUID generator should be called 3 times")
 
 		for i, event := range addedEvents {
-
 			expectedID := mockUUIDs[i].String()
 			require.Equal(t, expectedID, event.ID, "Event ID should match mock UUID")
 
@@ -308,7 +307,6 @@ func TestStorageUpdate(t *testing.T) {
 		require.True(t, exists2)
 		require.Equal(t, event2, storedEvent2)
 	})
-
 }
 
 func TestStorageDelete(t *testing.T) {
@@ -483,7 +481,6 @@ func TestStorageListDayEvents(t *testing.T) {
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "context done")
 	})
-
 }
 
 func TestStorageListWeekEvents(t *testing.T) {

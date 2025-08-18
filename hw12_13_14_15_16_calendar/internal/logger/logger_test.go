@@ -95,7 +95,6 @@ func TestLoggerLevel(t *testing.T) {
 		require.Contains(t, output, `"level":"WARN","msg":"warn message"`)
 		require.Contains(t, output, `"level":"ERROR","msg":"error message"`)
 	})
-
 }
 
 func TestLoggerFormat(t *testing.T) {

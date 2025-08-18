@@ -266,7 +266,6 @@ func (s *SqlStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 			return nil, err
 		default:
 		}
-
 	}
 
 	if err := rows.Err(); err != nil {

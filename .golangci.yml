@@ -50,31 +50,31 @@ linters:
     - gocritic
     - gocyclo
     - godot
-    #- gofmt
+    #- gofmt #------------
     #- gofumpt
-    #- goheader
-    #- goprintffuncname
+    - goheader
+    - goprintffuncname
     #- gosec
-    #- gosimple
-    #- govet
-    #- importas
-    #- ineffassign
+    - gosimple
+    - govet
+    - importas
+    - ineffassign
     #- lll
-    #- makezero
-    #- misspell
-    #- nestif
-    #- nilerr
-    #- noctx
-    #- nolintlint
-    #- prealloc
-    #- predeclared
+    - makezero
+    - misspell
+    - nestif
+    - nilerr
+    - noctx
+    - nolintlint
+    - prealloc
+    - predeclared
     #- revive
-    #- staticcheck
+    - staticcheck
     #- stylecheck
     - tagliatelle
-    #- thelper
-    #- typecheck
-    #- unconvert
-    #- unparam
-    #- unused
-    #- whitespace
+    - thelper
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace

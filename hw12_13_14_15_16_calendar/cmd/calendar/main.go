@@ -60,7 +60,6 @@ func main() {
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
-
 }
 
 func testStorage(ctx context.Context, storage storage.Storage) {
@@ -128,5 +127,4 @@ func testStorage(ctx context.Context, storage storage.Storage) {
 	*/
 	log.Println("-----------------------1999-------------------------")
 	os.Exit(0)
-
 }

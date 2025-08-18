@@ -157,7 +157,6 @@ func (s *MemoryStorage) listEvents(ctx context.Context, startTime, endTime time.
 	defer s.mu.RUnlock()
 	var result []storage.Event
 	for _, event := range s.events {
-
 		select {
 		case <-ctx.Done():
 			err := storage.NewSError(storage.ErrContextDone, ctx.Err())
