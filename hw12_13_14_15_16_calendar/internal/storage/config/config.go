@@ -16,8 +16,8 @@ var ErrUnknowTypeStorageMsgTemplate = "unknow type storage: %s"
 type StorageType string
 
 const (
-	IN_MEMORY StorageType = "IN_MEMORY" //nolint:stylecheck
-	SQL       StorageType = "SQL"
+	INMEMORY StorageType = "IN_MEMORY"
+	SQL      StorageType = "SQL"
 )
 
 func NewStorage(ctx context.Context, storageConfRef *model.StorageConf) s.Storage {
@@ -25,7 +25,7 @@ func NewStorage(ctx context.Context, storageConfRef *model.StorageConf) s.Storag
 	sType := storageConfRef.Type
 	var storage s.Storage
 	switch StorageType(sType) {
-	case IN_MEMORY:
+	case INMEMORY:
 		storage = memorystorage.NewMemoryStorage(ctx, storageConfRef)
 	case SQL:
 		storage = sqlstorage.NewSQLStorage(ctx, storageConfRef)

@@ -28,9 +28,9 @@ const (
 type LogFormat string
 
 const (
-	JSON        LogFormat = "JSON"
-	TEXT        LogFormat = "TEXT"
-	COLOUR_TEXT LogFormat = "COLOUR_TEXT" //nolint:stylecheck
+	JSON       LogFormat = "JSON"
+	TEXT       LogFormat = "TEXT"
+	COLOURTEXT LogFormat = "COLOUR_TEXT"
 )
 
 type Logger interface {
@@ -157,7 +157,7 @@ func buildSlogHandler(slogLevel slog.Level, format string, output io.Writer) slo
 	case TEXT:
 		optRef := buildSlogHandlerOptions(slogLevel)
 		slogHandler = slog.NewTextHandler(output, optRef)
-	case COLOUR_TEXT:
+	case COLOURTEXT:
 		slogHandler = cslog.NewHandler(output, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
 	default:
 		slogHandler = cslog.NewHandler(output, &cslog.HandlerOptions{Theme: cslog.NewBrightTheme(), Level: slogLevel})
