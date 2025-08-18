@@ -6,7 +6,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 
 	"github.com/a8m/envsubst"
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v2"
 )
 
 func NewConfig(pathtoConfigFile string) *model.Config {
