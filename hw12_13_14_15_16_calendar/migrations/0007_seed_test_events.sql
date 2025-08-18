@@ -11,6 +11,8 @@ DECLARE
     event_start TIMESTAMPTZ;
     i INTEGER;
     j INTEGER;
+    event_id UUID;
+    event_counter INTEGER := 0;
 BEGIN
     FOR i IN 1..user_count LOOP
         user_id := 'user-' || LPAD(i::TEXT, 4, '0');
@@ -21,8 +23,11 @@ BEGIN
             event_duration := (60 + random() * 172799)::INTEGER;
             event_reminder := (60 + random() * 172799)::INTEGER; 
             event_start := NOW() + (random() * 1095 - 547.5) * INTERVAL '1 day';
+            event_id := ('00000000-0000-0000-0000-' || LPAD(event_counter::TEXT, 12, '0'))::UUID;
+            event_counter := event_counter + 1;
             
             INSERT INTO events (
+                id,
                 title,
                 start_time,
                 duration,
@@ -30,6 +35,7 @@ BEGIN
                 user_id,
                 reminder
             ) VALUES (
+                event_id,
                 event_title,
                 event_start,
                 event_duration,
