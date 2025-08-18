@@ -3,6 +3,7 @@ package memorystorage
 import (
 	"context"
 	"fmt"
+
 	"math/rand"
 	"sync"
 	"time"
@@ -197,9 +198,10 @@ func (m *MemoryStorage) generateTestEvents() {
 			// генерация описания эвента
 			description := fmt.Sprintf("%s_desc", title)
 			// генерация случайной длительности эвента (1 мин - 2 суток)
-			duration := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second
+			duration := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second //nolint:gosec // генерация тестовых данных
 			// генерация случайного периода напоминания до эвента (1 мин - 2 суток)
-			reminder := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second
+
+			reminder := time.Duration(rand.Int63n(2*24*60*60-60)+1) * time.Second //nolint:gosec // генерация тестовых данных
 			// эвент
 			event := storage.Event{
 				ID:          eventIDStr,
