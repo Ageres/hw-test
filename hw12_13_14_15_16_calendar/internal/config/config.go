@@ -4,9 +4,8 @@ import (
 	"log"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
-	vld "github.com/go-playground/validator/v10"
-
 	"github.com/a8m/envsubst"
+	vld "github.com/go-playground/validator/v10"
 	yml "gopkg.in/yaml.v3"
 )
 
