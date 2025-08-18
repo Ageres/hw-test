@@ -6,7 +6,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 
 	"github.com/a8m/envsubst"
-	"gopkg.in/yaml.v3"
+	y "gopkg.in/yaml.v3"
 )
 
 func NewConfig(pathtoConfigFile string) *model.Config {
@@ -16,7 +16,7 @@ func NewConfig(pathtoConfigFile string) *model.Config {
 	}
 
 	config := new(model.Config)
-	unmarshalErr := yaml.Unmarshal(data, config)
+	unmarshalErr := y.Unmarshal(data, config)
 	if unmarshalErr != nil {
 		log.Fatalf("unmarshal config file: %v", err)
 	}
