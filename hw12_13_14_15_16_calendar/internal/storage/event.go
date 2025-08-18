@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var FnUuidGenerator = func() uuid.UUID { return uuid.New() }
+var FnUuidGenerator = uuid.New
 
 type Event struct {
 	ID          string // UUID
