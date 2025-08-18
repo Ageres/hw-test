@@ -59,7 +59,7 @@ linters:
     - govet
     - importas
     - ineffassign
-    #- lll
+    - lll
     - makezero
     - misspell
     - nestif

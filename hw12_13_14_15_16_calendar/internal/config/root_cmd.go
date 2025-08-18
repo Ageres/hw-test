@@ -38,6 +38,9 @@ func Execute() CliArg {
 
 func init() {
 	cliArg = CliArg{}
-	rootCmd.PersistentFlags().StringVar(&cliArg.PathToConfigFile, "config", "./config.yaml", "config file (default is ./config.yaml)")
+	rootCmd.PersistentFlags().StringVar(
+		&cliArg.PathToConfigFile, "config",
+		"./config.yaml", "config file (default is ./config.yaml)",
+	)
 	rootCmd.PersistentFlags().BoolVar(&cliArg.version, "version", false, "application version")
 }
