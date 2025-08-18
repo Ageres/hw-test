@@ -93,8 +93,6 @@ func (s *SqlStorage) Add(ctx context.Context, eventRef *storage.Event) (*storage
 	case 200:
 		savedEvent := *eventRef
 		savedEvent.ID = eventID
-		savedEvent.Duration = time.Duration(savedEvent.Duration) * time.Second
-		savedEvent.Reminder = time.Duration(savedEvent.Reminder) * time.Second
 		return &savedEvent, nil
 	case 409:
 		err := storage.NewSErrorWithTemplate(storage.ErrDateBusyMsgTemplate, dbResp.conflictEventId)
