@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var FnUuidGenerator = uuid.New
+var FnUUIDGenerator = uuid.New
 
 type Event struct {
 	ID          string // UUID
@@ -39,7 +39,7 @@ func (e *Event) ToNotification() *model.Notification {
 }
 
 func (e *Event) GenerateEventId() {
-	e.ID = FnUuidGenerator().String()
+	e.ID = FnUUIDGenerator().String()
 }
 
 func ValidateEventID(eventId string) error {

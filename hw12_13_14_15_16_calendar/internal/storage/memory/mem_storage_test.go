@@ -22,8 +22,8 @@ func TestStorageAdd(t *testing.T) {
 		dto.buildNewStorage()
 		require.Len(t, dto.storage.events, 0)
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		mockUUIDs := []uuid.UUID{
 			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
@@ -31,7 +31,7 @@ func TestStorageAdd(t *testing.T) {
 			uuid.MustParse("33333333-3333-3333-3333-333333333333"),
 		}
 		callCount := 0
-		storage.FnUuidGenerator = func() uuid.UUID {
+		storage.FnUUIDGenerator = func() uuid.UUID {
 			if callCount >= len(mockUUIDs) {
 				t.Fatal("Unexpected call to UUID generator")
 			}
@@ -96,11 +96,11 @@ func TestStorageAdd(t *testing.T) {
 	t.Run("event duplication error when adding", func(t *testing.T) {
 		dto.buildNewStorage()
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		fixedUUID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
-		storage.FnUuidGenerator = func() uuid.UUID { return fixedUUID }
+		storage.FnUUIDGenerator = func() uuid.UUID { return fixedUUID }
 
 		testEvent := storage.Event{
 			Title:     "Test Event",
@@ -138,11 +138,11 @@ func TestStorageAdd(t *testing.T) {
 	t.Run("generated ID is valid UUID", func(t *testing.T) {
 		dto.buildNewStorage()
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		fixedUUID := uuid.MustParse("123e4567-e89b-12d3-a456-426614174000")
-		storage.FnUuidGenerator = func() uuid.UUID { return fixedUUID }
+		storage.FnUUIDGenerator = func() uuid.UUID { return fixedUUID }
 
 		event := storage.Event{
 			Title:     "Test Event",
@@ -164,11 +164,11 @@ func TestStorageUpdate(t *testing.T) {
 	t.Run("update event", func(t *testing.T) {
 		dto.buildNewStorage()
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		fixedUUID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
-		storage.FnUuidGenerator = func() uuid.UUID { return fixedUUID }
+		storage.FnUUIDGenerator = func() uuid.UUID { return fixedUUID }
 
 		originalEvent := storage.Event{
 			Title:       "Original Event",
@@ -258,15 +258,15 @@ func TestStorageUpdate(t *testing.T) {
 	t.Run("date busy error when updating", func(t *testing.T) {
 		dto.buildNewStorage()
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		fixedUUIDs := []uuid.UUID{
 			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 		}
 		callCount := 0
-		storage.FnUuidGenerator = func() uuid.UUID {
+		storage.FnUUIDGenerator = func() uuid.UUID {
 			u := fixedUUIDs[callCount]
 			callCount++
 			return u
@@ -316,15 +316,15 @@ func TestStorageDelete(t *testing.T) {
 	t.Run("delete event", func(t *testing.T) {
 		dto.buildNewStorage()
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		fixedUUIDs := []uuid.UUID{
 			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 		}
 		callCount := 0
-		storage.FnUuidGenerator = func() uuid.UUID {
+		storage.FnUUIDGenerator = func() uuid.UUID {
 			u := fixedUUIDs[callCount]
 			callCount++
 			return u
@@ -394,15 +394,15 @@ func TestStorageListDayEvents(t *testing.T) {
 	t.Run("list day events", func(t *testing.T) {
 		dto.buildNewStorage()
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		fixedUUIDs := []uuid.UUID{
 			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 		}
 		callCount := 0
-		storage.FnUuidGenerator = func() uuid.UUID {
+		storage.FnUUIDGenerator = func() uuid.UUID {
 			u := fixedUUIDs[callCount]
 			callCount++
 			return u
@@ -489,15 +489,15 @@ func TestStorageListWeekEvents(t *testing.T) {
 	t.Run("list week events", func(t *testing.T) {
 		dto.buildNewStorage()
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		fixedUUIDs := []uuid.UUID{
 			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 		}
 		callCount := 0
-		storage.FnUuidGenerator = func() uuid.UUID {
+		storage.FnUUIDGenerator = func() uuid.UUID {
 			u := fixedUUIDs[callCount]
 			callCount++
 			return u
@@ -553,15 +553,15 @@ func TestStorageListMonthEvents(t *testing.T) {
 	t.Run("list month events", func(t *testing.T) {
 		dto.buildNewStorage()
 
-		oldGenerator := storage.FnUuidGenerator
-		defer func() { storage.FnUuidGenerator = oldGenerator }()
+		oldGenerator := storage.FnUUIDGenerator
+		defer func() { storage.FnUUIDGenerator = oldGenerator }()
 
 		fixedUUIDs := []uuid.UUID{
 			uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 		}
 		callCount := 0
-		storage.FnUuidGenerator = func() uuid.UUID {
+		storage.FnUUIDGenerator = func() uuid.UUID {
 			u := fixedUUIDs[callCount]
 			callCount++
 			return u
