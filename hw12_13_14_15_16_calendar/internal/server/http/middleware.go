@@ -4,6 +4,8 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type responseWriter struct {
@@ -23,7 +25,7 @@ func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
 			ip = r.RemoteAddr
-			s.logger.WithError(err).Error("get remote ip address", map[string]interface{}{
+			s.logger.WithError(err).Error("get remote ip address", map[string]any{
 				"ip": ip,
 			})
 		}
@@ -36,9 +38,17 @@ func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
 
 		rw := &responseWriter{w, http.StatusOK}
 
-		next.ServeHTTP(rw, r)
+		requestId := uuid.New().String()
 
-		s.logger.Info("request", map[string]any{
+		logger := s.logger.With(map[string]any{"requestId": requestId})
+
+		ctx := logger.SetLoggerToCtx(r.Context())
+
+		newR := r.WithContext(ctx)
+
+		next.ServeHTTP(rw, newR)
+
+		logger.Info("request", map[string]any{
 			"ip":         ip,
 			"method":     r.Method,
 			"path":       r.URL.Path,

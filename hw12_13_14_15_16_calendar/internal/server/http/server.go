@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 )
@@ -17,14 +18,11 @@ type Server interface {
 type AppServer struct {
 	server  *http.Server
 	logger  lg.Logger
-	app     Application
+	app     *app.App
 	address string
 }
 
-type Application interface { // TODO
-}
-
-func NewServer(ctx context.Context, httpConf *model.HTTPConf, app Application) Server {
+func NewServer(ctx context.Context, httpConf *model.HTTPConf, appRef *app.App) Server {
 	address := httpConf.Server.GetAddress()
 
 	s := &AppServer{
@@ -36,7 +34,7 @@ func NewServer(ctx context.Context, httpConf *model.HTTPConf, app Application) S
 			IdleTimeout:       time.Duration(httpConf.Server.IdleTimeout) * time.Second,
 		},
 		logger:  lg.GetLogger(ctx),
-		app:     app,
+		app:     appRef,
 		address: address,
 	}
 
@@ -49,6 +47,7 @@ func NewServer(ctx context.Context, httpConf *model.HTTPConf, app Application) S
 func (s *AppServer) createRouter() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", s.helloHandler)
+	mux.HandleFunc("/v1/event", s.eventHandler)
 	mux.HandleFunc("/", s.methodNotAllowedHandler)
 	return s.loggingMiddleware(mux)
 }

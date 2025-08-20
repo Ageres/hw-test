@@ -28,7 +28,6 @@ func main() {
 	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
 	configRef := config.NewConfig(cliArgs.PathToConfigFile)
-	log.Println("config:", logger.MarshalAny(configRef))
 
 	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
 

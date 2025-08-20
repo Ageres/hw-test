@@ -17,9 +17,9 @@ const (
 	ADD       Status = "Event added successfully"
 	UPDATE    Status = "Event updated successfully"
 	DELETE    Status = "Event deleted successfully"
-	LISTDAY   Status = "Day events list successfully retrieved"
-	LISTWEEK  Status = "Week events list successfully retrieved"
-	LISTMONTH Status = "Month events list successfully retrieved"
+	LISTDAY   Status = "Day event list successfully retrieved"
+	LISTWEEK  Status = "Week event list successfully retrieved"
+	LISTMONTH Status = "Month event list successfully retrieved"
 )
 
 type AppResponse struct {
