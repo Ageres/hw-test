@@ -30,9 +30,8 @@ type InMemoryConf struct {
 }
 
 type SQLConfig struct {
-	DB        DBConfig        `yaml:"db" validate:"required"`
-	Migration MigrationConfig `yaml:"migration" validate:"required"`
-	Pool      PoolConf        `yaml:"pool" validate:"required"`
+	DB   DBConfig `yaml:"db" validate:"required"`
+	Pool PoolConf `yaml:"pool" validate:"required"`
 }
 
 type DBConfig struct {
@@ -42,11 +41,6 @@ type DBConfig struct {
 	User     string `yaml:"user" validate:"required"`
 	Password string `yaml:"password" validate:"required"`
 	SSLMode  string `yaml:"sslmode" validate:"required"`
-}
-
-type MigrationConfig struct {
-	Path     string `yaml:"path" validate:"required"`
-	Applying bool   `yaml:"applying" validate:"required"`
 }
 
 type PoolConf struct {
