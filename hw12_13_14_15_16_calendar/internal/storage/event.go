@@ -11,13 +11,13 @@ import (
 var FnUUIDGenerator = uuid.New
 
 type Event struct {
-	ID          string // UUID
-	Title       string
-	StartTime   time.Time
-	Duration    time.Duration
-	Description string
-	UserID      string
-	Reminder    time.Duration
+	ID          string        `json:"id,omitempty"` // UUID
+	Title       string        `json:"title" binding:"required"`
+	StartTime   time.Time     `json:"startTime" binding:"required"`
+	Duration    time.Duration `json:"duration" binding:"required"`
+	Description string        `json:"description,omitempty"`
+	UserID      string        `json:"userId" binding:"required"`
+	Reminder    time.Duration `json:"reminder" binding:"required"`
 }
 
 func (e *Event) ToNotification() *model.Notification {
