@@ -17,9 +17,6 @@ storage:
       user: ${DB_USER:=user}
       password: ${DB_PASSWORD:=password}
       sslmode: disable
-    migration:
-      path: ./migrations
-      applying: true
     pool:
       conn:
         maxOpen: 10
