@@ -3,8 +3,8 @@ package httpservice
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"time"
 
@@ -29,13 +29,10 @@ func NewHttpService(ctx context.Context, storage storage.Storage) HttpService {
 	}
 }
 
-// GetEventList implements HttpServece.
 func (h *httpService) GetEventList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	logger := lg.GetLogger(ctx)
-	listRequest, err := unmarshalRequestBody[GetEventListRequest](w, r)
+	listRequest, err := unmarshalRequestBody[GetEventListRequest](ctx, w, r)
 	if err != nil {
-		logger.WithError(err).Error("unmarshal get request body")
 		return
 	}
 	switch listRequest.Period {
@@ -49,7 +46,12 @@ func (h *httpService) GetEventList(w http.ResponseWriter, r *http.Request) {
 		h.getEventList(ctx, w, listRequest.StartDay, LISTMONTH, h.storage.ListMonth)
 		return
 	default:
-		http.Error(w, "unknown period", http.StatusBadRequest)
+		writeError(
+			ctx,
+			fmt.Sprintf("unknown period: %s", listRequest.Period),
+			w,
+			http.StatusBadRequest,
+		)
 		return
 	}
 }
@@ -69,17 +71,27 @@ func (h *httpService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	panic("unimplemented")
 }
 
-func unmarshalRequestBody[T any](w http.ResponseWriter, r *http.Request) (*T, error) {
+func unmarshalRequestBody[T any](ctx context.Context, w http.ResponseWriter, r *http.Request) (*T, error) {
 	buf := make([]byte, r.ContentLength)
 	_, err := r.Body.Read(buf)
 	if err != nil && err != io.EOF {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeError(
+			ctx,
+			fmt.Sprintf("read request body: %s", err.Error()),
+			w,
+			http.StatusBadRequest,
+		)
 		return nil, err
 	}
 	reqRef := new(T)
 	err = json.Unmarshal(buf, reqRef)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeError(
+			ctx,
+			fmt.Sprintf("unmarshal request body: %s", err.Error()),
+			w,
+			http.StatusBadRequest,
+		)
 		return nil, err
 	}
 	return reqRef, nil
@@ -93,29 +105,59 @@ func (h *httpService) getEventList(
 	list func(ctx context.Context, startDay time.Time) ([]storage.Event, error),
 ) {
 	if startDay == nil {
-		http.Error(w, "startDay is nil", http.StatusBadRequest)
+		writeError(ctx, "startDay is nil", w, http.StatusBadRequest)
 		return
 	}
 	events, err := list(ctx, *startDay)
 	if err != nil {
 		lg.GetLogger(ctx).WithError(err).Error("get event list")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeError(
+			ctx,
+			fmt.Sprintf("get event list: %s", err.Error()),
+			w,
+			http.StatusInternalServerError,
+		)
+		return
 	}
 	resp := GetListResponse{
 		Status: status,
 		Events: events,
 	}
-	writeResponse(w, &resp)
+	writeResponse(ctx, w, &resp)
 }
 
-func writeResponse[T any](w http.ResponseWriter, resp *T) {
+func writeResponse[T any](ctx context.Context, w http.ResponseWriter, resp *T) {
 	resBuf, err := json.Marshal(resp)
 	if err != nil {
-		slog.Error("responce marshal error", "err", err)
+		writeError(
+			ctx,
+			fmt.Sprintf("responce marshal error: %s", err.Error()),
+			w,
+			http.StatusInternalServerError,
+		)
+		return
 	}
 	_, err = w.Write(resBuf)
 	if err != nil {
-		slog.Error("responce marshal error", "err", err)
+		writeError(
+			ctx,
+			fmt.Sprintf("write responce error: %s", err.Error()),
+			w,
+			http.StatusInternalServerError,
+		)
+		return
 	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+}
+
+func writeError(ctx context.Context, errMsg string, w http.ResponseWriter, httpSatus int) {
+	httpError := NewHttpError(errMsg)
+	data, err := json.Marshal(httpError)
+	if err != nil {
+		lg.GetLogger(ctx).WithError(err).Error("marshal http error", map[string]any{"errMsg": errMsg})
+		return
+	}
+	lg.GetLogger(ctx).WithError(httpError).Error("write error")
+	http.Error(w, string(data), httpSatus)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 }

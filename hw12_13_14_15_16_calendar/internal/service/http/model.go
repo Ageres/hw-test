@@ -70,9 +70,32 @@ type DeleteEventRequest storage.Event
 type DeleteEventStatus string
 
 const (
-	Delete UpdateEventStatus = "Event deleted successfully"
+	Delete DeleteEventStatus = "Event deleted successfully"
 )
 
 type DeleteEventResponse struct {
-	Status DeleteEventRequest `json:"status" binding:"required"`
+	Status DeleteEventStatus `json:"status" binding:"required"`
+}
+
+// ---------------------------------------------------------
+// error models
+
+type ServiceName string
+
+const CalendarServiceName ServiceName = "calendar"
+
+type HttpError struct {
+	ServiceName `json:"serviceName" binding:"required"`
+	Message     string `json:"message" binding:"required"`
+}
+
+func (he *HttpError) Error() string {
+	return he.Message
+}
+
+func NewHttpError(message string) error {
+	return &HttpError{
+		ServiceName: CalendarServiceName,
+		Message:     message,
+	}
 }

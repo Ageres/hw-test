@@ -40,44 +40,7 @@ func (s *AppServer) eventHandler(w http.ResponseWriter, r *http.Request) {
 	switch httpMethod {
 	case http.MethodGet:
 		s.service.GetEventList(w, r)
-		/*
-			listRequest, err := unmarshalRequestBody[ListRequest](w, r)
-			if err != nil {
-				s.logger.WithError(err).Error("unmarshal get request body")
-				return
-			}
-			switch listRequest.Period {
-			case DAY:
-
-					resp, err := s.app.ListDayEvents(ctx, *listRequest.StartDay)
-					if err != nil {
-						http.Error(w, err.Error(), http.StatusInternalServerError)
-					}
-					writeResponse(w, resp)
-					w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
-				return
-			case WEEK:
-				resp, err := s.app.ListWeekEvents(ctx, *listRequest.StartDay)
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-				}
-				writeResponse(w, resp)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				return
-			case MONTH:
-				resp, err := s.app.ListMonthEvents(ctx, *listRequest.StartDay)
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-				}
-				writeResponse(w, resp)
-				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				return
-			default:
-				http.Error(w, "unknown period", http.StatusBadRequest)
-				return
-			}
-		*/
+		return
 	case http.MethodPost:
 		/*
 			req, err := unmarshalRequestBody[storage.Event](w, r)
@@ -126,8 +89,7 @@ func (s *AppServer) eventHandler(w http.ResponseWriter, r *http.Request) {
 		*/
 		return
 	}
-	//w.WriteHeader(http.StatusOK)
-	//w.Write([]byte("Hello, World!"))
+	http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 }
 
 func unmarshalRequestBody[T any](w http.ResponseWriter, r *http.Request) (*T, error) {
