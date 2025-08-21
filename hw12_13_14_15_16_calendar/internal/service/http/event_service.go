@@ -57,7 +57,6 @@ func (h *httpService) GetEventList(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AddEvent implements HttpServece.
 func (h *httpService) AddEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	req, err := unmarshalRequestBody[AddEventRequest](ctx, w, r)
@@ -68,7 +67,7 @@ func (h *httpService) AddEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(
 			ctx,
-			fmt.Sprintf("get event list: %s", err.Error()),
+			fmt.Sprintf("add event: %s", err.Error()),
 			w,
 			defineHttpStatusCode(err.Error()),
 		)
@@ -77,9 +76,26 @@ func (h *httpService) AddEvent(w http.ResponseWriter, r *http.Request) {
 	writeResponse(ctx, w, resp)
 }
 
-// UpdateEvent implements HttpServece.
 func (h *httpService) UpdateEvent(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
+	ctx := r.Context()
+	req, err := unmarshalRequestBody[UpdateEventRequest](ctx, w, r)
+	if err != nil {
+		return
+	}
+	err = h.storage.Update(ctx, (*storage.Event)(req))
+	if err != nil {
+		writeError(
+			ctx,
+			fmt.Sprintf("update event: %s", err.Error()),
+			w,
+			defineHttpStatusCode(err.Error()),
+		)
+		return
+	}
+	resp := UpdateEventResponse{
+		Status: UPDATE,
+	}
+	writeResponse(ctx, w, &resp)
 }
 
 // DeleteEvent implements HttpServece.
@@ -186,6 +202,13 @@ func defineHttpStatusCode(errMsg string) int {
 	}
 	if strings.Contains(errMsg, "event not found") {
 		return http.StatusNotFound
+	}
+	if strings.Contains(errMsg, "failed to validate event id") ||
+		strings.Contains(errMsg, "title is empty") ||
+		strings.Contains(errMsg, "event time is expired") ||
+		strings.Contains(errMsg, "duration must be positive") ||
+		strings.Contains(errMsg, "user id is empty") {
+		return http.StatusBadRequest
 	}
 	return http.StatusInternalServerError
 }

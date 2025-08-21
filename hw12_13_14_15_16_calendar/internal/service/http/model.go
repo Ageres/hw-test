@@ -60,7 +60,7 @@ const (
 )
 
 type UpdateEventResponse struct {
-	Status UpdateEventRequest `json:"status" binding:"required"`
+	Status UpdateEventStatus `json:"status" binding:"required"`
 }
 
 // ---------------------------------------------------------
