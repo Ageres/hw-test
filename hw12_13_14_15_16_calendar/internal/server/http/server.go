@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	httpservice "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/service/http"
 )
 
 type Server interface {
@@ -18,11 +18,11 @@ type Server interface {
 type AppServer struct {
 	server  *http.Server
 	logger  lg.Logger
-	app     *app.App
 	address string
+	service httpservice.HttpService
 }
 
-func NewServer(ctx context.Context, httpConf *model.HTTPConf, appRef *app.App) Server {
+func NewServer(ctx context.Context, httpConf *model.HTTPConf, service httpservice.HttpService) Server {
 	address := httpConf.Server.GetAddress()
 
 	s := &AppServer{
@@ -34,8 +34,8 @@ func NewServer(ctx context.Context, httpConf *model.HTTPConf, appRef *app.App) S
 			IdleTimeout:       time.Duration(httpConf.Server.IdleTimeout) * time.Second,
 		},
 		logger:  lg.GetLogger(ctx),
-		app:     appRef,
 		address: address,
+		service: service,
 	}
 
 	s.server.Handler = s.createRouter()
