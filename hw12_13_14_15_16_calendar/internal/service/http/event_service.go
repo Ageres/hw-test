@@ -189,17 +189,7 @@ func (h *httpService) getEventList(
 }
 
 func writeResponse[T any](ctx context.Context, w http.ResponseWriter, resp *T) {
-	resBuf, err := json.Marshal(resp)
-	if err != nil {
-		writeError(
-			ctx,
-			fmt.Sprintf("responce marshal error: %s", err.Error()),
-			w,
-			http.StatusInternalServerError,
-		)
-		return
-	}
-	_, err = w.Write(resBuf)
+	err := json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		writeError(
 			ctx,
@@ -209,21 +199,20 @@ func writeResponse[T any](ctx context.Context, w http.ResponseWriter, resp *T) {
 		)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
 }
 
 func writeError(ctx context.Context, errMsg string, w http.ResponseWriter, httpSatus int) {
 	httpError := NewHttpError(errMsg)
-	data, err := json.Marshal(httpError)
+	err := json.NewEncoder(w).Encode(httpError)
 	if err != nil {
-		lg.GetLogger(ctx).WithError(err).Error("marshal http error", map[string]any{"errMsg": errMsg})
-		http.Error(w, fmt.Sprintf("marshal http error: errMsg '%s', error '%s'", errMsg, err.Error()), httpSatus)
-		//w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		lg.GetLogger(ctx).WithError(err).Error("encode http error", map[string]any{"errMsg": errMsg})
+		errMsg := fmt.Sprintf("encode http error: errMsg '%s', error '%s'", errMsg, err.Error())
+		errResp := fmt.Sprintf("{\"error\": \"%s\"}", errMsg)
+		http.Error(w, errResp, httpSatus)
 		return
 	}
 	lg.GetLogger(ctx).WithError(httpError).Error("write error")
-	http.Error(w, string(data), httpSatus)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 }
 
 func defineHttpStatusCode(errMsg string) int {

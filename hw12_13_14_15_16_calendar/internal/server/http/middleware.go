@@ -46,6 +46,8 @@ func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
 
 		newR := r.WithContext(ctx)
 
+		rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+
 		next.ServeHTTP(rw, newR)
 
 		logger.Info("request", map[string]any{
