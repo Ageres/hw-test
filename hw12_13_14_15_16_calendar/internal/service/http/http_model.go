@@ -7,7 +7,7 @@ import (
 )
 
 // ---------------------------------------------------------
-// get event  list model
+// get event list models
 type GetEventListPeriod string
 
 const (
@@ -32,4 +32,47 @@ const (
 type GetListResponse struct {
 	Status GetEventListStatus `json:"status" binding:"required"`
 	Events []storage.Event    `json:"events,omitempty"`
+}
+
+// ---------------------------------------------------------
+// post event models (add event)
+type AddEventRequest storage.Event
+
+type AddEventStatus string
+
+const (
+	ADD AddEventStatus = "Event added successfully"
+)
+
+type AddEventResponse struct {
+	Status AddEventStatus `json:"status" binding:"required"`
+	Event  *storage.Event `json:"events,omitempty"`
+}
+
+// ---------------------------------------------------------
+// put event models (update event)
+type UpdateEventRequest storage.Event
+
+type UpdateEventStatus string
+
+const (
+	UPDATE UpdateEventStatus = "Event updated successfully"
+)
+
+type UpdateEventResponse struct {
+	Status UpdateEventRequest `json:"status" binding:"required"`
+}
+
+// ---------------------------------------------------------
+// delete event model (update event)
+type UpdateEventRequest storage.Event
+
+type UpdateEventStatus string
+
+const (
+	UPDATE UpdateEventStatus = "Event updated successfully"
+)
+
+type UpdateEventResponse struct {
+	Status UpdateEventRequest `json:"status" binding:"required"`
 }
