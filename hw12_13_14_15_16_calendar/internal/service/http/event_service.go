@@ -98,9 +98,26 @@ func (h *httpService) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	writeResponse(ctx, w, &resp)
 }
 
-// DeleteEvent implements HttpServece.
 func (h *httpService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
+	ctx := r.Context()
+	req, err := unmarshalRequestBody[DeleteEventRequest](ctx, w, r)
+	if err != nil {
+		return
+	}
+	err = h.storage.Delete(ctx, req.Id)
+	if err != nil {
+		writeError(
+			ctx,
+			fmt.Sprintf("delete event: %s", err.Error()),
+			w,
+			defineHttpStatusCode(err.Error()),
+		)
+		return
+	}
+	resp := DeleteEventResponse{
+		Status: Delete,
+	}
+	writeResponse(ctx, w, &resp)
 }
 
 func unmarshalRequestBody[T any](ctx context.Context, w http.ResponseWriter, r *http.Request) (*T, error) {

@@ -65,7 +65,9 @@ type UpdateEventResponse struct {
 
 // ---------------------------------------------------------
 // delete event models
-type DeleteEventRequest storage.Event
+type DeleteEventRequest struct {
+	Id string `json:"id" binding:"required"`
+}
 
 type DeleteEventStatus string
 
@@ -86,7 +88,8 @@ const CalendarServiceName ServiceName = "calendar"
 
 type HttpError struct {
 	ServiceName `json:"serviceName" binding:"required"`
-	Message     string `json:"message" binding:"required"`
+	Message     string    `json:"message" binding:"required"`
+	Timestamp   time.Time `json:"timestamp" binding:"required"`
 }
 
 func (he *HttpError) Error() string {
@@ -97,5 +100,6 @@ func NewHttpError(message string) error {
 	return &HttpError{
 		ServiceName: CalendarServiceName,
 		Message:     message,
+		Timestamp:   time.Now(),
 	}
 }
