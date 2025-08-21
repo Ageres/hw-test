@@ -64,15 +64,15 @@ type UpdateEventResponse struct {
 }
 
 // ---------------------------------------------------------
-// delete event model (update event)
-type UpdateEventRequest storage.Event
+// delete event models
+type DeleteEventRequest storage.Event
 
-type UpdateEventStatus string
+type DeleteEventStatus string
 
 const (
-	UPDATE UpdateEventStatus = "Event updated successfully"
+	Delete UpdateEventStatus = "Event deleted successfully"
 )
 
-type UpdateEventResponse struct {
-	Status UpdateEventRequest `json:"status" binding:"required"`
+type DeleteEventResponse struct {
+	Status DeleteEventRequest `json:"status" binding:"required"`
 }
