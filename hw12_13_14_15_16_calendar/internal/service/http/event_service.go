@@ -18,6 +18,7 @@ type HttpService interface {
 	AddEvent(w http.ResponseWriter, r *http.Request)
 	UpdateEvent(w http.ResponseWriter, r *http.Request)
 	DeleteEvent(w http.ResponseWriter, r *http.Request)
+	MethodNotAllowed(w http.ResponseWriter, r *http.Request)
 }
 
 type httpService struct {
@@ -119,6 +120,18 @@ func (h *httpService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	writeResponse(ctx, w, &resp)
 }
+
+func (h *httpService) MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
+	writeError(
+		r.Context(),
+		"Method Not Allowed",
+		w,
+		http.StatusMethodNotAllowed,
+	)
+}
+
+//-----------------------------------------------------------------------------------
+// вспомогательные функции
 
 func unmarshalRequestBody[T any](ctx context.Context, w http.ResponseWriter, r *http.Request) (*T, error) {
 	buf := make([]byte, r.ContentLength)
