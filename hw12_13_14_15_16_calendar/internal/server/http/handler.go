@@ -42,20 +42,7 @@ func (s *AppServer) eventHandler(w http.ResponseWriter, r *http.Request) {
 		s.service.GetEventList(w, r)
 		return
 	case http.MethodPost:
-		/*
-			req, err := unmarshalRequestBody[storage.Event](w, r)
-			if err != nil {
-				s.logger.WithError(err).Error("unmarshal post request body")
-				return
-			}
-			resp, err := s.app.AddEvent(ctx, req)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			writeResponse(w, resp)
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		*/
+		s.service.AddEvent(w, r)
 		return
 	case http.MethodPut:
 		/*

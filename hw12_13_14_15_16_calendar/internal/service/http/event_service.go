@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
@@ -58,7 +59,22 @@ func (h *httpService) GetEventList(w http.ResponseWriter, r *http.Request) {
 
 // AddEvent implements HttpServece.
 func (h *httpService) AddEvent(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
+	ctx := r.Context()
+	req, err := unmarshalRequestBody[AddEventRequest](ctx, w, r)
+	if err != nil {
+		return
+	}
+	resp, err := h.storage.Add(ctx, (*storage.Event)(req))
+	if err != nil {
+		writeError(
+			ctx,
+			fmt.Sprintf("get event list: %s", err.Error()),
+			w,
+			defineHttpStatusCode(err.Error()),
+		)
+		return
+	}
+	writeResponse(ctx, w, resp)
 }
 
 // UpdateEvent implements HttpServece.
@@ -155,9 +171,21 @@ func writeError(ctx context.Context, errMsg string, w http.ResponseWriter, httpS
 	data, err := json.Marshal(httpError)
 	if err != nil {
 		lg.GetLogger(ctx).WithError(err).Error("marshal http error", map[string]any{"errMsg": errMsg})
+		http.Error(w, fmt.Sprintf("marshal http error: errMsg '%s', error '%s'", errMsg, err.Error()), httpSatus)
+		//w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		return
 	}
 	lg.GetLogger(ctx).WithError(httpError).Error("write error")
 	http.Error(w, string(data), httpSatus)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+}
+
+func defineHttpStatusCode(errMsg string) int {
+	if strings.Contains(errMsg, "user is not the owner of the event, conflict with") || strings.Contains(errMsg, "time is already taken by another event") {
+		return http.StatusConflict
+	}
+	if strings.Contains(errMsg, "event not found") {
+		return http.StatusNotFound
+	}
+	return http.StatusInternalServerError
 }
