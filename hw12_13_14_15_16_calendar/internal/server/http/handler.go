@@ -2,13 +2,11 @@ package internalhttp
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
 	"time"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -83,18 +81,36 @@ func (s *AppServer) eventHandler(w http.ResponseWriter, r *http.Request) {
 			s.logger.WithError(err).Error("unmarshal post request body")
 			return
 		}
-		fmt.Println("----------- req event:", logger.MarshalAny(req))
+		resp, err := s.app.AddEvent(ctx, req)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		writeResponse(w, resp)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	case http.MethodPut:
 		req, err := unmarshalRequestBody[storage.Event](w, r)
 		if err != nil {
 			s.logger.WithError(err).Error("unmarshal get request body")
 			return
 		}
-		fmt.Println("----------- req event:", logger.MarshalAny(req))
+		resp, err := s.app.UpdateEvent(ctx, req)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		writeResponse(w, resp)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	case http.MethodDelete:
 		args := r.URL.Query()
 		eventId := args.Get("eventId")
-		fmt.Printf("----------- eventId '%s'\n", eventId)
+		resp, err := s.app.DeleteEvent(ctx, eventId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		writeResponse(w, resp)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
