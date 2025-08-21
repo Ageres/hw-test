@@ -9,6 +9,7 @@ func (s *AppServer) helloHandler(w http.ResponseWriter, r *http.Request) {
 		s.service.MethodNotAllowed(w, r)
 		return
 	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Hello, World!"))
 }
