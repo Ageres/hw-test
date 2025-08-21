@@ -203,7 +203,7 @@ func writeResponse[T any](ctx context.Context, w http.ResponseWriter, resp *T) {
 }
 
 func writeError(ctx context.Context, errMsg string, w http.ResponseWriter, httpSatus int) {
-	httpError := NewHttpError(errMsg)
+	httpError := NewHttpError(ctx, errMsg)
 	err := json.NewEncoder(w).Encode(httpError)
 	if err != nil {
 		lg.GetLogger(ctx).WithError(err).Error("encode http error", map[string]any{"errMsg": errMsg})

@@ -1,11 +1,12 @@
 package internalhttp
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 )
 
 type responseWriter struct {
@@ -38,15 +39,17 @@ func (s *AppServer) loggingMiddleware(next http.Handler) http.Handler {
 
 		rw := &responseWriter{w, http.StatusOK}
 
-		requestId := uuid.New().String()
+		requestId := utils.GenerateRequestID()
+		ctx := context.WithValue(r.Context(), utils.RequestIDKey, requestId)
 
 		logger := s.logger.With(map[string]any{"requestId": requestId})
 
-		ctx := logger.SetLoggerToCtx(r.Context())
+		ctx = logger.SetLoggerToCtx(ctx)
 
 		newR := r.WithContext(ctx)
 
 		rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+		rw.Header().Set("X-Request-ID", requestId)
 
 		next.ServeHTTP(rw, newR)
 
