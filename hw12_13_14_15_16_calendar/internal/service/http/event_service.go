@@ -44,21 +44,9 @@ func (h *httpService) GetEventList(w http.ResponseWriter, r *http.Request) {
 		return
 	case WEEK:
 		h.getEventList(ctx, w, listRequest.StartDay, LISTWEEK, h.storage.ListWeek)
-
-		resp, err := s.app.ListWeekEvents(ctx, *listRequest.StartDay)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		writeResponse(w, resp)
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		return
 	case MONTH:
-		resp, err := s.app.ListMonthEvents(ctx, *listRequest.StartDay)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		writeResponse(w, resp)
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		h.getEventList(ctx, w, listRequest.StartDay, LISTMONTH, h.storage.ListMonth)
 		return
 	default:
 		http.Error(w, "unknown period", http.StatusBadRequest)
@@ -97,6 +85,29 @@ func unmarshalRequestBody[T any](w http.ResponseWriter, r *http.Request) (*T, er
 	return reqRef, nil
 }
 
+func (h *httpService) getEventList(
+	ctx context.Context,
+	w http.ResponseWriter,
+	startDay *time.Time,
+	status GetEventListStatus,
+	list func(ctx context.Context, startDay time.Time) ([]storage.Event, error),
+) {
+	if startDay == nil {
+		http.Error(w, "startDay is nil", http.StatusBadRequest)
+		return
+	}
+	events, err := list(ctx, *startDay)
+	if err != nil {
+		lg.GetLogger(ctx).WithError(err).Error("get event list")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	resp := GetListResponse{
+		Status: status,
+		Events: events,
+	}
+	writeResponse(w, &resp)
+}
+
 func writeResponse[T any](w http.ResponseWriter, resp *T) {
 	resBuf, err := json.Marshal(resp)
 	if err != nil {
@@ -107,23 +118,4 @@ func writeResponse[T any](w http.ResponseWriter, resp *T) {
 		slog.Error("responce marshal error", "err", err)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-}
-
-func (h *httpService) getEventList(
-	ctx context.Context,
-	w http.ResponseWriter,
-	StartDay *time.Time,
-	status GetEventListStatus,
-	listDay func(ctx context.Context, startDay time.Time) ([]storage.Event, error),
-) {
-	events, err := h.storage.ListDay(ctx, *StartDay)
-	if err != nil {
-		lg.GetLogger(ctx).WithError(err).Error("get event list")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	resp := GetListResponse{
-		Status: status,
-		Events: events,
-	}
-	writeResponse(w, &resp)
 }
