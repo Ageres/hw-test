@@ -199,10 +199,10 @@ func writeResponse[T any](ctx context.Context, w http.ResponseWriter, resp *T) {
 		)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func writeError(ctx context.Context, errMsg string, w http.ResponseWriter, httpSatus int) {
+	w.WriteHeader(httpSatus)
 	httpError := NewHttpError(ctx, errMsg)
 	err := json.NewEncoder(w).Encode(httpError)
 	if err != nil {
