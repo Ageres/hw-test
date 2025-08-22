@@ -31,7 +31,7 @@ const (
 	LISTMONTH GetEventListStatus = "Month event list successfully retrieved"
 )
 
-type GetListResponse struct {
+type GetEventListResponse struct {
 	Status GetEventListStatus `json:"status" binding:"required"`
 	Events []storage.Event    `json:"events,omitempty"`
 }
