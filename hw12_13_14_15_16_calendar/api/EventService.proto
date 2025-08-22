@@ -2,6 +2,36 @@ syntax = "proto3";
 
 package event;
 
-message Event {
-    // TODO
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+service Calendar{
+    rpc Get(GetEventListRequest) returnes (GetListResponse);
 }
+
+message ProtoEvent {
+    string id = 0;
+    string title = 1;
+    google.protobuf.Timestamp start_time = 2;
+    google.protobuf.Duration duration = 3;
+    string description = 4;
+    string user_id = 5;
+    google.protobuf.Duration reminder = 6;
+}
+
+type GetEventListPeriod string
+
+const (
+    GetEventListPeriod_UNSPECIFIED GetEventListPeriod = "unspecified";
+	GetEventListPeriod_DAY GetEventListPeriod = "day";
+	GetEventListPeriod_WEEK  GetEventListPeriod = "week";
+	GetEventListPeriod_MONTH GetEventListPeriod = "month";
+)
+
+message GetEventListRequest {
+    GetEventListPeriod period = 0;
+    google.protobuf.Timestamp start_time = 1; 
+}
+
+
+
