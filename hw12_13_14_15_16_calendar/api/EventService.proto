@@ -6,11 +6,11 @@ option go_package = "./internal/server/grpc";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
-service Calendar{
-    rpc GetEvent(GetEventListRequest) returnes (GetListResponse);
-    rpc AddEvent(AddEventRequest) returnes (AddEventResponse);
-    rpc UpdateEvent(UpdateEventRequest) returnes (UpdateEventResponse);
-    rpc DeleteEvent(DeleteEventRequest) returnes (DeleteEventResponse);
+service Calendar {
+    rpc GetEvent(GetEventListRequest) returns (GetEventListResponse); // Сохраняем название
+    rpc AddEvent(AddEventRequest) returns (AddEventResponse);
+    rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse);
+    rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
 }
 
 message ProtoEvent {
@@ -23,86 +23,83 @@ message ProtoEvent {
     google.protobuf.Duration reminder = 7;
 }
 
-type GetEventListPeriod string
-
-const (
-    GetEventListPeriod_UNSPECIFIED GetEventListPeriod = "unspecified";
-	GetEventListPeriod_DAY GetEventListPeriod = "day";
-	GetEventListPeriod_WEEK  GetEventListPeriod = "week";
-	GetEventListPeriod_MONTH GetEventListPeriod = "month";
-)
+enum GetEventListPeriod {
+    GET_EVENT_LIST_PERIOD_UNSPECIFIED = 0;
+    GET_EVENT_LIST_PERIOD_DAY = 1;
+    GET_EVENT_LIST_PERIOD_WEEK = 2;
+    GET_EVENT_LIST_PERIOD_MONTH = 3;
+}
 
 message GetEventListRequest {
     GetEventListPeriod period = 1;
-    google.protobuf.Timestamp start_time = 2; 
+    google.protobuf.Timestamp start_time = 2;
 }
 
-type GetEventListStatus string
+enum GetEventListStatus {
+    GET_EVENT_LIST_STATUS_UNSPECIFIED = 0;
+    GET_EVENT_LIST_STATUS_DAY = 1;
+    GET_EVENT_LIST_STATUS_WEEK = 2;
+    GET_EVENT_LIST_STATUS_MONTH = 3;
+}
 
-const (
-	GetEventListStatus_LISTDAY   GetEventListStatus = "Day event list successfully retrieved"
-	GetEventListStatus_LISTWEEK  GetEventListStatus = "Week event list successfully retrieved"
-	GetEventListStatus_LISTMONTH GetEventListStatus = "Month event list successfully retrieved"
-)
-
-message GetListResponse {
-	GetEventListStatus status = 1;
-	repeated ProtoEvent events = 2;
+message GetEventListResponse {
+    GetEventListStatus status = 1;
+    repeated ProtoEvent events = 2;
     Error error = 3;
 }
 
-type AddEventRequest ProtoEvent
+message AddEventRequest {
+    ProtoEvent event = 1;
+}
 
-type AddEventStatus string
-
-const (
-	AddEventStatus_ADD AddEventStatus = "Event added successfully"
-)
+enum AddEventStatus {
+    ADD_EVENT_STATUS_UNSPECIFIED = 0;
+    ADD_EVENT_STATUS_ADD = 1;
+}
 
 message AddEventResponse {
-	AddEventStatus status = 1;
-	ProtoEvent event  = 2;
+    AddEventStatus status = 1;
+    ProtoEvent event = 2;
     Error error = 3;
 }
 
-type UpdateEventRequest ProtoEvent
+message UpdateEventRequest {
+    ProtoEvent event = 1;
+}
 
-type UpdateEventStatus string
-
-const (
-	UpdateEventStatus_UPDATE UpdateEventStatus = "Event updated successfully"
-)
+enum UpdateEventStatus {
+    UPDATE_EVENT_STATUS_UNSPECIFIED = 0;
+    UPDATE_EVENT_STATUS_UPDATE = 1;
+}
 
 message UpdateEventResponse {
-	UpdateEventStatus status = 1;
+    UpdateEventStatus status = 1;
     Error error = 2;
 }
 
 message DeleteEventRequest {
-	string id = 1;
+    string id = 1;
 }
 
-type DeleteEventStatus string
-
-const (
-	DeleteEventStatus_DELETE DeleteEventStatus = "Event deleted successfully"
-)
+enum DeleteEventStatus {
+    DELETE_EVENT_STATUS_UNSPECIFIED = 0;
+    DELETE_EVENT_STATUS_DELETE = 1;
+}
 
 message DeleteEventResponse {
-	DeleteEventStatus status = 1;
+    DeleteEventStatus status = 1;
     Error error = 2;
 }
 
-type ServiceName string
-
-const (
-    ServiceName_CalendarServiceName ServiceName = "calendar"
-)
+enum ServiceName {
+    SERVICE_NAME_UNSPECIFIED = 0;
+    SERVICE_NAME_CALENDAR = 1;
+}
 
 message Error {
-	ServiceName serviceName = 1;
+    ServiceName service_name = 1;
     int32 status = 2;
-	string message = 3;
-	string request_id = 4;
+    string message = 3;
+    string request_id = 4;
     google.protobuf.Timestamp timestamp = 5;
 }
