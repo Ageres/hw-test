@@ -37,7 +37,7 @@ func main() {
 
 	//calendar := app.New(ctx, storage)
 
-	server := internalhttp.NewServer(ctx, configRef.HTTP, httpService)
+	httpServer := internalhttp.NewHttpServer(ctx, configRef.HTTP, httpService)
 
 	go func() {
 		<-ctx.Done()
@@ -45,14 +45,14 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		if err := server.Stop(ctx); err != nil {
+		if err := httpServer.Stop(ctx); err != nil {
 			logger.GetLogger(ctx).WithError(err).Error("failed to stop http server")
 		}
 	}()
 
 	logger.GetLogger(ctx).Info("calendar is running...")
 
-	if err := server.Start(ctx); err != nil {
+	if err := httpServer.Start(ctx); err != nil {
 		logger.GetLogger(ctx).WithError(err).Error("failed to start http server")
 		cancel()
 		os.Exit(1) //nolint:gocritic

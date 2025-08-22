@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (s *AppServer) helloHandler(w http.ResponseWriter, r *http.Request) {
+func (s *httpServer) helloHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		s.service.MethodNotAllowed(w, r)
 		return
@@ -14,11 +14,11 @@ func (s *AppServer) helloHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello, World!"))
 }
 
-func (s *AppServer) methodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
+func (s *httpServer) methodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
 	s.service.MethodNotAllowed(w, r)
 }
 
-func (s *AppServer) eventHandler(w http.ResponseWriter, r *http.Request) {
+func (s *httpServer) eventHandler(w http.ResponseWriter, r *http.Request) {
 	httpMethod := r.Method
 	switch httpMethod {
 	case http.MethodGet:

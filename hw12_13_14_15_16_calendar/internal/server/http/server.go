@@ -10,22 +10,22 @@ import (
 	httpservice "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/service/http"
 )
 
-type Server interface {
+type HttpServer interface {
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
 }
 
-type AppServer struct {
+type httpServer struct {
 	server  *http.Server
 	logger  lg.Logger
 	address string
 	service httpservice.HttpService
 }
 
-func NewServer(ctx context.Context, httpConf *model.HTTPConf, service httpservice.HttpService) Server {
+func NewHttpServer(ctx context.Context, httpConf *model.HTTPConf, service httpservice.HttpService) HttpServer {
 	address := httpConf.Server.GetAddress()
 
-	s := &AppServer{
+	s := &httpServer{
 		server: &http.Server{
 			Addr:              address,
 			ReadHeaderTimeout: time.Duration(httpConf.Server.ReadHeaderTimeout) * time.Second,
@@ -44,7 +44,7 @@ func NewServer(ctx context.Context, httpConf *model.HTTPConf, service httpservic
 	return s
 }
 
-func (s *AppServer) createRouter() http.Handler {
+func (s *httpServer) createRouter() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", s.helloHandler)
 	mux.HandleFunc("/v1/event", s.eventHandler)
@@ -52,14 +52,14 @@ func (s *AppServer) createRouter() http.Handler {
 	return s.loggingMiddleware(mux)
 }
 
-func (s *AppServer) Start(_ context.Context) error {
+func (s *httpServer) Start(_ context.Context) error {
 	s.logger.Info("Starting HTTP server", map[string]any{
 		"address": s.address,
 	})
 	return s.server.ListenAndServe()
 }
 
-func (s *AppServer) Stop(ctx context.Context) error {
+func (s *httpServer) Stop(ctx context.Context) error {
 	s.logger.Info("Shutting down HTTP server")
 	return s.server.Shutdown(ctx)
 }
