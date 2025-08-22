@@ -1,4 +1,4 @@
-package grpc
+package internalgrpc
 
 import (
 	"context"
@@ -29,10 +29,11 @@ func NewGrpsServer(ctx context.Context, storage storage.Storage) *GrpcServer {
 }
 
 func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) (*pb.GetEventListResponse, error) {
-	ctx = utils.SetRequestIdToCtx(ctx)
-	logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
-	ctx = logger.SetLoggerToCtx(ctx)
-
+	/*
+		ctx = utils.SetRequestIdToCtx(ctx)
+		logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
+		ctx = logger.SetLoggerToCtx(ctx)
+	*/
 	startTime := req.GetStartTime()
 	if startTime == nil {
 		err := g.createError(ctx, http.StatusBadRequest, "start_time is required", nil)
@@ -74,10 +75,11 @@ func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 }
 
 func (g *GrpcServer) AddEvent(ctx context.Context, req *pb.AddEventRequest) (*pb.AddEventResponse, error) {
-	ctx = utils.SetRequestIdToCtx(ctx)
-	logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
-	ctx = logger.SetLoggerToCtx(ctx)
-
+	/*
+		ctx = utils.SetRequestIdToCtx(ctx)
+		logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
+		ctx = logger.SetLoggerToCtx(ctx)
+	*/
 	protoEvent := req.GetEvent()
 	event := g.mapProtoEventToEvent(protoEvent)
 	respEvent, err := g.storage.Add(ctx, event)
@@ -96,10 +98,11 @@ func (g *GrpcServer) AddEvent(ctx context.Context, req *pb.AddEventRequest) (*pb
 }
 
 func (g *GrpcServer) UpdateEvent(ctx context.Context, req *pb.UpdateEventRequest) (*pb.UpdateEventResponse, error) {
-	ctx = utils.SetRequestIdToCtx(ctx)
-	logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
-	ctx = logger.SetLoggerToCtx(ctx)
-
+	/*
+		ctx = utils.SetRequestIdToCtx(ctx)
+		logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
+		ctx = logger.SetLoggerToCtx(ctx)
+	*/
 	protoEvent := req.GetEvent()
 	event := g.mapProtoEventToEvent(protoEvent)
 	err := g.storage.Update(ctx, event)
@@ -116,10 +119,11 @@ func (g *GrpcServer) UpdateEvent(ctx context.Context, req *pb.UpdateEventRequest
 }
 
 func (g *GrpcServer) DeleteEvent(ctx context.Context, req *pb.DeleteEventRequest) (*pb.DeleteEventResponse, error) {
-	ctx = utils.SetRequestIdToCtx(ctx)
-	logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
-	ctx = logger.SetLoggerToCtx(ctx)
-
+	/*
+		ctx = utils.SetRequestIdToCtx(ctx)
+		logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
+		ctx = logger.SetLoggerToCtx(ctx)
+	*/
 	err := g.storage.Delete(ctx, req.GetId())
 	if err != nil {
 		statusCode := model.DefineStatusCode(err.Error())

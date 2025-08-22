@@ -43,7 +43,12 @@ func main() {
 	httpServer := internalhttp.NewHttpServer(ctx, configRef.HTTP, httpService)
 
 	grpcServer := internalgrpc.NewGrpsServer(ctx, storage)
-	grpcSrv := grpc.NewServer()
+	grpcSrv := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			internalgrpc.LoggingInterceptor(logger.GetLogger(ctx)),
+			internalgrpc.RecoveryInterceptor(logger.GetLogger(ctx)),
+		),
+	)
 	pb.RegisterCalendarServer(grpcSrv, grpcServer)
 
 	httpErrChan := make(chan error, 1)
@@ -60,7 +65,6 @@ func main() {
 		}
 	}()
 
-	// Запуск gRPC сервера
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
