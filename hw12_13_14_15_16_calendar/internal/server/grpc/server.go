@@ -95,8 +95,24 @@ func (g *GrpcServer) AddEvent(ctx context.Context, req *pb.AddEventRequest) (*pb
 	}, nil
 }
 
-func (g *GrpcServer) UpdateEvent(context.Context, *pb.UpdateEventRequest) (*pb.UpdateEventResponse, error) {
-	panic("unimplemented")
+func (g *GrpcServer) UpdateEvent(ctx context.Context, req *pb.UpdateEventRequest) (*pb.UpdateEventResponse, error) {
+	ctx = utils.SetRequestIdToCtx(ctx)
+	logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
+	ctx = logger.SetLoggerToCtx(ctx)
+
+	protoEvent := req.GetEvent()
+	event := g.mapProtoEventToEvent(protoEvent)
+	err := g.storage.Update(ctx, event)
+	if err != nil {
+		statusCode := model.DefineStatusCode(err.Error())
+		respErr := g.createError(ctx, statusCode, err.Error(), err)
+		lg.GetLogger(ctx).WithError(respErr).Error("update event")
+		return nil, respErr
+	}
+
+	return &pb.UpdateEventResponse{
+		RequestId: utils.GetRequestID(ctx),
+	}, nil
 }
 
 func (g *GrpcServer) DeleteEvent(ctx context.Context, req *pb.DeleteEventRequest) (*pb.DeleteEventResponse, error) {
