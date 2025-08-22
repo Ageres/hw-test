@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	pb "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
@@ -12,18 +13,6 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
-
-/*
-type GrpcServer interface {
-	GetEvent(context.Context, *pb.GetEventListRequest) (*pb.GetEventListResponse, error)
-	AddEvent(context.Context, *pb.AddEventRequest) (*pb.AddEventResponse, error)
-	UpdateEvent(context.Context, *pb.UpdateEventRequest) (*pb.UpdateEventResponse, error)
-	DeleteEvent(context.Context, *pb.DeleteEventRequest) (*pb.DeleteEventResponse, error)
-	mustEmbedUnimplementedCalendarServer()
-	testEmbeddedByValue()
-	//pb.UnimplementedCalendarServer
-}
-*/
 
 // AddEvent implements __.CalendarServer.
 func (g *GrpcServer) AddEvent(context.Context, *pb.AddEventRequest) (*pb.AddEventResponse, error) {
@@ -53,13 +42,19 @@ func NewGrpsServer(ctx context.Context, storage storage.Storage) *GrpcServer {
 	}
 }
 
-func (s *GrpcServer) mustEmbedUnimplementedCalendarServer() {}
-func (s *GrpcServer) testEmbeddedByValue()                  {}
+//func (s *GrpcServer) mustEmbedUnimplementedCalendarServer() {}
+//func (s *GrpcServer) testEmbeddedByValue()                  {}
 
 func (s *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) (*pb.GetEventListResponse, error) {
 	ctx = s.logger.SetLoggerToCtx(ctx)
+	req.StartTime = nil
 	if req.StartTime == nil {
-		return nil, status.Error(codes.InvalidArgument, "start_time is required")
+		resp := createErrorResponse[pb.GetEventListResponse](
+			s, codes.InvalidArgument, "start_time is required", nil,
+		)
+		lg.GetLogger(ctx).Error("get event", map[string]any{"error": resp})
+		return resp, nil
+		//return nil, status.Error(codes.InvalidArgument, "start_time is required")
 	}
 
 	startTime := req.StartTime.AsTime()
@@ -117,9 +112,9 @@ func createErrorResponse[T any](
 	err error,
 ) *T {
 	var zero T
-
+	fmt.Printf("----------- %T\n", any(zero))
 	switch any(zero).(type) {
-	case *pb.GetEventListResponse:
+	case pb.GetEventListResponse:
 		return any(&pb.GetEventListResponse{
 			Status: pb.OperationStatus_OPERATION_STATUS_ERROR,
 			Error:  s.createError(grpcCode, message, err),
