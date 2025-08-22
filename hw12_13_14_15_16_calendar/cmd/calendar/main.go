@@ -61,7 +61,7 @@ func main() {
 
 	logger.GetLogger(ctx).Info("calendar is running...")
 
-	lis, err := net.Listen("tcp", "127.0.0.1:50051")
+	lis, err := net.Listen(configRef.GRPC.Server.Network, configRef.GRPC.Server.GetAddress())
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
