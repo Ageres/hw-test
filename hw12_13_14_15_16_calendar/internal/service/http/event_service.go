@@ -181,7 +181,7 @@ func (h *httpService) getEventList(
 		)
 		return
 	}
-	resp := GetListResponse{
+	resp := GetEventListResponse{
 		Status: status,
 		Events: events,
 	}
