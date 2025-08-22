@@ -27,12 +27,12 @@ func (s *ServiceError) Error() string {
 func (s *ServiceError) ToJSON() string {
 	if s.Cause == nil {
 		return fmt.Sprintf(
-			`{"serviceName":"%s", "status":"%d","message":"%s","requestId":"%s","timestamp":"%v"}`,
+			`{"serviceName":"%s","status":"%d","message":"%s","requestId":"%s","timestamp":"%v"}`,
 			s.ServiceName, s.Status, s.Message, s.RequestID, s.Timestamp,
 		)
 	}
 	return fmt.Sprintf(
-		`{"serviceName":"%s", "status":"%d","message":"%s","requestId":"%s","timestamp":"%v", "cause":"%s"}`,
+		`{"serviceName":"%s","status":"%d","message":"%s","requestId":"%s","timestamp":"%v","cause":"%s"}`,
 		s.ServiceName, s.Status, s.Message, s.RequestID, s.Timestamp, s.Cause.Error(),
 	)
 }
