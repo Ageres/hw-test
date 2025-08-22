@@ -6,17 +6,20 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
 service Calendar{
-    rpc Get(GetEventListRequest) returnes (GetListResponse);
+    rpc GetEvent(GetEventListRequest) returnes (GetListResponse);
+    rpc AddEvent(AddEventRequest) returnes (AddEventResponse);
+    rpc UpdateEvent(UpdateEventRequest) returnes (UpdateEventResponse);
+    rpc DeleteEvent(DeleteEventRequest) returnes (DeleteEventResponse);
 }
 
 message ProtoEvent {
-    string id = 0;
-    string title = 1;
-    google.protobuf.Timestamp start_time = 2;
-    google.protobuf.Duration duration = 3;
-    string description = 4;
-    string user_id = 5;
-    google.protobuf.Duration reminder = 6;
+    string id = 1;
+    string title = 2;
+    google.protobuf.Timestamp start_time = 3;
+    google.protobuf.Duration duration = 4;
+    string description = 5;
+    string user_id = 6;
+    google.protobuf.Duration reminder = 7;
 }
 
 type GetEventListPeriod string
@@ -29,9 +32,58 @@ const (
 )
 
 message GetEventListRequest {
-    GetEventListPeriod period = 0;
-    google.protobuf.Timestamp start_time = 1; 
+    GetEventListPeriod period = 1;
+    google.protobuf.Timestamp start_time = 2; 
 }
 
+type GetEventListStatus string
 
+const (
+	GetEventListStatus_LISTDAY   GetEventListStatus = "Day event list successfully retrieved"
+	GetEventListStatus_LISTWEEK  GetEventListStatus = "Week event list successfully retrieved"
+	GetEventListStatus_LISTMONTH GetEventListStatus = "Month event list successfully retrieved"
+)
 
+message GetListResponse {
+	GetEventListStatus status = 1;
+	repeated ProtoEvent events = 2;
+}
+
+type AddEventRequest ProtoEvent
+
+type AddEventStatus string
+
+const (
+	AddEventStatus_ADD AddEventStatus = "Event added successfully"
+)
+
+message AddEventResponse {
+	AddEventStatus status = 1;
+	ProtoEvent event  = 2;
+}
+
+type UpdateEventRequest ProtoEvent
+
+type UpdateEventStatus string
+
+const (
+	UpdateEventStatus_UPDATE UpdateEventStatus = "Event updated successfully"
+)
+
+message UpdateEventResponse {
+	UpdateEventStatus status = 1;
+}
+
+message DeleteEventRequest {
+	string id = 1;
+}
+
+type DeleteEventStatus string
+
+const (
+	Delete DeleteEventStatus = "Event deleted successfully"
+)
+
+type DeleteEventResponse struct {
+	Status DeleteEventStatus `json:"status" binding:"required"`
+}
