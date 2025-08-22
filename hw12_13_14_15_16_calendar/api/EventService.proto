@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
 service Calendar {
-    rpc GetEvent(GetEventListRequest) returns (GetEventListResponse); // Сохраняем название
+    rpc GetEvent(GetEventListRequest) returns (GetEventListResponse);
     rpc AddEvent(AddEventRequest) returns (AddEventResponse);
     rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse);
     rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
@@ -23,6 +23,12 @@ message ProtoEvent {
     google.protobuf.Duration reminder = 7;
 }
 
+enum OperationStatus {
+    OPERATION_STATUS_UNSPECIFIED = 0;
+    OPERATION_STATUS_SUCCESS = 1;
+    OPERATION_STATUS_ERROR = 2;
+}
+
 enum GetEventListPeriod {
     GET_EVENT_LIST_PERIOD_UNSPECIFIED = 0;
     GET_EVENT_LIST_PERIOD_DAY = 1;
@@ -35,15 +41,8 @@ message GetEventListRequest {
     google.protobuf.Timestamp start_time = 2;
 }
 
-enum GetEventListStatus {
-    GET_EVENT_LIST_STATUS_UNSPECIFIED = 0;
-    GET_EVENT_LIST_STATUS_DAY = 1;
-    GET_EVENT_LIST_STATUS_WEEK = 2;
-    GET_EVENT_LIST_STATUS_MONTH = 3;
-}
-
 message GetEventListResponse {
-    GetEventListStatus status = 1;
+    OperationStatus status = 1;
     repeated ProtoEvent events = 2;
     Error error = 3;
 }
@@ -52,13 +51,8 @@ message AddEventRequest {
     ProtoEvent event = 1;
 }
 
-enum AddEventStatus {
-    ADD_EVENT_STATUS_UNSPECIFIED = 0;
-    ADD_EVENT_STATUS_ADD = 1;
-}
-
 message AddEventResponse {
-    AddEventStatus status = 1;
+    OperationStatus status = 1;
     ProtoEvent event = 2;
     Error error = 3;
 }
@@ -67,13 +61,8 @@ message UpdateEventRequest {
     ProtoEvent event = 1;
 }
 
-enum UpdateEventStatus {
-    UPDATE_EVENT_STATUS_UNSPECIFIED = 0;
-    UPDATE_EVENT_STATUS_UPDATE = 1;
-}
-
 message UpdateEventResponse {
-    UpdateEventStatus status = 1;
+    OperationStatus status = 1;
     Error error = 2;
 }
 
@@ -81,15 +70,11 @@ message DeleteEventRequest {
     string id = 1;
 }
 
-enum DeleteEventStatus {
-    DELETE_EVENT_STATUS_UNSPECIFIED = 0;
-    DELETE_EVENT_STATUS_DELETE = 1;
-}
-
 message DeleteEventResponse {
-    DeleteEventStatus status = 1;
+    OperationStatus status = 1;
     Error error = 2;
 }
+
 
 enum ServiceName {
     SERVICE_NAME_UNSPECIFIED = 0;
