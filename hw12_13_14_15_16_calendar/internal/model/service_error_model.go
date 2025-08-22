@@ -59,7 +59,8 @@ func DefineStatusCode(errMsg string) int {
 	if strings.Contains(errMsg, "event not found") {
 		return http.StatusNotFound
 	}
-	if strings.Contains(errMsg, "failed to validate event id") ||
+	if strings.Contains(errMsg, "event is nil") ||
+		strings.Contains(errMsg, "failed to validate event id") ||
 		strings.Contains(errMsg, "title is empty") ||
 		strings.Contains(errMsg, "event time is expired") ||
 		strings.Contains(errMsg, "duration must be positive") ||

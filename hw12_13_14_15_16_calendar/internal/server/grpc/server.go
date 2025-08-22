@@ -15,11 +15,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UpdateEvent implements __.CalendarServer.
-func (g *GrpcServer) UpdateEvent(context.Context, *pb.UpdateEventRequest) (*pb.UpdateEventResponse, error) {
-	panic("unimplemented")
-}
-
 type GrpcServer struct {
 	pb.UnimplementedCalendarServer
 	storage storage.Storage
@@ -72,8 +67,6 @@ func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 		protoEvents = append(protoEvents, g.mapEventToProtoEvent(&event))
 	}
 
-	//lg.GetLogger(ctx).Info("proto events", map[string]any{"protoEvents": protoEvents})
-
 	return &pb.GetEventListResponse{
 		RequestId: utils.GetRequestID(ctx),
 		Events:    protoEvents,
@@ -100,6 +93,10 @@ func (g *GrpcServer) AddEvent(ctx context.Context, req *pb.AddEventRequest) (*pb
 		RequestId: utils.GetRequestID(ctx),
 		Event:     respProtoEvent,
 	}, nil
+}
+
+func (g *GrpcServer) UpdateEvent(context.Context, *pb.UpdateEventRequest) (*pb.UpdateEventResponse, error) {
+	panic("unimplemented")
 }
 
 func (g *GrpcServer) DeleteEvent(ctx context.Context, req *pb.DeleteEventRequest) (*pb.DeleteEventResponse, error) {
