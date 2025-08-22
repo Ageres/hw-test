@@ -15,11 +15,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// AddEvent implements __.CalendarServer.
-func (g *GrpcServer) AddEvent(context.Context, *pb.AddEventRequest) (*pb.AddEventResponse, error) {
-	panic("unimplemented")
-}
-
 // UpdateEvent implements __.CalendarServer.
 func (g *GrpcServer) UpdateEvent(context.Context, *pb.UpdateEventRequest) (*pb.UpdateEventResponse, error) {
 	panic("unimplemented")
@@ -53,7 +48,6 @@ func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 	start := req.StartTime.AsTime()
 	var events []storage.Event
 	var err error
-
 	switch req.Period {
 	case pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_DAY:
 		events, err = g.storage.ListDay(ctx, start)
@@ -66,7 +60,6 @@ func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 		lg.GetLogger(ctx).WithError(defaultErr).Error("get event")
 		return nil, defaultErr
 	}
-
 	if err != nil {
 		statusCode := model.DefineStatusCode(err.Error())
 		respErr := g.createError(ctx, statusCode, err.Error(), err)
@@ -84,6 +77,28 @@ func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 	return &pb.GetEventListResponse{
 		RequestId: utils.GetRequestID(ctx),
 		Events:    protoEvents,
+	}, nil
+}
+
+func (g *GrpcServer) AddEvent(ctx context.Context, req *pb.AddEventRequest) (*pb.AddEventResponse, error) {
+	ctx = utils.SetRequestIdToCtx(ctx)
+	logger := g.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
+	ctx = logger.SetLoggerToCtx(ctx)
+
+	protoEvent := req.GetEvent()
+	event := g.mapProtoEventToEvent(protoEvent)
+	respEvent, err := g.storage.Add(ctx, event)
+	if err != nil {
+		statusCode := model.DefineStatusCode(err.Error())
+		respErr := g.createError(ctx, statusCode, err.Error(), err)
+		lg.GetLogger(ctx).WithError(respErr).Error("add event")
+		return nil, respErr
+	}
+	respProtoEvent := g.mapEventToProtoEvent(respEvent)
+
+	return &pb.AddEventResponse{
+		RequestId: utils.GetRequestID(ctx),
+		Event:     respProtoEvent,
 	}, nil
 }
 
@@ -118,6 +133,33 @@ func (g *GrpcServer) mapEventToProtoEvent(event *storage.Event) *pb.ProtoEvent {
 		UserId:      event.UserID,
 		Reminder:    durationpb.New(event.Reminder),
 	}
+}
+
+func (g *GrpcServer) mapProtoEventToEvent(protoEvent *pb.ProtoEvent) *storage.Event {
+	if protoEvent == nil {
+		return nil
+	}
+
+	event := &storage.Event{
+		ID:          protoEvent.Id,
+		Title:       protoEvent.Title,
+		Description: protoEvent.Description,
+		UserID:      protoEvent.UserId,
+	}
+
+	if protoEvent.StartTime != nil {
+		event.StartTime = protoEvent.StartTime.AsTime()
+	}
+
+	if protoEvent.Duration != nil {
+		event.Duration = protoEvent.Duration.AsDuration()
+	}
+
+	if protoEvent.Reminder != nil {
+		event.Reminder = protoEvent.Reminder.AsDuration()
+	}
+
+	return event
 }
 
 func (g *GrpcServer) createError(ctx context.Context, statusCode int, message string, cause error) error {
