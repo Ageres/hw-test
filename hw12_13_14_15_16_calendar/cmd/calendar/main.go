@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,9 +12,12 @@ import (
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc"
+	pb "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
 	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 	httpservice "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/service/http"
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
+	"google.golang.org/grpc"
 )
 
 // запуск:
@@ -39,6 +44,10 @@ func main() {
 
 	httpServer := internalhttp.NewHttpServer(ctx, configRef.HTTP, httpService)
 
+	grpcServer := internalgrpc.NewGrpsServer(ctx, storage)
+	s := grpc.NewServer()
+	pb.RegisterCalendarServer(s, grpcServer)
+
 	go func() {
 		<-ctx.Done()
 
@@ -52,9 +61,20 @@ func main() {
 
 	logger.GetLogger(ctx).Info("calendar is running...")
 
+	lis, err := net.Listen("tcp", ":50051")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	fmt.Println("gRPC server listening on :50051")
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+
 	if err := httpServer.Start(ctx); err != nil {
 		logger.GetLogger(ctx).WithError(err).Error("failed to start http server")
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
+
 }
