@@ -2,12 +2,13 @@ package grpc
 
 import (
 	"context"
-	"fmt"
+	"net/http"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	pb "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
-	"github.com/google/uuid"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -46,15 +47,14 @@ func NewGrpsServer(ctx context.Context, storage storage.Storage) *GrpcServer {
 //func (s *GrpcServer) testEmbeddedByValue()                  {}
 
 func (s *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) (*pb.GetEventListResponse, error) {
-	ctx = s.logger.SetLoggerToCtx(ctx)
-	req.StartTime = nil
+	ctx = utils.SetRequestIdToCtx(ctx)
+	logger := s.logger.With(map[string]any{"requestId": utils.GetRequestID(ctx)})
+	ctx = logger.SetLoggerToCtx(ctx)
+	//req.StartTime = nil
 	if req.StartTime == nil {
-		resp := createErrorResponse[pb.GetEventListResponse](
-			s, codes.InvalidArgument, "start_time is required", nil,
-		)
-		lg.GetLogger(ctx).Error("get event", map[string]any{"error": resp})
-		return resp, nil
-		//return nil, status.Error(codes.InvalidArgument, "start_time is required")
+		err := s.createError(ctx, http.StatusBadRequest, "start_time is required", nil)
+		lg.GetLogger(ctx).WithError(err).Error("get event")
+		return nil, err
 	}
 
 	startTime := req.StartTime.AsTime()
@@ -69,13 +69,16 @@ func (s *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 	case pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_MONTH:
 		events, err = s.storage.ListMonth(ctx, startTime)
 	default:
-		return nil, status.Error(codes.InvalidArgument, "invalid period")
+		defaultErr := s.createError(ctx, http.StatusBadRequest, "invalid period", nil)
+		lg.GetLogger(ctx).WithError(defaultErr).Error("get event")
+		return nil, defaultErr
 	}
 
 	if err != nil {
-		return createErrorResponse[pb.GetEventListResponse](
-			s, codes.Internal, "failed to get events", err,
-		), nil
+		statusCode := model.DefineStatusCode(err.Error())
+		respErr := s.createError(ctx, statusCode, err.Error(), err)
+		lg.GetLogger(ctx).WithError(respErr).Error("get event")
+		return nil, respErr
 	}
 
 	protoEvents := make([]*pb.ProtoEvent, 0, len(events))
@@ -83,9 +86,11 @@ func (s *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 		protoEvents = append(protoEvents, s.mapEventToProtoEvent(&event))
 	}
 
+	lg.GetLogger(ctx).Info("proto events", map[string]any{"protoEvents": protoEvents})
+
 	return &pb.GetEventListResponse{
-		Status: pb.OperationStatus_OPERATION_STATUS_SUCCESS,
-		Events: protoEvents,
+		RequestId: utils.GetRequestID(ctx),
+		Events:    protoEvents,
 	}, nil
 }
 
@@ -93,7 +98,6 @@ func (s *GrpcServer) mapEventToProtoEvent(event *storage.Event) *pb.ProtoEvent {
 	if event == nil {
 		return nil
 	}
-
 	return &pb.ProtoEvent{
 		Id:          event.ID,
 		Title:       event.Title,
@@ -105,70 +109,22 @@ func (s *GrpcServer) mapEventToProtoEvent(event *storage.Event) *pb.ProtoEvent {
 	}
 }
 
-func createErrorResponse[T any](
-	s *GrpcServer,
-	grpcCode codes.Code,
-	message string,
-	err error,
-) *T {
-	var zero T
-	fmt.Printf("----------- %T\n", any(zero))
-	switch any(zero).(type) {
-	case pb.GetEventListResponse:
-		return any(&pb.GetEventListResponse{
-			Status: pb.OperationStatus_OPERATION_STATUS_ERROR,
-			Error:  s.createError(grpcCode, message, err),
-		}).(*T)
-	case *pb.AddEventResponse:
-		return any(&pb.AddEventResponse{
-			Status: pb.OperationStatus_OPERATION_STATUS_ERROR,
-			Error:  s.createError(grpcCode, message, err),
-		}).(*T)
-	case *pb.UpdateEventResponse:
-		return any(&pb.UpdateEventResponse{
-			Status: pb.OperationStatus_OPERATION_STATUS_ERROR,
-			Error:  s.createError(grpcCode, message, err),
-		}).(*T)
-	case *pb.DeleteEventResponse:
-		return any(&pb.DeleteEventResponse{
-			Status: pb.OperationStatus_OPERATION_STATUS_ERROR,
-			Error:  s.createError(grpcCode, message, err),
-		}).(*T)
-	default:
-		return &zero
-	}
+func (s *GrpcServer) createError(ctx context.Context, statusCode int, message string, cause error) error {
+	requestId := utils.GetRequestID(ctx)
+	cserr := model.NewCalendarServiceErrorAsIs(statusCode, message, requestId, cause)
+	grpcCode := s.mapStatusToGRPCCode(statusCode)
+	return status.Error(grpcCode, cserr.ToJSON())
 }
 
-func (s *GrpcServer) createError(grpcCode codes.Code, message string, originalErr error) *pb.Error {
-	responseStatus := s.mapGRPCCodeToResponseStatus(grpcCode)
-
-	errorMessage := message
-	if originalErr != nil {
-		errorMessage += ": " + originalErr.Error()
-	}
-
-	return &pb.Error{
-		ServiceName: pb.ServiceName_SERVICE_NAME_CALENDAR,
-		Status:      responseStatus,
-		Message:     errorMessage,
-		RequestId:   uuid.New().String(),
-		Timestamp:   timestamppb.Now(),
-	}
-}
-
-func (s *GrpcServer) mapGRPCCodeToResponseStatus(grpcCode codes.Code) pb.ResponseStatus {
-	switch grpcCode {
-	case codes.OK:
-		return pb.ResponseStatus_RESPONSE_STATUS_OK
-	case codes.InvalidArgument, codes.FailedPrecondition, codes.OutOfRange:
-		return pb.ResponseStatus_RESPONSE_STATUS_BAD_REQUEST
-	case codes.NotFound:
-		return pb.ResponseStatus_RESPONSE_STATUS_NOT_FOUND
-	case codes.AlreadyExists, codes.Aborted:
-		return pb.ResponseStatus_RESPONSE_STATUS_CONFLICT
-	case codes.Internal, codes.Unknown, codes.DataLoss, codes.Unavailable:
-		return pb.ResponseStatus_RESPONSE_STATUS_INTERNAL
+func (s *GrpcServer) mapStatusToGRPCCode(status int) codes.Code {
+	switch status {
+	case 400:
+		return codes.InvalidArgument
+	case 404:
+		return codes.NotFound
+	case 409:
+		return codes.AlreadyExists
 	default:
-		return pb.ResponseStatus_RESPONSE_STATUS_INTERNAL
+		return codes.Internal
 	}
 }

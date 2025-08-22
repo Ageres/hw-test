@@ -25,12 +25,6 @@ message ProtoEvent {
     google.protobuf.Duration reminder = 7;
 }
 
-enum OperationStatus {
-    OPERATION_STATUS_UNSPECIFIED = 0;
-    OPERATION_STATUS_SUCCESS = 1;
-    OPERATION_STATUS_ERROR = 2;
-}
-
 enum GetEventListPeriod {
     GET_EVENT_LIST_PERIOD_UNSPECIFIED = 0;
     GET_EVENT_LIST_PERIOD_DAY = 1;
@@ -44,9 +38,8 @@ message GetEventListRequest {
 }
 
 message GetEventListResponse {
-    OperationStatus status = 1;
+    string request_id = 1;
     repeated ProtoEvent events = 2;
-    Error error = 3;
 }
 
 message AddEventRequest {
@@ -54,9 +47,8 @@ message AddEventRequest {
 }
 
 message AddEventResponse {
-    OperationStatus status = 1;
+    string request_id = 1;
     ProtoEvent event = 2;
-    Error error = 3;
 }
 
 message UpdateEventRequest {
@@ -64,8 +56,7 @@ message UpdateEventRequest {
 }
 
 message UpdateEventResponse {
-    OperationStatus status = 1;
-    Error error = 2;
+    string request_id = 1;
 }
 
 message DeleteEventRequest {
@@ -73,28 +64,5 @@ message DeleteEventRequest {
 }
 
 message DeleteEventResponse {
-    OperationStatus status = 1;
-    Error error = 2;
-}
-
-enum ServiceName {
-    SERVICE_NAME_UNSPECIFIED = 0;
-    SERVICE_NAME_CALENDAR = 1;
-}
-
-enum ResponseStatus {
-    RESPONSE_STATUS_UNSPECIFIED = 0;
-    RESPONSE_STATUS_OK = 200;
-    RESPONSE_STATUS_BAD_REQUEST = 400;
-    RESPONSE_STATUS_NOT_FOUND = 404;
-    RESPONSE_STATUS_CONFLICT = 409;
-    RESPONSE_STATUS_INTERNAL = 500;
-}
-
-message Error {
-    ServiceName service_name = 1;
-    ResponseStatus status = 2;
-    string message = 3;
-    string request_id = 4;
-    google.protobuf.Timestamp timestamp = 5;
+    string request_id = 1;
 }
