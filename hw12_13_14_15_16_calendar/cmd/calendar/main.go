@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -40,41 +40,83 @@ func main() {
 
 	httpService := httpservice.NewHttpService(ctx, storage)
 
-	//calendar := app.New(ctx, storage)
-
 	httpServer := internalhttp.NewHttpServer(ctx, configRef.HTTP, httpService)
 
 	grpcServer := internalgrpc.NewGrpsServer(ctx, storage)
-	s := grpc.NewServer()
-	pb.RegisterCalendarServer(s, grpcServer)
+	grpcSrv := grpc.NewServer()
+	pb.RegisterCalendarServer(grpcSrv, grpcServer)
 
+	httpErrChan := make(chan error, 1)
+	grpcErrChan := make(chan error, 1)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
 	go func() {
-		<-ctx.Done()
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting HTTP server...")
+		if err := httpServer.Start(ctx); err != nil {
+			httpErrChan <- err
+		}
+	}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
+	// Запуск gRPC сервера
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting gRPC server...")
 
-		if err := httpServer.Stop(ctx); err != nil {
-			logger.GetLogger(ctx).WithError(err).Error("failed to stop http server")
+		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", configRef.GRPC.Server.Port))
+		if err != nil {
+			grpcErrChan <- fmt.Errorf("failed to listen: %w", err)
+			return
+		}
+
+		logger.GetLogger(ctx).Info("gRPC server listening", map[string]any{"port": configRef.GRPC.Server.Port})
+		if err := grpcSrv.Serve(lis); err != nil {
+			grpcErrChan <- fmt.Errorf("failed to serve: %w", err)
 		}
 	}()
 
 	logger.GetLogger(ctx).Info("calendar is running...")
 
-	lis, err := net.Listen(configRef.GRPC.Server.Network, configRef.GRPC.Server.GetAddress())
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	fmt.Println("gRPC server listening on :50051")
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
-
-	if err := httpServer.Start(ctx); err != nil {
-		logger.GetLogger(ctx).WithError(err).Error("failed to start http server")
+	select {
+	case err := <-httpErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("HTTP server failed to start")
 		cancel()
-		os.Exit(1) //nolint:gocritic
+	case err := <-grpcErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("gRPC server failed to start")
+		cancel()
+	case <-ctx.Done():
+		logger.GetLogger(ctx).Info("Shutdown signal received")
 	}
 
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	var shutdownWg sync.WaitGroup
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		if err := httpServer.Stop(shutdownCtx); err != nil {
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop HTTP server")
+		} else {
+			logger.GetLogger(ctx).Info("HTTP server stopped gracefully")
+		}
+	}()
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		grpcSrv.GracefulStop()
+		logger.GetLogger(ctx).Info("gRPC server stopped gracefully")
+	}()
+
+	shutdownWg.Wait()
+
+	// Ждем завершения горутин серверов
+	wg.Wait()
+
+	logger.GetLogger(ctx).Info("calendar stopped")
 }
