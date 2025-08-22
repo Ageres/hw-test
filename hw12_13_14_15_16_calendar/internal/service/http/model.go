@@ -74,7 +74,7 @@ type DeleteEventRequest struct {
 type DeleteEventStatus string
 
 const (
-	Delete DeleteEventStatus = "Event deleted successfully"
+	DELETE DeleteEventStatus = "Event deleted successfully"
 )
 
 type DeleteEventResponse struct {

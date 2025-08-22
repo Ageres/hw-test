@@ -116,7 +116,7 @@ func (h *httpService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := DeleteEventResponse{
-		Status: Delete,
+		Status: DELETE,
 	}
 	writeResponse(ctx, w, &resp)
 }
