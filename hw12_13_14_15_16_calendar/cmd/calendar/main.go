@@ -15,7 +15,6 @@ import (
 	internalgrpc "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc"
 	pb "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
 	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
-	httpservice "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/service/http"
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 	"google.golang.org/grpc"
 )
@@ -38,7 +37,7 @@ func main() {
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
-	httpService := httpservice.NewHttpService(ctx, storage)
+	httpService := internalhttp.NewHttpService(ctx, storage)
 
 	httpServer := internalhttp.NewHttpServer(ctx, configRef.HTTP, httpService)
 
