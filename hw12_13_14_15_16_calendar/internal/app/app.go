@@ -52,8 +52,8 @@ func (a *App) UpdateEvent(ctx context.Context, eventRef *storage.Event) (*AppRes
 	}, err
 }
 
-func (a *App) DeleteEvent(ctx context.Context, eventId string) (*AppResponse, error) {
-	err := a.storage.Delete(ctx, eventId)
+func (a *App) DeleteEvent(ctx context.Context, eventID string) (*AppResponse, error) {
+	err := a.storage.Delete(ctx, eventID)
 	if err != nil {
 		return nil, err
 	}

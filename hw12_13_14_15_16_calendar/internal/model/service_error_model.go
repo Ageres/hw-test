@@ -43,12 +43,12 @@ func NewCalendarServiceError(status int, message, requestId string, cause error)
 	return NewCalendarServiceErrorAsIs(status, message, requestId, cause)
 }
 
-func NewCalendarServiceErrorAsIs(status int, message, requestId string, cause error) *ServiceError {
+func NewCalendarServiceErrorAsIs(status int, message, requestID string, cause error) *ServiceError {
 	return &ServiceError{
 		ServiceName: CalendarServiceName,
 		Status:      status,
 		Message:     message,
-		RequestID:   requestId,
+		RequestID:   requestID,
 		Timestamp:   time.Now(),
 		Cause:       cause,
 	}
