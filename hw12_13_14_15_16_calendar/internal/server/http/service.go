@@ -16,7 +16,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 )
 
-type HttpService interface {
+type HTTPService interface {
 	GetEventList(w http.ResponseWriter, r *http.Request)
 	AddEvent(w http.ResponseWriter, r *http.Request)
 	UpdateEvent(w http.ResponseWriter, r *http.Request)
@@ -28,7 +28,7 @@ type httpService struct {
 	storage storage.Storage
 }
 
-func NewHttpService(ctx context.Context, storage storage.Storage) HttpService {
+func NewHttpService(ctx context.Context, storage storage.Storage) HTTPService {
 	return &httpService{
 		storage: storage,
 	}

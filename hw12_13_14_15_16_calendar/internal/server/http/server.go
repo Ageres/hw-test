@@ -14,10 +14,10 @@ type httpServer struct {
 	server  *http.Server
 	logger  lg.Logger
 	address string
-	service HttpService
+	service HTTPService
 }
 
-func NewHTTPServer(ctx context.Context, httpConf *model.HTTPConf, service HttpService) bserv.HTTPServer {
+func NewHTTPServer(ctx context.Context, httpConf *model.HTTPConf, service HTTPService) bserv.HTTPServer {
 	address := httpConf.Server.GetAddress()
 
 	s := &httpServer{
