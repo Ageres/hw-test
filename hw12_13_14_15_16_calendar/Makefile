@@ -53,15 +53,8 @@ generate: install-protoc-deps
 	@echo "Generating gRPC code from $(PROTO_DIR)/$(PROTO_FILE)..."
 	protoc --proto_path=$(PROTO_DIR) \
 		--go_out=$(GRPC_OUT_DIR) \
-		--go_opt=paths=source_relative \
 		--go-grpc_out=$(GRPC_OUT_DIR) \
-		--go-grpc_opt=paths=source_relative \
 		$(PROTO_DIR)/$(PROTO_FILE)
 	@echo "gRPC code generated in $(GRPC_OUT_DIR)"
 
-clean-generate:
-	@echo "Cleaning generated gRPC files..."
-	rm -f $(GRPC_OUT_DIR)/*.pb.go
-	@echo "Generated files cleaned"
-
-.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate clean-generate
+.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate
