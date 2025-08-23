@@ -115,6 +115,15 @@ func TestGrpcServer_GetEvent(t *testing.T) {
 			errorCode:     codes.InvalidArgument,
 			errorMessage:  "start_time is required",
 		},
+		{
+			name:    "invalid period",
+			request: &pb.GetEventListRequest{Period: pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_UNSPECIFIED, StartTime: startTime},
+			mockSetup: func() {
+			},
+			expectedError: true,
+			errorCode:     codes.InvalidArgument,
+			errorMessage:  "invalid period",
+		},
 	}
 
 	for _, tt := range tests {
