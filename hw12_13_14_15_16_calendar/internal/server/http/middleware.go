@@ -52,7 +52,7 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 		newR := r.WithContext(ctx)
 
 		rw.Header().Set("Content-Type", "application/json; charset=utf-8")
-		rw.Header().Set("X-Request-ID", requestId)
+		rw.Header().Set(utils.RequestIDHeader, requestId)
 
 		next.ServeHTTP(rw, newR)
 
