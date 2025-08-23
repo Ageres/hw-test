@@ -6,6 +6,10 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	RequestIDHeader = "x-request-id"
+)
+
 type contextKey string
 
 const RequestIDKey contextKey = "requestID"
