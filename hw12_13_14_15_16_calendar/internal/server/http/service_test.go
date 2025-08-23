@@ -371,6 +371,120 @@ func TestHttpService_AddEvent_Error(t *testing.T) {
 	}
 }
 
+func TestHttpService_UpdateEvent_Ok(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	service := &httpService{
+		storage: mockStorage,
+	}
+
+	event := &storage.Event{
+		ID:    "test-id",
+		Title: "Updated Event",
+	}
+
+	tests := []struct {
+		name           string
+		requestBody    interface{}
+		mockSetup      func()
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:        "successful update",
+			requestBody: bserv.UpdateEventRequest(*event),
+			mockSetup: func() {
+				mockStorage.On("Update", mock.Anything, mock.AnythingOfType("*storage.Event")).
+					Return(nil)
+			},
+			expectedStatus: http.StatusOK,
+			expectedBody:   `"status":"Event updated successfully"`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+
+			body, err := json.Marshal(tt.requestBody)
+			require.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodPut, "/v1/event", bytes.NewReader(body))
+			req = req.WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			service.UpdateEvent(w, req)
+
+			resp := w.Result()
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Contains(t, w.Body.String(), tt.expectedBody)
+
+			mockStorage.AssertExpectations(t)
+		})
+	}
+}
+
+func TestHttpService_UpdateEvent_Error(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	service := &httpService{
+		storage: mockStorage,
+	}
+
+	event := &storage.Event{
+		ID:    "test-id",
+		Title: "Updated Event",
+	}
+
+	tests := []struct {
+		name           string
+		requestBody    interface{}
+		mockSetup      func()
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:        "storage error",
+			requestBody: bserv.UpdateEventRequest(*event),
+			mockSetup: func() {
+				mockStorage.On("Update", mock.Anything, mock.AnythingOfType("*storage.Event")).
+					Return(fmt.Errorf("storage error"))
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "update event: storage error",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+
+			body, err := json.Marshal(tt.requestBody)
+			require.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodPut, "/v1/event", bytes.NewReader(body))
+			req = req.WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			service.UpdateEvent(w, req)
+
+			resp := w.Result()
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Contains(t, w.Body.String(), tt.expectedBody)
+
+			mockStorage.AssertExpectations(t)
+		})
+	}
+}
+
 func TestHttpService_MethodNotAllowed_Error(t *testing.T) {
 	ctx := utils.SetNewRequestIDToCtx(context.Background())
 	ctx = lg.SetDefaultLogger(ctx)
