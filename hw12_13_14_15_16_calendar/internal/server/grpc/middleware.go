@@ -2,11 +2,14 @@ package internalgrpc
 
 import (
 	"context"
+	"net"
 	"time"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 )
 
@@ -18,6 +21,17 @@ func LoggingInterceptor(logger lg.Logger) grpc.UnaryServerInterceptor {
 		handler grpc.UnaryHandler,
 	) (any, error) {
 
+		start := time.Now()
+
+		ip := ""
+		if p, ok := peer.FromContext(ctx); ok {
+			if addr, ok := p.Addr.(*net.TCPAddr); ok {
+				ip = addr.IP.String()
+			} else {
+				ip = p.Addr.String()
+			}
+		}
+
 		ctx = utils.SetRequestIdToCtx(ctx)
 		requestID := utils.GetRequestID(ctx)
 
@@ -27,33 +41,20 @@ func LoggingInterceptor(logger lg.Logger) grpc.UnaryServerInterceptor {
 		})
 		ctx = ctxLogger.SetLoggerToCtx(ctx)
 
-		ctxLogger.Info("gRPC request started")
-
-		startTime := time.Now()
-
 		resp, err := handler(ctx, req)
 
-		duration := time.Since(startTime)
-
-		logFields := map[string]any{
-			"duration":  duration.String(),
-			"method":    info.FullMethod,
-			"requestId": requestID,
-		}
-
+		var code codes.Code = 0
 		if err != nil {
 			if st, ok := status.FromError(err); ok {
-				logFields["grpcCode"] = st.Code().String()
-				logFields["error"] = st.Message()
-			} else {
-				logFields["error"] = err.Error()
+				code = st.Code()
 			}
-
-			ctxLogger.With(logFields).Error("gRPC request failed")
-		} else {
-			ctxLogger.With(logFields).Info("gRPC request completed")
 		}
 
+		ctxLogger.Info("grpc request", map[string]any{
+			"ip":         ip,
+			"status":     code,
+			"latency_ms": time.Since(start).Milliseconds(),
+		})
 		return resp, err
 	}
 }

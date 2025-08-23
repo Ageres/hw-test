@@ -42,7 +42,10 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 		requestId := utils.GenerateRequestID()
 		ctx := context.WithValue(r.Context(), utils.RequestIDKey, requestId)
 
-		logger := s.logger.With(map[string]any{"requestId": requestId})
+		logger := s.logger.With(map[string]any{
+			"requestId":  requestId,
+			"restMethod": r.Method,
+		})
 
 		ctx = logger.SetLoggerToCtx(ctx)
 
@@ -53,9 +56,8 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(rw, newR)
 
-		logger.Info("request", map[string]any{
+		logger.Info("rest request", map[string]any{
 			"ip":         ip,
-			"method":     r.Method,
 			"path":       r.URL.Path,
 			"protocol":   r.Proto,
 			"status":     rw.status,
