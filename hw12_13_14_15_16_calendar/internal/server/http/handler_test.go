@@ -14,27 +14,27 @@ import (
 
 type MockService struct{}
 
-func (m *MockService) GetEventList(w http.ResponseWriter, r *http.Request) {
+func (m *MockService) GetEventList(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"test"}`))
 }
 
-func (m *MockService) AddEvent(w http.ResponseWriter, r *http.Request) {
+func (m *MockService) AddEvent(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"added"}`))
 }
 
-func (m *MockService) UpdateEvent(w http.ResponseWriter, r *http.Request) {
+func (m *MockService) UpdateEvent(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"updated"}`))
 }
 
-func (m *MockService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
+func (m *MockService) DeleteEvent(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"deleted"}`))
 }
 
-func (m *MockService) MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
+func (m *MockService) MethodNotAllowed(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	w.Write([]byte(`{"error":"method not allowed"}`))
 }
