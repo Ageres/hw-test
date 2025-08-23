@@ -55,11 +55,11 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 
 func handlehandleRequestID(r *http.Request) context.Context {
 	ctx := r.Context()
-	requestId := r.Header.Get(utils.RequestIDHeader)
-	if requestId == "" {
+	requestID := r.Header.Get(utils.RequestIDHeader)
+	if requestID == "" {
 		ctx = utils.SetNewRequestIDToCtx(ctx)
 	} else {
-		ctx = utils.SetRequestIDToCtx(ctx, requestId)
+		ctx = utils.SetRequestIDToCtx(ctx, requestID)
 	}
 	return ctx
 }
