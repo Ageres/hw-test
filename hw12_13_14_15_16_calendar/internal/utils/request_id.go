@@ -25,7 +25,6 @@ func GenerateRequestID() string {
 	return uuid.New().String()
 }
 
-func SetRequestIdToCtx(ctx context.Context) context.Context {
-	requestId := GenerateRequestID()
+func SetRequestIdToCtx(ctx context.Context, requestId string) context.Context {
 	return context.WithValue(ctx, RequestIDKey, requestId)
 }
