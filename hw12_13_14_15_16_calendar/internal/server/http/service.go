@@ -139,7 +139,7 @@ func (h *httpService) MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 func unmarshalRequestBody[T any](ctx context.Context, w http.ResponseWriter, r *http.Request) (*T, error) {
 	buf := make([]byte, r.ContentLength)
 	_, err := r.Body.Read(buf)
-	if err != nil && err != io.EOF {
+	if err != nil && err != io.EOF { //nolint:errorlint
 		writeError(
 			ctx,
 			fmt.Sprintf("read request body: %s", err.Error()),
