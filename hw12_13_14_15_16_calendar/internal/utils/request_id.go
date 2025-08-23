@@ -22,9 +22,9 @@ func GetRequestID(ctx context.Context) string {
 }
 
 func SetNewRequestIDToCtx(ctx context.Context) context.Context {
-	return SetRequestIdToCtx(ctx, uuid.New().String())
+	return SetRequestIDToCtx(ctx, uuid.New().String())
 }
 
-func SetRequestIdToCtx(ctx context.Context, requestId string) context.Context {
-	return context.WithValue(ctx, RequestIDKey, requestId)
+func SetRequestIDToCtx(ctx context.Context, requestID string) context.Context {
+	return context.WithValue(ctx, RequestIDKey, requestID)
 }

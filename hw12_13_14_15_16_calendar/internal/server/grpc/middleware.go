@@ -106,7 +106,7 @@ func handleRequestID(ctx context.Context, logger lg.Logger) context.Context {
 			logger.WithError(err).Warn("cant set request id")
 		}
 	} else {
-		ctx = utils.SetRequestIdToCtx(ctx, requestID)
+		ctx = utils.SetRequestIDToCtx(ctx, requestID)
 		logger = logger.With(map[string]any{
 			"requestId": requestID,
 		})

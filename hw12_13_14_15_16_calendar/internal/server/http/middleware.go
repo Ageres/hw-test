@@ -59,7 +59,7 @@ func handlehandleRequestID(r *http.Request) context.Context {
 	if requestId == "" {
 		ctx = utils.SetNewRequestIDToCtx(ctx)
 	} else {
-		ctx = utils.SetRequestIdToCtx(ctx, requestId)
+		ctx = utils.SetRequestIDToCtx(ctx, requestId)
 	}
 	return ctx
 }
