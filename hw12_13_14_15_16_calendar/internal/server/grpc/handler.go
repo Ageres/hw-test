@@ -6,7 +6,6 @@ import (
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server"
 	pb "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
@@ -40,7 +39,7 @@ func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 		return nil, defaultErr
 	}
 	if err != nil {
-		statusCode := server.DefineStatusCode(err.Error())
+		statusCode := utils.DefineStatusCode(err.Error())
 		respErr := g.createError(ctx, statusCode, err.Error(), err)
 		lg.GetLogger(ctx).WithError(respErr).Error("get event")
 		return nil, respErr
@@ -61,7 +60,7 @@ func (g *GrpcServer) AddEvent(ctx context.Context, req *pb.AddEventRequest) (*pb
 	event := g.mapProtoEventToEvent(protoEvent)
 	respEvent, err := g.storage.Add(ctx, event)
 	if err != nil {
-		statusCode := server.DefineStatusCode(err.Error())
+		statusCode := utils.DefineStatusCode(err.Error())
 		respErr := g.createError(ctx, statusCode, err.Error(), err)
 		lg.GetLogger(ctx).WithError(respErr).Error("add event")
 		return nil, respErr
@@ -78,7 +77,7 @@ func (g *GrpcServer) UpdateEvent(ctx context.Context, req *pb.UpdateEventRequest
 	event := g.mapProtoEventToEvent(protoEvent)
 	err := g.storage.Update(ctx, event)
 	if err != nil {
-		statusCode := server.DefineStatusCode(err.Error())
+		statusCode := utils.DefineStatusCode(err.Error())
 		respErr := g.createError(ctx, statusCode, err.Error(), err)
 		lg.GetLogger(ctx).WithError(respErr).Error("update event")
 		return nil, respErr
@@ -90,7 +89,7 @@ func (g *GrpcServer) UpdateEvent(ctx context.Context, req *pb.UpdateEventRequest
 func (g *GrpcServer) DeleteEvent(ctx context.Context, req *pb.DeleteEventRequest) (*pb.DeleteEventResponse, error) {
 	err := g.storage.Delete(ctx, req.GetId())
 	if err != nil {
-		statusCode := server.DefineStatusCode(err.Error())
+		statusCode := utils.DefineStatusCode(err.Error())
 		respErr := g.createError(ctx, statusCode, err.Error(), err)
 		lg.GetLogger(ctx).WithError(respErr).Error("delete event")
 		return nil, respErr
