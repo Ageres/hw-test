@@ -39,8 +39,8 @@ func (s *ServiceError) ToJSON() string {
 	)
 }
 
-func NewCalendarServiceError(status int, message, requestId string, cause error) error {
-	return NewCalendarServiceErrorAsIs(status, message, requestId, cause)
+func NewCalendarServiceError(status int, message, requestID string, cause error) error {
+	return NewCalendarServiceErrorAsIs(status, message, requestID, cause)
 }
 
 func NewCalendarServiceErrorAsIs(status int, message, requestID string, cause error) *ServiceError {
