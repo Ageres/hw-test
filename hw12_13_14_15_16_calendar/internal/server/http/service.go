@@ -206,7 +206,6 @@ func writeResponse[T any](ctx context.Context, w http.ResponseWriter, resp *T) {
 
 func writeError(ctx context.Context, errMsg string, w http.ResponseWriter, httpSatus int) {
 	w.WriteHeader(httpSatus)
-	//httpError := NewHttpError(ctx, errMsg)
 	httpError := model.NewCalendarServiceError(httpSatus, errMsg, utils.GetRequestID(ctx), nil)
 	err := json.NewEncoder(w).Encode(httpError)
 	if err != nil {
