@@ -3,6 +3,7 @@ package internalgrpc
 import (
 	"context"
 	"errors"
+	"net/http"
 	"testing"
 	"time"
 
@@ -392,4 +393,26 @@ func TestGrpcServer_DeleteEvent_Error(t *testing.T) {
 		assert.Equal(t, codes.Internal, st.Code())
 		mockStorage.AssertExpectations(t)
 	})
+}
+
+func TestMapStatusToGRPCCode(t *testing.T) {
+	server := &GrpcServer{}
+
+	tests := []struct {
+		status   int
+		expected codes.Code
+	}{
+		{http.StatusBadRequest, codes.InvalidArgument},
+		{http.StatusNotFound, codes.NotFound},
+		{http.StatusConflict, codes.AlreadyExists},
+		{http.StatusInternalServerError, codes.Internal},
+		{http.StatusEarlyHints, codes.Internal},
+	}
+
+	for _, tt := range tests {
+		t.Run(http.StatusText(tt.status), func(t *testing.T) {
+			result := server.mapStatusToGRPCCode(tt.status)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }
