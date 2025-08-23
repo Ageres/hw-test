@@ -37,7 +37,7 @@ func main() {
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
-	httpService := internalhttp.NewHTTPService(ctx, storage)
+	httpService := internalhttp.NewHTTPService(storage)
 
 	httpServer := internalhttp.NewHTTPServer(ctx, configRef.HTTP, httpService)
 
