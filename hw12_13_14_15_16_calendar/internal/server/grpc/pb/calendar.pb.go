@@ -6,7 +6,7 @@
 
 // protoc --proto_path=./api --go_out=./internal/server/grpc/pb --go-grpc_out=./internal/server/grpc/pb ./api/calendar.proto
 
-package __
+package pb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -553,7 +553,7 @@ const file_calendar_proto_rawDesc = "" +
 	"\bGetEvent\x12\x1a.event.GetEventListRequest\x1a\x1b.event.GetEventListResponse\x12;\n" +
 	"\bAddEvent\x12\x16.event.AddEventRequest\x1a\x17.event.AddEventResponse\x12D\n" +
 	"\vUpdateEvent\x12\x19.event.UpdateEventRequest\x1a\x1a.event.UpdateEventResponse\x12D\n" +
-	"\vDeleteEvent\x12\x19.event.DeleteEventRequest\x1a\x1a.event.DeleteEventResponseB\x04Z\x02./b\x06proto3"
+	"\vDeleteEvent\x12\x19.event.DeleteEventRequest\x1a\x1a.event.DeleteEventResponseB\aZ\x05./;pbb\x06proto3"
 
 var (
 	file_calendar_proto_rawDescOnce sync.Once

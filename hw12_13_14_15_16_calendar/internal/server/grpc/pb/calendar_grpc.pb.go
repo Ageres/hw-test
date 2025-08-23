@@ -6,7 +6,7 @@
 
 // protoc --proto_path=./api --go_out=./internal/server/grpc/pb --go-grpc_out=./internal/server/grpc/pb ./api/calendar.proto
 
-package __
+package pb
 
 import (
 	context "context"
