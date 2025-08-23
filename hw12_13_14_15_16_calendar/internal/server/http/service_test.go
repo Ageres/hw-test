@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -118,6 +119,86 @@ func TestHttpService_GetEventList_Ok(t *testing.T) {
 			},
 			expectedStatus: http.StatusOK,
 			expectedBody:   `"status":"Month event list successfully retrieved"`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+
+			body, err := json.Marshal(tt.requestBody)
+			require.NoError(t, err)
+
+			req := httptest.NewRequest(tt.method, "/v1/event", bytes.NewReader(body))
+			req = req.WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			service.GetEventList(w, req)
+
+			resp := w.Result()
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Contains(t, w.Body.String(), tt.expectedBody)
+
+			mockStorage.AssertExpectations(t)
+		})
+	}
+}
+
+func TestHttpService_GetEventList_Error(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	service := &httpService{
+		storage: mockStorage,
+	}
+
+	timeLocation, _ := time.LoadLocation("UTC")
+	start := time.Date(2030, 12, 31, 0, 0, 0, 0, timeLocation)
+
+	tests := []struct {
+		name           string
+		method         string
+		requestBody    interface{}
+		mockSetup      func()
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:   "invalid period",
+			method: http.MethodGet,
+			requestBody: map[string]interface{}{
+				"period":   "invalid",
+				"startDay": start.Format(time.RFC3339),
+			},
+			mockSetup:      func() {},
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `"unknown period: invalid"`,
+		},
+		{
+			name:   "missing startDay",
+			method: http.MethodGet,
+			requestBody: map[string]interface{}{
+				"period": "day",
+			},
+			mockSetup:      func() {},
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `"startDay is nil"`,
+		},
+		{
+			name:   "storage error",
+			method: http.MethodGet,
+			requestBody: bserv.GetEventListRequest{
+				Period:   bserv.DAY,
+				StartDay: &start,
+			},
+			mockSetup: func() {
+				mockStorage.On("ListDay", mock.Anything, start).Return([]storage.Event{}, fmt.Errorf("storage error"))
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `"get event list: storage error"`,
 		},
 	}
 
