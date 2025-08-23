@@ -7,7 +7,6 @@ import (
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
-	httpservice "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/service/http"
 )
 
 type HttpServer interface {
@@ -19,10 +18,10 @@ type httpServer struct {
 	server  *http.Server
 	logger  lg.Logger
 	address string
-	service httpservice.HttpService
+	service HttpService
 }
 
-func NewHttpServer(ctx context.Context, httpConf *model.HTTPConf, service httpservice.HttpService) HttpServer {
+func NewHttpServer(ctx context.Context, httpConf *model.HTTPConf, service HttpService) HttpServer {
 	address := httpConf.Server.GetAddress()
 
 	s := &httpServer{
