@@ -226,6 +226,151 @@ func TestHttpService_GetEventList_Error(t *testing.T) {
 	}
 }
 
+func TestHttpService_AddEvent_Ok(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	service := &httpService{
+		storage: mockStorage,
+	}
+
+	timeLocation, _ := time.LoadLocation("UTC")
+	start := time.Date(2030, 12, 31, 0, 0, 0, 0, timeLocation)
+
+	event := &storage.Event{
+		Title:     "Test Event",
+		StartTime: start,
+		Duration:  time.Hour,
+		UserID:    "user-1",
+	}
+
+	tests := []struct {
+		name           string
+		requestBody    any
+		mockSetup      func()
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:        "successful add",
+			requestBody: bserv.AddEventRequest(*event),
+			mockSetup: func() {
+				returnedEvent := *event
+				returnedEvent.ID = "new-id"
+				mockStorage.On("Add", mock.Anything, mock.AnythingOfType("*storage.Event")).
+					Return(&returnedEvent, nil)
+			},
+			expectedStatus: http.StatusOK,
+			expectedBody:   `"Test Event"`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+
+			var body []byte
+			if str, ok := tt.requestBody.(string); ok {
+				body = []byte(str)
+			} else {
+				var err error
+				body, err = json.Marshal(tt.requestBody)
+				require.NoError(t, err)
+			}
+
+			req := httptest.NewRequest(http.MethodPost, "/v1/event", bytes.NewReader(body))
+			req = req.WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			service.AddEvent(w, req)
+
+			resp := w.Result()
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Contains(t, w.Body.String(), tt.expectedBody)
+
+			mockStorage.AssertExpectations(t)
+		})
+	}
+}
+
+func TestHttpService_AddEvent_Error(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	service := &httpService{
+		storage: mockStorage,
+	}
+
+	timeLocation, _ := time.LoadLocation("UTC")
+	start := time.Date(2030, 12, 31, 0, 0, 0, 0, timeLocation)
+
+	event := &storage.Event{
+		Title:     "Test Event",
+		StartTime: start,
+		Duration:  time.Hour,
+		UserID:    "user-1",
+	}
+
+	tests := []struct {
+		name           string
+		requestBody    any
+		mockSetup      func()
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:        "storage error",
+			requestBody: bserv.AddEventRequest(*event),
+			mockSetup: func() {
+				mockStorage.On("Add", mock.Anything, mock.AnythingOfType("*storage.Event")).
+					Return(nil, fmt.Errorf("storage error"))
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "add event: storage error",
+		},
+		{
+			name:           "invalid request body",
+			requestBody:    "invalid json",
+			mockSetup:      func() {},
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "unmarshal request body: invalid",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+
+			var body []byte
+			if str, ok := tt.requestBody.(string); ok {
+				body = []byte(str)
+			} else {
+				var err error
+				body, err = json.Marshal(tt.requestBody)
+				require.NoError(t, err)
+			}
+
+			req := httptest.NewRequest(http.MethodPost, "/v1/event", bytes.NewReader(body))
+			req = req.WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			service.AddEvent(w, req)
+
+			resp := w.Result()
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Contains(t, w.Body.String(), tt.expectedBody)
+
+			mockStorage.AssertExpectations(t)
+		})
+	}
+}
+
 func TestHttpService_MethodNotAllowed_Error(t *testing.T) {
 	ctx := utils.SetNewRequestIDToCtx(context.Background())
 	ctx = lg.SetDefaultLogger(ctx)
