@@ -73,7 +73,7 @@ func (h *httpService) AddEvent(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			fmt.Sprintf("add event: %s", err.Error()),
 			w,
-			defineHttpStatusCode(err.Error()),
+			defineHTTPStatusCode(err.Error()),
 		)
 		return
 	}
@@ -92,7 +92,7 @@ func (h *httpService) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			fmt.Sprintf("update event: %s", err.Error()),
 			w,
-			defineHttpStatusCode(err.Error()),
+			defineHTTPStatusCode(err.Error()),
 		)
 		return
 	}
@@ -114,7 +114,7 @@ func (h *httpService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			fmt.Sprintf("delete event: %s", err.Error()),
 			w,
-			defineHttpStatusCode(err.Error()),
+			defineHTTPStatusCode(err.Error()),
 		)
 		return
 	}
@@ -218,7 +218,7 @@ func writeError(ctx context.Context, errMsg string, w http.ResponseWriter, httpS
 	lg.GetLogger(ctx).WithError(httpError).Error("write error")
 }
 
-func defineHttpStatusCode(errMsg string) int {
+func defineHTTPStatusCode(errMsg string) int {
 	if strings.Contains(errMsg, "user is not the owner of the event, conflict with") || strings.Contains(errMsg, "time is already taken by another event") {
 		return http.StatusConflict
 	}
