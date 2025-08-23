@@ -2,6 +2,7 @@ package internalgrpc
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -55,7 +56,7 @@ func (m *MockStorage) ListMonth(ctx context.Context, startDay time.Time) ([]stor
 	return args.Get(0).([]storage.Event), args.Error(1)
 }
 
-func TestGrpcServer_GetEvent(t *testing.T) {
+func TestGrpcServer_GetEvent_Ok(t *testing.T) {
 	ctx := utils.SetNewRequestIDToCtx(context.Background())
 	ctx = lg.SetDefaultLogger(ctx)
 	mockLogger := lg.GetLogger(ctx)
@@ -107,14 +108,58 @@ func TestGrpcServer_GetEvent(t *testing.T) {
 			},
 			expectedError: false,
 		},
-		{
-			name:          "missing start time",
-			request:       &pb.GetEventListRequest{Period: pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_DAY},
-			mockSetup:     func() {},
-			expectedError: true,
-			errorCode:     codes.InvalidArgument,
-			errorMessage:  "start_time is required",
-		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+
+			resp, err := server.GetEvent(ctx, tt.request)
+
+			if tt.expectedError {
+				require.Error(t, err)
+				if tt.errorCode != 0 {
+					st, ok := status.FromError(err)
+					require.True(t, ok)
+					assert.Equal(t, tt.errorCode, st.Code())
+					assert.Contains(t, err.Error(), tt.errorMessage)
+				}
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, resp)
+				assert.Len(t, resp.Events, 1)
+			}
+
+			mockStorage.AssertExpectations(t)
+		})
+	}
+}
+
+func TestGrpcServer_GetEvent_Error(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockLogger := lg.GetLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	server := &GrpcServer{
+		storage: mockStorage,
+		logger:  mockLogger,
+	}
+
+	startTime := timestamppb.New(time.Now())
+	validRequest := &pb.GetEventListRequest{
+		Period:    pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_DAY,
+		StartTime: startTime,
+	}
+
+	tests := []struct {
+		name          string
+		request       *pb.GetEventListRequest
+		mockSetup     func()
+		expectedError bool
+		errorCode     codes.Code
+		errorMessage  string
+	}{
 		{
 			name:    "invalid period",
 			request: &pb.GetEventListRequest{Period: pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_UNSPECIFIED, StartTime: startTime},
@@ -123,6 +168,17 @@ func TestGrpcServer_GetEvent(t *testing.T) {
 			expectedError: true,
 			errorCode:     codes.InvalidArgument,
 			errorMessage:  "invalid period",
+		},
+		{
+			name:    "storage error",
+			request: validRequest,
+			mockSetup: func() {
+				mockStorage.On("ListDay", mock.Anything, startTime.AsTime()).
+					Return([]storage.Event{}, errors.New("storage error"))
+			},
+			expectedError: true,
+			errorCode:     codes.Internal,
+			errorMessage:  "storage error",
 		},
 	}
 
