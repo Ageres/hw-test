@@ -5,12 +5,16 @@ import (
 	"time"
 )
 
+type ServiceName string
+
+const CalendarServiceName ServiceName = "calendar"
+
 type ServiceError struct {
-	ServiceName string    `json:"serviceName" binding:"required"`
-	Status      int       `json:"status" binding:"required"`
-	Message     string    `json:"message" binding:"required"`
-	RequestID   string    `json:"requestId" binding:"required"`
-	Timestamp   time.Time `json:"timestamp" binding:"required"`
+	ServiceName ServiceName `json:"serviceName" binding:"required"`
+	Status      int         `json:"status" binding:"required"`
+	Message     string      `json:"message" binding:"required"`
+	RequestID   string      `json:"requestId" binding:"required"`
+	Timestamp   time.Time   `json:"timestamp" binding:"required"`
 	Cause       error
 }
 
@@ -41,7 +45,7 @@ func NewCalendarServiceError(status int, message, requestId string, cause error)
 
 func NewCalendarServiceErrorAsIs(status int, message, requestId string, cause error) *ServiceError {
 	return &ServiceError{
-		ServiceName: "calendar",
+		ServiceName: CalendarServiceName,
 		Status:      status,
 		Message:     message,
 		RequestID:   requestId,
