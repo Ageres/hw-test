@@ -223,8 +223,7 @@ func (x *GetEventListRequest) GetStartTime() *timestamppb.Timestamp {
 
 type GetEventListResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	Events        []*ProtoEvent          `protobuf:"bytes,2,rep,name=events,proto3" json:"events,omitempty"`
+	Events        []*ProtoEvent          `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -257,13 +256,6 @@ func (x *GetEventListResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetEventListResponse.ProtoReflect.Descriptor instead.
 func (*GetEventListResponse) Descriptor() ([]byte, []int) {
 	return file_calendar_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetEventListResponse) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
 }
 
 func (x *GetEventListResponse) GetEvents() []*ProtoEvent {
@@ -319,8 +311,7 @@ func (x *AddEventRequest) GetEvent() *ProtoEvent {
 
 type AddEventResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	Event         *ProtoEvent            `protobuf:"bytes,2,opt,name=event,proto3" json:"event,omitempty"`
+	Event         *ProtoEvent            `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -353,13 +344,6 @@ func (x *AddEventResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use AddEventResponse.ProtoReflect.Descriptor instead.
 func (*AddEventResponse) Descriptor() ([]byte, []int) {
 	return file_calendar_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *AddEventResponse) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
 }
 
 func (x *AddEventResponse) GetEvent() *ProtoEvent {
@@ -415,7 +399,6 @@ func (x *UpdateEventRequest) GetEvent() *ProtoEvent {
 
 type UpdateEventResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -448,13 +431,6 @@ func (x *UpdateEventResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateEventResponse.ProtoReflect.Descriptor instead.
 func (*UpdateEventResponse) Descriptor() ([]byte, []int) {
 	return file_calendar_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *UpdateEventResponse) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
 }
 
 type DeleteEventRequest struct {
@@ -503,7 +479,6 @@ func (x *DeleteEventRequest) GetId() string {
 
 type DeleteEventResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -538,13 +513,6 @@ func (*DeleteEventResponse) Descriptor() ([]byte, []int) {
 	return file_calendar_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *DeleteEventResponse) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
 var File_calendar_proto protoreflect.FileDescriptor
 
 const file_calendar_proto_rawDesc = "" +
@@ -563,27 +531,19 @@ const file_calendar_proto_rawDesc = "" +
 	"\x13GetEventListRequest\x121\n" +
 	"\x06period\x18\x01 \x01(\x0e2\x19.event.GetEventListPeriodR\x06period\x129\n" +
 	"\n" +
-	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\"`\n" +
-	"\x14GetEventListResponse\x12\x1d\n" +
-	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId\x12)\n" +
-	"\x06events\x18\x02 \x03(\v2\x11.event.ProtoEventR\x06events\":\n" +
+	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\"A\n" +
+	"\x14GetEventListResponse\x12)\n" +
+	"\x06events\x18\x01 \x03(\v2\x11.event.ProtoEventR\x06events\":\n" +
 	"\x0fAddEventRequest\x12'\n" +
-	"\x05event\x18\x01 \x01(\v2\x11.event.ProtoEventR\x05event\"Z\n" +
-	"\x10AddEventResponse\x12\x1d\n" +
-	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId\x12'\n" +
-	"\x05event\x18\x02 \x01(\v2\x11.event.ProtoEventR\x05event\"=\n" +
+	"\x05event\x18\x01 \x01(\v2\x11.event.ProtoEventR\x05event\";\n" +
+	"\x10AddEventResponse\x12'\n" +
+	"\x05event\x18\x01 \x01(\v2\x11.event.ProtoEventR\x05event\"=\n" +
 	"\x12UpdateEventRequest\x12'\n" +
-	"\x05event\x18\x01 \x01(\v2\x11.event.ProtoEventR\x05event\"4\n" +
-	"\x13UpdateEventResponse\x12\x1d\n" +
-	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId\"$\n" +
+	"\x05event\x18\x01 \x01(\v2\x11.event.ProtoEventR\x05event\"\x15\n" +
+	"\x13UpdateEventResponse\"$\n" +
 	"\x12DeleteEventRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"4\n" +
-	"\x13DeleteEventResponse\x12\x1d\n" +
-	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId*\x9b\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x15\n" +
+	"\x13DeleteEventResponse*\x9b\x01\n" +
 	"\x12GetEventListPeriod\x12%\n" +
 	"!GET_EVENT_LIST_PERIOD_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19GET_EVENT_LIST_PERIOD_DAY\x10\x01\x12\x1e\n" +

@@ -52,8 +52,7 @@ func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 	}
 
 	return &pb.GetEventListResponse{
-		RequestId: utils.GetRequestID(ctx),
-		Events:    protoEvents,
+		Events: protoEvents,
 	}, nil
 }
 
@@ -70,8 +69,7 @@ func (g *GrpcServer) AddEvent(ctx context.Context, req *pb.AddEventRequest) (*pb
 	respProtoEvent := g.mapEventToProtoEvent(respEvent)
 
 	return &pb.AddEventResponse{
-		RequestId: utils.GetRequestID(ctx),
-		Event:     respProtoEvent,
+		Event: respProtoEvent,
 	}, nil
 }
 
@@ -86,9 +84,7 @@ func (g *GrpcServer) UpdateEvent(ctx context.Context, req *pb.UpdateEventRequest
 		return nil, respErr
 	}
 
-	return &pb.UpdateEventResponse{
-		RequestId: utils.GetRequestID(ctx),
-	}, nil
+	return nil, nil
 }
 
 func (g *GrpcServer) DeleteEvent(ctx context.Context, req *pb.DeleteEventRequest) (*pb.DeleteEventResponse, error) {
@@ -100,9 +96,7 @@ func (g *GrpcServer) DeleteEvent(ctx context.Context, req *pb.DeleteEventRequest
 		return nil, respErr
 	}
 
-	return &pb.DeleteEventResponse{
-		RequestId: utils.GetRequestID(ctx),
-	}, nil
+	return nil, nil
 }
 
 //-----------------------------------------------------------------------------------

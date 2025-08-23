@@ -38,8 +38,7 @@ message GetEventListRequest {
 }
 
 message GetEventListResponse {
-    string request_id = 1;
-    repeated ProtoEvent events = 2;
+    repeated ProtoEvent events = 1;
 }
 
 message AddEventRequest {
@@ -47,8 +46,7 @@ message AddEventRequest {
 }
 
 message AddEventResponse {
-    string request_id = 1;
-    ProtoEvent event = 2;
+    ProtoEvent event = 1;
 }
 
 message UpdateEventRequest {
@@ -56,7 +54,6 @@ message UpdateEventRequest {
 }
 
 message UpdateEventResponse {
-    string request_id = 1;
 }
 
 message DeleteEventRequest {
@@ -64,5 +61,4 @@ message DeleteEventRequest {
 }
 
 message DeleteEventResponse {
-    string request_id = 1;
 }
