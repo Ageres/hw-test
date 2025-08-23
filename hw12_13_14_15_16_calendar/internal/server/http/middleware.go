@@ -1,6 +1,7 @@
 package internalhttp
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"time"
@@ -23,16 +24,7 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		rw := &responseWriter{w, http.StatusOK}
-
-		ctx := r.Context()
-		requestId := r.Header.Get(utils.RequestIDHeader)
-		if requestId == "" {
-			ctx = utils.SetNewRequestIDToCtx(ctx)
-		} else {
-			ctx = utils.SetRequestIdToCtx(ctx, requestId)
-		}
-
+		ctx := handlehandleRequestID(r)
 		logger := s.logger.With(map[string]any{
 			"requestId":  utils.GetRequestID(ctx),
 			"restMethod": r.Method,
@@ -41,8 +33,10 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 
 		ip := getIP(r, logger)
 		userAgent := getUserAgent(r, logger)
+
 		newR := r.WithContext(ctx)
 
+		rw := &responseWriter{w, http.StatusOK}
 		rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 		rw.Header().Set(utils.RequestIDHeader, utils.GetRequestID(ctx))
 
@@ -57,6 +51,17 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 			"user_agent": userAgent,
 		})
 	})
+}
+
+func handlehandleRequestID(r *http.Request) context.Context {
+	ctx := r.Context()
+	requestId := r.Header.Get(utils.RequestIDHeader)
+	if requestId == "" {
+		ctx = utils.SetNewRequestIDToCtx(ctx)
+	} else {
+		ctx = utils.SetRequestIdToCtx(ctx, requestId)
+	}
+	return ctx
 }
 
 func getIP(r *http.Request, logger lg.Logger) string {
