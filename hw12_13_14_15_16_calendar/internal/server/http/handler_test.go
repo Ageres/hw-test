@@ -53,7 +53,7 @@ func TestEventHandler(t *testing.T) {
 	}
 
 	service := &MockService{}
-	server := NewHttpServer(ctx, config, service).(*httpServer)
+	server := NewHTTPServer(ctx, config, service).(*httpServer)
 
 	tests := []struct {
 		name           string

@@ -39,7 +39,7 @@ func main() {
 
 	httpService := internalhttp.NewHttpService(ctx, storage)
 
-	httpServer := internalhttp.NewHttpServer(ctx, configRef.HTTP, httpService)
+	httpServer := internalhttp.NewHTTPServer(ctx, configRef.HTTP, httpService)
 
 	grpcServer := internalgrpc.NewGrpsServer(ctx, storage)
 	grpcSrv := grpc.NewServer(

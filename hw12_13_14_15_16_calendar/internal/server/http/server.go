@@ -17,7 +17,7 @@ type httpServer struct {
 	service HttpService
 }
 
-func NewHttpServer(ctx context.Context, httpConf *model.HTTPConf, service HttpService) bserv.HttpServer {
+func NewHTTPServer(ctx context.Context, httpConf *model.HTTPConf, service HttpService) bserv.HttpServer {
 	address := httpConf.Server.GetAddress()
 
 	s := &httpServer{
