@@ -144,8 +144,8 @@ func (g *GrpcServer) mapProtoEventToEvent(protoEvent *pb.ProtoEvent) *storage.Ev
 }
 
 func (g *GrpcServer) createError(ctx context.Context, statusCode int, message string, cause error) error {
-	requestId := utils.GetRequestID(ctx)
-	cserr := model.NewCalendarServiceErrorAsIs(statusCode, message, requestId, cause)
+	requestID := utils.GetRequestID(ctx)
+	cserr := model.NewCalendarServiceErrorAsIs(statusCode, message, requestID, cause)
 	grpcCode := g.mapStatusToGRPCCode(statusCode)
 	return status.Error(grpcCode, cserr.ToJSON())
 }

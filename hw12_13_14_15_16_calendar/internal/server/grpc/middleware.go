@@ -55,11 +55,13 @@ func getIP(ctx context.Context) string {
 }
 
 func getStatusCode(err error) codes.Code {
-	var code codes.Code = 0
+	var code codes.Code
 	if err != nil {
 		if st, ok := status.FromError(err); ok {
 			code = st.Code()
 		}
+	} else {
+		code = 0
 	}
 	return code
 }
