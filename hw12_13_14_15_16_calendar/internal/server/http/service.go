@@ -28,7 +28,7 @@ type httpService struct {
 	storage storage.Storage
 }
 
-func NewHttpService(ctx context.Context, storage storage.Storage) HTTPService {
+func NewHTTPService(ctx context.Context, storage storage.Storage) HTTPService {
 	return &httpService{
 		storage: storage,
 	}
