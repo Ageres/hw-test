@@ -21,8 +21,8 @@ func GetRequestID(ctx context.Context) string {
 	panic("request id not found")
 }
 
-func GenerateRequestID() string {
-	return uuid.New().String()
+func SetNewRequestIDToCtx(ctx context.Context) context.Context {
+	return SetRequestIdToCtx(ctx, uuid.New().String())
 }
 
 func SetRequestIdToCtx(ctx context.Context, requestId string) context.Context {

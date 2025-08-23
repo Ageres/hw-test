@@ -1,7 +1,6 @@
 package internalhttp
 
 import (
-	"context"
 	"net"
 	"net/http"
 	"time"
@@ -39,11 +38,10 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 
 		rw := &responseWriter{w, http.StatusOK}
 
-		requestId := utils.GenerateRequestID()
-		ctx := context.WithValue(r.Context(), utils.RequestIDKey, requestId)
+		ctx := utils.SetNewRequestIDToCtx(r.Context())
 
 		logger := s.logger.With(map[string]any{
-			"requestId":  requestId,
+			"requestId":  utils.GetRequestID(ctx),
 			"restMethod": r.Method,
 		})
 
@@ -52,7 +50,7 @@ func (s *httpServer) loggingMiddleware(next http.Handler) http.Handler {
 		newR := r.WithContext(ctx)
 
 		rw.Header().Set("Content-Type", "application/json; charset=utf-8")
-		rw.Header().Set(utils.RequestIDHeader, requestId)
+		rw.Header().Set(utils.RequestIDHeader, utils.GetRequestID(ctx))
 
 		next.ServeHTTP(rw, newR)
 
