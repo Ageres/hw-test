@@ -365,7 +365,6 @@ func TestGrpcServer_DeleteEvent_Ok(t *testing.T) {
 		assert.Nil(t, resp)
 		mockStorage.AssertExpectations(t)
 	})
-
 }
 
 func TestGrpcServer_DeleteEvent_Error(t *testing.T) {
