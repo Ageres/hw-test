@@ -94,19 +94,18 @@ func handleRequestID(ctx context.Context, logger lg.Logger) context.Context {
 	}
 
 	if requestID == "" {
-		requestID = utils.GenerateRequestID()
-		logger.With(map[string]any{
-			"requestId": requestID,
+		ctx = utils.SetNewRequestIDToCtx(ctx)
+		logger = logger.With(map[string]any{
+			"requestId": utils.GetRequestID(ctx),
 		})
-
-		header := metadata.Pairs(utils.RequestIDHeader, requestID)
-
+		header := metadata.Pairs(utils.RequestIDHeader, utils.GetRequestID(ctx))
 		err := grpc.SetHeader(ctx, header)
 		if err != nil {
 			logger.WithError(err).Warn("cant set request id")
 		}
 	} else {
-		logger.With(map[string]any{
+		ctx = utils.SetRequestIdToCtx(ctx, requestID)
+		logger = logger.With(map[string]any{
 			"requestId": requestID,
 		})
 
@@ -122,8 +121,6 @@ func handleRequestID(ctx context.Context, logger lg.Logger) context.Context {
 		}
 	}
 
-	ctx = utils.SetRequestIdToCtx(ctx, requestID)
 	ctx = logger.SetLoggerToCtx(ctx)
-
 	return ctx
 }
