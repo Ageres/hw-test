@@ -4,6 +4,9 @@ DB_USER ?= user
 DB_PASSWORD ?= password
 DB_DSN="host=localhost port=5432 user=$(DB_USER) password=$(DB_PASSWORD) dbname=calendar sslmode=disable"
 MIGRATIONS_DIR="./migrations"
+PROTO_DIR="./api"
+PROTO_FILE="calendar.proto"
+GRPC_OUT_DIR="./internal/server/grpc/pb"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -41,4 +44,24 @@ install-goose:
 migrate: install-goose
 	goose -dir $(MIGRATIONS_DIR) postgres "$(DB_DSN)" up
 
-.PHONY: build run build-img run-img version test lint install-goose migrate
+install-protoc-deps:
+	(which protoc > /dev/null) || (echo "Please install protoc: https://grpc.io/docs/protoc-installation/" && exit 1)
+	(which protoc-gen-go > /dev/null) || go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	(which protoc-gen-go-grpc > /dev/null) || go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+generate: install-protoc-deps
+	@echo "Generating gRPC code from $(PROTO_DIR)/$(PROTO_FILE)..."
+	protoc --proto_path=$(PROTO_DIR) \
+		--go_out=$(GRPC_OUT_DIR) \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=$(GRPC_OUT_DIR) \
+		--go-grpc_opt=paths=source_relative \
+		$(PROTO_DIR)/$(PROTO_FILE)
+	@echo "gRPC code generated in $(GRPC_OUT_DIR)"
+
+clean-generate:
+	@echo "Cleaning generated gRPC files..."
+	rm -f $(GRPC_OUT_DIR)/*.pb.go
+	@echo "Generated files cleaned"
+
+.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate clean-generate
