@@ -14,6 +14,7 @@ type HTTPServer interface {
 
 // ---------------------------------------------------------
 // get event list models
+
 type GetEventListPeriod string
 
 const (
@@ -42,6 +43,7 @@ type GetEventListResponse struct {
 
 // ---------------------------------------------------------
 // post event models (add event)
+
 type AddEventRequest storage.Event
 
 type AddEventStatus string
@@ -57,6 +59,7 @@ type AddEventResponse struct {
 
 // ---------------------------------------------------------
 // put event models (update event)
+
 type UpdateEventRequest storage.Event
 
 type UpdateEventStatus string
@@ -71,6 +74,7 @@ type UpdateEventResponse struct {
 
 // ---------------------------------------------------------
 // delete event models
+
 type DeleteEventRequest struct {
 	ID string `json:"id" binding:"required"`
 }
