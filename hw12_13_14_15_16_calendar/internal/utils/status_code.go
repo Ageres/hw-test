@@ -6,7 +6,8 @@ import (
 )
 
 func DefineStatusCode(errMsg string) int {
-	if strings.Contains(errMsg, "user is not the owner of the event, conflict with") || strings.Contains(errMsg, "time is already taken by another event") {
+	if strings.Contains(errMsg, "user is not the owner of the event, conflict with") ||
+		strings.Contains(errMsg, "time is already taken by another event") {
 		return http.StatusConflict
 	}
 	if strings.Contains(errMsg, "event not found") {

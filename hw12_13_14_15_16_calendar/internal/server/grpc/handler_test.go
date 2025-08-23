@@ -163,8 +163,11 @@ func TestGrpcServer_GetEvent_Error(t *testing.T) {
 		errorMessage  string
 	}{
 		{
-			name:    "invalid period",
-			request: &pb.GetEventListRequest{Period: pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_UNSPECIFIED, StartTime: startTime},
+			name: "invalid period",
+			request: &pb.GetEventListRequest{
+				Period:    pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_UNSPECIFIED,
+				StartTime: startTime,
+			},
 			mockSetup: func() {
 			},
 			expectedError: true,
