@@ -485,6 +485,112 @@ func TestHttpService_UpdateEvent_Error(t *testing.T) {
 	}
 }
 
+func TestHttpService_DeleteEvent_Ok(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	service := &httpService{
+		storage: mockStorage,
+	}
+
+	tests := []struct {
+		name           string
+		requestBody    any
+		mockSetup      func()
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name: "successful delete",
+			requestBody: bserv.DeleteEventRequest{
+				Id: "test-id",
+			},
+			mockSetup: func() {
+				mockStorage.On("Delete", mock.Anything, "test-id").Return(nil)
+			},
+			expectedStatus: http.StatusOK,
+			expectedBody:   `"status":"Event deleted successfully"`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+
+			body, err := json.Marshal(tt.requestBody)
+			require.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodDelete, "/v1/event", bytes.NewReader(body))
+			req = req.WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			service.DeleteEvent(w, req)
+
+			resp := w.Result()
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Contains(t, w.Body.String(), tt.expectedBody)
+
+			mockStorage.AssertExpectations(t)
+		})
+	}
+}
+
+func TestHttpService_DeleteEvent_Error(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	service := &httpService{
+		storage: mockStorage,
+	}
+
+	tests := []struct {
+		name           string
+		requestBody    any
+		mockSetup      func()
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name: "storage error",
+			requestBody: bserv.DeleteEventRequest{
+				Id: "test-id",
+			},
+			mockSetup: func() {
+				mockStorage.On("Delete", mock.Anything, "test-id").Return(fmt.Errorf("storage error"))
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "delete event: storage error",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockSetup()
+
+			body, err := json.Marshal(tt.requestBody)
+			require.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodDelete, "/v1/event", bytes.NewReader(body))
+			req = req.WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			service.DeleteEvent(w, req)
+
+			resp := w.Result()
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Contains(t, w.Body.String(), tt.expectedBody)
+
+			mockStorage.AssertExpectations(t)
+		})
+	}
+}
+
 func TestHttpService_MethodNotAllowed_Error(t *testing.T) {
 	ctx := utils.SetNewRequestIDToCtx(context.Background())
 	ctx = lg.SetDefaultLogger(ctx)
