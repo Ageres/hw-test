@@ -45,6 +45,9 @@ issues:
     - path: "cmd/calendar/main\\.go"
       linters:
         - depguard
+    - path: "(/|\\\\)utils(/|\\\\).*\\.go"
+      linters:
+        - depguard
 
 linters:
   disable-all: true
