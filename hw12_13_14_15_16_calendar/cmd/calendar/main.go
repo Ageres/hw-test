@@ -118,7 +118,6 @@ func main() {
 
 	shutdownWg.Wait()
 
-	// Ждем завершения горутин серверов
 	wg.Wait()
 
 	logger.GetLogger(ctx).Info("calendar stopped")
