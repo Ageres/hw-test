@@ -8,6 +8,7 @@ import (
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
@@ -205,4 +206,190 @@ func TestGrpcServer_GetEvent_Error(t *testing.T) {
 			mockStorage.AssertExpectations(t)
 		})
 	}
+}
+
+func TestGrpcServer_AddEvent_Ok(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockLogger := lg.GetLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	server := &GrpcServer{
+		storage: mockStorage,
+		logger:  mockLogger,
+	}
+
+	protoEvent := &pb.ProtoEvent{
+		Title:     "Test Event",
+		StartTime: timestamppb.New(time.Now()),
+		Duration:  durationpb.New(time.Hour),
+		UserId:    "user-1",
+	}
+
+	request := &pb.AddEventRequest{Event: protoEvent}
+
+	t.Run("successful add", func(t *testing.T) {
+		expectedEvent := &storage.Event{ID: "new-id"}
+		mockStorage.On("Add", mock.Anything, mock.AnythingOfType("*storage.Event")).
+			Return(expectedEvent, nil)
+
+		resp, err := server.AddEvent(ctx, request)
+
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		assert.Equal(t, "new-id", resp.Event.Id)
+		mockStorage.AssertExpectations(t)
+	})
+}
+
+func TestGrpcServer_AddEvent_Error(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockLogger := lg.GetLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	server := &GrpcServer{
+		storage: mockStorage,
+		logger:  mockLogger,
+	}
+
+	protoEvent := &pb.ProtoEvent{
+		Title:     "Test Event",
+		StartTime: timestamppb.New(time.Now()),
+		Duration:  durationpb.New(time.Hour),
+		UserId:    "user-1",
+	}
+
+	request := &pb.AddEventRequest{Event: protoEvent}
+
+	t.Run("storage error", func(t *testing.T) {
+		mockStorage.On("Add", mock.Anything, mock.AnythingOfType("*storage.Event")).
+			Return(nil, errors.New("storage error"))
+
+		resp, err := server.AddEvent(ctx, request)
+
+		require.Error(t, err)
+		assert.Nil(t, resp)
+		st, ok := status.FromError(err)
+		require.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, err.Error(), "storage error")
+		mockStorage.AssertExpectations(t)
+	})
+}
+
+func TestGrpcServer_UpdateEvent_Ok(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockLogger := lg.GetLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	server := &GrpcServer{
+		storage: mockStorage,
+		logger:  mockLogger,
+	}
+
+	protoEvent := &pb.ProtoEvent{
+		Id:    "test-id",
+		Title: "Updated Event",
+	}
+
+	request := &pb.UpdateEventRequest{Event: protoEvent}
+
+	t.Run("successful update", func(t *testing.T) {
+		mockStorage.On("Update", mock.Anything, mock.AnythingOfType("*storage.Event")).
+			Return(nil)
+
+		resp, err := server.UpdateEvent(ctx, request)
+
+		require.NoError(t, err)
+		assert.Nil(t, resp)
+		mockStorage.AssertExpectations(t)
+	})
+}
+
+func TestGrpcServer_UpdateEvent_Error(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockLogger := lg.GetLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	server := &GrpcServer{
+		storage: mockStorage,
+		logger:  mockLogger,
+	}
+
+	protoEvent := &pb.ProtoEvent{
+		Id:    "test-id",
+		Title: "Updated Event",
+	}
+
+	request := &pb.UpdateEventRequest{Event: protoEvent}
+
+	t.Run("storage error", func(t *testing.T) {
+		mockStorage.On("Update", mock.Anything, mock.AnythingOfType("*storage.Event")).
+			Return(errors.New("storage error"))
+
+		resp, err := server.UpdateEvent(ctx, request)
+
+		require.Error(t, err)
+		assert.Nil(t, resp)
+		st, ok := status.FromError(err)
+		require.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, err.Error(), "storage error")
+		mockStorage.AssertExpectations(t)
+	})
+}
+
+func TestGrpcServer_DeleteEvent_Ok(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockLogger := lg.GetLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	server := &GrpcServer{
+		storage: mockStorage,
+		logger:  mockLogger,
+	}
+
+	request := &pb.DeleteEventRequest{Id: "test-id"}
+
+	t.Run("successful delete", func(t *testing.T) {
+		mockStorage.On("Delete", mock.Anything, "test-id").Return(nil)
+
+		resp, err := server.DeleteEvent(ctx, request)
+
+		require.NoError(t, err)
+		assert.Nil(t, resp)
+		mockStorage.AssertExpectations(t)
+	})
+
+}
+
+func TestGrpcServer_DeleteEvent_Error(t *testing.T) {
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
+	mockLogger := lg.GetLogger(ctx)
+	mockStorage := new(MockStorage)
+
+	server := &GrpcServer{
+		storage: mockStorage,
+		logger:  mockLogger,
+	}
+
+	request := &pb.DeleteEventRequest{Id: "test-id"}
+
+	t.Run("storage error", func(t *testing.T) {
+		mockStorage.On("Delete", mock.Anything, "test-id").Return(errors.New("storage error"))
+
+		resp, err := server.DeleteEvent(ctx, request)
+
+		require.Error(t, err)
+		assert.Nil(t, resp)
+		st, ok := status.FromError(err)
+		require.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		mockStorage.AssertExpectations(t)
+	})
 }
