@@ -196,7 +196,7 @@ func writeResponse[T any](ctx context.Context, w http.ResponseWriter, resp *T) {
 	if err != nil {
 		writeError(
 			ctx,
-			fmt.Sprintf("write responce error: %s", err.Error()),
+			fmt.Sprintf("write response error: %s", err.Error()),
 			w,
 			http.StatusInternalServerError,
 		)
