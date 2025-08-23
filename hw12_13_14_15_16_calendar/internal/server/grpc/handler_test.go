@@ -12,6 +12,7 @@ import (
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	pb "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -55,7 +56,8 @@ func (m *MockStorage) ListMonth(ctx context.Context, startDay time.Time) ([]stor
 }
 
 func TestGrpcServer_GetEvent(t *testing.T) {
-	ctx := lg.SetDefaultLogger(context.Background())
+	ctx := utils.SetNewRequestIDToCtx(context.Background())
+	ctx = lg.SetDefaultLogger(ctx)
 	mockLogger := lg.GetLogger(ctx)
 	mockStorage := new(MockStorage)
 
@@ -76,6 +78,7 @@ func TestGrpcServer_GetEvent(t *testing.T) {
 		mockSetup     func()
 		expectedError bool
 		errorCode     codes.Code
+		errorMessage  string
 	}{
 		{
 			name:    "successful day events",
@@ -104,6 +107,14 @@ func TestGrpcServer_GetEvent(t *testing.T) {
 			},
 			expectedError: false,
 		},
+		{
+			name:          "missing start time",
+			request:       &pb.GetEventListRequest{Period: pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_DAY},
+			mockSetup:     func() {},
+			expectedError: true,
+			errorCode:     codes.InvalidArgument,
+			errorMessage:  "start_time is required",
+		},
 	}
 
 	for _, tt := range tests {
@@ -118,6 +129,7 @@ func TestGrpcServer_GetEvent(t *testing.T) {
 					st, ok := status.FromError(err)
 					require.True(t, ok)
 					assert.Equal(t, tt.errorCode, st.Code())
+					assert.Contains(t, err.Error(), tt.errorMessage)
 				}
 			} else {
 				require.NoError(t, err)
