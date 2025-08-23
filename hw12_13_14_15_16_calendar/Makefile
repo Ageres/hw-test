@@ -57,4 +57,4 @@ generate: install-protoc-deps
 		$(PROTO_DIR)/$(PROTO_FILE)
 	@echo "gRPC code generated in $(GRPC_OUT_DIR)"
 
-.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate
+.PHONY: install-protoc-deps generate build run build-img run-img version test lint install-goose migrate
