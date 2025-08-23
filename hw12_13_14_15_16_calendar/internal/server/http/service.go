@@ -10,7 +10,10 @@ import (
 	"time"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	bserv "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http/baseserver"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 )
 
 type HttpService interface {
@@ -33,19 +36,19 @@ func NewHttpService(ctx context.Context, storage storage.Storage) HttpService {
 
 func (h *httpService) GetEventList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	listRequest, err := unmarshalRequestBody[GetEventListRequest](ctx, w, r)
+	listRequest, err := unmarshalRequestBody[bserv.GetEventListRequest](ctx, w, r)
 	if err != nil {
 		return
 	}
 	switch listRequest.Period {
-	case DAY:
-		h.getEventList(ctx, w, listRequest.StartDay, LISTDAY, h.storage.ListDay)
+	case bserv.DAY:
+		h.getEventList(ctx, w, listRequest.StartDay, bserv.LISTDAY, h.storage.ListDay)
 		return
-	case WEEK:
-		h.getEventList(ctx, w, listRequest.StartDay, LISTWEEK, h.storage.ListWeek)
+	case bserv.WEEK:
+		h.getEventList(ctx, w, listRequest.StartDay, bserv.LISTWEEK, h.storage.ListWeek)
 		return
-	case MONTH:
-		h.getEventList(ctx, w, listRequest.StartDay, LISTMONTH, h.storage.ListMonth)
+	case bserv.MONTH:
+		h.getEventList(ctx, w, listRequest.StartDay, bserv.LISTMONTH, h.storage.ListMonth)
 		return
 	default:
 		writeError(
@@ -60,7 +63,7 @@ func (h *httpService) GetEventList(w http.ResponseWriter, r *http.Request) {
 
 func (h *httpService) AddEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	req, err := unmarshalRequestBody[AddEventRequest](ctx, w, r)
+	req, err := unmarshalRequestBody[bserv.AddEventRequest](ctx, w, r)
 	if err != nil {
 		return
 	}
@@ -79,7 +82,7 @@ func (h *httpService) AddEvent(w http.ResponseWriter, r *http.Request) {
 
 func (h *httpService) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	req, err := unmarshalRequestBody[UpdateEventRequest](ctx, w, r)
+	req, err := unmarshalRequestBody[bserv.UpdateEventRequest](ctx, w, r)
 	if err != nil {
 		return
 	}
@@ -93,15 +96,15 @@ func (h *httpService) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	resp := UpdateEventResponse{
-		Status: UPDATE,
+	resp := bserv.UpdateEventResponse{
+		Status: bserv.UPDATE,
 	}
 	writeResponse(ctx, w, &resp)
 }
 
 func (h *httpService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	req, err := unmarshalRequestBody[DeleteEventRequest](ctx, w, r)
+	req, err := unmarshalRequestBody[bserv.DeleteEventRequest](ctx, w, r)
 	if err != nil {
 		return
 	}
@@ -115,8 +118,8 @@ func (h *httpService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	resp := DeleteEventResponse{
-		Status: DELETE,
+	resp := bserv.DeleteEventResponse{
+		Status: bserv.DELETE,
 	}
 	writeResponse(ctx, w, &resp)
 }
@@ -163,7 +166,7 @@ func (h *httpService) getEventList(
 	ctx context.Context,
 	w http.ResponseWriter,
 	startDay *time.Time,
-	status GetEventListStatus,
+	status bserv.GetEventListStatus,
 	list func(ctx context.Context, startDay time.Time) ([]storage.Event, error),
 ) {
 	if startDay == nil {
@@ -181,7 +184,7 @@ func (h *httpService) getEventList(
 		)
 		return
 	}
-	resp := GetEventListResponse{
+	resp := bserv.GetEventListResponse{
 		Status: status,
 		Events: events,
 	}
@@ -203,7 +206,8 @@ func writeResponse[T any](ctx context.Context, w http.ResponseWriter, resp *T) {
 
 func writeError(ctx context.Context, errMsg string, w http.ResponseWriter, httpSatus int) {
 	w.WriteHeader(httpSatus)
-	httpError := NewHttpError(ctx, errMsg)
+	//httpError := NewHttpError(ctx, errMsg)
+	httpError := model.NewCalendarServiceError(httpSatus, errMsg, utils.GetRequestID(ctx), nil)
 	err := json.NewEncoder(w).Encode(httpError)
 	if err != nil {
 		lg.GetLogger(ctx).WithError(err).Error("encode http error", map[string]any{"errMsg": errMsg})

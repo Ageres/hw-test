@@ -7,12 +7,8 @@ import (
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	bserv "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http/baseserver"
 )
-
-type HttpServer interface {
-	Start(ctx context.Context) error
-	Stop(ctx context.Context) error
-}
 
 type httpServer struct {
 	server  *http.Server
@@ -21,7 +17,7 @@ type httpServer struct {
 	service HttpService
 }
 
-func NewHttpServer(ctx context.Context, httpConf *model.HTTPConf, service HttpService) HttpServer {
+func NewHttpServer(ctx context.Context, httpConf *model.HTTPConf, service HttpService) bserv.HttpServer {
 	address := httpConf.Server.GetAddress()
 
 	s := &httpServer{

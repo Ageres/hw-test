@@ -1,12 +1,16 @@
-package internalhttp
+package httpserverinterface
 
 import (
 	"context"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 )
+
+type HttpServer interface {
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
+}
 
 // ---------------------------------------------------------
 // get event list models
@@ -79,31 +83,4 @@ const (
 
 type DeleteEventResponse struct {
 	Status DeleteEventStatus `json:"status" binding:"required"`
-}
-
-// ---------------------------------------------------------
-// error models
-
-type ServiceName string
-
-const CalendarServiceName ServiceName = "calendar"
-
-type HttpError struct {
-	ServiceName `json:"serviceName" binding:"required"`
-	Message     string    `json:"message" binding:"required"`
-	RequestID   string    `json:"requestId" binding:"required"`
-	Timestamp   time.Time `json:"timestamp" binding:"required"`
-}
-
-func (he *HttpError) Error() string {
-	return he.Message
-}
-
-func NewHttpError(ctx context.Context, message string) error {
-	return &HttpError{
-		ServiceName: CalendarServiceName,
-		Message:     message,
-		RequestID:   utils.GetRequestID(ctx),
-		Timestamp:   time.Now(),
-	}
 }
