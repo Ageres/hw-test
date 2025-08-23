@@ -504,7 +504,7 @@ func TestHttpService_DeleteEvent_Ok(t *testing.T) {
 		{
 			name: "successful delete",
 			requestBody: bserv.DeleteEventRequest{
-				Id: "test-id",
+				ID: "test-id",
 			},
 			mockSetup: func() {
 				mockStorage.On("Delete", mock.Anything, "test-id").Return(nil)
@@ -557,7 +557,7 @@ func TestHttpService_DeleteEvent_Error(t *testing.T) {
 		{
 			name: "storage error",
 			requestBody: bserv.DeleteEventRequest{
-				Id: "test-id",
+				ID: "test-id",
 			},
 			mockSetup: func() {
 				mockStorage.On("Delete", mock.Anything, "test-id").Return(fmt.Errorf("storage error"))

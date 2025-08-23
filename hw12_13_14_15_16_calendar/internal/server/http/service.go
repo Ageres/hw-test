@@ -108,7 +108,7 @@ func (h *httpService) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	err = h.storage.Delete(ctx, req.Id)
+	err = h.storage.Delete(ctx, req.ID)
 	if err != nil {
 		writeError(
 			ctx,

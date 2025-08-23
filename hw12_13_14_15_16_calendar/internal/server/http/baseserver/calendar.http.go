@@ -72,7 +72,7 @@ type UpdateEventResponse struct {
 // ---------------------------------------------------------
 // delete event models
 type DeleteEventRequest struct {
-	Id string `json:"id" binding:"required"`
+	ID string `json:"id" binding:"required"`
 }
 
 type DeleteEventStatus string
