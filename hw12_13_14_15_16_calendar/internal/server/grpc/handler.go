@@ -33,6 +33,10 @@ func (g *GrpcServer) GetEvent(ctx context.Context, req *pb.GetEventListRequest) 
 		events, err = g.storage.ListWeek(ctx, start)
 	case pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_MONTH:
 		events, err = g.storage.ListMonth(ctx, start)
+	case pb.GetEventListPeriod_GET_EVENT_LIST_PERIOD_UNSPECIFIED:
+		uspErr := g.createError(ctx, http.StatusBadRequest, "invalid period", nil)
+		lg.GetLogger(ctx).WithError(uspErr).Error("get event")
+		return nil, uspErr
 	default:
 		defaultErr := g.createError(ctx, http.StatusBadRequest, "invalid period", nil)
 		lg.GetLogger(ctx).WithError(defaultErr).Error("get event")
