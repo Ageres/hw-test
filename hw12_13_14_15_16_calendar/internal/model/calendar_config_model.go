@@ -13,7 +13,8 @@ type CalendarConfig struct {
 
 // -----------------------------
 // sceduller config model.
-type SchedullerConfig struct {
+type SchedulerConfig struct {
+	Broker  *BrokerConf  `yaml:"broker" validate:"required"`
 	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
 	Storage *StorageConf `yaml:"storage" validate:"required"`
 }
@@ -107,4 +108,11 @@ type GRPCServerConf struct {
 
 func (gc *GRPCServerConf) GetAddress() string {
 	return fmt.Sprintf("%s:%d", gc.Host, gc.Port)
+}
+
+type BrokerConf struct {
+	Adress   string
+	Port     string
+	User     string
+	Password string
 }

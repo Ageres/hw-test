@@ -2,6 +2,12 @@ scheduller:
   delete_scan_period: 3600 # second
   notificate_scan_period: 5 # second
 
+broker:
+  address:
+  port:
+  user:
+  password:  
+
 logger:
   # DEBUG, INFO, WARN, ERROR
   level: INFO 

@@ -9,13 +9,13 @@ import (
 	yml "gopkg.in/yaml.v3"
 )
 
-func NewSchedullerConfig(pathToConfigFile string) *model.SchedullerConfig {
+func NewSchedullerConfig(pathToConfigFile string) *model.SchedulerConfig {
 	data, err := envsubst.ReadFile(pathToConfigFile)
 	if err != nil {
 		log.Fatalf("read scheduller config file: %v", err)
 	}
 
-	config := new(model.SchedullerConfig)
+	config := new(model.SchedulerConfig)
 	err = yml.Unmarshal(data, config)
 	if err != nil {
 		log.Fatalf("unmarshal config file: %v", err)
