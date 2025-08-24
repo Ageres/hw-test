@@ -1,6 +1,7 @@
-scheduller:
-  cleanup_interval: 86400 # second
-  notificate_scan_interval: 30 # second
+scheduler:
+  interval:
+    cleanup: 86400 # second
+    notificate: 30 # second
 
 rmq:
   host: localhost

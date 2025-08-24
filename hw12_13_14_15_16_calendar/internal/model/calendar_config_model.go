@@ -14,9 +14,10 @@ type CalendarConfig struct {
 // -----------------------------
 // sceduller config model.
 type SchedulerConfig struct {
-	Broker  *BrokerConf  `yaml:"broker" validate:"required"`
-	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
-	Storage *StorageConf `yaml:"storage" validate:"required"`
+	Scheduler *SchedulerConf `yaml:"scheduler" validate:"required"`
+	RMQ       *RMQConf       `yaml:"rmq" validate:"required"`
+	Logger    *LoggerConf    `yaml:"logger" validate:"required"`
+	Storage   *StorageConf   `yaml:"storage" validate:"required"`
 }
 
 // -----------------------------
@@ -110,9 +111,25 @@ func (gc *GRPCServerConf) GetAddress() string {
 	return fmt.Sprintf("%s:%d", gc.Host, gc.Port)
 }
 
-type BrokerConf struct {
-	Adress   string
-	Port     string
-	User     string
-	Password string
+// -----------------------------
+// schedulerconf config model.
+
+type SchedulerConf struct {
+	Interval *IntervalConf `yaml:"interval" validate:"required"`
+}
+
+type IntervalConf struct {
+	Cleanup    int `yaml:"cleanup" validate:"gte=0"`
+	Notificate int `yaml:"notificate" validate:"gte=0"`
+}
+
+// -----------------------------
+// rmq config model.
+
+type RMQConf struct {
+	Host     string `yaml:"host" validate:"required"`
+	Port     int    `yaml:"port" validate:"required,gt=0"`
+	User     string `yaml:"user" validate:"required"`
+	Password string `yaml:"password" validate:"required"`
+	Queue    string `yaml:"queue" validate:"required"`
 }
