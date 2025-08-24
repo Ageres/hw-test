@@ -4,10 +4,14 @@ import (
 	"context"
 	"log"
 	"os/signal"
+	"sync"
 	"syscall"
+	"time"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 	cs "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/schedulerconfig"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq"
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 )
 
@@ -31,7 +35,13 @@ func main() {
 		"config": configRef,
 	})
 
-	_ = storage_config.NewStorage(ctx, configRef.Storage)
+	rmqClient := rabbitmq.NewRMQClient(configRef.RMQ)
+
+	storage := storage_config.NewStorage(ctx, configRef.Storage)
+
+	scheduler := app.NewScheduler(storage, rmqClient, configRef.Scheduler)
+	scheduler.Start(ctx)
+
 	//storage := storage_config.NewStorage(ctx, configRef.Storage)
 
 	/*
@@ -82,6 +92,11 @@ func main() {
 
 	logger.GetLogger(ctx).Info("scheduler is running...")
 
+	select {
+	case <-ctx.Done():
+		logger.GetLogger(ctx).Info("Shutdown signal received")
+	}
+
 	/*
 		select {
 		case err := <-httpErrChan:
@@ -93,33 +108,35 @@ func main() {
 		case <-ctx.Done():
 			logger.GetLogger(ctx).Info("Shutdown signal received")
 		}
-
-		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer shutdownCancel()
-
-		var shutdownWg sync.WaitGroup
-
-		shutdownWg.Add(1)
-		go func() {
-			defer shutdownWg.Done()
-			if err := httpServer.Stop(shutdownCtx); err != nil {
-				logger.GetLogger(ctx).WithError(err).Error("failed to stop HTTP server")
-			} else {
-				logger.GetLogger(ctx).Info("HTTP server stopped gracefully")
-			}
-		}()
-
-		shutdownWg.Add(1)
-		go func() {
-			defer shutdownWg.Done()
-			grpcSrv.GracefulStop()
-			logger.GetLogger(ctx).Info("gRPC server stopped gracefully")
-		}()
-
-		shutdownWg.Wait()
-
-		wg.Wait()
-
-		logger.GetLogger(ctx).Info("calendar stopped")
 	*/
+
+	//shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	_, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	var shutdownWg sync.WaitGroup
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		if err := rmqClient.Close(); err != nil {
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop rmqClient")
+		} else {
+			logger.GetLogger(ctx).Info("rmqClient stopped gracefully")
+		}
+	}()
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		storage.Close()
+		logger.GetLogger(ctx).Info("storage stopped gracefully") // добавить в календарь
+	}()
+
+	shutdownWg.Wait()
+
+	//wg.Wait()
+
+	logger.GetLogger(ctx).Info("scheduler stopped")
+
 }
