@@ -7,7 +7,7 @@ CREATE TABLE events (
     duration    INTEGER     NOT NULL CHECK (duration > 0),
     description TEXT,
     user_id     TEXT        NOT NULL CHECK (user_id <> ''),
-    reminder    INTEGER     CHECK (reminder IS NULL OR reminder > 0)
+    reminder    INTEGER     CHECK (reminder >= 0)
 );
 -- +goose StatementEnd
 
