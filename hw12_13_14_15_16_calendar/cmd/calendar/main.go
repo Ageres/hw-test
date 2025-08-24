@@ -28,7 +28,7 @@ func main() {
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
-	cliArgs := config.Execute()
+	cliArgs := config.CalendarExecute()
 	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
 	configRef := config.NewCalendarConfig(cliArgs.PathToConfigFile)

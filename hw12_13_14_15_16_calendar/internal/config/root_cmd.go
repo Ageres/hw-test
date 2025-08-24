@@ -26,7 +26,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute() CliArg {
+func CalendarExecute() CliArg {
 	err := rootCmd.Execute()
 	if err != nil {
 		err = fmt.Errorf("get path to config file: %w", err)
