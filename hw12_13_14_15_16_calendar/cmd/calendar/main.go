@@ -31,7 +31,7 @@ func main() {
 	cliArgs := config.Execute()
 	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
-	configRef := config.NewConfig(cliArgs.PathToConfigFile)
+	configRef := config.NewCalendarConfig(cliArgs.PathToConfigFile)
 
 	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
 

@@ -9,13 +9,33 @@ import (
 	yml "gopkg.in/yaml.v3"
 )
 
-func NewConfig(pathToConfigFile string) *model.Config {
+func NewCalendarConfig(pathToConfigFile string) *model.CalendarConfig {
 	data, err := envsubst.ReadFile(pathToConfigFile)
 	if err != nil {
-		log.Fatalf("read config file: %v", err)
+		log.Fatalf("read calendar config file: %v", err)
 	}
 
-	config := new(model.Config)
+	config := new(model.CalendarConfig)
+	err = yml.Unmarshal(data, config)
+	if err != nil {
+		log.Fatalf("unmarshal config file: %v", err)
+	}
+
+	validate := vld.New()
+	if err := validate.Struct(config); err != nil {
+		log.Fatalf("validate config: %v", err)
+	}
+
+	return config
+}
+
+func NewSchedullerConfig(pathToConfigFile string) *model.SchedullerConfig {
+	data, err := envsubst.ReadFile(pathToConfigFile)
+	if err != nil {
+		log.Fatalf("read scheduller config file: %v", err)
+	}
+
+	config := new(model.SchedullerConfig)
 	err = yml.Unmarshal(data, config)
 	if err != nil {
 		log.Fatalf("unmarshal config file: %v", err)

@@ -1,0 +1,25 @@
+scheduller:
+  delete_scan_period: 3600 # second
+  notificate_scan_period: 5 # second
+
+logger:
+  # DEBUG, INFO, WARN, ERROR
+  level: INFO 
+  # JSON, TEXT, COLOUR_TEXT 
+  format: JSON
+
+storage:
+  sql:
+    db:
+      host: localhost
+      port: 5432
+      name: calendar
+      user: ${DB_USER:=user}
+      password: ${DB_PASSWORD:=password}
+      sslmode: disable
+    pool:
+      conn:
+        maxOpen: 10
+        maxIdle: 2
+        maxLifeTime: 3600
+        maxIdleTime: 3600

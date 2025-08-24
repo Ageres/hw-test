@@ -3,12 +3,19 @@ package model
 import "fmt"
 
 // -----------------------------
-// common config model.
-type Config struct {
+// calendar config model.
+type CalendarConfig struct {
 	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
 	Storage *StorageConf `yaml:"storage" validate:"required"`
 	HTTP    *HTTPConf    `yaml:"http" validate:"required"`
 	GRPC    *GRPCConf    `yaml:"grpc" validate:"required"`
+}
+
+// -----------------------------
+// sceduller config model.
+type SchedullerConfig struct {
+	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
+	Storage *StorageConf `yaml:"storage" validate:"required"`
 }
 
 // -----------------------------
