@@ -1,4 +1,4 @@
-package queue
+package broker
 
 type Broker interface {
 	Send(Message) error
