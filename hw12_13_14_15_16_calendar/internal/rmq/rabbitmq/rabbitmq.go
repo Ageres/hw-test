@@ -65,6 +65,19 @@ func (c *Client) Close() error {
 }
 
 func (c *Client) CreateQueue(ctx context.Context) error {
+	err := c.channel.ExchangeDeclare(
+		"calendar_exchange",
+		"direct", // type
+		true,     // durable
+		false,    // auto-deleted
+		false,    // internal
+		false,    // noWait
+		nil,      // arguments
+	)
+	if err != nil {
+		return fmt.Errorf("failed to declare exchange: %w", err)
+	}
+
 	queue, err := c.channel.QueueDeclare(
 		c.config.Queue, // name
 		true,           // durable
