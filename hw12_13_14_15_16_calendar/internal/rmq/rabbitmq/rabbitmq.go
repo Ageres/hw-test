@@ -96,10 +96,10 @@ func (c *Client) Publish(ctx context.Context, notification *model.Notification) 
 
 	err = c.channel.PublishWithContext(
 		ctx,
-		"",           // exchange
-		c.queue.Name, // routing key
-		false,        // mandatory
-		false,        // immediate
+		"calendar_exchange", // exchange
+		c.queue.Name,        // routing key
+		false,               // mandatory
+		false,               // immediate
 		amqp.Publishing{
 			ContentType:  "application/json",
 			Body:         body,
@@ -147,7 +147,7 @@ func (c *Client) Consume(ctx context.Context) (<-chan model.Notification, error)
 
 				var notification model.Notification
 				if err := json.Unmarshal(msg.Body, &notification); err != nil {
-					logger.GetLogger(ctx).Warn("consume error") //создать канал для ошибок ???
+					logger.GetLogger(ctx).Error("consume error")
 					continue
 				}
 
