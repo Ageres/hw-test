@@ -3,11 +3,13 @@ package sqlstorage
 import (
 	"context"
 	"os"
+	"strings"
 	"time"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+
 	// регистрация драйвера PostgreSQL.
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -163,6 +165,11 @@ func (s *SQLStorage) Delete(ctx context.Context, id string) error {
 	logger := lg.GetLogger(ctx)
 	logger.Info("delete event", map[string]any{"eventId": id})
 
+	if err := storage.ValidateEventID(id); err != nil {
+		logger.WithError(err).Error("delete event")
+		return err
+	}
+
 	res, err := s.db.Exec("DELETE FROM events WHERE id = $1", id)
 	if err != nil {
 		err = storage.NewSError(ErrDatabaseMsg, err)
@@ -278,4 +285,114 @@ func (s *SQLStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 	}
 	logger.Info("list events", map[string]any{"found": len(result)})
 	return result, nil
+}
+
+func (s *SQLStorage) ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Info("list reminder events", map[string]any{
+		"startTime": startTime,
+		"endTime":   endTime,
+	})
+
+	result := make([]storage.Event, 0, 100)
+	rows, err := s.db.QueryxContext(ctx, `
+        SELECT id, title, start_time, duration, description, user_id, reminder 
+        FROM events 
+        WHERE reminder > 0 and tstzrange(start_time, start_time + (duration * INTERVAL '1 second')) 
+        && tstzrange($1::timestamptz, $2::timestamptz)`,
+		startTime, endTime)
+	if err != nil {
+		err = storage.NewSError(ErrDatabaseMsg, err)
+		logger.WithError(err).Error("list reminder events")
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var e struct {
+			ID          string
+			Title       string
+			StartTime   time.Time `db:"start_time"`
+			Duration    int64
+			Description string
+			UserID      string `db:"user_id"`
+			Reminder    int64
+		}
+
+		if err := rows.StructScan(&e); err != nil {
+			err = storage.NewSError("failed to scan event", err)
+			logger.WithError(err).Error("list reminder events")
+			return nil, err
+		}
+
+		result = append(result, storage.Event{
+			ID:          e.ID,
+			Title:       e.Title,
+			StartTime:   e.StartTime,
+			Duration:    time.Duration(e.Duration) * time.Second,
+			Description: e.Description,
+			UserID:      e.UserID,
+			Reminder:    time.Duration(e.Reminder) * time.Second,
+		})
+
+		select {
+		case <-ctx.Done():
+			err = storage.NewSError(storage.ErrContextDone, ctx.Err())
+			logger.WithError(err).Error("list reminder events")
+			return nil, err
+		default:
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		err = storage.NewSError("rows iteration error", err)
+		logger.WithError(err).Error("list reminder events")
+		return nil, err
+	}
+	logger.Info("list reminder events", map[string]any{"found": len(result)})
+	return result, nil
+}
+
+func (s *SQLStorage) ResetEventReminder(ctx context.Context, eventIDs []string) error {
+	logger := lg.GetLogger(ctx)
+
+	eventIDsLen := len(eventIDs)
+	logger.Info("reset event reminder", map[string]any{"eventIDLen": eventIDsLen})
+
+	if eventIDsLen == 0 {
+		err := storage.ErrEventIDListIsEmpty
+		logger.WithError(err).Error("reset event reminder")
+	}
+	eventIDsZeroLen := eventIDsLen - 1
+
+	var querySb strings.Builder
+	querySb.WriteString("UPDATE events SET reminder = 0 WHERE id in (")
+	for i, id := range eventIDs {
+		querySb.WriteString("'")
+		querySb.WriteString(id)
+		querySb.WriteString("'")
+		if i < eventIDsZeroLen {
+			querySb.WriteString(", ")
+		}
+	}
+	querySb.WriteString(")")
+
+	res, err := s.db.Exec(querySb.String())
+	if err != nil {
+		err = storage.NewSError(ErrDatabaseMsg, err)
+		logger.WithError(err).Error("reset event reminder")
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		err = storage.NewSError("failed to get rows affected when reseting event reminder", err)
+		logger.WithError(err).Error("reset event reminder")
+		return err
+	} else if rows == 0 {
+		err := storage.ErrEventNotFound
+		logger.WithError(err).Error("reset event reminder")
+		return err
+	}
+	return nil
 }

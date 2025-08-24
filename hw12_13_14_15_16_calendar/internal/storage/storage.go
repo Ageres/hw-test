@@ -12,4 +12,6 @@ type Storage interface {
 	ListDay(ctx context.Context, startDay time.Time) ([]Event, error)
 	ListWeek(ctx context.Context, startDay time.Time) ([]Event, error)
 	ListMonth(ctx context.Context, startDay time.Time) ([]Event, error)
+	ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]Event, error)
+	ResetEventReminder(ctx context.Context, eventIDs []string) error
 }

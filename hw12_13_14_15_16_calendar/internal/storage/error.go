@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	ErrEventIsNil    = NewSimpleSError("event is nil")
-	ErrEventNotFound = NewSimpleSError("event not found")
+	ErrEventIsNil         = NewSimpleSError("event is nil")
+	ErrEventNotFound      = NewSimpleSError("event not found")
+	ErrEventIDListIsEmpty = NewSimpleSError("event id list is empty")
 )
 
 const (

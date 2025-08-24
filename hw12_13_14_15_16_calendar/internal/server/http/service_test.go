@@ -56,6 +56,16 @@ func (m *MockStorage) ListMonth(ctx context.Context, startDay time.Time) ([]stor
 	return args.Get(0).([]storage.Event), args.Error(1)
 }
 
+func (m *MockStorage) ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+	args := m.Called(ctx, startTime, endTime)
+	return args.Get(0).([]storage.Event), args.Error(1)
+}
+
+func (m *MockStorage) ResetEventReminder(ctx context.Context, eventIDs []string) error {
+	args := m.Called(ctx, eventIDs)
+	return args.Error(0)
+}
+
 func TestHttpService_GetEventList_Ok(t *testing.T) {
 	ctx := utils.SetNewRequestIDToCtx(context.Background())
 	ctx = lg.SetDefaultLogger(ctx)

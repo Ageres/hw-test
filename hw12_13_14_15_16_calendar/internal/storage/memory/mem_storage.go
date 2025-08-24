@@ -222,3 +222,64 @@ func overlaps(e, other *storage.Event) bool {
 	end2 := other.StartTime.Add(other.Duration)
 	return e.StartTime.Before(end2) && end1.After(other.StartTime)
 }
+
+func (m *MemoryStorage) ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Info("list reminder events", map[string]any{
+		"startTime": startTime,
+		"endTime":   endTime,
+	})
+
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []storage.Event
+	for _, event := range m.events {
+		select {
+		case <-ctx.Done():
+			err := storage.NewSError(storage.ErrContextDone, ctx.Err())
+			logger.WithError(err).Error("list reminder events")
+			return nil, err
+		default:
+		}
+
+		if event.Reminder == 0 {
+			continue
+		}
+		eventEnd := event.StartTime.Add(event.Duration)
+		if (event.StartTime.After(startTime) && event.StartTime.Before(endTime)) ||
+			(eventEnd.After(startTime) && eventEnd.Before(endTime)) {
+			result = append(result, event)
+		}
+	}
+	logger.Info("list reminder events", map[string]any{"found": len(result)})
+	return result, nil
+}
+
+func (m *MemoryStorage) ResetEventReminder(ctx context.Context, eventIDs []string) error {
+	logger := lg.GetLogger(ctx)
+
+	eventIDsLen := len(eventIDs)
+	logger.Info("reset event reminder", map[string]any{"eventIDLen": eventIDsLen})
+
+	if eventIDsLen == 0 {
+		err := storage.ErrEventIDListIsEmpty
+		logger.WithError(err).Error("reset event reminder")
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, id := range eventIDs {
+		if err := storage.ValidateEventID(id); err != nil {
+			logger.WithError(err).Error("reset event reminder")
+			return err
+		}
+		event, exists := m.events[id]
+		if !exists {
+			return storage.ErrEventNotFound
+		}
+		event.Reminder = 0
+		m.events[id] = event
+	}
+
+	return nil
+}
