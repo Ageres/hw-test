@@ -2,13 +2,12 @@ scheduller:
   cleanup_interval: 86400 # second
   notificate_scan_interval: 30 # second
 
-broker:
-  rabbitmq:
-    host: localhost
-    port: 5672
-    user: ${RMQ_USER:=guest}
-    password: ${RMQ_PASSWORD:=guest}
-    queue: calendar_notifications  
+rmq:
+  host: localhost
+  port: 5672
+  user: ${RMQ_USER:=guest}
+  password: ${RMQ_PASSWORD:=guest}
+  queue: calendar_notifications  
 
 logger:
   # DEBUG, INFO, WARN, ERROR
