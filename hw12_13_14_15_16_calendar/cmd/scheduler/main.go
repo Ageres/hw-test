@@ -40,7 +40,19 @@ func main() {
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
 	scheduler := app.NewScheduler(storage, rmqClient, configRef.Scheduler)
-	scheduler.Start(ctx)
+
+	schedulerErrChan := make(chan error, 1)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting scheduler...")
+		if err := scheduler.Start(ctx); err != nil {
+			schedulerErrChan <- err
+		}
+	}()
 
 	//storage := storage_config.NewStorage(ctx, configRef.Storage)
 
@@ -93,6 +105,9 @@ func main() {
 	logger.GetLogger(ctx).Info("scheduler is running...")
 
 	select {
+	case err := <-schedulerErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("scheduler failed to start")
+		cancel()
 	case <-ctx.Done():
 		logger.GetLogger(ctx).Info("Shutdown signal received")
 	}
@@ -135,7 +150,7 @@ func main() {
 
 	shutdownWg.Wait()
 
-	//wg.Wait()
+	wg.Wait()
 
 	logger.GetLogger(ctx).Info("scheduler stopped")
 
