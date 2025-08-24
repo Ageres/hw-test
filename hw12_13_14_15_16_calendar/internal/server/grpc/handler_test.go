@@ -67,6 +67,11 @@ func (m *MockStorage) ResetEventReminder(ctx context.Context, eventIDs []string)
 	return args.Error(0)
 }
 
+func (m *MockStorage) DeleteOldEvents(ctx context.Context, before time.Time) error {
+	args := m.Called(ctx, before)
+	return args.Error(0)
+}
+
 func (m *MockStorage) Close() error {
 	return nil
 }
