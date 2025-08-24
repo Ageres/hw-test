@@ -1,4 +1,4 @@
-package config
+package schedulerconfig
 
 import (
 	"log"
@@ -20,6 +20,8 @@ func NewSchedullerConfig(pathToConfigFile string) *model.SchedullerConfig {
 	if err != nil {
 		log.Fatalf("unmarshal config file: %v", err)
 	}
+
+	config.Storage.Type = "SQL"
 
 	validate := vld.New()
 	if err := validate.Struct(config); err != nil {
