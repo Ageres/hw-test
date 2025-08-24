@@ -1,12 +1,14 @@
 scheduller:
-  delete_scan_period: 3600 # second
-  notificate_scan_period: 5 # second
+  cleanup_interval: 86400 # second
+  notificate_scan_interval: 30 # second
 
 broker:
-  address:
-  port:
-  user:
-  password:  
+  rabbitmq:
+    host: localhost
+    port: 5672
+    user: ${RMQ_USER:=guest}
+    password: ${RMQ_PASSWORD:=guest}
+    queue: calendar_notifications  
 
 logger:
   # DEBUG, INFO, WARN, ERROR
