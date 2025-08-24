@@ -66,6 +66,10 @@ func (m *MockStorage) ResetEventReminder(ctx context.Context, eventIDs []string)
 	return args.Error(0)
 }
 
+func (m *MockStorage) Close() error {
+	return nil
+}
+
 func TestHttpService_GetEventList_Ok(t *testing.T) {
 	ctx := utils.SetNewRequestIDToCtx(context.Background())
 	ctx = lg.SetDefaultLogger(ctx)

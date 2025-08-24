@@ -283,3 +283,7 @@ func (m *MemoryStorage) ResetEventReminder(ctx context.Context, eventIDs []strin
 
 	return nil
 }
+
+func (m *MemoryStorage) Close() error {
+	return nil
+}
