@@ -1,4 +1,3 @@
-// Файл: ./internal/app/sender/sender.go
 package app
 
 import (
@@ -6,16 +5,16 @@ import (
 	"fmt"
 	"log"
 
-	config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
-	queue "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
 )
 
 type Sender struct {
-	rmq    queue.RMQClient
-	config *config.SchedulerConfig
+	rmq    rmq.RMQClient
+	config *model.SchedulerConfig
 }
 
-func NewSender(rmq queue.RMQClient, config *config.SchedulerConfig) *Sender {
+func NewSender(rmq rmq.RMQClient, config *model.SchedulerConfig) *Sender {
 	return &Sender{
 		rmq:    rmq,
 		config: config,

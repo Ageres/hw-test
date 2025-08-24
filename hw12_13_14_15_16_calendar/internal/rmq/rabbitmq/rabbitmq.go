@@ -9,7 +9,7 @@ import (
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
-	queue "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -20,9 +20,9 @@ type Client struct {
 	config  *model.RMQConf
 }
 
-var _ queue.RMQClient = (*Client)(nil)
+var _ rmq.RMQClient = (*Client)(nil)
 
-func NewRMQClient(cfg *model.RMQConf) *Client {
+func NewRMQClient(cfg *model.RMQConf) rmq.RMQClient {
 	return &Client{config: cfg}
 }
 
