@@ -1,4 +1,4 @@
-package config
+package calendarconfig
 
 import (
 	"encoding/json"
