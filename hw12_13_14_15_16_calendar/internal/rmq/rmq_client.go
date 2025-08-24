@@ -2,9 +2,14 @@ package rmq
 
 import (
 	"context"
+
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 )
 
 type RMQClient interface {
-	Publish(context.Context, any) error
-	Consume(context.Context) (<-chan any, error)
+	Connect(ctx context.Context) error
+	CreateQueue(ctx context.Context) error
+	Publish(context.Context, *model.Notification) error
+	Consume(context.Context) (<-chan model.Notification, error)
+	Close() error
 }
