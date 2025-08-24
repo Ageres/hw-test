@@ -80,8 +80,10 @@ func (s *Scheduler) runNotificationTask(ctx context.Context) {
 
 func (s *Scheduler) cleanupOldEvents(ctx context.Context) {
 	oneYearAgo := time.Now().AddDate(-1, 0, 0)
-	// TODO очистка хранилища
-	_ = oneYearAgo
+
+	if err := s.storage.DeleteOldEvents(ctx, oneYearAgo); err != nil {
+		logger.GetLogger(ctx).WithError(err).Error("clean old events")
+	}
 }
 
 func (s *Scheduler) scanForNotifications(ctx context.Context) {
