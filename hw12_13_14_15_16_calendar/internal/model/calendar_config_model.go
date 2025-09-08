@@ -135,11 +135,14 @@ type IntervalConf struct {
 // rmq config model.
 
 type RMQConf struct {
-	Host     string `yaml:"host" validate:"required"`
-	Port     int    `yaml:"port" validate:"required,gt=0"`
-	User     string `yaml:"user" validate:"required"`
-	Password string `yaml:"password" validate:"required"`
-	Queue    string `yaml:"queue" validate:"required"`
+	Host       string `yaml:"host" validate:"required"`
+	Port       int    `yaml:"port" validate:"required,gt=0"`
+	User       string `yaml:"user" validate:"required"`
+	Password   string `yaml:"password" validate:"required"`
+	Exchange   string `yaml:"exchange" validate:"required"`
+	Queue      string `yaml:"queue" validate:"required"`
+	RoutingKey string `yaml:"routing_key" validate:"required"`
+	Reliable   bool   `yaml:"reliable" validate:"required"`
 }
 
 // -----------------------------

@@ -8,7 +8,10 @@ rmq:
   port: 5672
   user: ${RMQ_USER:=guest}
   password: ${RMQ_PASSWORD:=guest}
-  queue: calendar_notifications  
+  exchange: calendar-exchange
+  queue: calendar-notifications
+  routing_key: calendar-key
+  reliable: true  
 
 logger:
   # DEBUG, INFO, WARN, ERROR
