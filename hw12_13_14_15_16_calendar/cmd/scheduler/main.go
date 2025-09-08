@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
-	cs "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/schedulerconfig"
+	cs "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/scheduler"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq"
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
