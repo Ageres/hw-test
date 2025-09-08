@@ -8,7 +8,8 @@ rmq:
   port: 5672
   user: ${RMQ_USER:=guest}
   password: ${RMQ_PASSWORD:=guest}
-  exchange: calendar-exchange
+  exchange_name: calendar-exchange
+  exchange_type: direct
   queue: calendar-notifications
   routing_key: calendar-key
   reliable: true  
