@@ -3,6 +3,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
@@ -12,32 +13,28 @@ import (
 )
 
 type Scheduler struct {
-	storage storage.Storage
-	rmq     rmq.RMQClient
-	config  *model.SchedulerConf
+	storage     storage.Storage
+	rmqProducer rmq.RMQProducer
+	config      *model.SchedulerConf
 }
 
 func NewScheduler(
 	storage storage.Storage,
-	rmq rmq.RMQClient,
+	rmqProducer rmq.RMQProducer,
 	config *model.SchedulerConf,
 ) *Scheduler {
 	return &Scheduler{
-		storage: storage,
-		rmq:     rmq,
-		config:  config,
+		storage:     storage,
+		rmqProducer: rmqProducer,
+		config:      config,
 	}
 }
 
 func (s *Scheduler) Start(ctx context.Context) error {
-	if err := s.rmq.Connect(ctx); err != nil {
+	if err := s.rmqProducer.Configure(ctx); err != nil {
 		return err
 	}
-	defer s.rmq.Close()
-
-	if err := s.rmq.CreateQueue(ctx); err != nil {
-		return err
-	}
+	defer s.rmqProducer.Close(ctx)
 
 	go s.runCleanupTask(ctx)
 	go s.runNotificationTask(ctx)
@@ -82,11 +79,12 @@ func (s *Scheduler) cleanupOldEvents(ctx context.Context) {
 	oneYearAgo := time.Now().AddDate(-1, 0, 0)
 
 	if err := s.storage.DeleteOldEvents(ctx, oneYearAgo); err != nil {
-		logger.GetLogger(ctx).WithError(err).Error("clean old events")
+		logger.GetLogger(ctx).WithError(err).Warn("clean old events")
 	}
 }
 
 func (s *Scheduler) scanForNotifications(ctx context.Context) {
+	logger.GetLogger(ctx).Info("scan for notifications")
 	now := time.Now()
 	events, err := s.storage.ListDay(ctx, now)
 	if err != nil {
@@ -94,14 +92,17 @@ func (s *Scheduler) scanForNotifications(ctx context.Context) {
 		return
 	}
 
-	for _, event := range events {
+	for i, event := range events {
+		//fmt.Printf(">>>>>>>>>>>>%d>>>>>>>>>>>>\n", i)
 		if s.shouldSendNotification(event, now) {
 			notification := event.ToNotification()
-			if err := s.rmq.Publish(ctx, notification); err != nil {
+			if err := s.rmqProducer.Publish(ctx, notification); err != nil {
 				logger.GetLogger(ctx).WithError(err).Error("scan for notifications")
+				fmt.Printf("<<<<<<<<<<<<%d<<<<<<<<<<<< continue\n", i)
 				continue
 			}
 		}
+		//fmt.Printf("<<<<<<<<<<<<%d<<<<<<<<<<<<\n", i)
 	}
 }
 

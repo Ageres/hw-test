@@ -143,7 +143,7 @@ type RMQConf struct {
 	ExchangeType string `yaml:"exchange_type" validate:"oneof=direct fanout topic x-custom"`
 	Queue        string `yaml:"queue" validate:"required"`
 	RoutingKey   string `yaml:"routing_key" validate:"required"`
-	Reliable     bool   `yaml:"reliable" validate:"required"`
+	Reliable     bool
 }
 
 // -----------------------------

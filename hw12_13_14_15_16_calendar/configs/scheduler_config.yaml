@@ -12,7 +12,7 @@ rmq:
   exchange_type: direct
   queue: calendar-notifications
   routing_key: calendar-key
-  reliable: true  
+  reliable: false 
 
 logger:
   # DEBUG, INFO, WARN, ERROR

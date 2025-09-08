@@ -1,10 +1,12 @@
 package rabbitmq
 
+/*
 import (
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
@@ -66,7 +68,7 @@ func (c *Client) Close() error {
 
 func (c *Client) CreateQueue(ctx context.Context) error {
 	err := c.channel.ExchangeDeclare(
-		"calendar_exchange",
+		c.config.Exchange,
 		"direct", // type
 		true,     // durable
 		false,    // auto-deleted
@@ -76,6 +78,17 @@ func (c *Client) CreateQueue(ctx context.Context) error {
 	)
 	if err != nil {
 		return fmt.Errorf("failed to declare exchange: %w", err)
+	}
+
+	if c.config.Reliable {
+		log.Printf("enabling publishing confirms.")
+		if err := c.channel.Confirm(false); err != nil {
+			return fmt.Errorf("channel could not be put into confirm mode: %s", err)
+		}
+
+		confirms := c.channel.NotifyPublish(make(chan amqp.Confirmation, 1))
+
+		defer confirmOne(confirms)
 	}
 
 	queue, err := c.channel.QueueDeclare(
@@ -94,7 +107,20 @@ func (c *Client) CreateQueue(ctx context.Context) error {
 	return nil
 }
 
+func confirmOne(confirms <-chan amqp.Confirmation) {
+	log.Printf("waiting for confirmation of one publishing")
+
+	if confirmed := <-confirms; confirmed.Ack {
+		log.Printf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag)
+	} else {
+		log.Printf("failed delivery of delivery tag: %d", confirmed.DeliveryTag)
+	}
+}
+
 func (c *Client) Publish(ctx context.Context, notification *model.Notification) error {
+	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	log.Println("------------- notification:", logger.MarshalAny(notification))
+
 	if c.channel == nil {
 		return errors.New("channel is not initialized")
 	}
@@ -110,7 +136,7 @@ func (c *Client) Publish(ctx context.Context, notification *model.Notification) 
 	err = c.channel.PublishWithContext(
 		ctx,
 		"calendar_exchange", // exchange
-		c.queue.Name,        // routing key
+		"test-key",          // routing key
 		false,               // mandatory
 		false,               // immediate
 		amqp.Publishing{
@@ -123,6 +149,7 @@ func (c *Client) Publish(ctx context.Context, notification *model.Notification) 
 		return fmt.Errorf("failed to publish message: %w", err)
 	}
 
+	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	return nil
 }
 
@@ -132,13 +159,13 @@ func (c *Client) Consume(ctx context.Context) (<-chan model.Notification, error)
 	}
 
 	msgs, err := c.channel.Consume(
-		c.queue.Name, // queue
-		"",           // consumer
-		true,         // auto-ack
-		false,        // exclusive
-		false,        // no-local
-		false,        // no-wait
-		nil,          // args
+		c.queue.Name,      // queue
+		"simple-consumer", // consumer
+		true,              // auto-ack
+		false,             // exclusive
+		false,             // no-local
+		false,             // no-wait
+		nil,               // args
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume messages: %w", err)
@@ -175,3 +202,5 @@ func (c *Client) Consume(ctx context.Context) (<-chan model.Notification, error)
 
 	return notifications, nil
 }
+
+*/
