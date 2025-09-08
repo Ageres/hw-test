@@ -1,7 +1,7 @@
 scheduler:
   interval:
-    cleanup: 86400 # second
-    notificate: 30 # second
+    cleanup: 10 # second
+    notificate: 10 # second
 
 rmq:
   host: localhost

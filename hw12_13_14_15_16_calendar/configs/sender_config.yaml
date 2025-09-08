@@ -1,0 +1,17 @@
+sender:
+  interval:
+    cleanup: 10 # second
+    notificate: 10 # second
+
+rmq:
+  host: localhost
+  port: 5672
+  user: ${RMQ_USER:=guest}
+  password: ${RMQ_PASSWORD:=guest}
+  queue: calendar_notifications  
+
+logger:
+  # DEBUG, INFO, WARN, ERROR
+  level: INFO 
+  # JSON, TEXT, COLOUR_TEXT 
+  format: JSON

@@ -3,25 +3,30 @@ package app
 import (
 	"context"
 	"fmt"
-	"log"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
 )
 
-type Sender struct {
+type Sender interface {
+	Start(ctx context.Context) error
+	processNotification(ctx context.Context, notification any)
+}
+
+type sender struct {
 	rmq    rmq.RMQClient
 	config *model.SenderConf
 }
 
-func NewSender(rmq rmq.RMQClient, config *model.SenderConf) *Sender {
-	return &Sender{
+func NewSender(rmq rmq.RMQClient, config *model.SenderConf) Sender {
+	return &sender{
 		rmq:    rmq,
 		config: config,
 	}
 }
 
-func (s *Sender) Start(ctx context.Context) error {
+func (s *sender) Start(ctx context.Context) error {
 	if err := s.rmq.Connect(ctx); err != nil {
 		return err
 	}
@@ -44,11 +49,11 @@ func (s *Sender) Start(ctx context.Context) error {
 			if !ok {
 				return fmt.Errorf("notification channel closed")
 			}
-			s.processNotification(notification)
+			s.processNotification(ctx, notification)
 		}
 	}
 }
 
-func (s *Sender) processNotification(notification any) {
-	log.Printf("Sending notification: %+v", notification)
+func (s *sender) processNotification(ctx context.Context, notification any) {
+	logger.GetLogger(ctx).Info("Sending notification", map[string]any{"notification": notification})
 }
