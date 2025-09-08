@@ -12,12 +12,21 @@ type CalendarConfig struct {
 }
 
 // -----------------------------
-// sceduller config model.
+// scheduller config model.
 type SchedulerConfig struct {
 	Scheduler *SchedulerConf `yaml:"scheduler" validate:"required"`
 	RMQ       *RMQConf       `yaml:"rmq" validate:"required"`
 	Logger    *LoggerConf    `yaml:"logger" validate:"required"`
 	Storage   *StorageConf   `yaml:"storage" validate:"required"`
+}
+
+// -----------------------------
+// sender config model.
+type SenderConfig struct {
+	Sender  *SenderConf  `yaml:"sender" validate:"required"`
+	RMQ     *RMQConf     `yaml:"rmq" validate:"required"`
+	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
+	Storage *StorageConf `yaml:"storage" validate:"required"`
 }
 
 // -----------------------------
@@ -132,4 +141,10 @@ type RMQConf struct {
 	User     string `yaml:"user" validate:"required"`
 	Password string `yaml:"password" validate:"required"`
 	Queue    string `yaml:"queue" validate:"required"`
+}
+
+// -----------------------------
+// senderconf config model.
+
+type SenderConf struct {
 }

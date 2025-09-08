@@ -11,10 +11,10 @@ import (
 
 type Sender struct {
 	rmq    rmq.RMQClient
-	config *model.SchedulerConfig
+	config *model.SenderConf
 }
 
-func NewSender(rmq rmq.RMQClient, config *model.SchedulerConfig) *Sender {
+func NewSender(rmq rmq.RMQClient, config *model.SenderConf) *Sender {
 	return &Sender{
 		rmq:    rmq,
 		config: config,
@@ -49,6 +49,6 @@ func (s *Sender) Start(ctx context.Context) error {
 	}
 }
 
-func (s *Sender) processNotification(notification interface{}) {
+func (s *Sender) processNotification(notification any) {
 	log.Printf("Sending notification: %+v", notification)
 }
