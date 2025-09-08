@@ -21,8 +21,6 @@ func NewSenderConfig(pathToConfigFile string) *model.SenderConfig {
 		log.Fatalf("unmarshal config file: %v", err)
 	}
 
-	config.Storage.Type = "SQL"
-
 	validate := vld.New()
 	if err := validate.Struct(config); err != nil {
 		log.Fatalf("validate config: %v", err)
