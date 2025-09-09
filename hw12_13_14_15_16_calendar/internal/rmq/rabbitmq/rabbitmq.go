@@ -170,7 +170,7 @@ func (r *rmqClient) Consume(ctx context.Context) (<-chan model.Notification, err
 
 func (r *rmqClient) Close(ctx context.Context) error {
 	if r.channel != nil && !r.channel.IsClosed() {
-		if err := r.channel.Cancel("calendar", true); err != nil {
+		if err := r.channel.Cancel("calendar-consumer", true); err != nil {
 			return err
 		}
 	}

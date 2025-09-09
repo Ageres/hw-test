@@ -4,11 +4,15 @@ import (
 	"context"
 	"log"
 	"os/signal"
+	"sync"
 	"syscall"
+	"time"
 
 	//"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 	cs "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/sender"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq"
 	//"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq"
 )
 
@@ -32,24 +36,22 @@ func main() {
 		"config": configRef,
 	})
 
-	/*
-		rmqClient := rabbitmq.NewRMQClient(configRef.RMQ)
+	rmqClient := rabbitmq.NewRMQClient(configRef.RMQ)
 
-		sender := app.NewSender(rmqClient, configRef.Sender)
+	sender := app.NewSender(ctx, rmqClient, configRef.Sender)
 
-		senderErrChan := make(chan error, 1)
+	senderErrChan := make(chan error, 1)
 
-		var wg sync.WaitGroup
+	var wg sync.WaitGroup
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			logger.GetLogger(ctx).Info("Starting sender...")
-			if err := sender.Start(ctx); err != nil {
-				senderErrChan <- err
-			}
-		}()
-	*/
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting sender...")
+		if err := sender.Start(ctx); err != nil {
+			senderErrChan <- err
+		}
+	}()
 
 	//storage := storage_config.NewStorage(ctx, configRef.Storage)
 
@@ -101,15 +103,13 @@ func main() {
 
 	logger.GetLogger(ctx).Info("sender is running...")
 
-	/*
-		select {
-		case err := <-senderErrChan:
-			logger.GetLogger(ctx).WithError(err).Error("sender failed to start")
-			cancel()
-		case <-ctx.Done():
-			logger.GetLogger(ctx).Info("Shutdown signal received")
-		}
-	*/
+	select {
+	case err := <-senderErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("sender failed to start")
+		cancel()
+	case <-ctx.Done():
+		logger.GetLogger(ctx).Info("Shutdown signal received")
+	}
 
 	/*
 		select {
@@ -126,26 +126,24 @@ func main() {
 
 	//shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-	/*
-		_, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer shutdownCancel()
+	_, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
 
-		var shutdownWg sync.WaitGroup
+	var shutdownWg sync.WaitGroup
 
-		shutdownWg.Add(1)
-		go func() {
-			defer shutdownWg.Done()
-			if err := rmqClient.Close(); err != nil {
-				logger.GetLogger(ctx).WithError(err).Error("failed to stop rmqClient")
-			} else {
-				logger.GetLogger(ctx).Info("rmqClient stopped gracefully")
-			}
-		}()
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		if err := rmqClient.Close(ctx); err != nil {
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop rmqClient")
+		} else {
+			logger.GetLogger(ctx).Info("rmqClient stopped gracefully")
+		}
+	}()
 
-		shutdownWg.Wait()
+	shutdownWg.Wait()
 
-		wg.Wait()
-	*/
+	wg.Wait()
 
 	logger.GetLogger(ctx).Info("sender stopped")
 

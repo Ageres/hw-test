@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 )
 
 type Sender interface {
@@ -15,31 +16,41 @@ type Sender interface {
 }
 
 type sender struct {
-	rmq    rmq.RMQClient
-	config *model.SenderConf
+	logger    lg.Logger
+	rmqClient rmq.RMQClient
+	config    *model.SenderConf
+	tag       string
+	//done      chan error
 }
 
-func NewSender(rmq rmq.RMQClient, config *model.SenderConf) Sender {
+func NewSender(ctx context.Context, rmq rmq.RMQClient, config *model.SenderConf) Sender {
 	return &sender{
-		rmq:    rmq,
-		config: config,
+		logger:    lg.GetLogger(ctx),
+		rmqClient: rmq,
+		config:    config,
 	}
 }
 
 func (s *sender) Start(ctx context.Context) error {
-	defer s.rmq.Close(ctx)
+	defer s.rmqClient.Close(ctx)
 
-	if err := s.rmq.Connect(ctx); err != nil {
+	if err := s.rmqClient.Connect(ctx); err != nil {
 		return err
 	}
 
-	/*
-		if err := s.rmq.CreateQueue(ctx); err != nil {
-			return err
-		}
-	*/
+	if err := s.rmqClient.ExchangeDeclare(ctx); err != nil {
+		return err
+	}
 
-	notifications, err := s.rmq.Consume(ctx)
+	if err := s.rmqClient.QueueDeclare(ctx); err != nil {
+		return err
+	}
+
+	if err := s.rmqClient.QueueBind(ctx); err != nil {
+		return err
+	}
+
+	notifications, err := s.rmqClient.Consume(ctx)
 	if err != nil {
 		return err
 	}
@@ -52,11 +63,22 @@ func (s *sender) Start(ctx context.Context) error {
 			if !ok {
 				return fmt.Errorf("notification channel closed")
 			}
-			s.processNotification(ctx, notification)
+			sessionContext := s.buildSessionContext("consume and send notification")
+			s.processNotification(sessionContext, notification)
 		}
 	}
 }
 
 func (s *sender) processNotification(ctx context.Context, notification any) {
-	logger.GetLogger(ctx).Info("Sending notification", map[string]any{"notification": notification})
+	lg.GetLogger(ctx).Info("Sending notification", map[string]any{"notification": notification})
+}
+
+func (s *sender) buildSessionContext(methodName string) context.Context {
+	ctx := context.Background()
+	ctx = utils.SetNewRequestIDToCtx(ctx)
+	logger := s.logger.With(map[string]any{
+		"requestId":  utils.GetRequestID(ctx),
+		"methodName": methodName,
+	})
+	return logger.SetLoggerToCtx(ctx)
 }
