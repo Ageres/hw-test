@@ -3,14 +3,13 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 )
 
 type Scheduler struct {
@@ -45,7 +44,7 @@ func (s *Scheduler) Start(ctx context.Context) error {
 		return err
 	}
 
-	go s.runCleanupTask(ctx)
+	//go s.runCleanupTask(ctx)
 	go s.runNotificationTask(ctx)
 
 	<-ctx.Done()
@@ -53,6 +52,8 @@ func (s *Scheduler) Start(ctx context.Context) error {
 }
 
 func (s *Scheduler) runCleanupTask(ctx context.Context) {
+	lg.GetLogger(ctx).Info("Starting clean up task...")
+
 	cleanupInterval := time.Duration(s.config.Interval.Cleanup) * time.Second
 
 	ticker := time.NewTicker(cleanupInterval)
@@ -63,12 +64,15 @@ func (s *Scheduler) runCleanupTask(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			s.cleanupOldEvents(ctx)
+			sessionContext := s.buildSessionContext("run clean up task")
+			s.cleanupOldEvents(sessionContext)
 		}
 	}
 }
 
 func (s *Scheduler) runNotificationTask(ctx context.Context) {
+	lg.GetLogger(ctx).Info("Starting notification task...")
+
 	scanInterval := time.Duration(s.config.Interval.Notificate) * time.Second
 
 	ticker := time.NewTicker(scanInterval)
@@ -79,7 +83,8 @@ func (s *Scheduler) runNotificationTask(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			s.scanForNotifications(ctx)
+			sessionContext := s.buildSessionContext("run notification task")
+			s.scanForNotifications(sessionContext)
 		}
 	}
 }
@@ -88,34 +93,54 @@ func (s *Scheduler) cleanupOldEvents(ctx context.Context) {
 	oneYearAgo := time.Now().AddDate(-1, 0, 0)
 
 	if err := s.storage.DeleteOldEvents(ctx, oneYearAgo); err != nil {
-		logger.GetLogger(ctx).WithError(err).Warn("clean old events")
+		lg.GetLogger(ctx).WithError(err).Warn("clean old events")
 	}
 }
 
 func (s *Scheduler) scanForNotifications(ctx context.Context) {
-	logger.GetLogger(ctx).Info("scan for notifications")
+	logger := lg.GetLogger(ctx)
+	logger.Info("scan for notifications")
+
 	now := time.Now()
 	events, err := s.storage.ListDay(ctx, now)
 	if err != nil {
-		logger.GetLogger(ctx).WithError(err).Error("scan for notifications")
+		logger.WithError(err).Error("scan for notifications")
 		return
 	}
 
-	for i, event := range events {
-		//fmt.Printf(">>>>>>>>>>>>%d>>>>>>>>>>>>\n", i)
+	notificatedEventIDs := make([]string, 0, len(events))
+	for _, event := range events {
 		if s.shouldSendNotification(event, now) {
 			notification := event.ToNotification()
 			if err := s.rmqClient.Publish(ctx, notification); err != nil {
-				logger.GetLogger(ctx).WithError(err).Error("scan for notifications")
-				fmt.Printf("<<<<<<<<<<<<%d<<<<<<<<<<<< continue\n", i)
+				logger.WithError(err).Error("scan for notifications", map[string]any{"notification": notification})
 				continue
+			} else {
+				notificatedEventIDs = append(notificatedEventIDs, notification.ID)
 			}
 		}
-		//fmt.Printf("<<<<<<<<<<<<%d<<<<<<<<<<<<\n", i)
+	}
+
+	if len(notificatedEventIDs) > 0 {
+		if err := s.storage.ResetEventReminder(ctx, notificatedEventIDs); err != nil {
+			logger.WithError(err).Error("reset event reminder", map[string]any{"notificatedEventIDs": notificatedEventIDs})
+			return
+		}
+		logger.Info("reset event reminder successed", map[string]any{"notificatedEventIDs": notificatedEventIDs})
 	}
 }
 
 func (s *Scheduler) shouldSendNotification(event storage.Event, now time.Time) bool {
 	timeUntilEvent := event.StartTime.Sub(now)
 	return timeUntilEvent <= event.Reminder && timeUntilEvent > 0
+}
+
+func (s *Scheduler) buildSessionContext(methodName string) context.Context {
+	ctx := context.Background()
+	ctx = utils.SetNewRequestIDToCtx(ctx)
+	logger := s.logger.With(map[string]any{
+		"requestId":  utils.GetRequestID(ctx),
+		"methodName": methodName,
+	})
+	return logger.SetLoggerToCtx(ctx)
 }
