@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
 
+	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -31,13 +31,11 @@ func (r *rmqClient) Connect(ctx context.Context) error {
 		r.conf.Host,
 		r.conf.Port,
 	)
-
 	var err error
 	r.conn, err = amqp.Dial(amqpURI)
 	if err != nil {
 		return fmt.Errorf("dial: %s", err)
 	}
-
 	r.channel, err = r.conn.Channel()
 	if err != nil {
 		return fmt.Errorf("channel: %s", err)
@@ -66,6 +64,8 @@ func (r *rmqClient) QueueDeclare(ctx context.Context) error {
 }
 
 func (r *rmqClient) Publish(ctx context.Context, notification *model.Notification) error {
+	lg.GetLogger(ctx).Debug("publish notification", map[string]any{"notification": notification})
+
 	if r.channel == nil {
 		return errors.New("channel is not initialized")
 	}
@@ -75,11 +75,7 @@ func (r *rmqClient) Publish(ctx context.Context, notification *model.Notificatio
 		return fmt.Errorf("failed to marshal notification: %w", err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	if err := r.channel.PublishWithContext(
-		ctx,
+	if err := r.channel.Publish(
 		r.conf.ExchangeName,
 		r.conf.RoutingKey,
 		false,
@@ -93,6 +89,7 @@ func (r *rmqClient) Publish(ctx context.Context, notification *model.Notificatio
 	); err != nil {
 		return fmt.Errorf("failed to publish message: %w", err)
 	}
+
 	return nil
 }
 
