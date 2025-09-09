@@ -416,7 +416,7 @@ func (s *SQLStorage) DeleteOldEvents(ctx context.Context, before time.Time) erro
 		return err
 	} else if rows == 0 {
 		err := storage.ErrEventNotFound
-		logger.WithError(err).Error("delete old events")
+		logger.WithError(err).Warn("delete old events")
 		return err
 	}
 	return nil
