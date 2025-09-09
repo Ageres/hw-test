@@ -112,7 +112,7 @@ func (s *Scheduler) scanForNotifications(ctx context.Context) {
 		logger.WithError(err).Error("scan for notifications")
 		return
 	}
-	logger.Info("scan for notifications", map[string]any{"found": len(events)})
+	logger.Debug("scan for notifications", map[string]any{"found": len(events)})
 
 	notificatedEventIDs := make([]string, 0, len(events))
 	for _, event := range events {
@@ -132,8 +132,8 @@ func (s *Scheduler) scanForNotifications(ctx context.Context) {
 			logger.WithError(err).Error("reset event reminder", map[string]any{"notificatedEventIDs": notificatedEventIDs})
 			return
 		}
-		logger.Info("reset event reminder successed", map[string]any{"notificated": len(notificatedEventIDs)})
 	}
+	logger.Info("scan for notifications", map[string]any{"notificated": len(notificatedEventIDs)})
 }
 
 func (s *Scheduler) shouldSendNotification(event storage.Event, now time.Time) bool {

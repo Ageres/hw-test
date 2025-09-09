@@ -357,7 +357,7 @@ func (s *SQLStorage) ResetEventReminder(ctx context.Context, eventIDs []string) 
 	logger := lg.GetLogger(ctx)
 
 	eventIDsLen := len(eventIDs)
-	logger.Info("reset event reminder", map[string]any{"eventIDLen": eventIDsLen})
+	logger.Debug("reset event reminder", map[string]any{"eventIDLen": eventIDsLen})
 
 	if eventIDsLen == 0 {
 		err := storage.ErrEventIDListIsEmpty
