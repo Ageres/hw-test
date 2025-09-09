@@ -118,9 +118,54 @@ func (r *rmqClient) Publish(ctx context.Context, notification *model.Notificatio
 	return nil
 }
 
-// Consume implements rmq.RMQClient.
-func (r *rmqClient) Consume(context.Context) (<-chan model.Notification, error) {
-	panic("unimplemented")
+func (r *rmqClient) Consume(ctx context.Context) (<-chan model.Notification, error) {
+	if r.channel == nil {
+		return nil, errors.New("channel is not initialized")
+	}
+
+	msgs, err := r.channel.Consume(
+		r.queue.Name,        // queue
+		"calendar-consumer", // consumer
+		true,                // auto-ack
+		false,               // exclusive
+		false,               // no-local
+		false,               // no-wait
+		nil,                 // args
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to consume messages: %w", err)
+	}
+
+	notifications := make(chan model.Notification)
+
+	go func() {
+		defer close(notifications)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case msg, ok := <-msgs:
+				if !ok {
+					return
+				}
+
+				var notification model.Notification
+				if err := json.Unmarshal(msg.Body, &notification); err != nil {
+					lg.GetLogger(ctx).Error("consume error")
+					continue
+				}
+
+				select {
+				case notifications <- notification:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
+
+	return notifications, nil
 }
 
 func (r *rmqClient) Close(ctx context.Context) error {
@@ -138,19 +183,6 @@ func (r *rmqClient) Close(ctx context.Context) error {
 }
 
 /*
-import (
-	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"log"
-	"time"
-
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
-	amqp "github.com/rabbitmq/amqp091-go"
-)
 
 type Client struct {
 	conn    *amqp.Connection
@@ -160,32 +192,6 @@ type Client struct {
 }
 
 var _ rmq.RMQClient = (*Client)(nil)
-
-func NewRMQClient(cfg *model.RMQConf) rmq.RMQClient {
-	return &Client{config: cfg}
-}
-
-func (c *Client) Connect(ctx context.Context) error {
-	var err error
-	url := fmt.Sprintf("amqp://%s:%s@%s:%d/",
-		c.config.User,
-		c.config.Password,
-		c.config.Host,
-		c.config.Port,
-	)
-
-	c.conn, err = amqp.Dial(url)
-	if err != nil {
-		return fmt.Errorf("failed to connect to RabbitMQ: %w", err)
-	}
-
-	c.channel, err = c.conn.Channel()
-	if err != nil {
-		return fmt.Errorf("failed to open channel: %w", err)
-	}
-
-	return nil
-}
 
 func (c *Client) Close() error {
 	if c.channel != nil {
@@ -201,57 +207,6 @@ func (c *Client) Close() error {
 	}
 
 	return nil
-}
-
-func (c *Client) CreateQueue(ctx context.Context) error {
-	err := c.channel.ExchangeDeclare(
-		c.config.Exchange,
-		"direct", // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // noWait
-		nil,      // arguments
-	)
-	if err != nil {
-		return fmt.Errorf("failed to declare exchange: %w", err)
-	}
-
-	if c.config.Reliable {
-		log.Printf("enabling publishing confirms.")
-		if err := c.channel.Confirm(false); err != nil {
-			return fmt.Errorf("channel could not be put into confirm mode: %s", err)
-		}
-
-		confirms := c.channel.NotifyPublish(make(chan amqp.Confirmation, 1))
-
-		defer confirmOne(confirms)
-	}
-
-	queue, err := c.channel.QueueDeclare(
-		c.config.Queue, // name
-		true,           // durable
-		false,          // delete when unused
-		false,          // exclusive
-		false,          // no-wait
-		nil,            // arguments
-	)
-	if err != nil {
-		return fmt.Errorf("failed to declare queue: %w", err)
-	}
-
-	c.queue = queue
-	return nil
-}
-
-func confirmOne(confirms <-chan amqp.Confirmation) {
-	log.Printf("waiting for confirmation of one publishing")
-
-	if confirmed := <-confirms; confirmed.Ack {
-		log.Printf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag)
-	} else {
-		log.Printf("failed delivery of delivery tag: %d", confirmed.DeliveryTag)
-	}
 }
 
 func (c *Client) Consume(ctx context.Context) (<-chan model.Notification, error) {

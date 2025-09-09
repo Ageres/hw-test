@@ -12,7 +12,12 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 )
 
-type Scheduler struct {
+type Scheduler interface {
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
+}
+
+type scheduler struct {
 	logger               lg.Logger
 	config               *model.SchedulerConf
 	storage              storage.Storage
@@ -26,8 +31,8 @@ func NewScheduler(
 	config *model.SchedulerConf,
 	storage storage.Storage,
 	rmqClient rmq.RMQClient,
-) *Scheduler {
-	return &Scheduler{
+) Scheduler {
+	return &scheduler{
 		logger:    lg.GetLogger(ctx),
 		config:    config,
 		storage:   storage,
@@ -35,7 +40,7 @@ func NewScheduler(
 	}
 }
 
-func (s *Scheduler) Start(ctx context.Context) error {
+func (s *scheduler) Start(ctx context.Context) error {
 	defer s.rmqClient.Close(ctx)
 
 	if err := s.rmqClient.Connect(ctx); err != nil {
@@ -56,7 +61,7 @@ func (s *Scheduler) Start(ctx context.Context) error {
 	return nil
 }
 
-func (s *Scheduler) runCleanupTask(ctx context.Context) {
+func (s *scheduler) runCleanupTask(ctx context.Context) {
 	lg.GetLogger(ctx).Info("Starting clean up task...")
 	ticker := time.NewTicker(s.cleanupInterval)
 	defer ticker.Stop()
@@ -72,7 +77,7 @@ func (s *Scheduler) runCleanupTask(ctx context.Context) {
 	}
 }
 
-func (s *Scheduler) runNotificationTask(ctx context.Context) {
+func (s *scheduler) runNotificationTask(ctx context.Context) {
 	lg.GetLogger(ctx).Info("Starting notification task...")
 
 	ticker := time.NewTicker(s.notificationInterval)
@@ -89,7 +94,7 @@ func (s *Scheduler) runNotificationTask(ctx context.Context) {
 	}
 }
 
-func (s *Scheduler) cleanupOldEvents(ctx context.Context) {
+func (s *scheduler) cleanupOldEvents(ctx context.Context) {
 	logger := lg.GetLogger(ctx)
 	logger.Debug("process cleanup old events")
 
@@ -102,7 +107,7 @@ func (s *Scheduler) cleanupOldEvents(ctx context.Context) {
 	logger.Info("cleanup old events", map[string]any{"deleted": deleted})
 }
 
-func (s *Scheduler) scanForNotifications(ctx context.Context) {
+func (s *scheduler) scanForNotifications(ctx context.Context) {
 	logger := lg.GetLogger(ctx)
 	logger.Debug("process scan for notifications")
 
@@ -136,12 +141,12 @@ func (s *Scheduler) scanForNotifications(ctx context.Context) {
 	logger.Info("scan for notifications", map[string]any{"notificated": len(notificatedEventIDs)})
 }
 
-func (s *Scheduler) shouldSendNotification(event storage.Event, now time.Time) bool {
+func (s *scheduler) shouldSendNotification(event storage.Event, now time.Time) bool {
 	timeUntilEvent := event.StartTime.Sub(now)
 	return timeUntilEvent <= event.Reminder && timeUntilEvent > 0
 }
 
-func (s *Scheduler) buildSessionContext(methodName string) context.Context {
+func (s *scheduler) buildSessionContext(methodName string) context.Context {
 	ctx := context.Background()
 	ctx = utils.SetNewRequestIDToCtx(ctx)
 	logger := s.logger.With(map[string]any{
@@ -149,4 +154,8 @@ func (s *Scheduler) buildSessionContext(methodName string) context.Context {
 		"methodName": methodName,
 	})
 	return logger.SetLoggerToCtx(ctx)
+}
+
+func (s *scheduler) Stop(ctx context.Context) error {
+	return s.rmqClient.Close(ctx)
 }
