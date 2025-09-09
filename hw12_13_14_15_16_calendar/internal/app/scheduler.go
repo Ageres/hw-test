@@ -49,6 +49,7 @@ func (s *Scheduler) Start(ctx context.Context) error {
 	s.cleanupInterval = time.Duration(s.config.Interval.Cleanup) * time.Second
 	s.notificationInterval = time.Duration(s.config.Interval.Notificate) * time.Second
 
+	// TODO тормозить через контекст
 	go s.runCleanupTask(ctx)
 	go s.runNotificationTask(ctx)
 
