@@ -1,5 +1,164 @@
 package rabbitmq
 
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
+	amqp "github.com/rabbitmq/amqp091-go"
+)
+
+type rmqClient struct {
+	conf    *model.RMQConf
+	conn    *amqp.Connection
+	channel *amqp.Channel
+}
+
+func NewRMQClient(conf *model.RMQConf) rmq.RMQClient {
+	return &rmqClient{
+		conf: conf,
+	}
+}
+
+func (r *rmqClient) Connect(ctx context.Context) error {
+	amqpURI := fmt.Sprintf("amqp://%s:%s@%s:%d/",
+		r.conf.User,
+		r.conf.Password,
+		r.conf.Host,
+		r.conf.Port,
+	)
+
+	var err error
+	r.conn, err = amqp.Dial(amqpURI)
+	if err != nil {
+		return fmt.Errorf("dial: %s", err)
+	}
+
+	r.channel, err = r.conn.Channel()
+	if err != nil {
+		return fmt.Errorf("channel: %s", err)
+	}
+	return nil
+}
+
+func (r *rmqClient) ExchangeDeclare(ctx context.Context) error {
+	if err := r.channel.ExchangeDeclare(
+		r.conf.ExchangeName, // name
+		r.conf.ExchangeType, // type
+		true,                // durable
+		false,               // auto-deleted
+		false,               // internal
+		false,               // noWait
+		nil,                 // arguments
+	); err != nil {
+		return fmt.Errorf("exchange declare: %s", err)
+	}
+	return nil
+}
+
+// QueueDeclare implements rmq.RMQClient.
+func (r *rmqClient) QueueDeclare(ctx context.Context) error {
+	panic("unimplemented")
+}
+
+func (r *rmqClient) Publish(ctx context.Context, notification *model.Notification) error {
+	if r.channel == nil {
+		return errors.New("channel is not initialized")
+	}
+
+	body, err := json.Marshal(notification)
+	if err != nil {
+		return fmt.Errorf("failed to marshal notification: %w", err)
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	if err := r.channel.PublishWithContext(
+		ctx,
+		r.conf.ExchangeName, // publish to an exchange
+		r.conf.RoutingKey,   // routing to 0 or more queues
+		false,               // mandatory
+		false,               // immediate
+		amqp.Publishing{
+			//Headers:         amqp.Table{},
+			//ContentType:     "text/plain",
+			//ContentEncoding: "",
+			ContentType: "application/json",
+			//Body:         []byte(body),
+			Body: body,
+			//DeliveryMode: amqp.Transient, // 1=non-persistent, 2=persistent
+			DeliveryMode: amqp.Persistent, // 1=non-persistent, 2=persistent
+			Priority:     0,               // 0-9
+			// a bunch of application/implementation-specific fields
+		},
+	); err != nil {
+		return fmt.Errorf("failed to publish message: %w", err)
+	}
+	return nil
+}
+
+/*
+func Publish(ctx context.Context, notification *model.Notification) error {
+	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	log.Println("------------- notification:", logger.MarshalAny(notification))
+
+	if c.channel == nil {
+		return errors.New("channel is not initialized")
+	}
+
+	body, err := json.Marshal(notification)
+	if err != nil {
+		return fmt.Errorf("failed to marshal notification: %w", err)
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	err = c.channel.PublishWithContext(
+		ctx,
+		"calendar_exchange", // exchange
+		"test-key",          // routing key
+		false,               // mandatory
+		false,               // immediate
+		amqp.Publishing{
+			ContentType:  "application/json",
+			Body:         body,
+			DeliveryMode: amqp.Persistent,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to publish message: %w", err)
+	}
+
+	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+	return nil
+}
+*/
+
+// Consume implements rmq.RMQClient.
+func (r *rmqClient) Consume(context.Context) (<-chan model.Notification, error) {
+	panic("unimplemented")
+}
+
+func (r *rmqClient) Close(ctx context.Context) error {
+	if r.channel != nil && !r.channel.IsClosed() {
+		if err := r.channel.Close(); err != nil {
+			return err
+		}
+	}
+	if r.conn != nil && !r.conn.IsClosed() {
+		if err := r.conn.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 /*
 import (
 	"context"
@@ -115,42 +274,6 @@ func confirmOne(confirms <-chan amqp.Confirmation) {
 	} else {
 		log.Printf("failed delivery of delivery tag: %d", confirmed.DeliveryTag)
 	}
-}
-
-func (c *Client) Publish(ctx context.Context, notification *model.Notification) error {
-	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	log.Println("------------- notification:", logger.MarshalAny(notification))
-
-	if c.channel == nil {
-		return errors.New("channel is not initialized")
-	}
-
-	body, err := json.Marshal(notification)
-	if err != nil {
-		return fmt.Errorf("failed to marshal notification: %w", err)
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	err = c.channel.PublishWithContext(
-		ctx,
-		"calendar_exchange", // exchange
-		"test-key",          // routing key
-		false,               // mandatory
-		false,               // immediate
-		amqp.Publishing{
-			ContentType:  "application/json",
-			Body:         body,
-			DeliveryMode: amqp.Persistent,
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to publish message: %w", err)
-	}
-
-	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-	return nil
 }
 
 func (c *Client) Consume(ctx context.Context) (<-chan model.Notification, error) {

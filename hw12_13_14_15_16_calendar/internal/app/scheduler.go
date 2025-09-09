@@ -13,31 +13,36 @@ import (
 )
 
 type Scheduler struct {
-	storage     storage.Storage
-	rmqProducer rmq.RMQProducer
-	config      *model.SchedulerConf
+	config    *model.SchedulerConf
+	storage   storage.Storage
+	rmqClient rmq.RMQClient
 }
 
 func NewScheduler(
-	storage storage.Storage,
-	rmqProducer rmq.RMQProducer,
 	config *model.SchedulerConf,
+	storage storage.Storage,
+	rmqClient rmq.RMQClient,
 ) *Scheduler {
 	return &Scheduler{
-		storage:     storage,
-		rmqProducer: rmqProducer,
-		config:      config,
+		config:    config,
+		storage:   storage,
+		rmqClient: rmqClient,
 	}
 }
 
 func (s *Scheduler) Start(ctx context.Context) error {
-	if err := s.rmqProducer.Configure(ctx); err != nil {
+	defer s.rmqClient.Close(ctx)
+
+	if err := s.rmqClient.Connect(ctx); err != nil {
 		return err
 	}
-	defer s.rmqProducer.Close(ctx)
+
+	if err := s.rmqClient.ExchangeDeclare(ctx); err != nil {
+		return err
+	}
 
 	go s.runCleanupTask(ctx)
-	go s.runNotificationTask(ctx)
+	s.runNotificationTask(ctx)
 
 	<-ctx.Done()
 	return nil
@@ -96,7 +101,7 @@ func (s *Scheduler) scanForNotifications(ctx context.Context) {
 		//fmt.Printf(">>>>>>>>>>>>%d>>>>>>>>>>>>\n", i)
 		if s.shouldSendNotification(event, now) {
 			notification := event.ToNotification()
-			if err := s.rmqProducer.Publish(ctx, notification); err != nil {
+			if err := s.rmqClient.Publish(ctx, notification); err != nil {
 				logger.GetLogger(ctx).WithError(err).Error("scan for notifications")
 				fmt.Printf("<<<<<<<<<<<<%d<<<<<<<<<<<< continue\n", i)
 				continue

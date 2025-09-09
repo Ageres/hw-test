@@ -35,11 +35,13 @@ func main() {
 		"config": configRef,
 	})
 
-	rmqProducer := rabbitmq.NewRMQProduce(configRef.RMQ)
+	//rmqProducer := rabbitmq.NewRMQProduce(configRef.RMQ)
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
-	scheduler := app.NewScheduler(storage, rmqProducer, configRef.Scheduler)
+	rmqClient := rabbitmq.NewRMQClient(configRef.RMQ)
+
+	scheduler := app.NewScheduler(configRef.Scheduler, storage, rmqClient)
 
 	schedulerErrChan := make(chan error, 1)
 
@@ -134,7 +136,7 @@ func main() {
 	shutdownWg.Add(1)
 	go func() {
 		defer shutdownWg.Done()
-		if err := rmqProducer.Close(ctx); err != nil {
+		if err := rmqClient.Close(ctx); err != nil {
 			logger.GetLogger(ctx).WithError(err).Error("failed to stop rmqClient")
 		} else {
 			logger.GetLogger(ctx).Info("rmqClient stopped gracefully")

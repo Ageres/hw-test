@@ -27,14 +27,17 @@ func NewSender(rmq rmq.RMQClient, config *model.SenderConf) Sender {
 }
 
 func (s *sender) Start(ctx context.Context) error {
+	defer s.rmq.Close(ctx)
+
 	if err := s.rmq.Connect(ctx); err != nil {
 		return err
 	}
-	defer s.rmq.Close()
 
-	if err := s.rmq.CreateQueue(ctx); err != nil {
-		return err
-	}
+	/*
+		if err := s.rmq.CreateQueue(ctx); err != nil {
+			return err
+		}
+	*/
 
 	notifications, err := s.rmq.Consume(ctx)
 	if err != nil {
