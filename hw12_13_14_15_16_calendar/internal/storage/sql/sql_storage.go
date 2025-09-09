@@ -361,7 +361,8 @@ func (s *SQLStorage) ResetEventReminder(ctx context.Context, eventIDs []string) 
 
 	if eventIDsLen == 0 {
 		err := storage.ErrEventIDListIsEmpty
-		logger.WithError(err).Error("reset event reminder")
+		logger.WithError(err).Warn("reset event reminder")
+		return err
 	}
 	eventIDsZeroLen := eventIDsLen - 1
 
