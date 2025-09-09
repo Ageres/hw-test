@@ -16,6 +16,7 @@ type rmqClient struct {
 	conf    *model.RMQConf
 	conn    *amqp.Connection
 	channel *amqp.Channel
+	queue   *amqp.Queue
 }
 
 func NewRMQClient(conf *model.RMQConf) rmq.RMQClient {
@@ -34,11 +35,11 @@ func (r *rmqClient) Connect(ctx context.Context) error {
 	var err error
 	r.conn, err = amqp.Dial(amqpURI)
 	if err != nil {
-		return fmt.Errorf("dial: %s", err)
+		return fmt.Errorf("connect to RabbitMQ: %w", err)
 	}
 	r.channel, err = r.conn.Channel()
 	if err != nil {
-		return fmt.Errorf("channel: %s", err)
+		return fmt.Errorf("open channel: %w", err)
 	}
 	return nil
 }
@@ -53,14 +54,38 @@ func (r *rmqClient) ExchangeDeclare(ctx context.Context) error {
 		false,               // noWait
 		nil,                 // arguments
 	); err != nil {
-		return fmt.Errorf("exchange declare: %s", err)
+		return fmt.Errorf("exchange declare: %w", err)
 	}
 	return nil
 }
 
-// QueueDeclare implements rmq.RMQClient.
 func (r *rmqClient) QueueDeclare(ctx context.Context) error {
-	panic("unimplemented")
+	queue, err := r.channel.QueueDeclare(
+		r.conf.QueueName, // name of the queue
+		true,             // durable
+		false,            // delete when unused
+		false,            // exclusive
+		false,            // noWait
+		nil,              // arguments
+	)
+	if err != nil {
+		return fmt.Errorf("queue declare: %w", err)
+	}
+	r.queue = &queue
+	return nil
+}
+
+func (r *rmqClient) QueueBind(ctx context.Context) error {
+	if err := r.channel.QueueBind(
+		r.queue.Name,        // name of the queue
+		r.conf.RoutingKey,   // bindingKey
+		r.conf.ExchangeName, // sourceExchange
+		false,               // noWait
+		nil,                 // arguments
+	); err != nil {
+		return fmt.Errorf("queue bind: %w", err)
+	}
+	return nil
 }
 
 func (r *rmqClient) Publish(ctx context.Context, notification *model.Notification) error {
@@ -100,7 +125,7 @@ func (r *rmqClient) Consume(context.Context) (<-chan model.Notification, error) 
 
 func (r *rmqClient) Close(ctx context.Context) error {
 	if r.channel != nil && !r.channel.IsClosed() {
-		if err := r.channel.Cancel("producer", true); err != nil {
+		if err := r.channel.Cancel("calendar", true); err != nil {
 			return err
 		}
 	}
