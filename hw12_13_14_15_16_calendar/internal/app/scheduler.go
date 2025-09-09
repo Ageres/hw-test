@@ -50,7 +50,7 @@ func (s *Scheduler) Start(ctx context.Context) error {
 	s.notificationInterval = time.Duration(s.config.Interval.Notificate) * time.Second
 
 	go s.runCleanupTask(ctx)
-	//go s.runNotificationTask(ctx)
+	go s.runNotificationTask(ctx)
 
 	<-ctx.Done()
 	return nil
@@ -132,7 +132,7 @@ func (s *Scheduler) scanForNotifications(ctx context.Context) {
 			logger.WithError(err).Error("reset event reminder", map[string]any{"notificatedEventIDs": notificatedEventIDs})
 			return
 		}
-		logger.Info("reset event reminder successed", map[string]any{"notificatedEventIDs": notificatedEventIDs})
+		logger.Info("reset event reminder successed", map[string]any{"notificated": len(notificatedEventIDs)})
 	}
 }
 
