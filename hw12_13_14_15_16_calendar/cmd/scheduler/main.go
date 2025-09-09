@@ -41,7 +41,7 @@ func main() {
 
 	rmqClient := rabbitmq.NewRMQClient(configRef.RMQ)
 
-	scheduler := app.NewScheduler(configRef.Scheduler, storage, rmqClient)
+	scheduler := app.NewScheduler(ctx, configRef.Scheduler, storage, rmqClient)
 
 	schedulerErrChan := make(chan error, 1)
 

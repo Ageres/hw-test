@@ -80,65 +80,21 @@ func (r *rmqClient) Publish(ctx context.Context, notification *model.Notificatio
 
 	if err := r.channel.PublishWithContext(
 		ctx,
-		r.conf.ExchangeName, // publish to an exchange
-		r.conf.RoutingKey,   // routing to 0 or more queues
-		false,               // mandatory
-		false,               // immediate
+		r.conf.ExchangeName,
+		r.conf.RoutingKey,
+		false,
+		false,
 		amqp.Publishing{
-			//Headers:         amqp.Table{},
-			//ContentType:     "text/plain",
-			//ContentEncoding: "",
-			ContentType: "application/json",
-			//Body:         []byte(body),
-			Body: body,
-			//DeliveryMode: amqp.Transient, // 1=non-persistent, 2=persistent
+			ContentType:  "application/json",
+			Body:         body,
 			DeliveryMode: amqp.Persistent, // 1=non-persistent, 2=persistent
 			Priority:     0,               // 0-9
-			// a bunch of application/implementation-specific fields
 		},
 	); err != nil {
 		return fmt.Errorf("failed to publish message: %w", err)
 	}
 	return nil
 }
-
-/*
-func Publish(ctx context.Context, notification *model.Notification) error {
-	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	log.Println("------------- notification:", logger.MarshalAny(notification))
-
-	if c.channel == nil {
-		return errors.New("channel is not initialized")
-	}
-
-	body, err := json.Marshal(notification)
-	if err != nil {
-		return fmt.Errorf("failed to marshal notification: %w", err)
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	err = c.channel.PublishWithContext(
-		ctx,
-		"calendar_exchange", // exchange
-		"test-key",          // routing key
-		false,               // mandatory
-		false,               // immediate
-		amqp.Publishing{
-			ContentType:  "application/json",
-			Body:         body,
-			DeliveryMode: amqp.Persistent,
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to publish message: %w", err)
-	}
-
-	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-	return nil
-}
-*/
 
 // Consume implements rmq.RMQClient.
 func (r *rmqClient) Consume(context.Context) (<-chan model.Notification, error) {

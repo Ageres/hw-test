@@ -7,23 +7,27 @@ import (
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 )
 
 type Scheduler struct {
+	logger    lg.Logger
 	config    *model.SchedulerConf
 	storage   storage.Storage
 	rmqClient rmq.RMQClient
 }
 
 func NewScheduler(
+	ctx context.Context,
 	config *model.SchedulerConf,
 	storage storage.Storage,
 	rmqClient rmq.RMQClient,
 ) *Scheduler {
 	return &Scheduler{
+		logger:    lg.GetLogger(ctx),
 		config:    config,
 		storage:   storage,
 		rmqClient: rmqClient,
@@ -42,7 +46,7 @@ func (s *Scheduler) Start(ctx context.Context) error {
 	}
 
 	go s.runCleanupTask(ctx)
-	s.runNotificationTask(ctx)
+	go s.runNotificationTask(ctx)
 
 	<-ctx.Done()
 	return nil
