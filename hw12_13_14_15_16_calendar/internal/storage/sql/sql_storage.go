@@ -289,7 +289,7 @@ func (s *SQLStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 
 func (s *SQLStorage) ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
-	logger.Info("list reminder events", map[string]any{
+	logger.Debug("list reminder events", map[string]any{
 		"startTime": startTime,
 		"endTime":   endTime,
 	})
@@ -349,7 +349,7 @@ func (s *SQLStorage) ListReminderEvents(ctx context.Context, startTime, endTime 
 		logger.WithError(err).Error("list reminder events")
 		return nil, err
 	}
-	logger.Info("list reminder events", map[string]any{"found": len(result)})
+	logger.Debug("list reminder events", map[string]any{"found": len(result)})
 	return result, nil
 }
 

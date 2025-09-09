@@ -13,10 +13,12 @@ import (
 )
 
 type Scheduler struct {
-	logger    lg.Logger
-	config    *model.SchedulerConf
-	storage   storage.Storage
-	rmqClient rmq.RMQClient
+	logger               lg.Logger
+	config               *model.SchedulerConf
+	storage              storage.Storage
+	rmqClient            rmq.RMQClient
+	cleanupInterval      time.Duration
+	notificationInterval time.Duration
 }
 
 func NewScheduler(
@@ -44,6 +46,9 @@ func (s *Scheduler) Start(ctx context.Context) error {
 		return err
 	}
 
+	s.cleanupInterval = time.Duration(s.config.Interval.Cleanup) * time.Second
+	s.notificationInterval = time.Duration(s.config.Interval.Notificate) * time.Second
+
 	//go s.runCleanupTask(ctx)
 	go s.runNotificationTask(ctx)
 
@@ -53,10 +58,7 @@ func (s *Scheduler) Start(ctx context.Context) error {
 
 func (s *Scheduler) runCleanupTask(ctx context.Context) {
 	lg.GetLogger(ctx).Info("Starting clean up task...")
-
-	cleanupInterval := time.Duration(s.config.Interval.Cleanup) * time.Second
-
-	ticker := time.NewTicker(cleanupInterval)
+	ticker := time.NewTicker(s.cleanupInterval)
 	defer ticker.Stop()
 
 	for {
@@ -73,9 +75,7 @@ func (s *Scheduler) runCleanupTask(ctx context.Context) {
 func (s *Scheduler) runNotificationTask(ctx context.Context) {
 	lg.GetLogger(ctx).Info("Starting notification task...")
 
-	scanInterval := time.Duration(s.config.Interval.Notificate) * time.Second
-
-	ticker := time.NewTicker(scanInterval)
+	ticker := time.NewTicker(s.notificationInterval)
 	defer ticker.Stop()
 
 	for {
@@ -90,23 +90,27 @@ func (s *Scheduler) runNotificationTask(ctx context.Context) {
 }
 
 func (s *Scheduler) cleanupOldEvents(ctx context.Context) {
+	logger := lg.GetLogger(ctx)
+	logger.Debug("process cleanup old events")
+
 	oneYearAgo := time.Now().AddDate(-1, 0, 0)
 
 	if err := s.storage.DeleteOldEvents(ctx, oneYearAgo); err != nil {
-		lg.GetLogger(ctx).WithError(err).Warn("clean old events")
+		logger.WithError(err).Warn("clean old events")
 	}
 }
 
 func (s *Scheduler) scanForNotifications(ctx context.Context) {
 	logger := lg.GetLogger(ctx)
-	logger.Info("scan for notifications")
+	logger.Debug("process scan for notifications")
 
 	now := time.Now()
-	events, err := s.storage.ListDay(ctx, now)
+	events, err := s.storage.ListReminderEvents(ctx, now.Add(-s.notificationInterval), now.Add(s.notificationInterval))
 	if err != nil {
 		logger.WithError(err).Error("scan for notifications")
 		return
 	}
+	logger.Info("scan for notifications", map[string]any{"found": len(events)})
 
 	notificatedEventIDs := make([]string, 0, len(events))
 	for _, event := range events {
