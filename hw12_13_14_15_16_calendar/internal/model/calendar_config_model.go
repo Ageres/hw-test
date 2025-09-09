@@ -141,7 +141,7 @@ type RMQConf struct {
 	Password     string `yaml:"password" validate:"required"`
 	ExchangeName string `yaml:"exchange_name" validate:"required"`
 	ExchangeType string `yaml:"exchange_type" validate:"oneof=direct fanout topic x-custom"`
-	Queue        string `yaml:"queue" validate:"required"`
+	QueueName    string `yaml:"queue_name" validate:"required"`
 	RoutingKey   string `yaml:"routing_key" validate:"required"`
 }
 

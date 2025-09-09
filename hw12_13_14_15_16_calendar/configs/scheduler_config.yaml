@@ -10,7 +10,7 @@ rmq:
   password: ${RMQ_PASSWORD:=guest}
   exchange_name: calendar-exchange
   exchange_type: direct
-  queue: calendar-notifications
+  queue_name: calendar-notifications
   routing_key: calendar-key
 
 logger:
