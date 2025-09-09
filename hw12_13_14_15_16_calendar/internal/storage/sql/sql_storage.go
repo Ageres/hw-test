@@ -398,27 +398,27 @@ func (s *SQLStorage) ResetEventReminder(ctx context.Context, eventIDs []string) 
 	return nil
 }
 
-func (s *SQLStorage) DeleteOldEvents(ctx context.Context, before time.Time) error {
+func (s *SQLStorage) DeleteOldEvents(ctx context.Context, before time.Time) (int64, error) {
 	logger := lg.GetLogger(ctx)
 
-	logger.Info("delete old events", map[string]any{"before": before})
+	logger.Debug("delete old events", map[string]any{"before": before})
 
 	res, err := s.db.Exec("DELETE FROM events WHERE start_time < $1", before)
 	if err != nil {
 		err = storage.NewSError(ErrDatabaseMsg, err)
 		logger.WithError(err).Error("delete old events")
-		return err
+		return 0, err
 	}
 
 	rows, err := res.RowsAffected()
 	if err != nil {
 		err = storage.NewSError("failed to get rows affected when deleting old events", err)
 		logger.WithError(err).Error("delete old events")
-		return err
-	} else if rows == 0 {
-		err := storage.ErrEventNotFound
-		logger.WithError(err).Warn("delete old events")
-		return err
+		return 0, err
 	}
-	return nil
+	if rows == 0 {
+		logger.WithError(storage.ErrEventNotFound).Debug("delete old events")
+	}
+
+	return rows, nil
 }

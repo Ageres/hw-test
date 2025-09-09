@@ -14,6 +14,6 @@ type Storage interface {
 	ListMonth(ctx context.Context, startDay time.Time) ([]Event, error)
 	ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]Event, error)
 	ResetEventReminder(ctx context.Context, eventIDs []string) error
-	DeleteOldEvents(ctx context.Context, before time.Time) error
+	DeleteOldEvents(ctx context.Context, before time.Time) (int64, error)
 	Close() error
 }

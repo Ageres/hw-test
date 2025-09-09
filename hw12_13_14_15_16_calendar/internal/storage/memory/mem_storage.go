@@ -284,20 +284,26 @@ func (m *MemoryStorage) ResetEventReminder(ctx context.Context, eventIDs []strin
 	return nil
 }
 
-func (m *MemoryStorage) DeleteOldEvents(ctx context.Context, before time.Time) error {
+func (m *MemoryStorage) DeleteOldEvents(ctx context.Context, before time.Time) (int64, error) {
 	logger := lg.GetLogger(ctx)
 
 	logger.Info("delete old events", map[string]any{"before": before})
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	var rows int64 = 0
 	for _, event := range m.events {
 		if event.StartTime.Before(before) {
 			delete(m.events, event.ID)
+			rows = rows + 1
 		}
 	}
 
-	return nil
+	if rows == 0 {
+		logger.WithError(storage.ErrEventNotFound).Debug("delete old events")
+	}
+
+	return rows, nil
 }
 
 func (m *MemoryStorage) Close() error {

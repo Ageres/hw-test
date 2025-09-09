@@ -50,7 +50,7 @@ func (s *Scheduler) Start(ctx context.Context) error {
 	s.notificationInterval = time.Duration(s.config.Interval.Notificate) * time.Second
 
 	go s.runCleanupTask(ctx)
-	go s.runNotificationTask(ctx)
+	//go s.runNotificationTask(ctx)
 
 	<-ctx.Done()
 	return nil
@@ -95,9 +95,11 @@ func (s *Scheduler) cleanupOldEvents(ctx context.Context) {
 
 	oneYearAgo := time.Now().AddDate(-1, 0, 0)
 
-	if err := s.storage.DeleteOldEvents(ctx, oneYearAgo); err != nil {
+	deleted, err := s.storage.DeleteOldEvents(ctx, oneYearAgo)
+	if err != nil {
 		logger.WithError(err).Warn("clean old events")
 	}
+	logger.Info("cleanup old events", map[string]any{"deleted": deleted})
 }
 
 func (s *Scheduler) scanForNotifications(ctx context.Context) {
