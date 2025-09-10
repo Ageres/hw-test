@@ -54,9 +54,6 @@ issues:
     - path: "(/|\\\\)app(/|\\\\).*\\.go"
       linters:
         - depguard
-    - path: "(/|\\\\)model(/|\\\\).*\\.go"
-      linters:
-        - depguard
     - path: "(/|\\\\)scheduler(/|\\\\).*\\.go"
       linters:
         - depguard
