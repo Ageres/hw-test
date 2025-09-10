@@ -15,8 +15,7 @@ import (
 )
 
 // запуск:
-// $env:DB_USER = 'user'; $env:DB_PASSWORD = 'password'
-// go run .\cmd\scheduler\main.go --version --config=./configs/scheduler_config.yaml
+// go run .\cmd\sender\main.go --version --config=./configs/sender_config.yaml
 
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(),
