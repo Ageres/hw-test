@@ -291,7 +291,7 @@ func (m *MemoryStorage) DeleteOldEvents(ctx context.Context, before time.Time) (
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	var rows int64 = 0
+	var rows int64
 	for _, event := range m.events {
 		if event.StartTime.Before(before) {
 			delete(m.events, event.ID)
