@@ -73,7 +73,6 @@ func (s *scheduler) runCleanupTask(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			//sessionContext := s.buildSessionContext("run clean up task")
 			sessionContext := utils.BuildSchedulerSessionContext(s.logger, "run clean up task")
 			sessionContext, cancel := context.WithTimeout(sessionContext, s.processTimeout)
 			defer cancel()
@@ -93,7 +92,6 @@ func (s *scheduler) runNotificationTask(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			//sessionContext := s.buildSessionContext("run notification task")
 			sessionContext := utils.BuildSchedulerSessionContext(s.logger, "run notification task")
 			sessionContext, cancel := context.WithTimeout(sessionContext, s.processTimeout)
 			defer cancel()
@@ -152,16 +150,6 @@ func (s *scheduler) scanForNotifications(ctx context.Context) {
 func (s *scheduler) shouldSendNotification(event storage.Event, now time.Time) bool {
 	timeUntilEvent := event.StartTime.Sub(now)
 	return timeUntilEvent <= event.Reminder && timeUntilEvent > 0
-}
-
-func (s *scheduler) buildSessionContext(methodName string) context.Context {
-	ctx := context.Background()
-	ctx = utils.SetNewRequestIDToCtx(ctx)
-	logger := s.logger.With(map[string]any{
-		"requestId":  utils.GetRequestID(ctx),
-		"methodName": methodName,
-	})
-	return logger.SetLoggerToCtx(ctx)
 }
 
 func (s *scheduler) Stop(ctx context.Context) error {
