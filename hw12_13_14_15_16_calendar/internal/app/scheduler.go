@@ -73,7 +73,8 @@ func (s *scheduler) runCleanupTask(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			sessionContext := s.buildSessionContext("run clean up task")
+			//sessionContext := s.buildSessionContext("run clean up task")
+			sessionContext := utils.BuildSchedulerSessionContext(s.logger, "run clean up task")
 			sessionContext, cancel := context.WithTimeout(sessionContext, s.processTimeout)
 			defer cancel()
 			s.cleanupOldEvents(sessionContext)
@@ -92,7 +93,8 @@ func (s *scheduler) runNotificationTask(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			sessionContext := s.buildSessionContext("run notification task")
+			//sessionContext := s.buildSessionContext("run notification task")
+			sessionContext := utils.BuildSchedulerSessionContext(s.logger, "run notification task")
 			sessionContext, cancel := context.WithTimeout(sessionContext, s.processTimeout)
 			defer cancel()
 			s.scanForNotifications(sessionContext)
