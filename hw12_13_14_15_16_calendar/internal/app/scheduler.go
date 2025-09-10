@@ -133,7 +133,6 @@ func (s *scheduler) scanForNotifications(ctx context.Context) {
 		} else {
 			notificatedEventIDs = append(notificatedEventIDs, notification.ID)
 		}
-
 	}
 
 	if len(notificatedEventIDs) > 0 {
