@@ -78,7 +78,6 @@ func (s *sender) buildSessionContext(methodName string) context.Context {
 	return logger.SetLoggerToCtx(ctx)
 }
 
-// Stop implements Sender.
 func (s *sender) Stop(ctx context.Context) error {
-	panic("unimplemented")
+	return s.rmqClient.Close(ctx)
 }

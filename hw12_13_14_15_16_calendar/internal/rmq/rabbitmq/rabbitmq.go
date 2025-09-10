@@ -41,6 +41,7 @@ func (r *client) Connect(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("open channel: %w", err)
 	}
+	lg.GetLogger(ctx).Info("rabbitmq client connection established")
 	return nil
 }
 
@@ -56,6 +57,7 @@ func (r *client) ExchangeDeclare(ctx context.Context) error {
 	); err != nil {
 		return fmt.Errorf("exchange declare: %w", err)
 	}
+	lg.GetLogger(ctx).Info("rabbitmq exchange declared")
 	return nil
 }
 
@@ -72,6 +74,7 @@ func (r *client) QueueDeclare(ctx context.Context) error {
 		return fmt.Errorf("queue declare: %w", err)
 	}
 	r.queue = &queue
+	lg.GetLogger(ctx).Info("rabbitmq queue declared")
 	return nil
 }
 
@@ -85,6 +88,7 @@ func (r *client) QueueBind(ctx context.Context) error {
 	); err != nil {
 		return fmt.Errorf("queue bind: %w", err)
 	}
+	lg.GetLogger(ctx).Info("rabbitmq queue binded")
 	return nil
 }
 
@@ -172,5 +176,6 @@ func (r *client) Consume(ctx context.Context) (<-chan model.Notification, error)
 func (r *client) Close(ctx context.Context) error {
 	defer r.conn.Close()
 	defer r.channel.Close()
+	lg.GetLogger(ctx).Info("rabbitmq client connection closed")
 	return nil
 }
