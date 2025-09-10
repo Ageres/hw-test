@@ -2,17 +2,17 @@ scheduler:
   interval:
     cleanup: 10 # second
     notificate: 10 # second
-  process-timeout: 5 # second
+  processTimeout: 5 # second
 
 rmq:
   host: localhost
   port: 5672
   user: ${RMQ_USER:=guest}
   password: ${RMQ_PASSWORD:=guest}
-  exchange_name: calendar-exchange
-  exchange_type: direct
-  queue_name: calendar-notifications
-  routing_key: calendar-key
+  exchangeName: calendar-exchange
+  exchangeType: direct
+  queueName: calendar-notifications
+  routingKey: calendar-key
 
 logger:
   # DEBUG, INFO, WARN, ERROR

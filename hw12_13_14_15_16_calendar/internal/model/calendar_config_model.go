@@ -123,7 +123,7 @@ func (gc *GRPCServerConf) GetAddress() string {
 
 type SchedulerConf struct {
 	Interval       *IntervalConf `yaml:"interval" validate:"required"`
-	ProcessTimeout int           `yaml:"process-timeout" validate:"required"`
+	ProcessTimeout int           `yaml:"processTimeout" validate:"required"`
 }
 
 type IntervalConf struct {
@@ -139,9 +139,9 @@ type RMQConf struct {
 	Port         int    `yaml:"port" validate:"required,gt=0"`
 	User         string `yaml:"user" validate:"required"`
 	Password     string `yaml:"password" validate:"required"`
-	ExchangeName string `yaml:"exchange_name" validate:"required"`
-	ExchangeType string `yaml:"exchange_type" validate:"oneof=direct fanout topic x-custom"`
-	QueueName    string `yaml:"queue_name" validate:"required"`
-	RoutingKey   string `yaml:"routing_key" validate:"required"`
-	ConsumerTag  string `yaml:"consumer_tag"`
+	ExchangeName string `yaml:"exchangeName" validate:"required"`
+	ExchangeType string `yaml:"exchangeType" validate:"oneof=direct fanout topic x-custom"`
+	QueueName    string `yaml:"queueName" validate:"required"`
+	RoutingKey   string `yaml:"routingKey" validate:"required"`
+	ConsumerTag  string `yaml:"consumerTag"`
 }
