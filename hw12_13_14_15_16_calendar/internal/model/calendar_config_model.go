@@ -23,7 +23,6 @@ type SchedulerConfig struct {
 // -----------------------------
 // sender config model.
 type SenderConfig struct {
-	Sender *SenderConf `yaml:"sender" validate:"required"`
 	RMQ    *RMQConf    `yaml:"rmq" validate:"required"`
 	Logger *LoggerConf `yaml:"logger" validate:"required"`
 }
@@ -143,10 +142,5 @@ type RMQConf struct {
 	ExchangeType string `yaml:"exchange_type" validate:"oneof=direct fanout topic x-custom"`
 	QueueName    string `yaml:"queue_name" validate:"required"`
 	RoutingKey   string `yaml:"routing_key" validate:"required"`
-}
-
-// -----------------------------
-// senderconf config model.
-
-type SenderConf struct {
+	ConsumerTag  string `yaml:"consumer_tag"`
 }

@@ -124,13 +124,13 @@ func (r *rmqClient) Consume(ctx context.Context) (<-chan model.Notification, err
 	}
 
 	msgs, err := r.channel.Consume(
-		r.queue.Name,        // queue
-		"calendar-consumer", // consumer
-		true,                // auto-ack
-		false,               // exclusive
-		false,               // no-local
-		false,               // no-wait
-		nil,                 // args
+		r.queue.Name,       // queue
+		r.conf.ConsumerTag, // consumer
+		true,               // auto-ack
+		false,              // exclusive
+		false,              // no-local
+		false,              // no-wait
+		nil,                // args
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume messages: %w", err)

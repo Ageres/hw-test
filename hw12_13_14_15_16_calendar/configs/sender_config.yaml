@@ -1,8 +1,3 @@
-sender:
-  interval:
-    cleanup: 10 # second
-    notificate: 10 # second
-
 rmq:
   host: localhost
   port: 5672
@@ -12,6 +7,7 @@ rmq:
   exchange_type: direct
   queue_name: calendar-notifications
   routing_key: calendar-key
+  consumer_tag: calendar-consumer
 
 logger:
   # DEBUG, INFO, WARN, ERROR
