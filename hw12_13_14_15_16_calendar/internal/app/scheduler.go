@@ -126,7 +126,7 @@ func (s *scheduler) scanForNotifications(ctx context.Context) {
 
 	notificatedEventIDs := make([]string, 0, len(events))
 	for _, event := range events {
-		notification := event.ToNotification()
+		notification := utils.EventToNotification(&event)
 		if err := s.rmqClient.Publish(ctx, notification); err != nil {
 			logger.WithError(err).Error("scan for notifications", map[string]any{"notification": notification})
 			continue
