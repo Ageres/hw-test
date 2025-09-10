@@ -48,12 +48,27 @@ issues:
     - path: "(/|\\\\)utils(/|\\\\).*\\.go"
       linters:
         - depguard
+    - path: "(/|\\\\)rmq(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)app(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)model(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)scheduler(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)sender(/|\\\\).*\\.go"
+      linters:
+        - depguard
 
 linters:
   disable-all: true
   enable:
     - asciicheck
-    #- depguard
+    - depguard
     - dogsled
     - dupl
     - bodyclose
