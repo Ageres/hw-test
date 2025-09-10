@@ -28,6 +28,16 @@ type dbResp struct {
 	conflictUserID  string
 }
 
+type dbEvent struct {
+	ID          string
+	Title       string
+	StartTime   time.Time `db:"start_time"`
+	Duration    int64
+	Description string
+	UserID      string `db:"user_id"`
+	Reminder    int64
+}
+
 func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
 	logger := lg.GetLogger(ctx)
 
@@ -243,16 +253,7 @@ func (s *SQLStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 	defer rows.Close()
 
 	for rows.Next() {
-		var e struct {
-			ID          string
-			Title       string
-			StartTime   time.Time `db:"start_time"`
-			Duration    int64
-			Description string
-			UserID      string `db:"user_id"`
-			Reminder    int64
-		}
-
+		var e dbEvent
 		if err := rows.StructScan(&e); err != nil {
 			err = storage.NewSError("failed to scan event", err)
 			logger.WithError(err).Error("list events")
@@ -379,16 +380,7 @@ func (s *SQLStorage) ListReminderEvents(ctx context.Context, scanInterval int64)
 	defer rows.Close()
 
 	for rows.Next() {
-		var e struct {
-			ID          string
-			Title       string
-			StartTime   time.Time `db:"start_time"`
-			Duration    int64
-			Description string
-			UserID      string `db:"user_id"`
-			Reminder    int64
-		}
-
+		var e dbEvent
 		if err := rows.StructScan(&e); err != nil {
 			err = storage.NewSError("failed to scan event", err)
 			logger.WithError(err).Error("list reminder events")
