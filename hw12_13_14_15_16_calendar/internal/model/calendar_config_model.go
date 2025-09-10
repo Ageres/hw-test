@@ -122,7 +122,8 @@ func (gc *GRPCServerConf) GetAddress() string {
 // schedulerconf config model.
 
 type SchedulerConf struct {
-	Interval *IntervalConf `yaml:"interval" validate:"required"`
+	Interval       *IntervalConf `yaml:"interval" validate:"required"`
+	ProcessTimeout int           `yaml:"process-timeout" validate:"required"`
 }
 
 type IntervalConf struct {

@@ -24,6 +24,7 @@ type scheduler struct {
 	rmqClient            rmq.RMQClient
 	cleanupInterval      time.Duration
 	notificationInterval time.Duration
+	processTimeout       time.Duration
 }
 
 func NewScheduler(
@@ -53,6 +54,7 @@ func (s *scheduler) Start(ctx context.Context) error {
 
 	s.cleanupInterval = time.Duration(s.config.Interval.Cleanup) * time.Second
 	s.notificationInterval = time.Duration(s.config.Interval.Notificate) * time.Second
+	s.processTimeout = time.Duration(s.config.ProcessTimeout) * time.Second
 
 	go s.runCleanupTask(ctx)
 	go s.runNotificationTask(ctx)
@@ -72,6 +74,8 @@ func (s *scheduler) runCleanupTask(ctx context.Context) {
 			return
 		case <-ticker.C:
 			sessionContext := s.buildSessionContext("run clean up task")
+			sessionContext, cancel := context.WithTimeout(sessionContext, s.processTimeout)
+			defer cancel()
 			s.cleanupOldEvents(sessionContext)
 		}
 	}
@@ -89,6 +93,8 @@ func (s *scheduler) runNotificationTask(ctx context.Context) {
 			return
 		case <-ticker.C:
 			sessionContext := s.buildSessionContext("run notification task")
+			sessionContext, cancel := context.WithTimeout(sessionContext, s.processTimeout)
+			defer cancel()
 			s.scanForNotifications(sessionContext)
 		}
 	}

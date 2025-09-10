@@ -100,7 +100,8 @@ func (r *rmqClient) Publish(ctx context.Context, notification *model.Notificatio
 		return fmt.Errorf("failed to marshal notification: %w", err)
 	}
 
-	if err := r.channel.Publish(
+	if err := r.channel.PublishWithContext(
+		ctx,
 		r.conf.ExchangeName,
 		r.conf.RoutingKey,
 		false,

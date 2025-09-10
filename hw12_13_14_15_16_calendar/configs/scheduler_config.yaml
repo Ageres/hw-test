@@ -2,6 +2,7 @@ scheduler:
   interval:
     cleanup: 10 # second
     notificate: 10 # second
+  process-timeout: 5 # second
 
 rmq:
   host: localhost
