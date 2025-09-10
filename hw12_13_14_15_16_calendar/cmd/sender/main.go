@@ -81,5 +81,4 @@ func main() {
 	wg.Wait()
 
 	logger.GetLogger(ctx).Info("sender stopped")
-
 }
