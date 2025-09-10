@@ -65,7 +65,7 @@ linters:
     #- gci
     - gocognit
     - goconst
-    #- gocritic
+    - gocritic
     - gocyclo
     - godot
     #- gofmt

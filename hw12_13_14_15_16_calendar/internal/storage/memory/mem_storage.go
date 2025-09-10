@@ -295,7 +295,7 @@ func (m *MemoryStorage) DeleteOldEvents(ctx context.Context, before time.Time) (
 	for _, event := range m.events {
 		if event.StartTime.Before(before) {
 			delete(m.events, event.ID)
-			rows = rows + 1
+			rows++
 		}
 	}
 
