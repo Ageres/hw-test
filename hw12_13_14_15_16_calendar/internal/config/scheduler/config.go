@@ -9,6 +9,8 @@ import (
 	yml "gopkg.in/yaml.v3"
 )
 
+const StorageType = "SQL"
+
 func NewSchedullerConfig(pathToConfigFile string) *model.SchedulerConfig {
 	data, err := envsubst.ReadFile(pathToConfigFile)
 	if err != nil {
@@ -21,7 +23,7 @@ func NewSchedullerConfig(pathToConfigFile string) *model.SchedulerConfig {
 		log.Fatalf("unmarshal config file: %v", err)
 	}
 
-	config.Storage.Type = "SQL"
+	config.Storage.Type = StorageType
 
 	validate := vld.New()
 	if err := validate.Struct(config); err != nil {
