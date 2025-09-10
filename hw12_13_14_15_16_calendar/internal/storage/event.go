@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/google/uuid"
 )
 
@@ -18,24 +17,6 @@ type Event struct {
 	Description string        `json:"description,omitempty"`
 	UserID      string        `json:"userId" binding:"required"`
 	Reminder    time.Duration `json:"reminder" binding:"required"`
-}
-
-func (e *Event) ToNotification() *model.Notification {
-	if e == nil {
-		return nil
-	}
-	return &model.Notification{
-		ID:    e.ID,
-		Title: e.Title,
-		Date: time.Date(
-			e.StartTime.Year(),
-			e.StartTime.Month(),
-			e.StartTime.Day(),
-			0, 0, 0, 0,
-			e.StartTime.Location(),
-		),
-		UserID: e.UserID,
-	}
 }
 
 func (e *Event) GenerateEventID() {
