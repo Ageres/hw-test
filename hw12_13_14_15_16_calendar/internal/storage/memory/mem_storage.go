@@ -223,11 +223,10 @@ func overlaps(e, other *storage.Event) bool {
 	return e.StartTime.Before(end2) && end1.After(other.StartTime)
 }
 
-func (m *MemoryStorage) ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
+func (m *MemoryStorage) ListReminderEvents(ctx context.Context, scanInterval int64) ([]storage.Event, error) {
 	logger := lg.GetLogger(ctx)
 	logger.Info("list reminder events", map[string]any{
-		"startTime": startTime,
-		"endTime":   endTime,
+		"scanInterval": scanInterval,
 	})
 
 	m.mu.RLock()
@@ -242,12 +241,13 @@ func (m *MemoryStorage) ListReminderEvents(ctx context.Context, startTime, endTi
 		default:
 		}
 
-		if event.Reminder == 0 {
+		now := time.Now()
+		if event.Reminder == 0 || event.StartTime.Before(now) {
 			continue
 		}
-		eventEnd := event.StartTime.Add(event.Duration)
-		if (event.StartTime.After(startTime) && event.StartTime.Before(endTime)) ||
-			(eventEnd.After(startTime) && eventEnd.Before(endTime)) {
+		reminderTime := event.StartTime.Add(-event.Reminder)
+		scanTime := now.Add(time.Duration(scanInterval) * time.Second)
+		if reminderTime.Before(scanTime) {
 			result = append(result, event)
 		}
 	}

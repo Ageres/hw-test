@@ -117,8 +117,7 @@ func (s *scheduler) scanForNotifications(ctx context.Context) {
 	logger := lg.GetLogger(ctx)
 	logger.Debug("process scan for notifications")
 
-	now := time.Now()
-	events, err := s.storage.ListReminderEvents(ctx, now.Add(-s.notificationInterval), now.Add(s.notificationInterval))
+	events, err := s.storage.ListReminderEvents(ctx, int64(s.config.Interval.Notificate))
 	if err != nil {
 		logger.WithError(err).Error("scan for notifications")
 		return
@@ -127,15 +126,14 @@ func (s *scheduler) scanForNotifications(ctx context.Context) {
 
 	notificatedEventIDs := make([]string, 0, len(events))
 	for _, event := range events {
-		if s.shouldSendNotification(event, now) {
-			notification := event.ToNotification()
-			if err := s.rmqClient.Publish(ctx, notification); err != nil {
-				logger.WithError(err).Error("scan for notifications", map[string]any{"notification": notification})
-				continue
-			} else {
-				notificatedEventIDs = append(notificatedEventIDs, notification.ID)
-			}
+		notification := event.ToNotification()
+		if err := s.rmqClient.Publish(ctx, notification); err != nil {
+			logger.WithError(err).Error("scan for notifications", map[string]any{"notification": notification})
+			continue
+		} else {
+			notificatedEventIDs = append(notificatedEventIDs, notification.ID)
 		}
+
 	}
 
 	if len(notificatedEventIDs) > 0 {
@@ -145,11 +143,6 @@ func (s *scheduler) scanForNotifications(ctx context.Context) {
 		}
 	}
 	logger.Info("scan for notifications", map[string]any{"notificated": len(notificatedEventIDs)})
-}
-
-func (s *scheduler) shouldSendNotification(event storage.Event, now time.Time) bool {
-	timeUntilEvent := event.StartTime.Sub(now)
-	return timeUntilEvent <= event.Reminder && timeUntilEvent > 0
 }
 
 func (s *scheduler) Stop(ctx context.Context) error {

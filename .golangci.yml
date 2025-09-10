@@ -55,7 +55,7 @@ linters:
     - asciicheck
     #- depguard
     - dogsled
-    #- dupl
+    - dupl
     - bodyclose
     - durationcheck
     - errorlint

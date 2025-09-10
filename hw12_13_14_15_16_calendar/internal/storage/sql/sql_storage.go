@@ -287,72 +287,6 @@ func (s *SQLStorage) listEvents(ctx context.Context, startTime, endTime time.Tim
 	return result, nil
 }
 
-func (s *SQLStorage) ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
-	logger := lg.GetLogger(ctx)
-	logger.Debug("list reminder events", map[string]any{
-		"startTime": startTime,
-		"endTime":   endTime,
-	})
-
-	result := make([]storage.Event, 0, 100)
-	rows, err := s.db.QueryxContext(ctx, `
-        SELECT id, title, start_time, duration, description, user_id, reminder 
-        FROM events 
-        WHERE reminder > 0 and tstzrange(start_time, start_time + (duration * INTERVAL '1 second')) 
-        && tstzrange($1::timestamptz, $2::timestamptz)`,
-		startTime, endTime)
-	if err != nil {
-		err = storage.NewSError(ErrDatabaseMsg, err)
-		logger.WithError(err).Error("list reminder events")
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var e struct {
-			ID          string
-			Title       string
-			StartTime   time.Time `db:"start_time"`
-			Duration    int64
-			Description string
-			UserID      string `db:"user_id"`
-			Reminder    int64
-		}
-
-		if err := rows.StructScan(&e); err != nil {
-			err = storage.NewSError("failed to scan event", err)
-			logger.WithError(err).Error("list reminder events")
-			return nil, err
-		}
-
-		result = append(result, storage.Event{
-			ID:          e.ID,
-			Title:       e.Title,
-			StartTime:   e.StartTime,
-			Duration:    time.Duration(e.Duration) * time.Second,
-			Description: e.Description,
-			UserID:      e.UserID,
-			Reminder:    time.Duration(e.Reminder) * time.Second,
-		})
-
-		select {
-		case <-ctx.Done():
-			err = storage.NewSError(storage.ErrContextDone, ctx.Err())
-			logger.WithError(err).Error("list reminder events")
-			return nil, err
-		default:
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		err = storage.NewSError("rows iteration error", err)
-		logger.WithError(err).Error("list reminder events")
-		return nil, err
-	}
-	logger.Debug("list reminder events", map[string]any{"found": len(result)})
-	return result, nil
-}
-
 func (s *SQLStorage) ResetEventReminder(ctx context.Context, eventIDs []string) error {
 	logger := lg.GetLogger(ctx)
 
@@ -421,4 +355,70 @@ func (s *SQLStorage) DeleteOldEvents(ctx context.Context, before time.Time) (int
 	}
 
 	return rows, nil
+}
+
+func (s *SQLStorage) ListReminderEvents(ctx context.Context, scanInterval int64) ([]storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Debug("list reminder events", map[string]any{
+		"scanInterval": scanInterval,
+	})
+
+	result := make([]storage.Event, 0, 100)
+	rows, err := s.db.QueryxContext(ctx, `
+        SELECT id, title, start_time, duration, description, user_id, reminder 
+        FROM events
+		WHERE reminder > 0
+		and start_time > now() 
+		and (start_time - (reminder * INTERVAL '1 second'))  < now() + ($1 * INTERVAL '1 second')`,
+		scanInterval)
+	if err != nil {
+		err = storage.NewSError(ErrDatabaseMsg, err)
+		logger.WithError(err).Error("list reminder events")
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var e struct {
+			ID          string
+			Title       string
+			StartTime   time.Time `db:"start_time"`
+			Duration    int64
+			Description string
+			UserID      string `db:"user_id"`
+			Reminder    int64
+		}
+
+		if err := rows.StructScan(&e); err != nil {
+			err = storage.NewSError("failed to scan event", err)
+			logger.WithError(err).Error("list reminder events")
+			return nil, err
+		}
+
+		result = append(result, storage.Event{
+			ID:          e.ID,
+			Title:       e.Title,
+			StartTime:   e.StartTime,
+			Duration:    time.Duration(e.Duration) * time.Second,
+			Description: e.Description,
+			UserID:      e.UserID,
+			Reminder:    time.Duration(e.Reminder) * time.Second,
+		})
+
+		select {
+		case <-ctx.Done():
+			err = storage.NewSError(storage.ErrContextDone, ctx.Err())
+			logger.WithError(err).Error("list reminder events")
+			return nil, err
+		default:
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		err = storage.NewSError("rows iteration error", err)
+		logger.WithError(err).Error("list reminder events")
+		return nil, err
+	}
+	logger.Debug("list reminder events", map[string]any{"found": len(result)})
+	return result, nil
 }

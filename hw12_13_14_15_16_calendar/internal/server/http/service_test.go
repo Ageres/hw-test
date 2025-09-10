@@ -56,8 +56,8 @@ func (m *MockStorage) ListMonth(ctx context.Context, startDay time.Time) ([]stor
 	return args.Get(0).([]storage.Event), args.Error(1)
 }
 
-func (m *MockStorage) ListReminderEvents(ctx context.Context, startTime, endTime time.Time) ([]storage.Event, error) {
-	args := m.Called(ctx, startTime, endTime)
+func (m *MockStorage) ListReminderEvents(ctx context.Context, scanInterval int64) ([]storage.Event, error) {
+	args := m.Called(ctx, scanInterval)
 	return args.Get(0).([]storage.Event), args.Error(1)
 }
 
