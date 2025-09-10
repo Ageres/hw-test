@@ -30,7 +30,7 @@ func main() {
 
 	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
 
-	logger.GetLogger(ctx).Info("config file", map[string]any{
+	logger.GetLogger(ctx).Debug("config file", map[string]any{
 		"config": configRef,
 	})
 

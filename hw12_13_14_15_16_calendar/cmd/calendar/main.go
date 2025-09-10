@@ -35,6 +35,10 @@ func main() {
 
 	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
 
+	logger.GetLogger(ctx).Debug("config file", map[string]any{
+		"config": configRef,
+	})
+
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
 	httpService := internalhttp.NewHTTPService(storage)
