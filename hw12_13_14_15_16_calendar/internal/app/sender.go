@@ -12,7 +12,7 @@ import (
 
 type Sender interface {
 	Start(ctx context.Context) error
-	processNotification(ctx context.Context, notification any)
+	Stop(ctx context.Context) error
 }
 
 type sender struct {
@@ -20,7 +20,6 @@ type sender struct {
 	rmqClient rmq.RMQClient
 	config    *model.SenderConf
 	tag       string
-	//done      chan error
 }
 
 func NewSender(ctx context.Context, rmq rmq.RMQClient, config *model.SenderConf) Sender {
@@ -81,4 +80,9 @@ func (s *sender) buildSessionContext(methodName string) context.Context {
 		"methodName": methodName,
 	})
 	return logger.SetLoggerToCtx(ctx)
+}
+
+// Stop implements Sender.
+func (s *sender) Stop(ctx context.Context) error {
+	panic("unimplemented")
 }
