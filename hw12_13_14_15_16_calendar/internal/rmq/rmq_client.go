@@ -6,7 +6,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 )
 
-type RMQClient interface {
+type Client interface {
 	Connect(ctx context.Context) error
 	ExchangeDeclare(ctx context.Context) error
 	QueueDeclare(ctx context.Context) error

@@ -12,20 +12,20 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type rmqClient struct {
+type client struct {
 	conf    *model.RMQConf
 	conn    *amqp.Connection
 	channel *amqp.Channel
 	queue   *amqp.Queue
 }
 
-func NewRMQClient(conf *model.RMQConf) rmq.RMQClient {
-	return &rmqClient{
+func NewClient(conf *model.RMQConf) rmq.Client {
+	return &client{
 		conf: conf,
 	}
 }
 
-func (r *rmqClient) Connect(ctx context.Context) error {
+func (r *client) Connect(ctx context.Context) error {
 	amqpURI := fmt.Sprintf("amqp://%s:%s@%s:%d/",
 		r.conf.User,
 		r.conf.Password,
@@ -44,7 +44,7 @@ func (r *rmqClient) Connect(ctx context.Context) error {
 	return nil
 }
 
-func (r *rmqClient) ExchangeDeclare(ctx context.Context) error {
+func (r *client) ExchangeDeclare(ctx context.Context) error {
 	if err := r.channel.ExchangeDeclare(
 		r.conf.ExchangeName, // name
 		r.conf.ExchangeType, // type
@@ -59,7 +59,7 @@ func (r *rmqClient) ExchangeDeclare(ctx context.Context) error {
 	return nil
 }
 
-func (r *rmqClient) QueueDeclare(ctx context.Context) error {
+func (r *client) QueueDeclare(ctx context.Context) error {
 	queue, err := r.channel.QueueDeclare(
 		r.conf.QueueName, // name of the queue
 		true,             // durable
@@ -75,7 +75,7 @@ func (r *rmqClient) QueueDeclare(ctx context.Context) error {
 	return nil
 }
 
-func (r *rmqClient) QueueBind(ctx context.Context) error {
+func (r *client) QueueBind(ctx context.Context) error {
 	if err := r.channel.QueueBind(
 		r.queue.Name,        // name of the queue
 		r.conf.RoutingKey,   // bindingKey
@@ -88,7 +88,7 @@ func (r *rmqClient) QueueBind(ctx context.Context) error {
 	return nil
 }
 
-func (r *rmqClient) Publish(ctx context.Context, notification *model.Notification) error {
+func (r *client) Publish(ctx context.Context, notification *model.Notification) error {
 	lg.GetLogger(ctx).Debug("publish notification", map[string]any{"notification": notification})
 
 	if r.channel == nil {
@@ -119,7 +119,7 @@ func (r *rmqClient) Publish(ctx context.Context, notification *model.Notificatio
 	return nil
 }
 
-func (r *rmqClient) Consume(ctx context.Context) (<-chan model.Notification, error) {
+func (r *client) Consume(ctx context.Context) (<-chan model.Notification, error) {
 	if r.channel == nil {
 		return nil, errors.New("channel is not initialized")
 	}
@@ -169,7 +169,7 @@ func (r *rmqClient) Consume(ctx context.Context) (<-chan model.Notification, err
 	return notifications, nil
 }
 
-func (r *rmqClient) Close(ctx context.Context) error {
+func (r *client) Close(ctx context.Context) error {
 	defer r.conn.Close()
 	defer r.channel.Close()
 	return nil

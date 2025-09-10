@@ -34,7 +34,7 @@ func main() {
 		"config": configRef,
 	})
 
-	rmqClient := rabbitmq.NewRMQClient(configRef.RMQ)
+	rmqClient := rabbitmq.NewClient(configRef.RMQ)
 
 	sender := app.NewSender(ctx, rmqClient)
 

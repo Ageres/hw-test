@@ -16,10 +16,10 @@ type Sender interface {
 
 type sender struct {
 	logger    lg.Logger
-	rmqClient rmq.RMQClient
+	rmqClient rmq.Client
 }
 
-func NewSender(ctx context.Context, rmq rmq.RMQClient) Sender {
+func NewSender(ctx context.Context, rmq rmq.Client) Sender {
 	return &sender{
 		logger:    lg.GetLogger(ctx),
 		rmqClient: rmq,

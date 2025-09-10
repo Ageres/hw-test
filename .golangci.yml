@@ -86,7 +86,7 @@ linters:
     - nolintlint
     - prealloc
     - predeclared
-    #- revive
+    - revive
     - staticcheck
     - stylecheck
     #- tagliatelle

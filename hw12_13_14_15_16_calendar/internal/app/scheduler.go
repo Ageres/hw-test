@@ -21,7 +21,7 @@ type scheduler struct {
 	logger               lg.Logger
 	config               *model.SchedulerConf
 	storage              storage.Storage
-	rmqClient            rmq.RMQClient
+	rmqClient            rmq.Client
 	cleanupInterval      time.Duration
 	notificationInterval time.Duration
 	processTimeout       time.Duration
@@ -31,7 +31,7 @@ func NewScheduler(
 	ctx context.Context,
 	config *model.SchedulerConf,
 	storage storage.Storage,
-	rmqClient rmq.RMQClient,
+	rmqClient rmq.Client,
 ) Scheduler {
 	return &scheduler{
 		logger:    lg.GetLogger(ctx),

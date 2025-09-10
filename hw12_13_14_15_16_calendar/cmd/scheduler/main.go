@@ -37,7 +37,7 @@ func main() {
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
-	rmqClient := rabbitmq.NewRMQClient(configRef.RMQ)
+	rmqClient := rabbitmq.NewClient(configRef.RMQ)
 
 	scheduler := app.NewScheduler(ctx, configRef.Scheduler, storage, rmqClient)
 
