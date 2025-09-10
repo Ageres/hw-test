@@ -130,9 +130,8 @@ func (s *scheduler) scanForNotifications(ctx context.Context) {
 		if err := s.rmqClient.Publish(ctx, notification); err != nil {
 			logger.WithError(err).Error("scan for notifications", map[string]any{"notification": notification})
 			continue
-		} else {
-			notificatedEventIDs = append(notificatedEventIDs, notification.ID)
 		}
+		notificatedEventIDs = append(notificatedEventIDs, notification.ID)
 	}
 
 	if len(notificatedEventIDs) > 0 {
