@@ -50,6 +50,13 @@ services:
       DB_HOST: ${DB_HOST:-172.30.1.126}
       DB_USER: ${DB_USER:-user}
       DB_PASSWORD: ${DB_PASSWORD:-password}
+  sender-otus:
+    image: sender:develop
+    container_name: sender
+    environment:
+      RMQ_HOST: ${RMQ_HOST:-172.30.1.126}
+      RMQ_USER: ${RMQ_USER:-guest}
+      RMQ_PASSWORD: ${RMQ_PASSWORD:-guest}
 #volumes:
 #  postgres_data:
 #  rabbitmq_data:

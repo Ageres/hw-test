@@ -1,4 +1,4 @@
-# docker build -t sender:v001 -f ./build/sender/Dockerfile .
+# docker build -t sender:develop -f ./build/sender/Dockerfile .
 
 # Собираем в гошке
 FROM golang:1.23.12-alpine3.22 AS build
