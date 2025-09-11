@@ -1,5 +1,5 @@
 # Собираем в гошке
-FROM golang:1.22 as build
+FROM golang:1.23.12-alpine3.22 AS build
 
 ENV BIN_FILE /opt/calendar/calendar-app
 ENV CODE_DIR /go/src/
@@ -21,7 +21,7 @@ RUN CGO_ENABLED=0 go build \
         -o ${BIN_FILE} cmd/calendar/*
 
 # На выходе тонкий образ
-FROM alpine:3.9
+FROM alpine:3.22
 
 LABEL ORGANIZATION="OTUS Online Education"
 LABEL SERVICE="calendar"
