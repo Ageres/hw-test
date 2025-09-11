@@ -1,3 +1,5 @@
+# docker build -t scheduler:v001 -f ./build/scheduler/Dockerfile .
+
 # Собираем в гошке
 FROM golang:1.23.12-alpine3.22 AS build
 
