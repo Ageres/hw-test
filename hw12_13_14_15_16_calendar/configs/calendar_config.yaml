@@ -11,7 +11,8 @@ storage:
     loadTestData: true # генерация и загрузка тестовых событий в in-memory хранилище при старте
   sql:
     db:
-      host: ${DB_HOST:=localhost}
+      #host: ${DB_HOST:=localhost}
+      host: ${DB_HOST:=172.30.1.126}
       port: 5432
       name: calendar
       user: ${DB_USER:=user}
@@ -36,5 +37,5 @@ http:
 grpc:
   server:
     network: tcp
-    host: 127.0.0.1
+    host: localhost
     port: 50051

@@ -33,4 +33,6 @@ COPY --from=build ${BIN_FILE} ${BIN_FILE}
 ENV CONFIG_FILE /etc/calendar/calendar_config.yaml
 COPY ./configs/calendar_config.yaml ${CONFIG_FILE}
 
+EXPOSE 8080 50051
+
 CMD ${BIN_FILE} --config ${CONFIG_FILE}
