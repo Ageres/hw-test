@@ -1,0 +1,37 @@
+logger:
+  # DEBUG, INFO, WARN, ERROR
+  level: INFO 
+  # JSON, TEXT, COLOUR_TEXT 
+  format: JSON
+
+storage:
+  # IN_MEMORY, SQL
+  type: IN_MEMORY
+  inMemory:
+    loadTestData: true # генерация и загрузка тестовых событий в in-memory хранилище при старте
+  sql:
+    db:
+      host: localhost
+      port: 5432
+      name: calendar
+      user: ${DB_USER:=user}
+      password: ${DB_PASSWORD:=password}
+      sslmode: disable
+    migration:
+      path: ./migrations
+      applying: true
+    pool:
+      conn:
+        maxOpen: 10
+        maxIdle: 2
+        maxLifeTime: 3600
+        maxIdleTime: 3600
+
+http:
+  server:
+    host: localhost
+    port: 8080
+    readHeaderTimeout: 5
+    readTimeout: 10
+    writeTimeout: 30
+    idleTimeout: 90
