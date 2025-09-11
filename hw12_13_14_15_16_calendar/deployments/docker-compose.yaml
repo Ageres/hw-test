@@ -30,6 +30,16 @@ services:
       - "15672:15672"
     #volumes:
     #  - rabbitmq_data:/var/lib/rabbitmq
+  calendar-otus:
+    image: calendar:v001
+    container_name: calendar
+    environment:
+      DB_HOST: ${DB_HOST:-172.30.1.126}
+      DB_USER: ${DB_USER:-user}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "8080:8080"
+      - "50051:50051"
 #volumes:
 #  postgres_data:
 #  rabbitmq_data:
