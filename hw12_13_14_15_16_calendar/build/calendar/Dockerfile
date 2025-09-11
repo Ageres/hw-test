@@ -1,4 +1,4 @@
-# docker build -t calendar:v001 -f ./build/calendar/Dockerfile .
+# docker build -t calendar:develop -f ./build/calendar/Dockerfile .
 
 # Собираем в гошке
 FROM golang:1.23.12-alpine3.22 AS build

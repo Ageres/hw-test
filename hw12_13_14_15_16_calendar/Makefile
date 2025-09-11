@@ -1,7 +1,9 @@
 BIN_CALENDAR := "./bin/calendar"
 BIN_SCHEDULER := "./bin/scheduler"
 BIN_SENDER := "./bin/sender"
-DOCKER_IMG="calendar:develop"
+DOCKER_IMG_CALENDAR="calendar:develop"
+DOCKER_IMG_SCHEDULER="scheduler:develop"
+DOCKER_IMG_SENDER="sender:develop"
 DB_USER ?= user
 DB_PASSWORD ?= password
 DB_DSN="host=localhost port=5432 user=$(DB_USER) password=$(DB_PASSWORD) dbname=calendar sslmode=disable"
@@ -24,10 +26,9 @@ run: build
 	$(BIN_SENDER) -config ./configs/sender_config.yaml
 
 build-img:
-	docker build \
-		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
+	docker build --build-arg=LDFLAGS="$(LDFLAGS)" -t $(DOCKER_IMG_CALENDAR) -f ./build/calendar/Dockerfile .
+	docker build --build-arg=LDFLAGS="$(LDFLAGS)" -t $(DOCKER_IMG_SCHEDULER) -f ./build/scheduler/Dockerfile .
+	docker build --build-arg=LDFLAGS="$(LDFLAGS)" -t $(DOCKER_IMG_CALENDAR) -f ./build/sender/Dockerfile .
 
 run-img: build-img
 	docker run $(DOCKER_IMG)

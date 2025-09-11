@@ -31,7 +31,7 @@ services:
     #volumes:
     #  - rabbitmq_data:/var/lib/rabbitmq
   calendar-otus:
-    image: calendar:v001
+    image: calendar:develop
     container_name: calendar
     environment:
       DB_HOST: ${DB_HOST:-172.30.1.126}
