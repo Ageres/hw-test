@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
+	cc "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/calendar"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	internalgrpc "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc"
 	pb "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
@@ -28,12 +28,16 @@ func main() {
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
-	cliArgs := config.Execute()
+	cliArgs := cc.CalendarExecute()
 	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
-	configRef := config.NewConfig(cliArgs.PathToConfigFile)
+	configRef := cc.NewCalendarConfig(cliArgs.PathToConfigFile)
 
 	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
+
+	logger.GetLogger(ctx).Debug("config file", map[string]any{
+		"config": configRef,
+	})
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 

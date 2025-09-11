@@ -1,4 +1,4 @@
-package config
+package schedulerconfig
 
 import (
 	"log"
@@ -9,17 +9,21 @@ import (
 	yml "gopkg.in/yaml.v3"
 )
 
-func NewConfig(pathToConfigFile string) *model.Config {
+const StorageType = "SQL"
+
+func NewSchedullerConfig(pathToConfigFile string) *model.SchedulerConfig {
 	data, err := envsubst.ReadFile(pathToConfigFile)
 	if err != nil {
-		log.Fatalf("read config file: %v", err)
+		log.Fatalf("read scheduller config file: %v", err)
 	}
 
-	config := new(model.Config)
+	config := new(model.SchedulerConfig)
 	err = yml.Unmarshal(data, config)
 	if err != nil {
 		log.Fatalf("unmarshal config file: %v", err)
 	}
+
+	config.Storage.Type = StorageType
 
 	validate := vld.New()
 	if err := validate.Struct(config); err != nil {

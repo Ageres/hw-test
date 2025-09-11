@@ -3,12 +3,28 @@ package model
 import "fmt"
 
 // -----------------------------
-// common config model.
-type Config struct {
+// calendar config model.
+type CalendarConfig struct {
 	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
 	Storage *StorageConf `yaml:"storage" validate:"required"`
 	HTTP    *HTTPConf    `yaml:"http" validate:"required"`
 	GRPC    *GRPCConf    `yaml:"grpc" validate:"required"`
+}
+
+// -----------------------------
+// scheduller config model.
+type SchedulerConfig struct {
+	Scheduler *SchedulerConf `yaml:"scheduler" validate:"required"`
+	RMQ       *RMQConf       `yaml:"rmq" validate:"required"`
+	Logger    *LoggerConf    `yaml:"logger" validate:"required"`
+	Storage   *StorageConf   `yaml:"storage" validate:"required"`
+}
+
+// -----------------------------
+// sender config model.
+type SenderConfig struct {
+	RMQ    *RMQConf    `yaml:"rmq" validate:"required"`
+	Logger *LoggerConf `yaml:"logger" validate:"required"`
 }
 
 // -----------------------------
@@ -100,4 +116,32 @@ type GRPCServerConf struct {
 
 func (gc *GRPCServerConf) GetAddress() string {
 	return fmt.Sprintf("%s:%d", gc.Host, gc.Port)
+}
+
+// -----------------------------
+// schedulerconf config model.
+
+type SchedulerConf struct {
+	Interval       *IntervalConf `yaml:"interval" validate:"required"`
+	ProcessTimeout int           `yaml:"processTimeout" validate:"required"`
+}
+
+type IntervalConf struct {
+	Cleanup    int `yaml:"cleanup" validate:"gte=0"`
+	Notificate int `yaml:"notificate" validate:"gte=0"`
+}
+
+// -----------------------------
+// rmq config model.
+
+type RMQConf struct {
+	Host         string `yaml:"host" validate:"required"`
+	Port         int    `yaml:"port" validate:"required,gt=0"`
+	User         string `yaml:"user" validate:"required"`
+	Password     string `yaml:"password" validate:"required"`
+	ExchangeName string `yaml:"exchangeName" validate:"required"`
+	ExchangeType string `yaml:"exchangeType" validate:"oneof=direct fanout topic x-custom"`
+	QueueName    string `yaml:"queueName" validate:"required"`
+	RoutingKey   string `yaml:"routingKey" validate:"required"`
+	ConsumerTag  string `yaml:"consumerTag"`
 }

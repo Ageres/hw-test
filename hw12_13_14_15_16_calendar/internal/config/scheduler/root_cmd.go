@@ -1,4 +1,4 @@
-package config
+package schedulerconfig
 
 import (
 	"fmt"
@@ -16,9 +16,9 @@ type CliArg struct {
 var cliArg CliArg
 
 var rootCmd = &cobra.Command{
-	Use:   "calendar",
-	Short: "Календарь",
-	Long:  "Приложение \"Календарь\" - сервис для хранения календарных событий и отправки уведомлений.",
+	Use:   "scheduler",
+	Short: "Планировщик",
+	Long:  "Планировщик приложения \"Календарь\" - сервис для отправки уведомлений и удаления устаревших событий.",
 	Run: func(_ *cobra.Command, _ []string) {
 		if cliArg.version {
 			printVersion()
@@ -26,7 +26,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute() CliArg {
+func SchedulerExecute() CliArg {
 	err := rootCmd.Execute()
 	if err != nil {
 		err = fmt.Errorf("get path to config file: %w", err)

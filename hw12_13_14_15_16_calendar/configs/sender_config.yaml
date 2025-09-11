@@ -1,0 +1,16 @@
+rmq:
+  host: localhost
+  port: 5672
+  user: ${RMQ_USER:=guest}
+  password: ${RMQ_PASSWORD:=guest}
+  exchangeName: calendar-exchange
+  exchangeType: direct
+  queueName: calendar-notifications
+  routingKey: calendar-key
+  consumerTag: calendar-consumer
+
+logger:
+  # DEBUG, INFO, WARN, ERROR
+  level: INFO 
+  # JSON, TEXT, COLOUR_TEXT 
+  format: JSON

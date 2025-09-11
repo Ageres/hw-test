@@ -222,3 +222,90 @@ func overlaps(e, other *storage.Event) bool {
 	end2 := other.StartTime.Add(other.Duration)
 	return e.StartTime.Before(end2) && end1.After(other.StartTime)
 }
+
+func (m *MemoryStorage) ListReminderEvents(ctx context.Context, scanInterval int64) ([]storage.Event, error) {
+	logger := lg.GetLogger(ctx)
+	logger.Info("list reminder events", map[string]any{
+		"scanInterval": scanInterval,
+	})
+
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []storage.Event
+	for _, event := range m.events {
+		select {
+		case <-ctx.Done():
+			err := storage.NewSError(storage.ErrContextDone, ctx.Err())
+			logger.WithError(err).Error("list reminder events")
+			return nil, err
+		default:
+		}
+
+		now := time.Now()
+		if event.Reminder == 0 || event.StartTime.Before(now) {
+			continue
+		}
+		reminderTime := event.StartTime.Add(-event.Reminder)
+		scanTime := now.Add(time.Duration(scanInterval) * time.Second)
+		if reminderTime.Before(scanTime) {
+			result = append(result, event)
+		}
+	}
+	logger.Info("list reminder events", map[string]any{"found": len(result)})
+	return result, nil
+}
+
+func (m *MemoryStorage) ResetEventReminder(ctx context.Context, eventIDs []string) error {
+	logger := lg.GetLogger(ctx)
+
+	eventIDsLen := len(eventIDs)
+	logger.Info("reset event reminder", map[string]any{"eventIDLen": eventIDsLen})
+
+	if eventIDsLen == 0 {
+		err := storage.ErrEventIDListIsEmpty
+		logger.WithError(err).Error("reset event reminder")
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, id := range eventIDs {
+		if err := storage.ValidateEventID(id); err != nil {
+			logger.WithError(err).Error("reset event reminder")
+			return err
+		}
+		event, exists := m.events[id]
+		if !exists {
+			return storage.ErrEventNotFound
+		}
+		event.Reminder = 0
+		m.events[id] = event
+	}
+
+	return nil
+}
+
+func (m *MemoryStorage) DeleteOldEvents(ctx context.Context, before time.Time) (int64, error) {
+	logger := lg.GetLogger(ctx)
+
+	logger.Info("delete old events", map[string]any{"before": before})
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var rows int64
+	for _, event := range m.events {
+		if event.StartTime.Before(before) {
+			delete(m.events, event.ID)
+			rows++
+		}
+	}
+
+	if rows == 0 {
+		logger.WithError(storage.ErrEventNotFound).Debug("delete old events")
+	}
+
+	return rows, nil
+}
+
+func (m *MemoryStorage) Close() error {
+	return nil
+}

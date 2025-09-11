@@ -1,4 +1,4 @@
-package config
+package schedulerconfig
 
 import (
 	"encoding/json"
