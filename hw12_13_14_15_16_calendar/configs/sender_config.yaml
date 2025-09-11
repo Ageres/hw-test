@@ -1,5 +1,6 @@
 rmq:
-  host: ${RMQ_HOST:=localhost}
+  #host: ${RMQ_HOST:=localhost}
+  host: ${RMQ_HOST:=172.30.1.126}
   port: 5672
   user: ${RMQ_USER:=guest}
   password: ${RMQ_PASSWORD:=guest}
