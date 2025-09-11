@@ -5,7 +5,7 @@ scheduler:
   processTimeout: 5 # second
 
 rmq:
-  host: localhost
+  host: ${RMQ_HOST:=localhost}
   port: 5672
   user: ${RMQ_USER:=guest}
   password: ${RMQ_PASSWORD:=guest}
@@ -23,7 +23,7 @@ logger:
 storage:
   sql:
     db:
-      host: localhost
+      host: ${DB_HOST:=localhost}
       port: 5432
       name: calendar
       user: ${DB_USER:=user}

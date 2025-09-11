@@ -11,7 +11,7 @@ storage:
     loadTestData: true # генерация и загрузка тестовых событий в in-memory хранилище при старте
   sql:
     db:
-      host: localhost
+      host: ${DB_HOST:=localhost}
       port: 5432
       name: calendar
       user: ${DB_USER:=user}
