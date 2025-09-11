@@ -8,6 +8,7 @@ type Config struct {
 	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
 	Storage *StorageConf `yaml:"storage" validate:"required"`
 	HTTP    *HTTPConf    `yaml:"http" validate:"required"`
+	GRPC    *GRPCConf    `yaml:"grpc" validate:"required"`
 }
 
 // -----------------------------
@@ -30,9 +31,8 @@ type InMemoryConf struct {
 }
 
 type SQLConfig struct {
-	DB        DBConfig        `yaml:"db" validate:"required"`
-	Migration MigrationConfig `yaml:"migration" validate:"required"`
-	Pool      PoolConf        `yaml:"pool" validate:"required"`
+	DB   DBConfig `yaml:"db" validate:"required"`
+	Pool PoolConf `yaml:"pool" validate:"required"`
 }
 
 type DBConfig struct {
@@ -42,11 +42,6 @@ type DBConfig struct {
 	User     string `yaml:"user" validate:"required"`
 	Password string `yaml:"password" validate:"required"`
 	SSLMode  string `yaml:"sslmode" validate:"required"`
-}
-
-type MigrationConfig struct {
-	Path     string `yaml:"path" validate:"required"`
-	Applying bool   `yaml:"applying" validate:"required"`
 }
 
 type PoolConf struct {
@@ -70,10 +65,10 @@ func (d *DBConfig) DSN() string {
 // -----------------------------
 // http config model.
 type HTTPConf struct {
-	Server *ServerConf `yaml:"server" validate:"required"`
+	Server *HTTPServerConf `yaml:"server" validate:"required"`
 }
 
-type ServerConf struct {
+type HTTPServerConf struct {
 	Host              string `yaml:"host" validate:"required"`
 	Port              int    `yaml:"port" validate:"required,gt=0"`
 	ReadHeaderTimeout int    `yaml:"readHeaderTimeout" validate:"gte=0"`
@@ -82,10 +77,27 @@ type ServerConf struct {
 	IdleTimeout       int    `yaml:"idleTimeout" validate:"gte=0"`
 }
 
-func (sc *ServerConf) GetAddress() string {
+func (sc *HTTPServerConf) GetAddress() string {
 	return fmt.Sprintf("%s:%d", sc.Host, sc.Port)
 }
 
 type PathConf struct {
 	Hello string `yaml:"hello" validate:"required,startswith=/"`
+}
+
+// -----------------------------
+// grpc config model.
+
+type GRPCConf struct {
+	Server *GRPCServerConf `yaml:"server" validate:"required"`
+}
+
+type GRPCServerConf struct {
+	Network string `yaml:"network" validate:"required"`
+	Host    string `yaml:"host" validate:"required"`
+	Port    int    `yaml:"port" validate:"required,gt=0"`
+}
+
+func (gc *GRPCServerConf) GetAddress() string {
+	return fmt.Sprintf("%s:%d", gc.Host, gc.Port)
 }

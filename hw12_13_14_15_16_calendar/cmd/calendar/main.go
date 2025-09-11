@@ -2,17 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"os"
+	"net"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
-	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc"
+	pb "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb"
 	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
+	"google.golang.org/grpc"
 )
 
 // запуск:
@@ -28,32 +32,93 @@ func main() {
 	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
 
 	configRef := config.NewConfig(cliArgs.PathToConfigFile)
-	log.Println("config:", logger.MarshalAny(configRef))
 
 	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
-	calendar := app.New(ctx, storage)
+	httpService := internalhttp.NewHTTPService(storage)
 
-	server := internalhttp.NewServer(ctx, configRef.HTTP, calendar)
+	httpServer := internalhttp.NewHTTPServer(ctx, configRef.HTTP, httpService)
 
+	grpcServer := internalgrpc.NewGrpsServer(ctx, storage)
+	grpcSrv := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			internalgrpc.LoggingInterceptor(logger.GetLogger(ctx)),
+			internalgrpc.RecoveryInterceptor(logger.GetLogger(ctx)),
+		),
+	)
+	pb.RegisterCalendarServer(grpcSrv, grpcServer)
+
+	httpErrChan := make(chan error, 1)
+	grpcErrChan := make(chan error, 1)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
 	go func() {
-		<-ctx.Done()
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting HTTP server...")
+		if err := httpServer.Start(ctx); err != nil {
+			httpErrChan <- err
+		}
+	}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting gRPC server...")
 
-		if err := server.Stop(ctx); err != nil {
-			logger.GetLogger(ctx).WithError(err).Error("failed to stop http server")
+		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", configRef.GRPC.Server.Port))
+		if err != nil {
+			grpcErrChan <- fmt.Errorf("failed to listen: %w", err)
+			return
+		}
+
+		logger.GetLogger(ctx).Info("gRPC server listening", map[string]any{"port": configRef.GRPC.Server.Port})
+		if err := grpcSrv.Serve(lis); err != nil {
+			grpcErrChan <- fmt.Errorf("failed to serve: %w", err)
 		}
 	}()
 
 	logger.GetLogger(ctx).Info("calendar is running...")
 
-	if err := server.Start(ctx); err != nil {
-		logger.GetLogger(ctx).WithError(err).Error("failed to start http server")
+	select {
+	case err := <-httpErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("HTTP server failed to start")
 		cancel()
-		os.Exit(1) //nolint:gocritic
+	case err := <-grpcErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("gRPC server failed to start")
+		cancel()
+	case <-ctx.Done():
+		logger.GetLogger(ctx).Info("Shutdown signal received")
 	}
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	var shutdownWg sync.WaitGroup
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		if err := httpServer.Stop(shutdownCtx); err != nil {
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop HTTP server")
+		} else {
+			logger.GetLogger(ctx).Info("HTTP server stopped gracefully")
+		}
+	}()
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		grpcSrv.GracefulStop()
+		logger.GetLogger(ctx).Info("gRPC server stopped gracefully")
+	}()
+
+	shutdownWg.Wait()
+
+	wg.Wait()
+
+	logger.GetLogger(ctx).Info("calendar stopped")
 }

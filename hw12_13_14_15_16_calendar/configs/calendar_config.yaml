@@ -17,9 +17,6 @@ storage:
       user: ${DB_USER:=user}
       password: ${DB_PASSWORD:=password}
       sslmode: disable
-    migration:
-      path: ./migrations
-      applying: true
     pool:
       conn:
         maxOpen: 10
@@ -35,3 +32,9 @@ http:
     readTimeout: 10
     writeTimeout: 30
     idleTimeout: 90
+
+grpc:
+  server:
+    network: tcp
+    host: 127.0.0.1
+    port: 50051

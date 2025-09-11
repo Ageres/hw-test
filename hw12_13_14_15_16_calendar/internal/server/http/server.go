@@ -7,27 +7,20 @@ import (
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	bserv "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http/baseserver"
 )
 
-type Server interface {
-	Start(ctx context.Context) error
-	Stop(ctx context.Context) error
-}
-
-type AppServer struct {
+type httpServer struct {
 	server  *http.Server
 	logger  lg.Logger
-	app     Application
 	address string
+	service HTTPService
 }
 
-type Application interface { // TODO
-}
-
-func NewServer(ctx context.Context, httpConf *model.HTTPConf, app Application) Server {
+func NewHTTPServer(ctx context.Context, httpConf *model.HTTPConf, service HTTPService) bserv.HTTPServer {
 	address := httpConf.Server.GetAddress()
 
-	s := &AppServer{
+	s := &httpServer{
 		server: &http.Server{
 			Addr:              address,
 			ReadHeaderTimeout: time.Duration(httpConf.Server.ReadHeaderTimeout) * time.Second,
@@ -36,8 +29,8 @@ func NewServer(ctx context.Context, httpConf *model.HTTPConf, app Application) S
 			IdleTimeout:       time.Duration(httpConf.Server.IdleTimeout) * time.Second,
 		},
 		logger:  lg.GetLogger(ctx),
-		app:     app,
 		address: address,
+		service: service,
 	}
 
 	s.server.Handler = s.createRouter()
@@ -46,21 +39,22 @@ func NewServer(ctx context.Context, httpConf *model.HTTPConf, app Application) S
 	return s
 }
 
-func (s *AppServer) createRouter() http.Handler {
+func (s *httpServer) createRouter() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", s.helloHandler)
+	mux.HandleFunc("/v1/event", s.eventHandler)
 	mux.HandleFunc("/", s.methodNotAllowedHandler)
 	return s.loggingMiddleware(mux)
 }
 
-func (s *AppServer) Start(_ context.Context) error {
+func (s *httpServer) Start(_ context.Context) error {
 	s.logger.Info("Starting HTTP server", map[string]any{
 		"address": s.address,
 	})
 	return s.server.ListenAndServe()
 }
 
-func (s *AppServer) Stop(ctx context.Context) error {
+func (s *httpServer) Stop(ctx context.Context) error {
 	s.logger.Info("Shutting down HTTP server")
 	return s.server.Shutdown(ctx)
 }

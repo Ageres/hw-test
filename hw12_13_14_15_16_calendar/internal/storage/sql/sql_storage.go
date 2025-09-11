@@ -153,7 +153,9 @@ func (s *SQLStorage) Update(ctx context.Context, eventRef *storage.Event) error 
 		logger.WithError(err).Error("update event", map[string]any{"databaseResponse": dbResp})
 		return err
 	default:
-		return storage.NewSErrorWithTemplate(ErrDatabaseMsg, dbResp.errorMessage)
+		err := storage.NewSErrorWithTemplate(ErrDatabaseMsg, dbResp.errorMessage)
+		logger.WithError(err).Error("add event")
+		return err
 	}
 }
 
@@ -174,7 +176,9 @@ func (s *SQLStorage) Delete(ctx context.Context, id string) error {
 		logger.WithError(err).Error("delete event")
 		return err
 	} else if rows == 0 {
-		return storage.ErrEventNotFound
+		err := storage.ErrEventNotFound
+		logger.WithError(err).Error("delete event")
+		return err
 	}
 	return nil
 }
