@@ -85,7 +85,7 @@ type HTTPConf struct {
 }
 
 type HTTPServerConf struct {
-	Host              string `yaml:"host" validate:"required"`
+	Host              string `yaml:"host"`
 	Port              int    `yaml:"port" validate:"required,gt=0"`
 	ReadHeaderTimeout int    `yaml:"readHeaderTimeout" validate:"gte=0"`
 	ReadTimeout       int    `yaml:"readTimeout" validate:"gte=0"`

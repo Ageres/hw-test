@@ -26,7 +26,7 @@ storage:
 
 http:
   server:
-    host: localhost
+    host: 
     port: 8080
     readHeaderTimeout: 5
     readTimeout: 10
