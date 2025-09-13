@@ -70,4 +70,4 @@ up:
 down:
 	docker-compose -f '.\deployments\docker-compose.yaml' down
 
-.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate
+.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate up down
