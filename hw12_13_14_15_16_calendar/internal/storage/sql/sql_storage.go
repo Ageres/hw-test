@@ -9,6 +9,8 @@ import (
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/pressly/goose/v3"
+
 	// регистрация драйвера PostgreSQL.
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -59,8 +61,21 @@ func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) stora
 		os.Exit(1)
 	}
 
-	return &SQLStorage{
+	storage := &SQLStorage{
 		db: db,
+	}
+	setUpMigration(ctx, storage, true)
+	return storage
+}
+
+func setUpMigration(ctx context.Context, s *SQLStorage, isSetUpMigration bool) {
+	if !isSetUpMigration {
+		return
+	}
+
+	if err := goose.Up(s.db.DB, "./migrations"); err != nil {
+		lg.GetLogger(ctx).WithError(err).Error("failed to set up db migrations")
+		os.Exit(1)
 	}
 }
 

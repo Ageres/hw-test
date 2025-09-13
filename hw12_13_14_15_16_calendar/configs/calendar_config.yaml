@@ -23,6 +23,9 @@ storage:
         maxIdle: 2
         maxLifeTime: 3600
         maxIdleTime: 3600
+    migration:
+      enable: true
+      path: ./migrations
 
 http:
   server:
