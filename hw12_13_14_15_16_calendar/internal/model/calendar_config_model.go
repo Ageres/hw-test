@@ -47,8 +47,9 @@ type InMemoryConf struct {
 }
 
 type SQLConfig struct {
-	DB   DBConfig `yaml:"db" validate:"required"`
-	Pool PoolConf `yaml:"pool" validate:"required"`
+	DB        DBConfig      `yaml:"db" validate:"required"`
+	Pool      PoolConf      `yaml:"pool" validate:"required"`
+	Migration MigrationConf `yaml:"migration"`
 }
 
 type DBConfig struct {
@@ -76,6 +77,11 @@ func (d *DBConfig) DSN() string {
 		"host=%s port=%d dbname=%s user=%s password=%s sslmode=%s",
 		d.Host, d.Port, d.Name, d.User, d.Password, d.SSLMode,
 	)
+}
+
+type MigrationConf struct {
+	Enable bool   `yaml:"enable"`
+	Path   string `yaml:"path"`
 }
 
 // -----------------------------

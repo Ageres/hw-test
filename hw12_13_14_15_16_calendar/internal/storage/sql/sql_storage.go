@@ -64,16 +64,16 @@ func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) stora
 	storage := &SQLStorage{
 		db: db,
 	}
-	setUpMigration(ctx, storage, true)
+	setUpMigration(ctx, storage, storageConfRef)
 	return storage
 }
 
-func setUpMigration(ctx context.Context, s *SQLStorage, isSetUpMigration bool) {
-	if !isSetUpMigration {
+func setUpMigration(ctx context.Context, s *SQLStorage, storageConfRef *model.StorageConf) {
+	if !storageConfRef.SQL.Migration.Enable {
 		return
 	}
 
-	if err := goose.Up(s.db.DB, "./migrations"); err != nil {
+	if err := goose.Up(s.db.DB, storageConfRef.SQL.Migration.Path); err != nil {
 		lg.GetLogger(ctx).WithError(err).Error("failed to set up db migrations")
 		os.Exit(1)
 	}
