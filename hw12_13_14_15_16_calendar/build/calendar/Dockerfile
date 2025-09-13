@@ -34,6 +34,7 @@ COPY --from=build ${BIN_FILE} ${BIN_FILE}
 
 ENV CONFIG_FILE /etc/calendar/calendar_config.yaml
 COPY ./configs/calendar_config.yaml ${CONFIG_FILE}
+COPY ./migrations ./migrations
 
 EXPOSE 8080 50051
 
