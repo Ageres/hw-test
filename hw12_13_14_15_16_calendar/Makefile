@@ -64,4 +64,10 @@ generate: install-protoc-deps
 		$(PROTO_DIR)/$(PROTO_FILE)
 	@echo "gRPC code generated in $(GRPC_OUT_DIR)"
 
+up:
+	docker compose -f '.\deployments\docker-compose.yaml' up -d --build 
+
+down:
+	docker-compose -f '.\deployments\docker-compose.yaml' down
+
 .PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate
