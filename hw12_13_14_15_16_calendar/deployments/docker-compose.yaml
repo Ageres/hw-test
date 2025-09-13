@@ -39,7 +39,7 @@ services:
       dockerfile: ./build/calendar/Dockerfile 
     container_name: calendar
     environment:
-      DB_HOST: ${DB_HOST:-172.30.1.126}
+      DB_HOST: ${DB_HOST:-pg-otus}
       DB_USER: ${DB_USER:-user}
       DB_PASSWORD: ${DB_PASSWORD:-password}
     ports:
@@ -56,10 +56,10 @@ services:
       dockerfile: ./build/scheduler/Dockerfile 
     container_name: scheduler
     environment:
-      RMQ_HOST: ${RMQ_HOST:-172.30.1.126}
+      RMQ_HOST: ${RMQ_HOST:-rmq-otus}
       RMQ_USER: ${RMQ_USER:-guest}
       RMQ_PASSWORD: ${RMQ_PASSWORD:-guest}
-      DB_HOST: ${DB_HOST:-172.30.1.126}
+      DB_HOST: ${DB_HOST:-pg-otus}
       DB_USER: ${DB_USER:-user}
       DB_PASSWORD: ${DB_PASSWORD:-password}
     restart: unless-stopped  
@@ -72,10 +72,13 @@ services:
       dockerfile: ./build/sender/Dockerfile 
     container_name: sender
     environment:
-      RMQ_HOST: ${RMQ_HOST:-172.30.1.126}
+      RMQ_HOST: ${RMQ_HOST:-rmq-otus}
       RMQ_USER: ${RMQ_USER:-guest}
       RMQ_PASSWORD: ${RMQ_PASSWORD:-guest}
     restart: unless-stopped  
 #volumes:
 #  postgres_data:
 #  rabbitmq_data:
+networks:
+  default:
+    driver: bridge
