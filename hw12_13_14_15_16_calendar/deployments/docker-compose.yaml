@@ -19,14 +19,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-  flyway:
-    image: flyway/flyway:latest
-    volumes:
-      - .././migrations:/flyway/sql
-    command: -url="jdbc:postgresql://pg-otus:5432/calendar" -user="user" -password="password" migrate
-    depends_on:
-      pg-otus:
-        condition: service_healthy    
   rmq-otus:
     image: rabbitmq:3-management
     container_name: rabbit
