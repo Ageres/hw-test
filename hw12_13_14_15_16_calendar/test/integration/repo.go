@@ -1,7 +1,7 @@
 package integration
 
 import (
-	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -23,8 +23,8 @@ type dbEvent struct {
 
 type Repo interface {
 	//Save(ctx context.Context, testEventRef *TestEvent) (string, error)
-	Get(ctx context.Context, eventId string) (*TestEvent, error)
-	Delete(ctx context.Context, eventId string) error
+	Get(eventId string) (*TestEvent, error)
+	Delete(eventId string) error
 }
 
 type repo struct {
@@ -83,13 +83,23 @@ func dns() string {
 	)
 }
 
-// Delete implements Repo.
-func (r *repo) Delete(ctx context.Context, eventId string) error {
-	panic("unimplemented")
+func (r *repo) Delete(eventId string) error {
+	res, err := r.db.Exec("DELETE FROM events WHERE id = $1", eventId)
+	if err != nil {
+		return fmt.Errorf("delete event: %s", err.Error())
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("can't delete event: %w", err)
+	} else if rows == 0 {
+		return errors.New("not found event for deleting")
+	}
+	return nil
 }
 
-func (r *repo) Get(ctx context.Context, eventId string) (*TestEvent, error) {
-	rows, err := r.db.QueryxContext(ctx, `
+func (r *repo) Get(eventId string) (*TestEvent, error) {
+	rows, err := r.db.Queryx(`
         SELECT id, title, start_time, duration, description, user_id, reminder 
         FROM events 
         WHERE id = $1 `,

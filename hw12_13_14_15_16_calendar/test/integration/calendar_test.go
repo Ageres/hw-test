@@ -117,7 +117,10 @@ func (s *CalendarIntegrationSuite) TestAddEventByRestApi() {
 	s.Require().NotEqual("", eventId)
 	restApiEvent.ID = eventId
 
-	dbEvent, err := s.repo.Get(context.Background(), eventId)
+	dbEvent, err := s.repo.Get(eventId)
 	s.Require().NoError(err)
 	s.Require().Equal(restApiEvent, dbEvent)
+
+	err = s.repo.Delete(eventId)
+	s.Require().NoError(err)
 }
