@@ -5,7 +5,6 @@ go 1.23.0
 toolchain go1.23.12
 
 require (
-	github.com/Masterminds/squirrel v1.5.4
 	github.com/a8m/envsubst v1.4.2
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/google/uuid v1.6.0
@@ -38,8 +37,6 @@ require (
 	github.com/jackc/puddle v1.3.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
-	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
