@@ -76,7 +76,7 @@ type CalendarIntegrationSuite struct {
 	suite.Suite
 	restApiClient TestCalendarApiClient
 	pool          *pgxpool.Pool
-	//r    Repo
+	repo          Repo
 }
 
 func (s *CalendarIntegrationSuite) SetupSuite() {
@@ -85,6 +85,8 @@ func (s *CalendarIntegrationSuite) SetupSuite() {
 		log.Fatal(err)
 	}
 	s.pool = pool
+
+	s.repo = NewRepo()
 
 	s.restApiClient = newRestapiClient()
 }
@@ -98,10 +100,10 @@ func TestRepoSuite(t *testing.T) {
 }
 
 func (s *CalendarIntegrationSuite) TestAddEventByRestApi() {
-	timeLocation, err := time.LoadLocation("UTC")
+	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
-	e := &TestEvent{
+	restApiEvent := &TestEvent{
 		Title:       "title TestAddEventByRestApi",
 		StartTime:   startTime,
 		Duration:    24 * time.Hour,
@@ -109,7 +111,13 @@ func (s *CalendarIntegrationSuite) TestAddEventByRestApi() {
 		UserID:      "user-id-TestAddEventByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventId, err := s.restApiClient.AddTestEvent(e)
+
+	eventId, err := s.restApiClient.AddTestEvent(restApiEvent)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventId)
+	restApiEvent.ID = eventId
+
+	dbEvent, err := s.repo.Get(context.Background(), eventId)
+	s.Require().NoError(err)
+	s.Require().Equal(restApiEvent, dbEvent)
 }
