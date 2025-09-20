@@ -57,7 +57,9 @@ func (c *restApiClient) AddTestEvent(eventRef *TestEvent) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Printf("----------------- body: '%s'", string(body))
+
+	log.Printf("body: '%s'", string(body))
+
 	respEventRef := new(TestEvent)
 	err = json.Unmarshal(body, respEventRef)
 	if err != nil {
