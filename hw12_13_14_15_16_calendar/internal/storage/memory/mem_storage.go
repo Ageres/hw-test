@@ -2,7 +2,6 @@ package memorystorage
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/rand"
 	"slices"
@@ -12,7 +11,6 @@ import (
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
-	"github.com/google/uuid"
 )
 
 type MemoryStorage struct {
@@ -314,19 +312,12 @@ func (m *MemoryStorage) AddProcEvent(ctx context.Context, procEventRef *storage.
 	logger := lg.GetLogger(ctx)
 	logger.Info("add proc event", map[string]any{"procEvent": lg.MarshalAny(procEventRef)})
 
-	if procEventRef == nil {
-		err := errors.New("procEvent is nil")
-		logger.WithError(err).Error("add proc event", map[string]any{"procEvent": procEventRef})
+	if err := procEventRef.ValidateProcEvent(); err != nil {
+		logger.WithError(err).Error("add proc event")
 		return err
 	}
 
 	procEventID := procEventRef.ID
-
-	err := uuid.Validate(procEventID)
-	if err != nil {
-		logger.WithError(err).Error("add proc event", map[string]any{"procEvent": procEventRef})
-		return err
-	}
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
