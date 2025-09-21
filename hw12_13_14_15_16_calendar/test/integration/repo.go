@@ -22,7 +22,7 @@ type dbEvent struct {
 }
 
 type Repo interface {
-	//Save(ctx context.Context, testEventRef *TestEvent) (string, error)
+	//Add(ctx context.Context, testEventRef *TestEvent) (string, error)
 	Get(eventId string) (*TestEvent, error)
 	Delete(eventId string) error
 }
@@ -131,15 +131,15 @@ func (r *repo) Get(eventId string) (*TestEvent, error) {
 }
 
 /*
-func (r *repo) Save(ctx context.Context, event *TestEvent) (string, error) {
-	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{})
+func (r *repo) Add(ctx context.Context, event *TestEvent) (string, error) {
+	tx, err := r.db.BeginTxx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return "", fmt.Errorf("can't create tx: %w", err)
 	}
 
 	defer func() {
 		if err != nil {
-			rollbackErr := tx.Rollback(ctx)
+			rollbackErr := tx.Rollback()
 			if rollbackErr != nil {
 				err = errors.Join(err, rollbackErr)
 			}
@@ -164,71 +164,21 @@ func (r *repo) Save(ctx context.Context, event *TestEvent) (string, error) {
 
 	rows, err := tx.Query(ctx, query, args...)
 	if err != nil {
-		return 0, fmt.Errorf("tx err: %w", err)
+		return "", fmt.Errorf("tx err: %w", err)
 	}
 	defer rows.Close()
 
-	var itemID uint64
+	var itemID string
 	for rows.Next() {
 		if scanErr := rows.Scan(&itemID); scanErr != nil {
-			return 0, fmt.Errorf("can't scan itemID: %w", scanErr)
+			return "", fmt.Errorf("can't scan itemID: %w", scanErr)
 		}
 	}
 
-	if err := tx.Commit(ctx); err != nil {
-		return 0, fmt.Errorf("can't commit tx: %w", err)
+	if err := tx.Commit(); err != nil {
+		return "", fmt.Errorf("can't commit tx: %w", err)
 	}
 
 	return itemID, nil
-}
-*/
-
-/*
-func (r *repo) GetOld(ctx context.Context, eventId string) (*TestEvent, error) {
-	// build
-	query, args, err := sq.
-		Select(
-			//"id",
-			"title",
-			"start_time",
-			"duration",
-			"description",
-			"user_id",
-			"reminder",
-		).
-		From(eventsTable).
-		Where(sq.Eq{"id": eventId}).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-	if err != nil {
-		return nil, fmt.Errorf("can't build query: %w", err)
-	}
-
-	// get
-	testEventRef := new(TestEvent)
-	err = r.db.QueryRow(ctx, query, args...).Scan(
-		//testEventRef.ID,
-		testEventRef.Title,
-		testEventRef.StartTime,
-		testEventRef.Duration,
-		testEventRef.Description,
-		testEventRef.UserID,
-		testEventRef.Reminder,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("can't select event: %w", err)
-	}
-
-	return testEventRef, nil
-}
-*/
-
-/*
-func (r *repo) Delete(ctx context.Context, eventId string) error {
-	_, err := r.db.Exec(ctx, "DELETE FROM events WHERE id = $1", eventId)
-	if err != nil {
-		return fmt.Errorf("can't delete event: %w", err)
-	}
-	return nil
 }
 */
