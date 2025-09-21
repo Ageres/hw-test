@@ -48,11 +48,6 @@ func NewRepo() Repo {
 		log.Fatal(err)
 	}
 
-	//db.SetMaxOpenConns(sqlConfRef.Pool.Conn.MaxOpen)
-	//db.SetMaxIdleConns(sqlConfRef.Pool.Conn.MaxIdle)
-	//db.SetConnMaxLifetime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
-	//db.SetConnMaxIdleTime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
-
 	err = db.Ping()
 	if err != nil {
 		log.Fatal(err)
