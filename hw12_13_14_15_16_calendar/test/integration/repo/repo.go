@@ -85,7 +85,7 @@ func (r *repo) Get(eventId string) (*model.TestEvent, error) {
 		result = append(result, model.TestEvent{
 			ID:          e.ID,
 			Title:       e.Title,
-			StartTime:   e.StartTime,
+			StartTime:   e.StartTime.Local(),
 			Duration:    time.Duration(e.Duration) * time.Second,
 			Description: e.Description,
 			UserID:      e.UserID,
@@ -117,7 +117,7 @@ func (r *repo) ListByUserId(userId string) ([]model.TestEvent, error) {
 		result = append(result, model.TestEvent{
 			ID:          e.ID,
 			Title:       e.Title,
-			StartTime:   e.StartTime,
+			StartTime:   e.StartTime.Local(),
 			Duration:    time.Duration(e.Duration) * time.Second,
 			Description: e.Description,
 			UserID:      e.UserID,

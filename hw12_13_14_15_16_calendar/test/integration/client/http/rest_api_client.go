@@ -120,6 +120,9 @@ func (c *restApiClient) ListTestEvent(period c.ListPeriod, startDay time.Time) (
 	if err != nil {
 		return nil, bodyStr, err
 	}
+	for i := range result.Events {
+		result.Events[i].StartTime = result.Events[i].StartTime.Local()
+	}
 	return result.Events, bodyStr, nil
 }
 

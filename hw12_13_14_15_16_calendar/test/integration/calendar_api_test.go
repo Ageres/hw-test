@@ -215,12 +215,29 @@ func (s *CalendarIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventThree, dbEventThree)
 
+	eventNotInPeriod := &model.TestEvent{
+		Title:       "title 03 NotInPeriod TestListDayEventsByRestApi",
+		StartTime:   startTime.Add(48 * time.Hour),
+		Duration:    1 * time.Hour,
+		Description: "description 03 NotInPeriod TestListDayEventsByRestApi",
+		UserID:      "user-id-03-TestListDayEventsByRestApi",
+		Reminder:    24 * time.Hour,
+	}
+	eventNotInPeriodId, _, err := s.restApiClient.AddTestEvent(eventNotInPeriod)
+	s.Require().NoError(err)
+	s.Require().NotEqual("", eventNotInPeriodId)
+	eventNotInPeriod.ID = eventNotInPeriodId
+	dbEventNotInPeriod, err := s.repo.Get(eventNotInPeriodId)
+	s.Require().NoError(err)
+	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
+
 	events, _, err := s.restApiClient.ListTestEvent(c.DAY, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
-	for _, e := range events {
-		s.Require().True(slices.Contains(events, e))
-	}
+	s.Require().True(slices.Contains(events, *eventOne))
+	s.Require().True(slices.Contains(events, *eventTwo))
+	s.Require().True(slices.Contains(events, *eventThree))
+	s.Require().False(slices.Contains(events, *eventNotInPeriod))
 
 	err = s.repo.DeleteByUserId(eventOne.UserID)
 	s.Require().NoError(err)
