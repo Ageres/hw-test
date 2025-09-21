@@ -435,5 +435,53 @@ func (s *SQLStorage) ListReminderEvents(ctx context.Context, scanInterval int64)
 }
 
 func (s *SQLStorage) AddProcEvent(ctx context.Context, procEventRef *storage.ProcEvent) error {
-	panic("unimplemented")
+	logger := lg.GetLogger(ctx)
+	logger.Info("add proc event", map[string]any{"procEvent": lg.MarshalAny(procEventRef)})
+
+	if err := procEventRef.ValidateProcEvent(); err != nil {
+		logger.WithError(err).Error("add proc event")
+		return err
+	}
+
+	procEventID := procEventRef.ID
+
+	tx, err := s.db.Beginx()
+	if err != nil {
+		err = storage.NewSError("add proc event", err)
+		logger.WithError(err).Error("list reminder events")
+		return err
+	}
+
+	defer func() error {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			err := storage.NewSErrorWithTemplate("add proc event: transaction rolled back due to panic: %v", r)
+			logger.WithError(err).Error("add proc event")
+			return err
+		} else if err != nil {
+			tx.Rollback()
+			err := storage.NewSErrorWithTemplate("add proc event: transaction rolled back due to panic: %v", r)
+			logger.WithError(err).Error("add proc event")
+			return err
+		}
+		return nil
+	}()
+
+	insertQuery := `INSERT INTO proc_events (id) VALUES (:procEventID)`
+
+	_, err = tx.NamedExec(insertQuery, procEventID)
+	if err != nil {
+		err = storage.NewSError("add proc event", err)
+		logger.WithError(err).Error("add proc event")
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		err = storage.NewSError("add proc event", err)
+		logger.WithError(err).Error("add proc event")
+		return err
+	}
+
+	return nil
 }
