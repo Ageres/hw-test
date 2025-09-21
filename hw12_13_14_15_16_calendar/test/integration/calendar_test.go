@@ -110,7 +110,6 @@ func (s *CalendarIntegrationSuite) TestBusyDateErrorByRestApi() {
 	s.Require().NoError(err)
 }
 
-/*
 func (s *CalendarIntegrationSuite) TestUserConflictErrorByRestApi() {
 	userIDOk := "user-id-ok-TestUserConflictErrorByRestApi"
 	userIDConflict := "user-id-conflict-TestUserConflictErrorByRestApi"
@@ -134,15 +133,15 @@ func (s *CalendarIntegrationSuite) TestUserConflictErrorByRestApi() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkId, err := s.restApiClient.AddTestEvent(restApiEventOk)
+	eventOkId, _, err := s.restApiClient.AddTestEvent(restApiEventOk)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOkId)
 	restApiEventOk.ID = eventOkId
 
 	restApiEventConflict.ID = eventOkId
-	eventConflictId, err := s.restApiClient.UpdateTestEvent(restApiEventConflict)
+	bodyConflict, err := s.restApiClient.UpdateTestEvent(restApiEventConflict)
 	s.Require().Error(err, "response status '409 Conflict'")
-	s.Require().Equal("", eventConflictId)
+	s.Require().Contains(bodyConflict, fmt.Sprintf("'%s' user is not the owner of the event, conflict with '%s'", userIDConflict, userIDOk))
 	restApiEventOk.ID = eventOkId
 
 	dbEventOks, err := s.repo.ListByUserId(userIDOk)
@@ -156,4 +155,3 @@ func (s *CalendarIntegrationSuite) TestUserConflictErrorByRestApi() {
 	err = s.repo.DeleteByUserId(userIDOk)
 	s.Require().NoError(err)
 }
-*/
