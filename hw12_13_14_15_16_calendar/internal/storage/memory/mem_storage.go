@@ -2,19 +2,23 @@ package memorystorage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
+	"slices"
 	"sync"
 	"time"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/google/uuid"
 )
 
 type MemoryStorage struct {
-	mu     sync.RWMutex
-	events map[string]storage.Event // key: Event.ID
+	mu        sync.RWMutex
+	events    map[string]storage.Event // key: Event.ID
+	procEvent []string
 }
 
 func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
@@ -304,6 +308,37 @@ func (m *MemoryStorage) DeleteOldEvents(ctx context.Context, before time.Time) (
 	}
 
 	return rows, nil
+}
+
+func (m *MemoryStorage) AddProcEvent(ctx context.Context, procEventRef *storage.ProcEvent) error {
+	logger := lg.GetLogger(ctx)
+	logger.Info("add proc event", map[string]any{"procEvent": lg.MarshalAny(procEventRef)})
+
+	if procEventRef == nil {
+		err := errors.New("procEvent is nil")
+		logger.WithError(err).Error("add proc event", map[string]any{"procEvent": procEventRef})
+		return err
+	}
+
+	procEventID := procEventRef.ID
+
+	err := uuid.Validate(procEventID)
+	if err != nil {
+		logger.WithError(err).Error("add proc event", map[string]any{"procEvent": procEventRef})
+		return err
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if slices.Contains(m.procEvent, procEventID) {
+		err := storage.NewSErrorWithTemplate("failed to add proc event, proc event with this id already exists: %s", procEventID)
+		logger.WithError(err).Error("add event")
+		return err
+	}
+
+	m.procEvent = append(m.procEvent, procEventID)
+	return nil
 }
 
 func (m *MemoryStorage) Close() error {

@@ -10,6 +10,7 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 	"github.com/pressly/goose/v3"
+
 	// регистрация драйвера PostgreSQL.
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -70,6 +71,11 @@ func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) stora
 func setUpMigration(ctx context.Context, s *SQLStorage, storageConfRef *model.StorageConf) {
 	if !storageConfRef.SQL.Migration.Enable {
 		return
+	}
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		lg.GetLogger(ctx).WithError(err).Error("cannot set dialect")
+		os.Exit(1)
 	}
 
 	if err := goose.Up(s.db.DB, storageConfRef.SQL.Migration.Path); err != nil {
@@ -426,4 +432,8 @@ func (s *SQLStorage) ListReminderEvents(ctx context.Context, scanInterval int64)
 	}
 	logger.Debug("list reminder events", map[string]any{"found": len(result)})
 	return result, nil
+}
+
+func (s *SQLStorage) AddProcEvent(ctx context.Context, procEventRef *storage.ProcEvent) error {
+	panic("unimplemented")
 }
