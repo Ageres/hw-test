@@ -217,7 +217,7 @@ func (s *CalendarIntegrationSuite) TestListDayEventsByRestApi() {
 
 	eventNotInPeriod := &model.TestEvent{
 		Title:       "title 03 NotInPeriod TestListDayEventsByRestApi",
-		StartTime:   startTime.Add(48 * time.Hour),
+		StartTime:   startTime.AddDate(0, 0, 2),
 		Duration:    1 * time.Hour,
 		Description: "description 03 NotInPeriod TestListDayEventsByRestApi",
 		UserID:      "user-id-03-TestListDayEventsByRestApi",
