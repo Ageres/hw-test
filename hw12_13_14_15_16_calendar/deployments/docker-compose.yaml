@@ -75,6 +75,9 @@ services:
       RMQ_HOST: ${RMQ_HOST:-rmq-otus}
       RMQ_USER: ${RMQ_USER:-guest}
       RMQ_PASSWORD: ${RMQ_PASSWORD:-guest}
+      DB_HOST: ${DB_HOST:-pg-otus}
+      DB_USER: ${DB_USER:-user}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
     restart: unless-stopped  
 #volumes:
 #  postgres_data:
