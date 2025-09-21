@@ -38,6 +38,9 @@ func (s *CalendarIntegrationSuite) TearDownSuite() {
 		"user-id-01-TestListWeekEventsByRestApi",
 		"user-id-02-TestListWeekEventsByRestApi",
 		"user-id-03-TestListWeekEventsByRestApi",
+		"user-id-01-TestListMonthEventsByRestApi",
+		"user-id-02-TestListMonthEventsByRestApi",
+		"user-id-03-TestListMonthEventsByRestApi",
 	}
 	for _, userID := range userIDs {
 		_ = s.repo.DeleteByUserId(userID)
@@ -320,6 +323,91 @@ func (s *CalendarIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
 	events, _, err := s.restApiClient.ListTestEvent(c.WEEK, startTime)
+	s.Require().NoError(err)
+	s.Require().Equal(3, len(events))
+	s.Require().True(slices.Contains(events, *eventOne))
+	s.Require().True(slices.Contains(events, *eventTwo))
+	s.Require().True(slices.Contains(events, *eventThree))
+	s.Require().False(slices.Contains(events, *eventNotInPeriod))
+
+	err = s.repo.DeleteByUserId(eventOne.UserID)
+	s.Require().NoError(err)
+	err = s.repo.DeleteByUserId(eventTwo.UserID)
+	s.Require().NoError(err)
+	err = s.repo.DeleteByUserId(eventThree.UserID)
+	s.Require().NoError(err)
+}
+
+func (s *CalendarIntegrationSuite) TestListMonthEventsByRestApi() {
+	timeLocation, err := time.LoadLocation("Local")
+	s.Require().NoError(err)
+	startTime := time.Date(2031, 1, 1, 10, 0, 0, 0, timeLocation)
+
+	eventOne := &model.TestEvent{
+		Title:       "title 01 TestListMonthEventsByRestApi",
+		StartTime:   startTime,
+		Duration:    1 * time.Hour,
+		Description: "description 01 TestListMonthEventsByRestApi",
+		UserID:      "user-id-01-TestListMonthEventsByRestApi",
+		Reminder:    24 * time.Hour,
+	}
+	eventOneId, _, err := s.restApiClient.AddTestEvent(eventOne)
+	s.Require().NoError(err)
+	s.Require().NotEqual("", eventOneId)
+	eventOne.ID = eventOneId
+	dbEventOne, err := s.repo.Get(eventOneId)
+	s.Require().NoError(err)
+	s.Require().Equal(eventOne, dbEventOne)
+
+	eventTwo := &model.TestEvent{
+		Title:       "title 02 TestListMonthEventsByRestApi",
+		StartTime:   startTime.AddDate(0, 0, 8),
+		Duration:    1 * time.Hour,
+		Description: "description 02 TestListMonthEventsByRestApi",
+		UserID:      "user-id-02-TestListMonthEventsByRestApi",
+		Reminder:    24 * time.Hour,
+	}
+	eventTwoId, _, err := s.restApiClient.AddTestEvent(eventTwo)
+	s.Require().NoError(err)
+	s.Require().NotEqual("", eventTwoId)
+	eventTwo.ID = eventTwoId
+	dbEventTwo, err := s.repo.Get(eventTwoId)
+	s.Require().NoError(err)
+	s.Require().Equal(eventTwo, dbEventTwo)
+
+	eventThree := &model.TestEvent{
+		Title:       "title 03 TestListMonthEventsByRestApi",
+		StartTime:   startTime.AddDate(0, 0, 16),
+		Duration:    1 * time.Hour,
+		Description: "description 03 TestListMonthEventsByRestApi",
+		UserID:      "user-id-03-TestListMonthEventsByRestApi",
+		Reminder:    24 * time.Hour,
+	}
+	eventThreeId, _, err := s.restApiClient.AddTestEvent(eventThree)
+	s.Require().NoError(err)
+	s.Require().NotEqual("", eventThreeId)
+	eventThree.ID = eventThreeId
+	dbEventThree, err := s.repo.Get(eventThreeId)
+	s.Require().NoError(err)
+	s.Require().Equal(eventThree, dbEventThree)
+
+	eventNotInPeriod := &model.TestEvent{
+		Title:       "title 03 NotInPeriod TestListMonthEventsByRestApi",
+		StartTime:   startTime.AddDate(0, 0, 32),
+		Duration:    1 * time.Hour,
+		Description: "description 03 NotInPeriod TestListMonthEventsByRestApi",
+		UserID:      "user-id-03-TestListMonthEventsByRestApi",
+		Reminder:    24 * time.Hour,
+	}
+	eventNotInPeriodId, _, err := s.restApiClient.AddTestEvent(eventNotInPeriod)
+	s.Require().NoError(err)
+	s.Require().NotEqual("", eventNotInPeriodId)
+	eventNotInPeriod.ID = eventNotInPeriodId
+	dbEventNotInPeriod, err := s.repo.Get(eventNotInPeriodId)
+	s.Require().NoError(err)
+	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
+
+	events, _, err := s.restApiClient.ListTestEvent(c.MONTH, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))
