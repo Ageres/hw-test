@@ -28,36 +28,31 @@ func NewRestapiClient() c.TestCalendarApiClient {
 	}
 }
 
-func (c *restApiClient) AddTestEvent(eventRef *model.TestEvent) (string, error) {
+func (c *restApiClient) AddTestEvent(eventRef *model.TestEvent) (string, string, error) {
 	jsonBody, err := json.Marshal(eventRef)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	req, err := http.NewRequest(http.MethodPost, c.url, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		return "", err
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("response status '%s'", resp.Status)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	log.Printf("body: '%s'", string(body))
+	resp, err := http.DefaultClient.Do(req)
+	body, bodyStr, err := parseHTTPResponce(resp, err)
+	if err != nil {
+		return "", bodyStr, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return "", bodyStr, fmt.Errorf("response status '%s'", resp.Status)
+	}
 
 	respEventRef := new(model.TestEvent)
 	err = json.Unmarshal(body, respEventRef)
 	if err != nil {
-		return "", err
+		return "", bodyStr, err
 	}
-	return respEventRef.ID, nil
+	return respEventRef.ID, bodyStr, nil
 }
 
 // UpdateTestEvent implements apiclient.TestCalendarApiClient.
@@ -71,16 +66,12 @@ func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, erro
 		return "", err
 	}
 	resp, err := http.DefaultClient.Do(req)
+	body, bodyStr, err := parseHTTPResponce(resp, err)
 	if err != nil {
-		return "", err
+		return bodyStr, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("response status '%s'", resp.Status)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+		return bodyStr, fmt.Errorf("response status '%s'", resp.Status)
 	}
 
 	log.Printf("body: '%s'", string(body))
@@ -88,7 +79,29 @@ func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, erro
 	respEventRef := new(model.TestEvent)
 	err = json.Unmarshal(body, respEventRef)
 	if err != nil {
-		return "", err
+		return bodyStr, err
 	}
-	return respEventRef.ID, nil
+	return bodyStr, nil
+}
+
+func parseHTTPResponce(resp *http.Response, err error) ([]byte, string, error) {
+	var body []byte
+	var bodyStr string
+	var parseRespErr error
+	if resp != nil {
+		defer resp.Body.Close()
+		body, parseRespErr = io.ReadAll(resp.Body)
+		if parseRespErr != nil {
+			if err != nil {
+				return nil, "", fmt.Errorf("parse response error '%w', response error '%w'", parseRespErr, err)
+			}
+			return nil, "", fmt.Errorf("parse response error '%w'", parseRespErr)
+		}
+		bodyStr = string(body)
+	}
+	log.Printf("body: '%s'", string(body))
+	if err != nil {
+		return body, bodyStr, err
+	}
+	return body, bodyStr, nil
 }
