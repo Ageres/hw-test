@@ -7,10 +7,11 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 
 	c "github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/model"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/utils"
 )
 
 type restApiClient struct {
@@ -19,16 +20,8 @@ type restApiClient struct {
 }
 
 func NewRestapiClient() c.TestCalendarApiClient {
-	restApiHost, isSet := os.LookupEnv("CALENDAR_REST_API_HOST")
-	if !isSet {
-		restApiHost = "localhost"
-		log.Println("not found calendar rest api host, set default 'localhost'")
-	}
-	restApiPort, isSet := os.LookupEnv("CALENDAR_REST_API_PORT")
-	if !isSet {
-		restApiPort = "8888"
-		log.Println("not found calendar rest api port, set default '8888'")
-	}
+	restApiHost := utils.GetEnvOrDefault(config.CALENDAR_REST_API_HOST_ENV, config.CALENDAR_REST_API_HOST_DEFAULT)
+	restApiPort := utils.GetEnvOrDefault(config.CALENDAR_REST_API_PORT_ENV, config.CALENDAR_REST_API_PORT_DEFAULT)
 	return &restApiClient{
 		url:        fmt.Sprintf("http://%s:%s/v1/event", restApiHost, restApiPort),
 		httpClient: http.DefaultClient,
