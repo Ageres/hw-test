@@ -28,6 +28,7 @@ type Repo interface {
 	ListByUserId(userId string) ([]model.TestEvent, error)
 	Delete(eventId string) error
 	DeleteByUserId(userId string) error
+	CheckProcEventId(procEventId string) (bool, error)
 }
 
 type repo struct {
@@ -158,4 +159,27 @@ func (r *repo) DeleteByUserId(userId string) error {
 		return errors.New("not found event for deleting")
 	}
 	return nil
+}
+
+func (r *repo) CheckProcEventId(procEventId string) (bool, error) {
+	rows, err := r.db.Queryx(`SELECT id FROM proc_events WHERE id = $1 `, procEventId)
+	if err != nil {
+		return false, fmt.Errorf("can't select event: %w", err)
+	}
+	defer rows.Close()
+	result := make([]string, 0, 1)
+	for rows.Next() {
+		var id string
+		if err := rows.StructScan(&id); err != nil {
+			return false, fmt.Errorf("failed to scan proc event: %w", err)
+		}
+		result = append(result, id)
+	}
+	if len(result) > 1 {
+		return false, fmt.Errorf("found more than one proc event for id '%s', len '%d'", procEventId, len(result))
+	}
+	if len(result) == 1 {
+		return true, nil
+	}
+	return false, nil
 }
