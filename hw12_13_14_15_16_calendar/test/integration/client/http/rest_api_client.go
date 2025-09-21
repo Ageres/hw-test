@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -140,6 +141,7 @@ func parseHTTPResponce(resp *http.Response, err error) ([]byte, string, error) {
 		}
 		bodyStr = string(body)
 	}
+	log.Printf("body: '%s'", string(body))
 	if err != nil {
 		return body, bodyStr, err
 	}

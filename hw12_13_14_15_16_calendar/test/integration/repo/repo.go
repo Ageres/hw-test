@@ -23,13 +23,18 @@ type dbEvent struct {
 	Reminder    int64
 }
 
+type dbProcEvent struct {
+	ID     string
+	UserID string `db:"user_id"`
+}
+
 type Repo interface {
 	Get(eventId string) (*model.TestEvent, error)
 	ListByUserId(userId string) ([]model.TestEvent, error)
 	Delete(eventId string) error
 	DeleteByUserId(userId string) error
 	CheckProcEventId(procEventId string) (bool, error)
-	DeleteProcEventIdByUserId(userId string) error
+	DeleteProcEventByUserId(userId string) error
 }
 
 type repo struct {
@@ -168,13 +173,13 @@ func (r *repo) CheckProcEventId(procEventId string) (bool, error) {
 		return false, fmt.Errorf("can't select event: %w", err)
 	}
 	defer rows.Close()
-	result := make([]string, 0, 1)
+	result := make([]dbProcEvent, 0, 1)
 	for rows.Next() {
-		var id string
-		if err := rows.StructScan(&id); err != nil {
+		var p dbProcEvent
+		if err := rows.StructScan(&p); err != nil {
 			return false, fmt.Errorf("failed to scan proc event: %w", err)
 		}
-		result = append(result, id)
+		result = append(result, p)
 	}
 	if len(result) > 1 {
 		return false, fmt.Errorf("found more than one proc event for id '%s', len '%d'", procEventId, len(result))
@@ -185,7 +190,7 @@ func (r *repo) CheckProcEventId(procEventId string) (bool, error) {
 	return false, nil
 }
 
-func (r *repo) DeleteProcEventIdByUserId(userId string) error {
+func (r *repo) DeleteProcEventByUserId(userId string) error {
 	res, err := r.db.Exec("DELETE FROM proc_events WHERE user_id = $1", userId)
 	if err != nil {
 		return fmt.Errorf("delete proc event: %s", err.Error())
