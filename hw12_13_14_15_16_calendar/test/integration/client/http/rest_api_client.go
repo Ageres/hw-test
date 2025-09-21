@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	c "github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/config"
@@ -82,6 +83,10 @@ func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, erro
 		return bodyStr, err
 	}
 	return bodyStr, nil
+}
+
+func (c *restApiClient) ListTestEvent(period c.ListPeriod, startDate time.Time) ([]model.TestEvent, string, error) {
+	panic("unimplemented")
 }
 
 func parseHTTPResponce(resp *http.Response, err error) ([]byte, string, error) {
