@@ -25,7 +25,9 @@ type dbEvent struct {
 
 type Repo interface {
 	Get(eventId string) (*model.TestEvent, error)
+	ListByUserId(userId string) ([]model.TestEvent, error)
 	Delete(eventId string) error
+	DeleteByUserId(userId string) error
 }
 
 type repo struct {
@@ -64,21 +66,6 @@ func dns() string {
 	)
 }
 
-func (r *repo) Delete(eventId string) error {
-	res, err := r.db.Exec("DELETE FROM events WHERE id = $1", eventId)
-	if err != nil {
-		return fmt.Errorf("delete event: %s", err.Error())
-	}
-
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("can't delete event: %w", err)
-	} else if rows == 0 {
-		return errors.New("not found event for deleting")
-	}
-	return nil
-}
-
 func (r *repo) Get(eventId string) (*model.TestEvent, error) {
 	rows, err := r.db.Queryx(`
         SELECT id, title, start_time, duration, description, user_id, reminder 
@@ -109,4 +96,66 @@ func (r *repo) Get(eventId string) (*model.TestEvent, error) {
 		return nil, fmt.Errorf("found more than one event for id '%s', len '%d'", eventId, len(result))
 	}
 	return &result[0], nil
+}
+
+func (r *repo) ListByUserId(userId string) ([]model.TestEvent, error) {
+	rows, err := r.db.Queryx(`
+        SELECT id, title, start_time, duration, description, user_id, reminder 
+        FROM events 
+        WHERE user_id = $1 `,
+		userId)
+	if err != nil {
+		return nil, fmt.Errorf("can't select event: %w", err)
+	}
+	defer rows.Close()
+	result := make([]model.TestEvent, 0, 1)
+	for rows.Next() {
+		var e dbEvent
+		if err := rows.StructScan(&e); err != nil {
+			return nil, fmt.Errorf("failed to scan event: %w", err)
+		}
+		result = append(result, model.TestEvent{
+			ID:          e.ID,
+			Title:       e.Title,
+			StartTime:   e.StartTime,
+			Duration:    time.Duration(e.Duration) * time.Second,
+			Description: e.Description,
+			UserID:      e.UserID,
+			Reminder:    time.Duration(e.Reminder) * time.Second,
+		})
+	}
+	if len(result) == 0 {
+		return nil, fmt.Errorf("not found events for user_id '%s'", userId)
+	}
+	return result, nil
+}
+
+func (r *repo) Delete(eventId string) error {
+	res, err := r.db.Exec("DELETE FROM events WHERE id = $1", eventId)
+	if err != nil {
+		return fmt.Errorf("delete event: %s", err.Error())
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("can't delete event: %w", err)
+	} else if rows == 0 {
+		return errors.New("not found event for deleting")
+	}
+	return nil
+}
+
+func (r *repo) DeleteByUserId(userId string) error {
+	res, err := r.db.Exec("DELETE FROM events WHERE user_id = $1", userId)
+	if err != nil {
+		return fmt.Errorf("delete event: %s", err.Error())
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("can't delete event: %w", err)
+	} else if rows == 0 {
+		return errors.New("not found event for deleting")
+	}
+	return nil
 }

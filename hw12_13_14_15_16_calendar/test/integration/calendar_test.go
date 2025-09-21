@@ -52,32 +52,46 @@ func (s *CalendarIntegrationSuite) TestAddEventByRestApi() {
 	s.Require().NoError(err)
 	s.Require().Equal(restApiEvent, dbEvent)
 
-	err = s.repo.Delete(eventId)
+	err = s.repo.DeleteByUserId(restApiEvent.UserID)
 	s.Require().NoError(err)
 }
 
 func (s *CalendarIntegrationSuite) TestBusyDateByRestApi() {
+	userID := "user-id-TestBusyDateByRestApi"
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
 	restApiEventOk := &model.TestEvent{
-		Title:       "title TestAddEventByRestApi",
+		Title:       "title ok TestBusyDateByRestApi",
 		StartTime:   startTime,
 		Duration:    24 * time.Hour,
-		Description: "description TestAddEventByRestApi",
-		UserID:      "user-id-TestAddEventByRestApi",
+		Description: "description ok TestBusyDateByRestApi",
+		UserID:      userID,
+		Reminder:    24 * time.Hour,
+	}
+	restApiEventBusy := &model.TestEvent{
+		Title:       "title busy TestBusyDateByRestApi",
+		StartTime:   startTime,
+		Duration:    24 * time.Hour,
+		Description: "description busy TestBusyDateByRestApi",
+		UserID:      userID,
 		Reminder:    24 * time.Hour,
 	}
 
-	eventId, err := s.restApiClient.AddTestEvent(restApiEventOk)
+	eventOkId, err := s.restApiClient.AddTestEvent(restApiEventOk)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventId)
-	restApiEventOk.ID = eventId
+	s.Require().NotEqual("", eventOkId)
+	restApiEventOk.ID = eventOkId
 
-	dbEvent, err := s.repo.Get(eventId)
+	eventBusyId, err := s.restApiClient.AddTestEvent(restApiEventBusy)
+	s.Require().Error(err, "response status '409 Conflict'")
+	s.Require().Equal("", eventBusyId)
+	restApiEventOk.ID = eventOkId
+
+	dbEvents, err := s.repo.ListByUserId(userID)
 	s.Require().NoError(err)
-	s.Require().Equal(restApiEventOk, dbEvent)
+	s.Require().Equal(1, len(dbEvents))
 
-	err = s.repo.Delete(eventId)
+	err = s.repo.DeleteByUserId(userID)
 	s.Require().NoError(err)
 }
