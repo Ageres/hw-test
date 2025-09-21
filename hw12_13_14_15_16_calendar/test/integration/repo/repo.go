@@ -1,4 +1,4 @@
-package integration
+package repo
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/model"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
@@ -22,8 +23,7 @@ type dbEvent struct {
 }
 
 type Repo interface {
-	//Add(ctx context.Context, testEventRef *TestEvent) (string, error)
-	Get(eventId string) (*TestEvent, error)
+	Get(eventId string) (*model.TestEvent, error)
 	Delete(eventId string) error
 }
 
@@ -98,7 +98,7 @@ func (r *repo) Delete(eventId string) error {
 	return nil
 }
 
-func (r *repo) Get(eventId string) (*TestEvent, error) {
+func (r *repo) Get(eventId string) (*model.TestEvent, error) {
 	rows, err := r.db.Queryx(`
         SELECT id, title, start_time, duration, description, user_id, reminder 
         FROM events 
@@ -108,13 +108,13 @@ func (r *repo) Get(eventId string) (*TestEvent, error) {
 		return nil, fmt.Errorf("can't select event: %w", err)
 	}
 	defer rows.Close()
-	result := make([]TestEvent, 0, 1)
+	result := make([]model.TestEvent, 0, 1)
 	for rows.Next() {
 		var e dbEvent
 		if err := rows.StructScan(&e); err != nil {
 			return nil, fmt.Errorf("failed to scan event: %w", err)
 		}
-		result = append(result, TestEvent{
+		result = append(result, model.TestEvent{
 			ID:          e.ID,
 			Title:       e.Title,
 			StartTime:   e.StartTime,
@@ -129,56 +129,3 @@ func (r *repo) Get(eventId string) (*TestEvent, error) {
 	}
 	return &result[0], nil
 }
-
-/*
-func (r *repo) Add(ctx context.Context, event *TestEvent) (string, error) {
-	tx, err := r.db.BeginTxx(ctx, &sql.TxOptions{})
-	if err != nil {
-		return "", fmt.Errorf("can't create tx: %w", err)
-	}
-
-	defer func() {
-		if err != nil {
-			rollbackErr := tx.Rollback()
-			if rollbackErr != nil {
-				err = errors.Join(err, rollbackErr)
-			}
-		}
-	}()
-
-	query, args, err := sq.
-		Insert(eventsTable).
-		Columns("name", "description", "created_at", "updated_at").
-		Values(
-			event.Name,
-			event.Description,
-			time.Now().Format(time.RFC3339),
-			time.Now().Format(time.RFC3339),
-		).
-		Suffix("RETURNING id").
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-	if err != nil {
-		return 0, fmt.Errorf("can't build sql: %w", err)
-	}
-
-	rows, err := tx.Query(ctx, query, args...)
-	if err != nil {
-		return "", fmt.Errorf("tx err: %w", err)
-	}
-	defer rows.Close()
-
-	var itemID string
-	for rows.Next() {
-		if scanErr := rows.Scan(&itemID); scanErr != nil {
-			return "", fmt.Errorf("can't scan itemID: %w", scanErr)
-		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return "", fmt.Errorf("can't commit tx: %w", err)
-	}
-
-	return itemID, nil
-}
-*/

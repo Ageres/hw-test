@@ -1,9 +1,9 @@
-package integration
+package model
 
 import "time"
 
 type TestEvent struct {
-	ID          string        `json:"id,omitempty"` // UUID
+	ID          string        `json:"id,omitempty"`
 	Title       string        `json:"title" binding:"required"`
 	StartTime   time.Time     `json:"startTime" binding:"required"`
 	Duration    time.Duration `json:"duration" binding:"required"`

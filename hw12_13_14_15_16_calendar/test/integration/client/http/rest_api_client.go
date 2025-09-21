@@ -8,18 +8,17 @@ import (
 	"log"
 	"net/http"
 	"os"
-)
 
-type TestCalendarApiClient interface {
-	AddTestEvent(eventRef *TestEvent) (string, error)
-}
+	c "github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/model"
+)
 
 type restApiClient struct {
 	url        string
 	httpClient *http.Client
 }
 
-func newRestapiClient() TestCalendarApiClient {
+func NewRestapiClient() c.TestCalendarApiClient {
 	restApiHost, isSet := os.LookupEnv("CALENDAR_REST_API_HOST")
 	if !isSet {
 		restApiHost = "localhost"
@@ -36,7 +35,7 @@ func newRestapiClient() TestCalendarApiClient {
 	}
 }
 
-func (c *restApiClient) AddTestEvent(eventRef *TestEvent) (string, error) {
+func (c *restApiClient) AddTestEvent(eventRef *model.TestEvent) (string, error) {
 	jsonBody, err := json.Marshal(eventRef)
 	if err != nil {
 		return "", err
@@ -60,7 +59,7 @@ func (c *restApiClient) AddTestEvent(eventRef *TestEvent) (string, error) {
 
 	log.Printf("body: '%s'", string(body))
 
-	respEventRef := new(TestEvent)
+	respEventRef := new(model.TestEvent)
 	err = json.Unmarshal(body, respEventRef)
 	if err != nil {
 		return "", err
