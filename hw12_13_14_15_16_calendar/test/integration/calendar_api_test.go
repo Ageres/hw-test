@@ -4,6 +4,7 @@ package integration
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -213,6 +214,13 @@ func (s *CalendarIntegrationSuite) TestListDayEventsByRestApi() {
 	dbEventThree, err := s.repo.Get(eventThreeId)
 	s.Require().NoError(err)
 	s.Require().Equal(eventThree, dbEventThree)
+
+	events, _, err := s.restApiClient.ListTestEvent(c.DAY, startTime)
+	s.Require().NoError(err)
+	s.Require().Equal(3, len(events))
+	for _, e := range events {
+		s.Require().True(slices.Contains(events, e))
+	}
 
 	err = s.repo.DeleteByUserId(eventOne.UserID)
 	s.Require().NoError(err)
