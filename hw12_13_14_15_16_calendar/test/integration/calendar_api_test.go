@@ -157,3 +157,29 @@ func (s *CalendarIntegrationSuite) TestUserConflictErrorByRestApi() {
 	err = s.repo.DeleteByUserId(userIDOk)
 	s.Require().NoError(err)
 }
+
+func (s *CalendarIntegrationSuite) TestListDayEventsByRestApi() {
+	timeLocation, err := time.LoadLocation("Local")
+	s.Require().NoError(err)
+	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
+	restApiEvent := &model.TestEvent{
+		Title:       "title TestAddEventByRestApi",
+		StartTime:   startTime,
+		Duration:    24 * time.Hour,
+		Description: "description TestAddEventByRestApi",
+		UserID:      "user-id-TestAddEventByRestApi",
+		Reminder:    24 * time.Hour,
+	}
+
+	eventId, _, err := s.restApiClient.AddTestEvent(restApiEvent)
+	s.Require().NoError(err)
+	s.Require().NotEqual("", eventId)
+	restApiEvent.ID = eventId
+
+	dbEvent, err := s.repo.Get(eventId)
+	s.Require().NoError(err)
+	s.Require().Equal(restApiEvent, dbEvent)
+
+	err = s.repo.DeleteByUserId(restApiEvent.UserID)
+	s.Require().NoError(err)
+}

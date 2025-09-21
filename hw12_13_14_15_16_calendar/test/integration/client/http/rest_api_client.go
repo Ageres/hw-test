@@ -84,19 +84,19 @@ func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, erro
 }
 
 type ListTestEventRequestBody struct {
-	Period    c.ListPeriod
-	StartDate time.Time
+	Period   c.ListPeriod `json:"period,omitempty"`
+	StartDay time.Time    `json:"startDay,omitempty"`
 }
 
 type ListTestEventResponseBody struct {
-	Status string
-	Events []model.TestEvent
+	Status string            `json:"status,omitempty"`
+	Events []model.TestEvent `json:"events,omitempty"`
 }
 
-func (c *restApiClient) ListTestEvent(period c.ListPeriod, startDate time.Time) ([]model.TestEvent, string, error) {
+func (c *restApiClient) ListTestEvent(period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
 	reqBody := ListTestEventRequestBody{
-		Period:    period,
-		StartDate: startDate,
+		Period:   period,
+		StartDay: startDay,
 	}
 	jsonBody, err := json.Marshal(reqBody)
 	if err != nil {
