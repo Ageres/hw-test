@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/model"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/utils"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
@@ -52,31 +53,11 @@ func NewRepo() Repo {
 }
 
 func dns() string {
-	host, isSet := os.LookupEnv("DB_HOST")
-	if !isSet {
-		host = "localhost"
-		log.Println("not found calendar db host, set default 'localhost'")
-	}
-	port, isSet := os.LookupEnv("DB_PORT")
-	if !isSet {
-		port = "5432"
-		log.Println("not found calendar db port, set default '5432'")
-	}
-	name, isSet := os.LookupEnv("DB_NAME")
-	if !isSet {
-		name = "calendar"
-		log.Println("not found calendar db name, set default 'calendar'")
-	}
-	user, isSet := os.LookupEnv("DB_USER")
-	if !isSet {
-		user = "user"
-		log.Println("not found calendar db user, set default '5432'")
-	}
-	password, isSet := os.LookupEnv("DB_PASSWORD")
-	if !isSet {
-		password = "password"
-		log.Println("not found calendar db password, set default 'password'")
-	}
+	host := utils.GetEnvOrDefault(config.CALENDAR_DB_HOST_ENV, config.CALENDAR_DB_HOST_DEFAULT)
+	port := utils.GetEnvOrDefault(config.CALENDAR_DB_PORT_ENV, config.CALENDAR_DB_PORT_DEFAULT)
+	name := utils.GetEnvOrDefault(config.CALENDAR_DB_NAME_ENV, config.CALENDAR_DB_NAME_DEFAULT)
+	user := utils.GetEnvOrDefault(config.CALENDAR_DB_USER_ENV, config.CALENDAR_DB_USER_DEFAULT)
+	password := utils.GetEnvOrDefault(config.CALENDAR_DB_PASSWORD_ENV, config.CALENDAR_DB_PASSWORD_DEFAULT)
 	return fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
 		host, port, name, user, password,
