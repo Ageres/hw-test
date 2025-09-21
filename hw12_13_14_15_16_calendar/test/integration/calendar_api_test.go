@@ -15,18 +15,18 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type CalendarIntegrationSuite struct {
+type CalendarRestApiIntegrationSuite struct {
 	suite.Suite
 	restApiClient c.TestCalendarApiClient
 	repo          repo.Repo
 }
 
-func (s *CalendarIntegrationSuite) SetupSuite() {
+func (s *CalendarRestApiIntegrationSuite) SetupSuite() {
 	s.repo = repo.NewRepo()
 	s.restApiClient = ch.NewRestapiClient()
 }
 
-func (s *CalendarIntegrationSuite) TearDownSuite() {
+func (s *CalendarRestApiIntegrationSuite) TearDownSuite() {
 	userIDs := []string{
 		"user-id-TestAddEventByRestApi",
 		"user-id-TestBusyDateByRestApi",
@@ -47,15 +47,15 @@ func (s *CalendarIntegrationSuite) TearDownSuite() {
 	}
 }
 
-func NewSuite() *CalendarIntegrationSuite {
-	return &CalendarIntegrationSuite{}
+func NewTestRestApiSuite() *CalendarRestApiIntegrationSuite {
+	return &CalendarRestApiIntegrationSuite{}
 }
 
-func TestRepoSuite(t *testing.T) {
-	suite.Run(t, NewSuite())
+func TestRestApiSuite(t *testing.T) {
+	suite.Run(t, NewTestRestApiSuite())
 }
 
-func (s *CalendarIntegrationSuite) TestAddEventByRestApi() {
+func (s *CalendarRestApiIntegrationSuite) TestAddEventByRestApi() {
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -81,7 +81,7 @@ func (s *CalendarIntegrationSuite) TestAddEventByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarIntegrationSuite) TestBusyDateErrorByRestApi() {
+func (s *CalendarRestApiIntegrationSuite) TestBusyDateErrorByRestApi() {
 	userID := "user-id-TestBusyDateByRestApi"
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
@@ -122,7 +122,7 @@ func (s *CalendarIntegrationSuite) TestBusyDateErrorByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarIntegrationSuite) TestUserConflictErrorByRestApi() {
+func (s *CalendarRestApiIntegrationSuite) TestUserConflictErrorByRestApi() {
 	userIDOk := "user-id-ok-TestUserConflictErrorByRestApi"
 	userIDConflict := "user-id-conflict-TestUserConflictErrorByRestApi"
 	timeLocation, err := time.LoadLocation("Local")
@@ -168,7 +168,7 @@ func (s *CalendarIntegrationSuite) TestUserConflictErrorByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarIntegrationSuite) TestListDayEventsByRestApi() {
+func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -253,7 +253,7 @@ func (s *CalendarIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarIntegrationSuite) TestListWeekEventsByRestApi() {
+func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -338,7 +338,7 @@ func (s *CalendarIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarIntegrationSuite) TestListMonthEventsByRestApi() {
+func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2031, 1, 1, 10, 0, 0, 0, timeLocation)
