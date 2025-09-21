@@ -75,8 +75,6 @@ func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, erro
 		return bodyStr, fmt.Errorf("response status '%s'", resp.Status)
 	}
 
-	log.Printf("body: '%s'", string(body))
-
 	respEventRef := new(model.TestEvent)
 	err = json.Unmarshal(body, respEventRef)
 	if err != nil {
@@ -85,8 +83,44 @@ func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, erro
 	return bodyStr, nil
 }
 
+type ListTestEventRequestBody struct {
+	Period    c.ListPeriod
+	StartDate time.Time
+}
+
+type ListTestEventResponseBody struct {
+	Status string
+	Events []model.TestEvent
+}
+
 func (c *restApiClient) ListTestEvent(period c.ListPeriod, startDate time.Time) ([]model.TestEvent, string, error) {
-	panic("unimplemented")
+	reqBody := ListTestEventRequestBody{
+		Period:    period,
+		StartDate: startDate,
+	}
+	jsonBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return nil, "", err
+	}
+	req, err := http.NewRequest(http.MethodGet, c.url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return nil, "", err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	body, bodyStr, err := parseHTTPResponce(resp, err)
+	if err != nil {
+		return nil, bodyStr, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, bodyStr, fmt.Errorf("response status '%s'", resp.Status)
+	}
+
+	var result ListTestEventResponseBody
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, bodyStr, err
+	}
+	return result.Events, bodyStr, nil
 }
 
 func parseHTTPResponce(resp *http.Response, err error) ([]byte, string, error) {
