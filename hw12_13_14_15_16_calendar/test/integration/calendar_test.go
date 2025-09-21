@@ -22,6 +22,18 @@ func (s *CalendarIntegrationSuite) SetupSuite() {
 	s.restApiClient = ch.NewRestapiClient()
 }
 
+func (s *CalendarIntegrationSuite) TearDownSuite() {
+	userIDs := []string{
+		"user-id-TestAddEventByRestApi",
+		"user-id-TestBusyDateByRestApi",
+		"user-id-ok-TestUserConflictErrorByRestApi",
+		"user-id-conflict-TestUserConflictErrorByRestApi",
+	}
+	for _, userID := range userIDs {
+		_ = s.repo.DeleteByUserId(userID)
+	}
+}
+
 func NewSuite() *CalendarIntegrationSuite {
 	return &CalendarIntegrationSuite{}
 }
@@ -56,7 +68,7 @@ func (s *CalendarIntegrationSuite) TestAddEventByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarIntegrationSuite) TestBusyDateByRestApi() {
+func (s *CalendarIntegrationSuite) TestBusyDateErrorByRestApi() {
 	userID := "user-id-TestBusyDateByRestApi"
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
@@ -93,5 +105,51 @@ func (s *CalendarIntegrationSuite) TestBusyDateByRestApi() {
 	s.Require().Equal(1, len(dbEvents))
 
 	err = s.repo.DeleteByUserId(userID)
+	s.Require().NoError(err)
+}
+
+func (s *CalendarIntegrationSuite) TestUserConflictErrorByRestApi() {
+	userIDOk := "user-id-ok-TestUserConflictErrorByRestApi"
+	userIDConflict := "user-id-conflict-TestUserConflictErrorByRestApi"
+	timeLocation, err := time.LoadLocation("Local")
+	s.Require().NoError(err)
+	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
+	restApiEventOk := &model.TestEvent{
+		Title:       "title ok TestUserConflictErrorByRest",
+		StartTime:   startTime,
+		Duration:    24 * time.Hour,
+		Description: "description ok TestUserConflictErrorByRest",
+		UserID:      userIDOk,
+		Reminder:    24 * time.Hour,
+	}
+	restApiEventConflict := &model.TestEvent{
+		Title:       "title conflict TestUserConflictErrorByRest",
+		StartTime:   startTime,
+		Duration:    24 * time.Hour,
+		Description: "description conflict TestUserConflictErrorByRest",
+		UserID:      userIDConflict,
+		Reminder:    24 * time.Hour,
+	}
+
+	eventOkId, err := s.restApiClient.AddTestEvent(restApiEventOk)
+	s.Require().NoError(err)
+	s.Require().NotEqual("", eventOkId)
+	restApiEventOk.ID = eventOkId
+
+	restApiEventConflict.ID = eventOkId
+	eventConflictId, err := s.restApiClient.UpdateTestEvent(restApiEventConflict)
+	s.Require().Error(err, "response status '409 Conflict'")
+	s.Require().Equal("", eventConflictId)
+	restApiEventOk.ID = eventOkId
+
+	dbEventOks, err := s.repo.ListByUserId(userIDOk)
+	s.Require().NoError(err)
+	s.Require().Equal(1, len(dbEventOks))
+
+	dbEventConflicts, err := s.repo.ListByUserId(userIDConflict)
+	s.Require().Error(err, "not found events for user_id 'user-id-conflict-TestUserConflictErrorByRestApi'")
+	s.Require().Equal(0, len(dbEventConflicts))
+
+	err = s.repo.DeleteByUserId(userIDOk)
 	s.Require().NoError(err)
 }

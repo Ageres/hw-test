@@ -59,3 +59,36 @@ func (c *restApiClient) AddTestEvent(eventRef *model.TestEvent) (string, error) 
 	}
 	return respEventRef.ID, nil
 }
+
+// UpdateTestEvent implements apiclient.TestCalendarApiClient.
+func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, error) {
+	jsonBody, err := json.Marshal(eventRef)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest(http.MethodPut, c.url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return "", err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("response status '%s'", resp.Status)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf("body: '%s'", string(body))
+
+	respEventRef := new(model.TestEvent)
+	err = json.Unmarshal(body, respEventRef)
+	if err != nil {
+		return "", err
+	}
+	return respEventRef.ID, nil
+}
