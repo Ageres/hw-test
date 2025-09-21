@@ -75,8 +75,10 @@ func (s *sender) processNotification(ctx context.Context, notification model.Not
 	}
 	err := s.storage.AddProcEvent(ctx, &procEvent)
 	if err != nil {
-		lg.GetLogger(ctx).WithError(err).Info("sending notification error", map[string]any{"notification": notification})
+		lg.GetLogger(ctx).WithError(err).Info("process notification error", map[string]any{"notification": notification})
+		return
 	}
+	lg.GetLogger(ctx).Info("sending notification", map[string]any{"notification": notification})
 }
 
 func (s *sender) buildSessionContext(methodName string) context.Context {
