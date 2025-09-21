@@ -14,3 +14,19 @@ logger:
   level: INFO 
   # JSON, TEXT, COLOUR_TEXT 
   format: JSON
+
+storage:
+  sql:
+    db:
+      host: ${DB_HOST:=localhost}
+      port: 5432
+      name: calendar
+      user: ${DB_USER:=user}
+      password: ${DB_PASSWORD:=password}
+      sslmode: disable
+    pool:
+      conn:
+        maxOpen: 10
+        maxIdle: 2
+        maxLifeTime: 3600
+        maxIdleTime: 3600  

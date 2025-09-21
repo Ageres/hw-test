@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils"
 )
 
@@ -17,12 +19,14 @@ type Sender interface {
 type sender struct {
 	logger    lg.Logger
 	rmqClient rmq.Client
+	storage   storage.Storage
 }
 
-func NewSender(ctx context.Context, rmq rmq.Client) Sender {
+func NewSender(ctx context.Context, rmq rmq.Client, storage storage.Storage) Sender {
 	return &sender{
 		logger:    lg.GetLogger(ctx),
 		rmqClient: rmq,
+		storage:   storage,
 	}
 }
 
@@ -64,8 +68,15 @@ func (s *sender) Start(ctx context.Context) error {
 	}
 }
 
-func (s *sender) processNotification(ctx context.Context, notification any) {
-	lg.GetLogger(ctx).Info("Sending notification", map[string]any{"notification": notification})
+func (s *sender) processNotification(ctx context.Context, notification model.Notification) {
+	lg.GetLogger(ctx).Info("sending notification", map[string]any{"notification": notification})
+	procEvent := storage.ProcEvent{
+		ID: notification.ID,
+	}
+	err := s.storage.AddProcEvent(ctx, &procEvent)
+	if err != nil {
+		lg.GetLogger(ctx).WithError(err).Info("sending notification error", map[string]any{"notification": notification})
+	}
 }
 
 func (s *sender) buildSessionContext(methodName string) context.Context {

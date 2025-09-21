@@ -23,8 +23,9 @@ type SchedulerConfig struct {
 // -----------------------------
 // sender config model.
 type SenderConfig struct {
-	RMQ    *RMQConf    `yaml:"rmq" validate:"required"`
-	Logger *LoggerConf `yaml:"logger" validate:"required"`
+	RMQ     *RMQConf     `yaml:"rmq" validate:"required"`
+	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
+	Storage *StorageConf `yaml:"storage" validate:"required"`
 }
 
 // -----------------------------
