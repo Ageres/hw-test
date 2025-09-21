@@ -444,6 +444,7 @@ func (s *SQLStorage) AddProcEvent(ctx context.Context, procEventRef *storage.Pro
 	}
 
 	procEventID := procEventRef.ID
+	userID := procEventRef.UserID
 
 	tx, err := s.db.Beginx()
 	if err != nil {
@@ -467,8 +468,8 @@ func (s *SQLStorage) AddProcEvent(ctx context.Context, procEventRef *storage.Pro
 		return nil
 	}()
 
-	insertQuery := `INSERT INTO proc_events (id) VALUES ($1)`
-	_, err = tx.Exec(insertQuery, procEventID)
+	insertQuery := `INSERT INTO proc_events (id, user_id) VALUES ($1, $2)`
+	_, err = tx.Exec(insertQuery, procEventID, userID)
 	if err != nil {
 		err = storage.NewSError("add proc event", err)
 		logger.WithError(err).Error("add proc event")

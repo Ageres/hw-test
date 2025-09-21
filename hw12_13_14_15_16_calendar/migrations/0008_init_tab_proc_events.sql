@@ -1,7 +1,8 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE proc_events (
-    id          UUID        PRIMARY KEY
+    id          UUID        PRIMARY KEY,
+    user_id     TEXT        NOT NULL CHECK (user_id <> '')
 );
 -- +goose StatementEnd
 

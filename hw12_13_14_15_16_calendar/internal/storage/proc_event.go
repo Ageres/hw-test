@@ -5,7 +5,8 @@ import (
 )
 
 type ProcEvent struct {
-	ID string `json:"id" binding:"required"`
+	ID     string `json:"id" binding:"required"`
+	UserID string `json:"userId" binding:"required"`
 }
 
 func (p *ProcEvent) ValidateProcEvent() error {

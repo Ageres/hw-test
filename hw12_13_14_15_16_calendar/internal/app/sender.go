@@ -71,7 +71,8 @@ func (s *sender) Start(ctx context.Context) error {
 func (s *sender) processNotification(ctx context.Context, notification model.Notification) {
 	lg.GetLogger(ctx).Info("sending notification", map[string]any{"notification": notification})
 	procEvent := storage.ProcEvent{
-		ID: notification.ID,
+		ID:     notification.ID,
+		UserID: notification.UserID,
 	}
 	err := s.storage.AddProcEvent(ctx, &procEvent)
 	if err != nil {

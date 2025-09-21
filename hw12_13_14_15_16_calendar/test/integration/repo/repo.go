@@ -29,7 +29,7 @@ type Repo interface {
 	Delete(eventId string) error
 	DeleteByUserId(userId string) error
 	CheckProcEventId(procEventId string) (bool, error)
-	DeleteProcEventId(procEventId string) error
+	DeleteProcEventIdByUserId(userId string) error
 }
 
 type repo struct {
@@ -185,8 +185,8 @@ func (r *repo) CheckProcEventId(procEventId string) (bool, error) {
 	return false, nil
 }
 
-func (r *repo) DeleteProcEventId(procEventId string) error {
-	res, err := r.db.Exec("DELETE FROM proc_events WHERE id = $1", procEventId)
+func (r *repo) DeleteProcEventIdByUserId(userId string) error {
+	res, err := r.db.Exec("DELETE FROM proc_events WHERE user_id = $1", userId)
 	if err != nil {
 		return fmt.Errorf("delete proc event: %s", err.Error())
 	}

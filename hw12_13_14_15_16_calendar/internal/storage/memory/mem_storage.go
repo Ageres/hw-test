@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-	"slices"
 	"sync"
 	"time"
 
@@ -14,9 +13,9 @@ import (
 )
 
 type MemoryStorage struct {
-	mu        sync.RWMutex
-	events    map[string]storage.Event // key: Event.ID
-	procEvent []string
+	mu         sync.RWMutex
+	events     map[string]storage.Event     // key: Event.ID
+	procEvents map[string]storage.ProcEvent // key: ProcEvent.ID
 }
 
 func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
@@ -322,13 +321,13 @@ func (m *MemoryStorage) AddProcEvent(ctx context.Context, procEventRef *storage.
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if slices.Contains(m.procEvent, procEventID) {
-		err := storage.NewSErrorWithTemplate("failed to add proc event, proc event with this id already exists: %s", procEventID)
+	if _, exists := m.procEvents[procEventID]; exists {
+		err := storage.NewSErrorWithTemplate("failed to add, proc event with this id already exists: %s", procEventID)
 		logger.WithError(err).Error("add event")
 		return err
 	}
 
-	m.procEvent = append(m.procEvent, procEventID)
+	m.procEvents[procEventID] = *procEventRef
 	return nil
 }
 
