@@ -97,19 +97,19 @@ func (s *SenderIntegrationSuite) TestSender() {
 
 	time.Sleep(time.Duration(testTimeOut * time.Second))
 
-	isExistProcEventOne, err := s.repo.CheckProcEventId(eventOneId)
+	isExistProcEventOne, err := s.repo.CheckProcEvent(eventOneId)
 	s.Require().NoError(err)
 	s.Require().True(isExistProcEventOne)
 
-	isExistProcEventTwo, err := s.repo.CheckProcEventId(eventTwoId)
+	isExistProcEventTwo, err := s.repo.CheckProcEvent(eventTwoId)
 	s.Require().NoError(err)
 	s.Require().True(isExistProcEventTwo)
 
-	isExistProcEventThree, err := s.repo.CheckProcEventId(eventThreeId)
+	isExistProcEventThree, err := s.repo.CheckProcEvent(eventThreeId)
 	s.Require().NoError(err)
 	s.Require().True(isExistProcEventThree)
 
-	isExistProcEventNotInPeriodId, err := s.repo.CheckProcEventId(eventNotInPeriodId)
+	isExistProcEventNotInPeriodId, err := s.repo.CheckProcEvent(eventNotInPeriodId)
 	s.Require().NoError(err)
 	s.Require().False(isExistProcEventNotInPeriodId)
 

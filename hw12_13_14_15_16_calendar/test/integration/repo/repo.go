@@ -33,7 +33,7 @@ type Repo interface {
 	ListByUserId(userId string) ([]model.TestEvent, error)
 	Delete(eventId string) error
 	DeleteByUserId(userId string) error
-	CheckProcEventId(procEventId string) (bool, error)
+	CheckProcEvent(procEventId string) (bool, error)
 	DeleteProcEventByUserId(userId string) error
 }
 
@@ -162,7 +162,7 @@ func (r *repo) DeleteByUserId(userId string) error {
 	return nil
 }
 
-func (r *repo) CheckProcEventId(procEventId string) (bool, error) {
+func (r *repo) CheckProcEvent(procEventId string) (bool, error) {
 	rows, err := r.db.Queryx(`SELECT id FROM proc_events WHERE id = $1 `, procEventId)
 	if err != nil {
 		return false, fmt.Errorf("can't select event: %w", err)
