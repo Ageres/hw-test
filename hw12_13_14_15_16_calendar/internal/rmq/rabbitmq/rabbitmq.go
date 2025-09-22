@@ -14,11 +14,6 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const (
-	reconnectAttempt = 6
-	reconectTimeout  = 10
-)
-
 type client struct {
 	conf    *model.RMQConf
 	conn    *amqp.Connection
@@ -33,32 +28,32 @@ func NewClient(conf *model.RMQConf) rmq.Client {
 }
 
 func (r *client) Connect(ctx context.Context) error {
+	r.createConnect(ctx)
+	channel, err := r.conn.Channel()
+	if err != nil {
+		return fmt.Errorf("open channel: %w", err)
+	}
+	r.channel = channel
+	lg.GetLogger(ctx).Info("rabbitmq client connection established")
+	return nil
+}
+
+func (r *client) createConnect(ctx context.Context) {
 	amqpURI := fmt.Sprintf("amqp://%s:%s@%s:%d/",
 		r.conf.User,
 		r.conf.Password,
 		r.conf.Host,
 		r.conf.Port,
 	)
-
-	logger := lg.GetLogger(ctx)
-
+	var conn *amqp.Connection
 	var err error
-
-	/*
-		r.conn, err = amqp.Dial(amqpURI)
+	for i := range r.conf.StartParam.ReconnectAttempt {
+		conn, err = amqp.Dial(amqpURI)
 		if err != nil {
-			return fmt.Errorf("connect to RabbitMQ: %w", err)
-		}
-	*/
-
-	for i := range reconnectAttempt {
-		r.conn, err = amqp.Dial(amqpURI)
-		if err != nil {
-			logger.WithError(err).Error("connect to RabbitMQ", map[string]any{"attempt": i + 1})
-			if i < reconnectAttempt-1 {
-				r.conn = nil
+			lg.GetLogger(ctx).WithError(err).Error("connect to RabbitMQ", map[string]any{"attempt": i + 1})
+			if i < r.conf.StartParam.ReconnectAttempt-1 {
 				err = nil
-				time.Sleep(reconectTimeout * time.Second)
+				time.Sleep(time.Duration(r.conf.StartParam.ReconnectTimeout) * time.Second)
 				continue
 			}
 		}
@@ -66,13 +61,7 @@ func (r *client) Connect(ctx context.Context) error {
 	if err != nil {
 		os.Exit(1)
 	}
-
-	r.channel, err = r.conn.Channel()
-	if err != nil {
-		return fmt.Errorf("open channel: %w", err)
-	}
-	lg.GetLogger(ctx).Info("rabbitmq client connection established")
-	return nil
+	r.conn = conn
 }
 
 func (r *client) ExchangeDeclare(ctx context.Context) error {

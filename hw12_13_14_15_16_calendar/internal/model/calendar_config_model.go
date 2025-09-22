@@ -48,9 +48,15 @@ type InMemoryConf struct {
 }
 
 type SQLConfig struct {
-	DB        DBConfig      `yaml:"db" validate:"required"`
-	Pool      PoolConf      `yaml:"pool" validate:"required"`
-	Migration MigrationConf `yaml:"migration"`
+	StartParam StartParamConf `yaml:"startParam" validate:"required"`
+	DB         DBConfig       `yaml:"db" validate:"required"`
+	Pool       PoolConf       `yaml:"pool" validate:"required"`
+	Migration  MigrationConf  `yaml:"migration"`
+}
+
+type StartParamConf struct {
+	ReconnectAttempt int `yaml:"reconnectAttempt" validate:"required"`
+	ReconnectTimeout int `yaml:"reconnectTimeout" validate:"required"`
 }
 
 type DBConfig struct {
@@ -142,13 +148,14 @@ type IntervalConf struct {
 // rmq config model.
 
 type RMQConf struct {
-	Host         string `yaml:"host" validate:"required"`
-	Port         int    `yaml:"port" validate:"required,gt=0"`
-	User         string `yaml:"user" validate:"required"`
-	Password     string `yaml:"password" validate:"required"`
-	ExchangeName string `yaml:"exchangeName" validate:"required"`
-	ExchangeType string `yaml:"exchangeType" validate:"oneof=direct fanout topic x-custom"`
-	QueueName    string `yaml:"queueName" validate:"required"`
-	RoutingKey   string `yaml:"routingKey" validate:"required"`
-	ConsumerTag  string `yaml:"consumerTag"`
+	StartParam   StartParamConf `yaml:"startParam" validate:"required"`
+	Host         string         `yaml:"host" validate:"required"`
+	Port         int            `yaml:"port" validate:"required,gt=0"`
+	User         string         `yaml:"user" validate:"required"`
+	Password     string         `yaml:"password" validate:"required"`
+	ExchangeName string         `yaml:"exchangeName" validate:"required"`
+	ExchangeType string         `yaml:"exchangeType" validate:"oneof=direct fanout topic x-custom"`
+	QueueName    string         `yaml:"queueName" validate:"required"`
+	RoutingKey   string         `yaml:"routingKey" validate:"required"`
+	ConsumerTag  string         `yaml:"consumerTag"`
 }

@@ -39,35 +39,31 @@ type dbEvent struct {
 	Reminder    int64
 }
 
-const (
-	reconnectAttempt = 6
-	reconectTimeout  = 10
-)
-
 func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
-	logger := lg.GetLogger(ctx)
-
 	sqlConfRef := storageConfRef.SQL
-	dsn := sqlConfRef.DB.DSN()
+	db := createDBConnect(ctx, storageConfRef.SQL)
+	db.SetMaxOpenConns(sqlConfRef.Pool.Conn.MaxOpen)
+	db.SetMaxIdleConns(sqlConfRef.Pool.Conn.MaxIdle)
+	db.SetConnMaxLifetime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
+	db.SetConnMaxIdleTime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
+	storage := &SQLStorage{
+		db: db,
+	}
+	setUpMigration(ctx, storage, storageConfRef)
+	return storage
+}
 
-	/*
-		db, err := sqlx.Connect("pgx", dsn)
-		if err != nil {
-			logger.WithError(err).Error("failed to load driver")
-			os.Exit(1)
-		}
-	*/
-
+func createDBConnect(ctx context.Context, cfg *model.SQLConfig) *sqlx.DB {
 	var db *sqlx.DB
 	var err error
-	for i := range reconnectAttempt {
+	dsn := cfg.DB.DSN()
+	for i := range cfg.StartParam.ReconnectAttempt {
 		db, err = sqlx.Connect("pgx", dsn)
 		if err != nil {
-			logger.WithError(err).Error("failed to load driver", map[string]any{"attempt": i + 1})
-			if i < reconnectAttempt-1 {
-				db = nil
+			lg.GetLogger(ctx).WithError(err).Error("failed to load driver", map[string]any{"attempt": i + 1})
+			if i < cfg.StartParam.ReconnectAttempt-1 {
 				err = nil
-				time.Sleep(reconectTimeout * time.Second)
+				time.Sleep(time.Duration(cfg.StartParam.ReconnectTimeout) * time.Second)
 				continue
 			}
 		}
@@ -75,23 +71,7 @@ func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) stora
 	if err != nil {
 		os.Exit(1)
 	}
-
-	db.SetMaxOpenConns(sqlConfRef.Pool.Conn.MaxOpen)
-	db.SetMaxIdleConns(sqlConfRef.Pool.Conn.MaxIdle)
-	db.SetConnMaxLifetime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
-	db.SetConnMaxIdleTime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
-
-	err = db.Ping()
-	if err != nil {
-		logger.WithError(err).Error("failed to connect to db")
-		os.Exit(1)
-	}
-
-	storage := &SQLStorage{
-		db: db,
-	}
-	setUpMigration(ctx, storage, storageConfRef)
-	return storage
+	return db
 }
 
 func setUpMigration(ctx context.Context, s *SQLStorage, storageConfRef *model.StorageConf) {
