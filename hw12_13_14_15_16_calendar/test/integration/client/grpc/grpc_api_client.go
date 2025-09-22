@@ -40,7 +40,6 @@ func (g *grpcApiClient) Stop() {
 	defer g.conn.Close()
 }
 
-// AddTestEvent implements apiclient.TestCalendarApiClient.
 func (g *grpcApiClient) AddTestEvent(eventRef *model.TestEvent) (string, string, error) {
 	req := pb.AddEventRequest{
 		Event: mapTestEventToProtoEvent(eventRef),
@@ -53,7 +52,6 @@ func (g *grpcApiClient) AddTestEvent(eventRef *model.TestEvent) (string, string,
 	return resp.Event.GetId(), "", nil
 }
 
-// ListTestEvent implements apiclient.TestCalendarApiClient.
 func (g *grpcApiClient) ListTestEvent(period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
 	var pbPeriod pb.GetEventListPeriod
 	switch period {
@@ -90,9 +88,15 @@ func (g *grpcApiClient) ListTestEvent(period c.ListPeriod, startDay time.Time) (
 	return result, "", nil
 }
 
-// UpdateTestEvent implements apiclient.TestCalendarApiClient.
 func (g *grpcApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, error) {
-	panic("unimplemented")
+	req := pb.UpdateEventRequest{
+		Event: mapTestEventToProtoEvent(eventRef),
+	}
+	_, err := g.client.UpdateEvent(context.Background(), &req)
+	if err != nil {
+		return "", err
+	}
+	return "", nil
 }
 
 func mapTestEventToProtoEvent(t *model.TestEvent) *pb.ProtoEvent {
