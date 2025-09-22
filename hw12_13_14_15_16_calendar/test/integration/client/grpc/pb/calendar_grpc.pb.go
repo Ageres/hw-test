@@ -5,6 +5,7 @@
 // source: calendar.proto
 
 // protoc --proto_path=./api --go_out=./internal/server/grpc/pb --go-grpc_out=./internal/server/grpc/pb ./api/calendar.proto
+// protoc --proto_path=./api --go_out=./test/integration/client/grpc/pb --go-grpc_out=./test/integration/client/grpc/pb ./api/calendar.proto
 
 package pb
 
