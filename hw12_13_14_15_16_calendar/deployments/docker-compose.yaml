@@ -11,8 +11,8 @@ services:
       PGDATA: "/var/lib/postgresql/data/pgdata"
     ports:
       - "5432:5432"
-    #volumes:
-    #  - postgres_data:/var/lib/postgresql/data
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -28,12 +28,12 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    #volumes:
-    #  - rabbitmq_data:/var/lib/rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
   calendar-otus:
     depends_on:
       - pg-otus
-    image: calendar:develop
+    image: 1aeef68f-calendar:develop
     build:
       context: ../.
       dockerfile: ./build/calendar/Dockerfile 
@@ -48,10 +48,9 @@ services:
     restart: unless-stopped
   scheduler-otus:
     depends_on:
-      - calendar-otus
       - pg-otus
       - rmq-otus
-    image: scheduler:develop
+    image: 1aeef68f-scheduler:develop
     build:
       context: ../.
       dockerfile: ./build/scheduler/Dockerfile 
@@ -66,11 +65,9 @@ services:
     restart: unless-stopped  
   sender-otus:
     depends_on:
-      - calendar-otus
-      - scheduler-otus
       - pg-otus
       - rmq-otus
-    image: sender:develop
+    image: 1aeef68f-sender:develop
     build:
       context: ../.
       dockerfile: ./build/sender/Dockerfile 
@@ -83,9 +80,9 @@ services:
       DB_USER: ${DB_USER:-user}
       DB_PASSWORD: ${DB_PASSWORD:-password}
     restart: unless-stopped  
-#volumes:
-#  postgres_data:
-#  rabbitmq_data:
+volumes:
+  postgres_data:
+  rabbitmq_data:
 networks:
   default:
     driver: bridge
