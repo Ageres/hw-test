@@ -7,7 +7,10 @@ ENV CODE_DIR /go/src/
 
 WORKDIR ${CODE_DIR}
 
+RUN apk add --no-cache gcc musl-dev
+
 COPY go.mod go.sum ./
+
 RUN go mod download
 
 COPY . ${CODE_DIR}
