@@ -1,4 +1,4 @@
-//------------go:build integration
+//go:build integration
 
 package integration
 
@@ -109,7 +109,7 @@ func (s *CalendarRestApiIntegrationSuite) TestBusyDateErrorByRestApi() {
 	restApiEventOk.ID = eventOkId
 
 	eventBusyId, bodyBusy, err := s.apiClient.AddTestEvent(restApiEventBusy)
-	s.Require().Error(err, "response status '409 Conflict'")
+	s.Require().Equal(err.Error(), "response status '409 Conflict'")
 	s.Require().Contains(bodyBusy, fmt.Sprintf("add event: time is already taken by another event: %s", eventOkId))
 	s.Require().Equal("", eventBusyId)
 	restApiEventOk.ID = eventOkId
@@ -152,7 +152,7 @@ func (s *CalendarRestApiIntegrationSuite) TestUserConflictErrorByRestApi() {
 
 	restApiEventConflict.ID = eventOkId
 	bodyConflict, err := s.apiClient.UpdateTestEvent(restApiEventConflict)
-	s.Require().Error(err, "response status '409 Conflict'")
+	s.Require().Equal(err.Error(), "response status '409 Conflict'")
 	s.Require().Contains(bodyConflict, fmt.Sprintf("'%s' user is not the owner of the event, conflict with '%s'", userIDConflict, userIDOk))
 	restApiEventOk.ID = eventOkId
 
