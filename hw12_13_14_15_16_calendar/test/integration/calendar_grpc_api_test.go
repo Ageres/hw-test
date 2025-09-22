@@ -1,4 +1,4 @@
-//go:build integration
+// -----------go:build integration
 
 package integration
 
@@ -9,110 +9,111 @@ import (
 	"time"
 
 	c "github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client"
-	ch "github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client/http"
+	ch "github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client/grpc"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/repo"
 	"github.com/stretchr/testify/suite"
 )
 
-type CalendarRestApiIntegrationSuite struct {
+type CalendarGrpcAPIIntegrationSuite struct {
 	suite.Suite
-	restApiClient c.TestCalendarApiClient
-	repo          repo.Repo
+	apiClient c.TestCalendarApiClient
+	repo      repo.Repo
 }
 
-func (s *CalendarRestApiIntegrationSuite) SetupSuite() {
+func (s *CalendarGrpcAPIIntegrationSuite) SetupSuite() {
 	s.repo = repo.NewRepo()
-	s.restApiClient = ch.NewRestAPIClient()
+	s.apiClient = ch.NewGrpcAPIClient()
 }
 
-func (s *CalendarRestApiIntegrationSuite) TearDownSuite() {
+func (s *CalendarGrpcAPIIntegrationSuite) TearDownSuite() {
 	userIDs := []string{
-		"user-id-TestAddEventByRestApi",
-		"user-id-TestBusyDateByRestApi",
-		"user-id-ok-TestUserConflictErrorByRestApi",
-		"user-id-conflict-TestUserConflictErrorByRestApi",
-		"user-id-01-TestListDayEventsByRestApi",
-		"user-id-02-TestListDayEventsByRestApi",
-		"user-id-03-TestListDayEventsByRestApi",
-		"user-id-01-TestListWeekEventsByRestApi",
-		"user-id-02-TestListWeekEventsByRestApi",
-		"user-id-03-TestListWeekEventsByRestApi",
-		"user-id-01-TestListMonthEventsByRestApi",
-		"user-id-02-TestListMonthEventsByRestApi",
-		"user-id-03-TestListMonthEventsByRestApi",
+		"user-id-TestAddEventByGrpcApi",
+		"user-id-TestBusyDateByGrpcApi",
+		"user-id-ok-TestUserConflictErrorByGrpcApi",
+		"user-id-conflict-TestUserConflictErrorByGrpcApi",
+		"user-id-01-TestListDayEventsByGrpcApi",
+		"user-id-02-TestListDayEventsByGrpcApi",
+		"user-id-03-TestListDayEventsByGrpcApi",
+		"user-id-01-TestListWeekEventsByGrpcApi",
+		"user-id-02-TestListWeekEventsByGrpcApi",
+		"user-id-03-TestListWeekEventsByGrpcApi",
+		"user-id-01-TestListMonthEventsByGrpcApi",
+		"user-id-02-TestListMonthEventsByGrpcApi",
+		"user-id-03-TestListMonthEventsByGrpcApi",
 	}
 	for _, userID := range userIDs {
 		_ = s.repo.DeleteByUserId(userID)
 	}
+	s.apiClient.Stop()
 }
 
-func NewTestRestApiSuite() *CalendarRestApiIntegrationSuite {
-	return &CalendarRestApiIntegrationSuite{}
+func NewTestGrpcAPISuite() *CalendarGrpcAPIIntegrationSuite {
+	return &CalendarGrpcAPIIntegrationSuite{}
 }
 
-func TestRestApiSuite(t *testing.T) {
-	suite.Run(t, NewTestRestApiSuite())
+func TestGrpcAPISuite(t *testing.T) {
+	suite.Run(t, NewTestGrpcAPISuite())
 }
 
-func (s *CalendarRestApiIntegrationSuite) TestAddEventByRestApi() {
+func (s *CalendarGrpcAPIIntegrationSuite) TestAddEventByGrpcAPI() {
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
-	restApiEvent := &model.TestEvent{
-		Title:       "title TestAddEventByRestApi",
+	grpcApiEvent := &model.TestEvent{
+		Title:       "title TestAddEventByGrpcApi",
 		StartTime:   startTime,
 		Duration:    24 * time.Hour,
-		Description: "description TestAddEventByRestApi",
-		UserID:      "user-id-TestAddEventByRestApi",
+		Description: "description TestAddEventByGrpcApi",
+		UserID:      "user-id-TestAddEventByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
 
-	eventId, _, err := s.restApiClient.AddTestEvent(restApiEvent)
+	eventId, _, err := s.apiClient.AddTestEvent(grpcApiEvent)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventId)
-	restApiEvent.ID = eventId
+	grpcApiEvent.ID = eventId
 
 	dbEvent, err := s.repo.Get(eventId)
 	s.Require().NoError(err)
-	s.Require().Equal(restApiEvent, dbEvent)
+	s.Require().Equal(grpcApiEvent, dbEvent)
 
-	err = s.repo.DeleteByUserId(restApiEvent.UserID)
+	err = s.repo.DeleteByUserId(grpcApiEvent.UserID)
 	s.Require().NoError(err)
 }
 
-func (s *CalendarRestApiIntegrationSuite) TestBusyDateErrorByRestApi() {
-	userID := "user-id-TestBusyDateByRestApi"
+func (s *CalendarGrpcAPIIntegrationSuite) TestBusyDateErrorByGrpcAPI() {
+	userID := "user-id-TestBusyDateByGrpcApi"
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
-	restApiEventOk := &model.TestEvent{
-		Title:       "title ok TestBusyDateByRestApi",
+	grpcApiEventOk := &model.TestEvent{
+		Title:       "title ok TestBusyDateByGrpcApi",
 		StartTime:   startTime,
 		Duration:    24 * time.Hour,
-		Description: "description ok TestBusyDateByRestApi",
+		Description: "description ok TestBusyDateByGrpcApi",
 		UserID:      userID,
 		Reminder:    24 * time.Hour,
 	}
-	restApiEventBusy := &model.TestEvent{
-		Title:       "title busy TestBusyDateByRestApi",
+	grpcApiEventBusy := &model.TestEvent{
+		Title:       "title busy TestBusyDateByGrpcApi",
 		StartTime:   startTime,
 		Duration:    24 * time.Hour,
-		Description: "description busy TestBusyDateByRestApi",
+		Description: "description busy TestBusyDateByGrpcApi",
 		UserID:      userID,
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkId, _, err := s.restApiClient.AddTestEvent(restApiEventOk)
+	eventOkId, _, err := s.apiClient.AddTestEvent(grpcApiEventOk)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOkId)
-	restApiEventOk.ID = eventOkId
+	grpcApiEventOk.ID = eventOkId
 
-	eventBusyId, bodyBusy, err := s.restApiClient.AddTestEvent(restApiEventBusy)
+	eventBusyId, bodyBusy, err := s.apiClient.AddTestEvent(grpcApiEventBusy)
 	s.Require().Error(err, "response status '409 Conflict'")
 	s.Require().Contains(bodyBusy, fmt.Sprintf("add event: time is already taken by another event: %s", eventOkId))
 	s.Require().Equal("", eventBusyId)
-	restApiEventOk.ID = eventOkId
+	grpcApiEventOk.ID = eventOkId
 
 	dbEvents, err := s.repo.ListByUserId(userID)
 	s.Require().NoError(err)
@@ -122,66 +123,66 @@ func (s *CalendarRestApiIntegrationSuite) TestBusyDateErrorByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarRestApiIntegrationSuite) TestUserConflictErrorByRestApi() {
-	userIDOk := "user-id-ok-TestUserConflictErrorByRestApi"
-	userIDConflict := "user-id-conflict-TestUserConflictErrorByRestApi"
+func (s *CalendarGrpcAPIIntegrationSuite) TestUserConflictErrorByGrpcAPI() {
+	userIDOk := "user-id-ok-TestUserConflictErrorByGrpcApi"
+	userIDConflict := "user-id-conflict-TestUserConflictErrorByGrpcApi"
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
-	restApiEventOk := &model.TestEvent{
-		Title:       "title ok TestUserConflictErrorByRest",
+	grpcApiEventOk := &model.TestEvent{
+		Title:       "title ok TestUserConflictErrorByGrpc",
 		StartTime:   startTime,
 		Duration:    24 * time.Hour,
-		Description: "description ok TestUserConflictErrorByRest",
+		Description: "description ok TestUserConflictErrorByGrpc",
 		UserID:      userIDOk,
 		Reminder:    24 * time.Hour,
 	}
-	restApiEventConflict := &model.TestEvent{
-		Title:       "title conflict TestUserConflictErrorByRest",
+	grpcApiEventConflict := &model.TestEvent{
+		Title:       "title conflict TestUserConflictErrorByGrpc",
 		StartTime:   startTime,
 		Duration:    24 * time.Hour,
-		Description: "description conflict TestUserConflictErrorByRest",
+		Description: "description conflict TestUserConflictErrorByGrpc",
 		UserID:      userIDConflict,
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkId, _, err := s.restApiClient.AddTestEvent(restApiEventOk)
+	eventOkId, _, err := s.apiClient.AddTestEvent(grpcApiEventOk)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOkId)
-	restApiEventOk.ID = eventOkId
+	grpcApiEventOk.ID = eventOkId
 
-	restApiEventConflict.ID = eventOkId
-	bodyConflict, err := s.restApiClient.UpdateTestEvent(restApiEventConflict)
+	grpcApiEventConflict.ID = eventOkId
+	bodyConflict, err := s.apiClient.UpdateTestEvent(grpcApiEventConflict)
 	s.Require().Error(err, "response status '409 Conflict'")
 	s.Require().Contains(bodyConflict, fmt.Sprintf("'%s' user is not the owner of the event, conflict with '%s'", userIDConflict, userIDOk))
-	restApiEventOk.ID = eventOkId
+	grpcApiEventOk.ID = eventOkId
 
 	dbEventOks, err := s.repo.ListByUserId(userIDOk)
 	s.Require().NoError(err)
 	s.Require().Equal(1, len(dbEventOks))
 
 	dbEventConflicts, err := s.repo.ListByUserId(userIDConflict)
-	s.Require().Error(err, "not found events for user_id 'user-id-conflict-TestUserConflictErrorByRestApi'")
+	s.Require().Error(err, "not found events for user_id 'user-id-conflict-TestUserConflictErrorByGrpcApi'")
 	s.Require().Equal(0, len(dbEventConflicts))
 
 	err = s.repo.DeleteByUserId(userIDOk)
 	s.Require().NoError(err)
 }
 
-func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
+func (s *CalendarGrpcAPIIntegrationSuite) TestListDayEventsByGrpcAPI() {
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
 
 	eventOne := &model.TestEvent{
-		Title:       "title 01 TestListDayEventsByRestApi",
+		Title:       "title 01 TestListDayEventsByGrpcApi",
 		StartTime:   startTime,
 		Duration:    1 * time.Hour,
-		Description: "description 01 TestListDayEventsByRestApi",
-		UserID:      "user-id-01-TestListDayEventsByRestApi",
+		Description: "description 01 TestListDayEventsByGrpcApi",
+		UserID:      "user-id-01-TestListDayEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneId, _, err := s.restApiClient.AddTestEvent(eventOne)
+	eventOneId, _, err := s.apiClient.AddTestEvent(eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneId)
 	eventOne.ID = eventOneId
@@ -190,14 +191,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().Equal(eventOne, dbEventOne)
 
 	eventTwo := &model.TestEvent{
-		Title:       "title 02 TestListDayEventsByRestApi",
+		Title:       "title 02 TestListDayEventsByGrpcApi",
 		StartTime:   startTime.Add(2 * time.Hour),
 		Duration:    1 * time.Hour,
-		Description: "description 02 TestListDayEventsByRestApi",
-		UserID:      "user-id-02-TestListDayEventsByRestApi",
+		Description: "description 02 TestListDayEventsByGrpcApi",
+		UserID:      "user-id-02-TestListDayEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoId, _, err := s.restApiClient.AddTestEvent(eventTwo)
+	eventTwoId, _, err := s.apiClient.AddTestEvent(eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoId)
 	eventTwo.ID = eventTwoId
@@ -206,14 +207,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().Equal(eventTwo, dbEventTwo)
 
 	eventThree := &model.TestEvent{
-		Title:       "title 03 TestListDayEventsByRestApi",
+		Title:       "title 03 TestListDayEventsByGrpcApi",
 		StartTime:   startTime.Add(4 * time.Hour),
 		Duration:    1 * time.Hour,
-		Description: "description 03 TestListDayEventsByRestApi",
-		UserID:      "user-id-03-TestListDayEventsByRestApi",
+		Description: "description 03 TestListDayEventsByGrpcApi",
+		UserID:      "user-id-03-TestListDayEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeId, _, err := s.restApiClient.AddTestEvent(eventThree)
+	eventThreeId, _, err := s.apiClient.AddTestEvent(eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeId)
 	eventThree.ID = eventThreeId
@@ -222,14 +223,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().Equal(eventThree, dbEventThree)
 
 	eventNotInPeriod := &model.TestEvent{
-		Title:       "title 03 NotInPeriod TestListDayEventsByRestApi",
+		Title:       "title 03 NotInPeriod TestListDayEventsByGrpcApi",
 		StartTime:   startTime.AddDate(0, 0, 2),
 		Duration:    1 * time.Hour,
-		Description: "description 03 NotInPeriod TestListDayEventsByRestApi",
-		UserID:      "user-id-03-TestListDayEventsByRestApi",
+		Description: "description 03 NotInPeriod TestListDayEventsByGrpcApi",
+		UserID:      "user-id-03-TestListDayEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodId, _, err := s.restApiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodId, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodId)
 	eventNotInPeriod.ID = eventNotInPeriodId
@@ -237,7 +238,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.restApiClient.ListTestEvent(c.DAY, startTime)
+	events, _, err := s.apiClient.ListTestEvent(c.DAY, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))
@@ -253,20 +254,20 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
+func (s *CalendarGrpcAPIIntegrationSuite) TestListWeekEventsByGrpcAPI() {
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
 
 	eventOne := &model.TestEvent{
-		Title:       "title 01 TestListWeekEventsByRestApi",
+		Title:       "title 01 TestListWeekEventsByGrpcApi",
 		StartTime:   startTime,
 		Duration:    1 * time.Hour,
-		Description: "description 01 TestListWeekEventsByRestApi",
-		UserID:      "user-id-01-TestListWeekEventsByRestApi",
+		Description: "description 01 TestListWeekEventsByGrpcApi",
+		UserID:      "user-id-01-TestListWeekEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneId, _, err := s.restApiClient.AddTestEvent(eventOne)
+	eventOneId, _, err := s.apiClient.AddTestEvent(eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneId)
 	eventOne.ID = eventOneId
@@ -275,14 +276,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().Equal(eventOne, dbEventOne)
 
 	eventTwo := &model.TestEvent{
-		Title:       "title 02 TestListWeekEventsByRestApi",
+		Title:       "title 02 TestListWeekEventsByGrpcApi",
 		StartTime:   startTime.AddDate(0, 0, 2),
 		Duration:    1 * time.Hour,
-		Description: "description 02 TestListWeekEventsByRestApi",
-		UserID:      "user-id-02-TestListWeekEventsByRestApi",
+		Description: "description 02 TestListWeekEventsByGrpcApi",
+		UserID:      "user-id-02-TestListWeekEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoId, _, err := s.restApiClient.AddTestEvent(eventTwo)
+	eventTwoId, _, err := s.apiClient.AddTestEvent(eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoId)
 	eventTwo.ID = eventTwoId
@@ -291,14 +292,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().Equal(eventTwo, dbEventTwo)
 
 	eventThree := &model.TestEvent{
-		Title:       "title 03 TestListWeekEventsByRestApi",
+		Title:       "title 03 TestListWeekEventsByGrpcApi",
 		StartTime:   startTime.AddDate(0, 0, 4),
 		Duration:    1 * time.Hour,
-		Description: "description 03 TestListWeekEventsByRestApi",
-		UserID:      "user-id-03-TestListWeekEventsByRestApi",
+		Description: "description 03 TestListWeekEventsByGrpcApi",
+		UserID:      "user-id-03-TestListWeekEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeId, _, err := s.restApiClient.AddTestEvent(eventThree)
+	eventThreeId, _, err := s.apiClient.AddTestEvent(eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeId)
 	eventThree.ID = eventThreeId
@@ -307,14 +308,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().Equal(eventThree, dbEventThree)
 
 	eventNotInPeriod := &model.TestEvent{
-		Title:       "title 03 NotInPeriod TestListWeekEventsByRestApi",
+		Title:       "title 03 NotInPeriod TestListWeekEventsByGrpcApi",
 		StartTime:   startTime.AddDate(0, 0, 10),
 		Duration:    1 * time.Hour,
-		Description: "description 03 NotInPeriod TestListWeekEventsByRestApi",
-		UserID:      "user-id-03-TestListWeekEventsByRestApi",
+		Description: "description 03 NotInPeriod TestListWeekEventsByGrpcApi",
+		UserID:      "user-id-03-TestListWeekEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodId, _, err := s.restApiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodId, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodId)
 	eventNotInPeriod.ID = eventNotInPeriodId
@@ -322,7 +323,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.restApiClient.ListTestEvent(c.WEEK, startTime)
+	events, _, err := s.apiClient.ListTestEvent(c.WEEK, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))
@@ -338,20 +339,20 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().NoError(err)
 }
 
-func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
+func (s *CalendarGrpcAPIIntegrationSuite) TestListMonthEventsByGrpcAPI() {
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2031, 1, 1, 10, 0, 0, 0, timeLocation)
 
 	eventOne := &model.TestEvent{
-		Title:       "title 01 TestListMonthEventsByRestApi",
+		Title:       "title 01 TestListMonthEventsByGrpcApi",
 		StartTime:   startTime,
 		Duration:    1 * time.Hour,
-		Description: "description 01 TestListMonthEventsByRestApi",
-		UserID:      "user-id-01-TestListMonthEventsByRestApi",
+		Description: "description 01 TestListMonthEventsByGrpcApi",
+		UserID:      "user-id-01-TestListMonthEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneId, _, err := s.restApiClient.AddTestEvent(eventOne)
+	eventOneId, _, err := s.apiClient.AddTestEvent(eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneId)
 	eventOne.ID = eventOneId
@@ -360,14 +361,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 	s.Require().Equal(eventOne, dbEventOne)
 
 	eventTwo := &model.TestEvent{
-		Title:       "title 02 TestListMonthEventsByRestApi",
+		Title:       "title 02 TestListMonthEventsByGrpcApi",
 		StartTime:   startTime.AddDate(0, 0, 8),
 		Duration:    1 * time.Hour,
-		Description: "description 02 TestListMonthEventsByRestApi",
-		UserID:      "user-id-02-TestListMonthEventsByRestApi",
+		Description: "description 02 TestListMonthEventsByGrpcApi",
+		UserID:      "user-id-02-TestListMonthEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoId, _, err := s.restApiClient.AddTestEvent(eventTwo)
+	eventTwoId, _, err := s.apiClient.AddTestEvent(eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoId)
 	eventTwo.ID = eventTwoId
@@ -376,14 +377,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 	s.Require().Equal(eventTwo, dbEventTwo)
 
 	eventThree := &model.TestEvent{
-		Title:       "title 03 TestListMonthEventsByRestApi",
+		Title:       "title 03 TestListMonthEventsByGrpcApi",
 		StartTime:   startTime.AddDate(0, 0, 16),
 		Duration:    1 * time.Hour,
-		Description: "description 03 TestListMonthEventsByRestApi",
-		UserID:      "user-id-03-TestListMonthEventsByRestApi",
+		Description: "description 03 TestListMonthEventsByGrpcApi",
+		UserID:      "user-id-03-TestListMonthEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeId, _, err := s.restApiClient.AddTestEvent(eventThree)
+	eventThreeId, _, err := s.apiClient.AddTestEvent(eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeId)
 	eventThree.ID = eventThreeId
@@ -392,14 +393,14 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 	s.Require().Equal(eventThree, dbEventThree)
 
 	eventNotInPeriod := &model.TestEvent{
-		Title:       "title 03 NotInPeriod TestListMonthEventsByRestApi",
+		Title:       "title 03 NotInPeriod TestListMonthEventsByGrpcApi",
 		StartTime:   startTime.AddDate(0, 0, 32),
 		Duration:    1 * time.Hour,
-		Description: "description 03 NotInPeriod TestListMonthEventsByRestApi",
-		UserID:      "user-id-03-TestListMonthEventsByRestApi",
+		Description: "description 03 NotInPeriod TestListMonthEventsByGrpcApi",
+		UserID:      "user-id-03-TestListMonthEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodId, _, err := s.restApiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodId, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodId)
 	eventNotInPeriod.ID = eventNotInPeriodId
@@ -407,7 +408,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.restApiClient.ListTestEvent(c.MONTH, startTime)
+	events, _, err := s.apiClient.ListTestEvent(c.MONTH, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))
