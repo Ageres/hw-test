@@ -5,7 +5,6 @@ services:
     image: postgres:17.5
     container_name: postgres
     environment:
-      POSTGRES_USER: ${DB_USER:-user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
       POSTGRES_DB: calendar
       PGDATA: "/var/lib/postgresql/data/pgdata"
@@ -40,7 +39,7 @@ services:
     container_name: calendar
     environment:
       DB_HOST: ${DB_HOST:-pg-otus}
-      DB_USER: ${DB_USER:-user}
+      DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password}
     ports:
       - "8888:8080"
@@ -60,7 +59,7 @@ services:
       RMQ_USER: ${RMQ_USER:-guest}
       RMQ_PASSWORD: ${RMQ_PASSWORD:-guest}
       DB_HOST: ${DB_HOST:-pg-otus}
-      DB_USER: ${DB_USER:-user}
+      DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password}
     restart: unless-stopped  
   sender-otus:
@@ -77,7 +76,7 @@ services:
       RMQ_USER: ${RMQ_USER:-guest}
       RMQ_PASSWORD: ${RMQ_PASSWORD:-guest}
       DB_HOST: ${DB_HOST:-pg-otus}
-      DB_USER: ${DB_USER:-user}
+      DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password}
     restart: unless-stopped  
 volumes:
