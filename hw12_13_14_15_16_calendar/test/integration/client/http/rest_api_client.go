@@ -19,7 +19,7 @@ type restApiClient struct {
 	httpClient *http.Client
 }
 
-func NewRestapiClient() c.TestCalendarApiClient {
+func NewRestAPIClient() c.TestCalendarApiClient {
 	restApiHost := utils.GetEnvOrDefault(config.CALENDAR_REST_API_HOST_ENV, config.CALENDAR_REST_API_HOST_DEFAULT)
 	restApiPort := utils.GetEnvOrDefault(config.CALENDAR_REST_API_PORT_ENV, config.CALENDAR_REST_API_PORT_DEFAULT)
 	return &restApiClient{
@@ -144,4 +144,9 @@ func parseHTTPResponce(resp *http.Response, err error) ([]byte, string, error) {
 		return body, bodyStr, err
 	}
 	return body, bodyStr, nil
+}
+
+// Stop implements apiclient.TestCalendarApiClient.
+func (c *restApiClient) Stop() {
+	panic("unimplemented")
 }

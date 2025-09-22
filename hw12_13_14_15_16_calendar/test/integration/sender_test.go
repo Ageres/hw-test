@@ -23,7 +23,7 @@ type SenderIntegrationSuite struct {
 
 func (s *SenderIntegrationSuite) SetupSuite() {
 	s.repo = repo.NewRepo()
-	s.restApiClient = ch.NewRestapiClient()
+	s.restApiClient = ch.NewRestAPIClient()
 }
 
 func (s *SenderIntegrationSuite) TearDownSuite() {

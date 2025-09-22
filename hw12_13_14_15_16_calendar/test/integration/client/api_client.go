@@ -18,4 +18,5 @@ type TestCalendarApiClient interface {
 	AddTestEvent(eventRef *model.TestEvent) (string, string, error)                         // return eventId, responseBody, error
 	UpdateTestEvent(eventRef *model.TestEvent) (string, error)                              // return responseBody, error
 	ListTestEvent(period ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) // return events, responseBody, error
+	Stop()
 }

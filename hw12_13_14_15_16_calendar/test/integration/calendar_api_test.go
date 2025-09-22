@@ -23,7 +23,7 @@ type CalendarRestApiIntegrationSuite struct {
 
 func (s *CalendarRestApiIntegrationSuite) SetupSuite() {
 	s.repo = repo.NewRepo()
-	s.restApiClient = ch.NewRestapiClient()
+	s.restApiClient = ch.NewRestAPIClient()
 }
 
 func (s *CalendarRestApiIntegrationSuite) TearDownSuite() {
