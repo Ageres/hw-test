@@ -127,7 +127,7 @@ func mapProtoEventToTestEvent(protoEvent *pb.ProtoEvent) *model.TestEvent {
 	}
 
 	if protoEvent.StartTime != nil {
-		event.StartTime = protoEvent.StartTime.AsTime()
+		event.StartTime = protoEvent.StartTime.AsTime().Local()
 	}
 
 	if protoEvent.Duration != nil {

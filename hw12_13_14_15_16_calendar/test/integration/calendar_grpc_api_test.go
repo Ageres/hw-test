@@ -109,9 +109,8 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestBusyDateErrorByGrpcAPI() {
 	s.Require().NotEqual("", eventOkId)
 	grpcApiEventOk.ID = eventOkId
 
-	eventBusyId, bodyBusy, err := s.apiClient.AddTestEvent(grpcApiEventBusy)
-	s.Require().Error(err, "response status '409 Conflict'")
-	s.Require().Contains(bodyBusy, fmt.Sprintf("add event: time is already taken by another event: %s", eventOkId))
+	eventBusyId, _, err := s.apiClient.AddTestEvent(grpcApiEventBusy)
+	s.Require().Contains(err.Error(), fmt.Sprintf("time is already taken by another event: %s", eventOkId))
 	s.Require().Equal("", eventBusyId)
 	grpcApiEventOk.ID = eventOkId
 
@@ -152,9 +151,8 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestUserConflictErrorByGrpcAPI() {
 	grpcApiEventOk.ID = eventOkId
 
 	grpcApiEventConflict.ID = eventOkId
-	bodyConflict, err := s.apiClient.UpdateTestEvent(grpcApiEventConflict)
-	s.Require().Error(err, "response status '409 Conflict'")
-	s.Require().Contains(bodyConflict, fmt.Sprintf("'%s' user is not the owner of the event, conflict with '%s'", userIDConflict, userIDOk))
+	_, err = s.apiClient.UpdateTestEvent(grpcApiEventConflict)
+	s.Require().Contains(err.Error(), fmt.Sprintf("'%s' user is not the owner of the event, conflict with '%s'", userIDConflict, userIDOk))
 	grpcApiEventOk.ID = eventOkId
 
 	dbEventOks, err := s.repo.ListByUserId(userIDOk)
@@ -162,7 +160,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestUserConflictErrorByGrpcAPI() {
 	s.Require().Equal(1, len(dbEventOks))
 
 	dbEventConflicts, err := s.repo.ListByUserId(userIDConflict)
-	s.Require().Error(err, "not found events for user_id 'user-id-conflict-TestUserConflictErrorByGrpcApi'")
+	s.Require().Equal(err.Error(), "not found events for user_id 'user-id-conflict-TestUserConflictErrorByGrpcApi'")
 	s.Require().Equal(0, len(dbEventConflicts))
 
 	err = s.repo.DeleteByUserId(userIDOk)
