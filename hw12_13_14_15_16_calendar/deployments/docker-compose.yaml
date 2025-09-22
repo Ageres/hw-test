@@ -85,4 +85,5 @@ volumes:
   rabbitmq_data:
 networks:
   default:
+    #name: deploy_default
     driver: bridge

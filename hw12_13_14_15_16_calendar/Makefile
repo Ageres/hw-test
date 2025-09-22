@@ -70,4 +70,9 @@ up:
 down:
 	docker-compose -f '.\deployments\docker-compose.yaml' down
 
-.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate up down
+integration-tests:
+	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus;  exit-code=$$?; \
+	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' down -v; exit $$exit-code
+	docker system prune -f	
+
+.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate up down integration-tests
