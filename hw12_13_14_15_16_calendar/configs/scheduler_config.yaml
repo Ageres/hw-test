@@ -27,7 +27,7 @@ storage:
   sql:
     startParam:
       reconnectAttempt: 5 
-      reconectTimeout: 10 # second
+      reconnectTimeout: 10 # second
     db:
       host: ${DB_HOST:=localhost}
       port: 5432
