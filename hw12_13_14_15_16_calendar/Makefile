@@ -71,10 +71,15 @@ down:
 	docker-compose -f '.\deployments\docker-compose.yaml' down
 
 integration-tests:
-	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus; \
-	exit_code=$$?; \
-	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' down -v; \ 
-	docker rmi $(docker images -f "reference=1aeef68f-*" -q); \
-	exit $$exit_code
+	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus ; \
+	@EXIT_CODE=$$? ; \
+	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' down ; \
+	docker rmi 1aeef68f-calendar:develop ; \
+	docker rmi 1aeef68f-scheduler:develop ; \
+	docker rmi 1aeef68f-sender:develop ; \
+	docker rmi 1aeef68f-integration-tests:develop ; \
+	docker system prune -f ; \
+	echo "integration-tests-otus exited with code: $$TEST_EXIT_CODE" ; \
+	exit $$EXIT_CODE
 
 .PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate up down integration-tests
