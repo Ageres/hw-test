@@ -4,7 +4,7 @@ BIN_SENDER := "./bin/sender"
 DOCKER_IMG_CALENDAR="calendar:develop"
 DOCKER_IMG_SCHEDULER="scheduler:develop"
 DOCKER_IMG_SENDER="sender:develop"
-DB_USER ?= user
+DB_USER ?= postgres
 DB_PASSWORD ?= password
 DB_DSN="host=localhost port=5432 user=$(DB_USER) password=$(DB_PASSWORD) dbname=calendar sslmode=disable"
 MIGRATIONS_DIR="./migrations"
@@ -71,8 +71,10 @@ down:
 	docker-compose -f '.\deployments\docker-compose.yaml' down
 
 integration-tests:
-	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus;  exit-code=$$?; \
-	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' down -v; exit $$exit-code
-	docker system prune -f	
+	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus; \
+	exit_code=$$?; \
+	docker compose -f '.\deployments\docker-compose.yaml' -f '.\deployments\docker-compose.test.yaml' down -v; \ 
+	docker rmi $(docker images -f "reference=1aeef68f-*" -q); \
+	exit $$exit_code
 
 .PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate up down integration-tests
