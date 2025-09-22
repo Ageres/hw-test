@@ -37,18 +37,32 @@ type Repo interface {
 	DeleteProcEventByUserId(userId string) error
 }
 
+const (
+	reconnectAttempt = 6
+	reconectTimeout  = 10
+)
+
 type repo struct {
 	db *sqlx.DB
 }
 
 func NewRepo() Repo {
 	dsn := dns()
-	db, err := sqlx.Connect("pgx", dsn)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	err = db.Ping()
+	var db *sqlx.DB
+	var err error
+	for i := range reconnectAttempt {
+		db, err = sqlx.Connect("pgx", dsn)
+		if err != nil {
+			log.Println(err)
+			if i < reconnectAttempt-1 {
+				db = nil
+				err = nil
+				time.Sleep(reconectTimeout * time.Second)
+				continue
+			}
+		}
+	}
 	if err != nil {
 		log.Fatal(err)
 	}

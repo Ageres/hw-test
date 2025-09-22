@@ -39,14 +39,40 @@ type dbEvent struct {
 	Reminder    int64
 }
 
+const (
+	reconnectAttempt = 6
+	reconectTimeout  = 10
+)
+
 func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
 	logger := lg.GetLogger(ctx)
 
 	sqlConfRef := storageConfRef.SQL
 	dsn := sqlConfRef.DB.DSN()
-	db, err := sqlx.Connect("pgx", dsn)
+
+	/*
+		db, err := sqlx.Connect("pgx", dsn)
+		if err != nil {
+			logger.WithError(err).Error("failed to load driver")
+			os.Exit(1)
+		}
+	*/
+
+	var db *sqlx.DB
+	var err error
+	for i := range reconnectAttempt {
+		db, err = sqlx.Connect("pgx", dsn)
+		if err != nil {
+			logger.WithError(err).Error("failed to load driver", map[string]any{"attempt": i + 1})
+			if i < reconnectAttempt-1 {
+				db = nil
+				err = nil
+				time.Sleep(reconectTimeout * time.Second)
+				continue
+			}
+		}
+	}
 	if err != nil {
-		logger.WithError(err).Error("failed to load driver")
 		os.Exit(1)
 	}
 

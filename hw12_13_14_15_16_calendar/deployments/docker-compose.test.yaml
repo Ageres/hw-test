@@ -22,6 +22,7 @@ services:
       CALENDAR_DB_NAME: calendar
       CALENDAR_DB_USER: ${DB_USER:-user}
       CALENDAR_DB_PASSWORD: ${DB_PASSWORD:-password}
+    restart: unless-stopped     
 networks:
   default:
     #name: deploy_default

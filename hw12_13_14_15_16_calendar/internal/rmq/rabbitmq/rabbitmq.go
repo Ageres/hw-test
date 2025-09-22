@@ -5,11 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"time"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq"
 	amqp "github.com/rabbitmq/amqp091-go"
+)
+
+const (
+	reconnectAttempt = 6
+	reconectTimeout  = 10
 )
 
 type client struct {
@@ -32,11 +39,34 @@ func (r *client) Connect(ctx context.Context) error {
 		r.conf.Host,
 		r.conf.Port,
 	)
+
+	logger := lg.GetLogger(ctx)
+
 	var err error
-	r.conn, err = amqp.Dial(amqpURI)
-	if err != nil {
-		return fmt.Errorf("connect to RabbitMQ: %w", err)
+
+	/*
+		r.conn, err = amqp.Dial(amqpURI)
+		if err != nil {
+			return fmt.Errorf("connect to RabbitMQ: %w", err)
+		}
+	*/
+
+	for i := range reconnectAttempt {
+		r.conn, err = amqp.Dial(amqpURI)
+		if err != nil {
+			logger.WithError(err).Error("connect to RabbitMQ", map[string]any{"attempt": i + 1})
+			if i < reconnectAttempt-1 {
+				r.conn = nil
+				err = nil
+				time.Sleep(reconectTimeout * time.Second)
+				continue
+			}
+		}
 	}
+	if err != nil {
+		os.Exit(1)
+	}
+
 	r.channel, err = r.conn.Channel()
 	if err != nil {
 		return fmt.Errorf("open channel: %w", err)
