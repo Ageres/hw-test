@@ -9,6 +9,8 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/config"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/model"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/utils"
+
+	// регистрация драйвера PostgreSQL.
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
