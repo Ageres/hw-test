@@ -99,7 +99,7 @@ linters:
     - prealloc
     - predeclared
     #- revive
-    #- staticcheck
+    - staticcheck
     - stylecheck
     - tagliatelle
     - thelper

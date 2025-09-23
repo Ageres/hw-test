@@ -1,4 +1,4 @@
-//go:build integration
+//------------------go:build integration
 
 package integration
 
@@ -17,7 +17,7 @@ const testTimeOut = 15
 
 type SenderIntegrationSuite struct {
 	suite.Suite
-	restApiClient c.TestCalendarApiClient
+	restApiClient c.TestCalendarAPIClient
 	repo          repo.Repo
 }
 
@@ -33,8 +33,8 @@ func (s *SenderIntegrationSuite) TearDownSuite() {
 		"user-id-03-TestSender",
 	}
 	for _, userID := range userIDs {
-		_ = s.repo.DeleteByUserId(userID)
-		_ = s.repo.DeleteProcEventByUserId(userID)
+		_ = s.repo.DeleteByUserID(userID)
+		_ = s.repo.DeleteProcEventByUserID(userID)
 	}
 }
 
@@ -57,7 +57,7 @@ func (s *SenderIntegrationSuite) TestSender() {
 		UserID:      "user-id-01-TestSender",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneId, _, err := s.restApiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.restApiClient.AddTestEvent(eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOne)
 
@@ -69,9 +69,9 @@ func (s *SenderIntegrationSuite) TestSender() {
 		UserID:      "user-id-02-TestSender",
 		Reminder:    48 * time.Hour,
 	}
-	eventTwoId, _, err := s.restApiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.restApiClient.AddTestEvent(eventTwo)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventTwoId)
+	s.Require().NotEqual("", eventTwoID)
 
 	eventThree := &model.TestEvent{
 		Title:       "title 03 TestSender",
@@ -81,9 +81,9 @@ func (s *SenderIntegrationSuite) TestSender() {
 		UserID:      "user-id-03-TestSender",
 		Reminder:    96 * time.Hour,
 	}
-	eventThreeId, _, err := s.restApiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.restApiClient.AddTestEvent(eventThree)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventThreeId)
+	s.Require().NotEqual("", eventThreeID)
 
 	eventNotInPeriod := &model.TestEvent{
 		Title:       "title 03 NotInPeriod TestSender",
@@ -93,39 +93,39 @@ func (s *SenderIntegrationSuite) TestSender() {
 		UserID:      "user-id-03-TestSender",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodId, _, err := s.restApiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.restApiClient.AddTestEvent(eventNotInPeriod)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventNotInPeriodId)
+	s.Require().NotEqual("", eventNotInPeriodID)
 
 	time.Sleep(time.Duration(testTimeOut * time.Second))
 
-	isExistProcEventOne, err := s.repo.CheckProcEvent(eventOneId)
+	isExistProcEventOne, err := s.repo.CheckProcEvent(eventOneID)
 	s.Require().NoError(err)
 	s.Require().True(isExistProcEventOne)
 
-	isExistProcEventTwo, err := s.repo.CheckProcEvent(eventTwoId)
+	isExistProcEventTwo, err := s.repo.CheckProcEvent(eventTwoID)
 	s.Require().NoError(err)
 	s.Require().True(isExistProcEventTwo)
 
-	isExistProcEventThree, err := s.repo.CheckProcEvent(eventThreeId)
+	isExistProcEventThree, err := s.repo.CheckProcEvent(eventThreeID)
 	s.Require().NoError(err)
 	s.Require().True(isExistProcEventThree)
 
-	isExistProcEventNotInPeriodId, err := s.repo.CheckProcEvent(eventNotInPeriodId)
+	isExistProcEventNotInPeriodID, err := s.repo.CheckProcEvent(eventNotInPeriodID)
 	s.Require().NoError(err)
-	s.Require().False(isExistProcEventNotInPeriodId)
+	s.Require().False(isExistProcEventNotInPeriodID)
 
-	err = s.repo.DeleteByUserId(eventOne.UserID)
+	err = s.repo.DeleteByUserID(eventOne.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteByUserId(eventTwo.UserID)
+	err = s.repo.DeleteByUserID(eventTwo.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteByUserId(eventThree.UserID)
+	err = s.repo.DeleteByUserID(eventThree.UserID)
 	s.Require().NoError(err)
 
-	err = s.repo.DeleteProcEventByUserId(eventOne.UserID)
+	err = s.repo.DeleteProcEventByUserID(eventOne.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteProcEventByUserId(eventTwo.UserID)
+	err = s.repo.DeleteProcEventByUserID(eventTwo.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteProcEventByUserId(eventThree.UserID)
+	err = s.repo.DeleteProcEventByUserID(eventThree.UserID)
 	s.Require().NoError(err)
 }
