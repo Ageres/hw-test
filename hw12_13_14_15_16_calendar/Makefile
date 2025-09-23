@@ -72,13 +72,10 @@ down:
 
 integration-tests:
 	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus ; \
-	EXIT_CODE=$$? ; \
-	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' down ; \
-	docker rmi 1aeef68f-calendar:develop ; \
-	docker rmi 1aeef68f-scheduler:develop ; \
-	docker rmi 1aeef68f-sender:develop ; \
-	docker rmi 1aeef68f-integration-tests:develop ; \
-	docker system prune -f ; \
+	EXIT_CODE=$$?; \
+	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' down; \
+	docker rmi -f 1aeef68f-calendar:develop 1aeef68f-scheduler:develop 1aeef68f-sender:develop 1aeef68f-integration-tests:develop 2>/dev/null || true; \
+	docker system prune -f; \
 	echo "integration-tests-otus exited with code: $$EXIT_CODE" ; \
 	exit $$EXIT_CODE
 
