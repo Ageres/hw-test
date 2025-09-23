@@ -52,7 +52,11 @@ func (g *grpcAPIClient) AddTestEvent(ctx context.Context, eventRef *model.TestEv
 	return resp.Event.GetId(), "", nil
 }
 
-func (g *grpcAPIClient) ListTestEvent(ctx context.Context, period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
+func (g *grpcAPIClient) ListTestEvent(
+	ctx context.Context,
+	period c.ListPeriod,
+	startDay time.Time,
+) ([]model.TestEvent, string, error) {
 	var pbPeriod pb.GetEventListPeriod
 	switch period {
 	case c.DAY:

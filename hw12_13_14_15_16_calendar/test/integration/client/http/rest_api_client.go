@@ -93,7 +93,11 @@ type ListTestEventResponseBody struct {
 	Events []model.TestEvent `json:"events,omitempty"`
 }
 
-func (c *restAPIClient) ListTestEvent(ctx context.Context, period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
+func (c *restAPIClient) ListTestEvent(
+	ctx context.Context,
+	period c.ListPeriod,
+	startDay time.Time,
+) ([]model.TestEvent, string, error) {
 	reqBody := ListTestEventRequestBody{
 		Period:   period,
 		StartDay: startDay,
