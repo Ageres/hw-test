@@ -65,10 +65,10 @@ generate: install-protoc-deps
 	@echo "gRPC code generated in $(GRPC_OUT_DIR)"
 
 up:
-	docker compose -f '.\deployments\docker-compose.yaml' up -d --build 
+	docker compose -f './deployments/docker-compose.yaml' up -d --build 
 
 down:
-	docker-compose -f '.\deployments\docker-compose.yaml' down
+	docker-compose -f './deployments/docker-compose.yaml' down
 
 integration-tests:
 	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus ; \
