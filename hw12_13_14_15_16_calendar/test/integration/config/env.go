@@ -2,8 +2,8 @@ package config
 
 // rest api client envs
 const (
-	CALENDAR_REST_API_HOST_ENV     = "CALENDAR_REST_API_HOST"
-	CALENDAR_REST_API_HOST_DEFAULT = "localhost"
+	CalendarRestAPIHostEnv         = "CALENDAR_REST_API_HOST"
+	CalendarRestAPIHostDefault     = "localhost"
 	CALENDAR_REST_API_PORT_ENV     = "CALENDAR_REST_API_PORT"
 	CALENDAR_REST_API_PORT_DEFAULT = "8888"
 )

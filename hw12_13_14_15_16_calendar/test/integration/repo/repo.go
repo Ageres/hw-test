@@ -29,12 +29,12 @@ type dbProcEvent struct {
 }
 
 type Repo interface {
-	Get(eventId string) (*model.TestEvent, error)
-	ListByUserId(userId string) ([]model.TestEvent, error)
-	Delete(eventId string) error
-	DeleteByUserId(userId string) error
-	CheckProcEvent(procEventId string) (bool, error)
-	DeleteProcEventByUserId(userId string) error
+	Get(eventID string) (*model.TestEvent, error)
+	ListByUserID(userID string) ([]model.TestEvent, error)
+	Delete(eventID string) error
+	DeleteByUserID(userID string) error
+	CheckProcEvent(procEventID string) (bool, error)
+	DeleteProcEventByUserID(userID string) error
 }
 
 const (
@@ -82,12 +82,12 @@ func dns() string {
 	)
 }
 
-func (r *repo) Get(eventId string) (*model.TestEvent, error) {
+func (r *repo) Get(eventID string) (*model.TestEvent, error) {
 	rows, err := r.db.Queryx(`
         SELECT id, title, start_time, duration, description, user_id, reminder 
         FROM events 
         WHERE id = $1 `,
-		eventId)
+		eventID)
 	if err != nil {
 		return nil, fmt.Errorf("can't select event: %w", err)
 	}
@@ -109,17 +109,17 @@ func (r *repo) Get(eventId string) (*model.TestEvent, error) {
 		})
 	}
 	if len(result) > 1 {
-		return nil, fmt.Errorf("found more than one event for id '%s', len '%d'", eventId, len(result))
+		return nil, fmt.Errorf("found more than one event for id '%s', len '%d'", eventID, len(result))
 	}
 	return &result[0], nil
 }
 
-func (r *repo) ListByUserId(userId string) ([]model.TestEvent, error) {
+func (r *repo) ListByUserID(userID string) ([]model.TestEvent, error) {
 	rows, err := r.db.Queryx(`
         SELECT id, title, start_time, duration, description, user_id, reminder 
         FROM events 
         WHERE user_id = $1 `,
-		userId)
+		userID)
 	if err != nil {
 		return nil, fmt.Errorf("can't select event: %w", err)
 	}
@@ -141,13 +141,13 @@ func (r *repo) ListByUserId(userId string) ([]model.TestEvent, error) {
 		})
 	}
 	if len(result) == 0 {
-		return nil, fmt.Errorf("not found events for user_id '%s'", userId)
+		return nil, fmt.Errorf("not found events for user_id '%s'", userID)
 	}
 	return result, nil
 }
 
-func (r *repo) Delete(eventId string) error {
-	res, err := r.db.Exec("DELETE FROM events WHERE id = $1", eventId)
+func (r *repo) Delete(eventID string) error {
+	res, err := r.db.Exec("DELETE FROM events WHERE id = $1", eventID)
 	if err != nil {
 		return fmt.Errorf("delete event: %s", err.Error())
 	}
@@ -161,8 +161,8 @@ func (r *repo) Delete(eventId string) error {
 	return nil
 }
 
-func (r *repo) DeleteByUserId(userId string) error {
-	res, err := r.db.Exec("DELETE FROM events WHERE user_id = $1", userId)
+func (r *repo) DeleteByUserID(userID string) error {
+	res, err := r.db.Exec("DELETE FROM events WHERE user_id = $1", userID)
 	if err != nil {
 		return fmt.Errorf("delete event: %s", err.Error())
 	}
@@ -176,8 +176,8 @@ func (r *repo) DeleteByUserId(userId string) error {
 	return nil
 }
 
-func (r *repo) CheckProcEvent(procEventId string) (bool, error) {
-	rows, err := r.db.Queryx(`SELECT id FROM proc_events WHERE id = $1 `, procEventId)
+func (r *repo) CheckProcEvent(procEventID string) (bool, error) {
+	rows, err := r.db.Queryx(`SELECT id FROM proc_events WHERE id = $1 `, procEventID)
 	if err != nil {
 		return false, fmt.Errorf("can't select event: %w", err)
 	}
@@ -191,7 +191,7 @@ func (r *repo) CheckProcEvent(procEventId string) (bool, error) {
 		result = append(result, p)
 	}
 	if len(result) > 1 {
-		return false, fmt.Errorf("found more than one proc event for id '%s', len '%d'", procEventId, len(result))
+		return false, fmt.Errorf("found more than one proc event for id '%s', len '%d'", procEventID, len(result))
 	}
 	if len(result) == 1 {
 		return true, nil
@@ -199,8 +199,8 @@ func (r *repo) CheckProcEvent(procEventId string) (bool, error) {
 	return false, nil
 }
 
-func (r *repo) DeleteProcEventByUserId(userId string) error {
-	res, err := r.db.Exec("DELETE FROM proc_events WHERE user_id = $1", userId)
+func (r *repo) DeleteProcEventByUserID(userID string) error {
+	res, err := r.db.Exec("DELETE FROM proc_events WHERE user_id = $1", userID)
 	if err != nil {
 		return fmt.Errorf("delete proc event: %s", err.Error())
 	}

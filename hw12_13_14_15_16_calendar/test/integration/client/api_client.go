@@ -14,7 +14,7 @@ const (
 	MONTH ListPeriod = "month"
 )
 
-type TestCalendarApiClient interface {
+type TestCalendarAPIClient interface {
 	// return eventId, responseBody, error
 	AddTestEvent(eventRef *model.TestEvent) (string, string, error)
 	// return responseBody, error

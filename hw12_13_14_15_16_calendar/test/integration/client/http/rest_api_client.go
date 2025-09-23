@@ -15,21 +15,21 @@ import (
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/utils"
 )
 
-type restApiClient struct {
+type restAPIClient struct {
 	url        string
 	httpClient *http.Client
 }
 
-func NewRestAPIClient() c.TestCalendarApiClient {
-	restApiHost := utils.GetEnvOrDefault(config.CALENDAR_REST_API_HOST_ENV, config.CALENDAR_REST_API_HOST_DEFAULT)
-	restApiPort := utils.GetEnvOrDefault(config.CALENDAR_REST_API_PORT_ENV, config.CALENDAR_REST_API_PORT_DEFAULT)
-	return &restApiClient{
-		url:        fmt.Sprintf("http://%s:%s/v1/event", restApiHost, restApiPort),
+func NewRestAPIClient() c.TestCalendarAPIClient {
+	restAPIHost := utils.GetEnvOrDefault(config.CalendarRestAPIHostEnv, config.CalendarRestAPIHostDefault)
+	restAPIPort := utils.GetEnvOrDefault(config.CALENDAR_REST_API_PORT_ENV, config.CALENDAR_REST_API_PORT_DEFAULT)
+	return &restAPIClient{
+		url:        fmt.Sprintf("http://%s:%s/v1/event", restAPIHost, restAPIPort),
 		httpClient: http.DefaultClient,
 	}
 }
 
-func (c *restApiClient) AddTestEvent(eventRef *model.TestEvent) (string, string, error) {
+func (c *restAPIClient) AddTestEvent(eventRef *model.TestEvent) (string, string, error) {
 	jsonBody, err := json.Marshal(eventRef)
 	if err != nil {
 		return "", "", err
@@ -57,7 +57,7 @@ func (c *restApiClient) AddTestEvent(eventRef *model.TestEvent) (string, string,
 }
 
 // UpdateTestEvent implements apiclient.TestCalendarApiClient.
-func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, error) {
+func (c *restAPIClient) UpdateTestEvent(eventRef *model.TestEvent) (string, error) {
 	jsonBody, err := json.Marshal(eventRef)
 	if err != nil {
 		return "", err
@@ -93,7 +93,7 @@ type ListTestEventResponseBody struct {
 	Events []model.TestEvent `json:"events,omitempty"`
 }
 
-func (c *restApiClient) ListTestEvent(period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
+func (c *restAPIClient) ListTestEvent(period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
 	reqBody := ListTestEventRequestBody{
 		Period:   period,
 		StartDay: startDay,
@@ -148,6 +148,6 @@ func parseHTTPResponce(resp *http.Response, err error) ([]byte, string, error) {
 }
 
 // Stop implements apiclient.TestCalendarApiClient.
-func (c *restApiClient) Stop() {
+func (c *restAPIClient) Stop() {
 	panic("unimplemented")
 }

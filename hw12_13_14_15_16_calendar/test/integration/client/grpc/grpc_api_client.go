@@ -16,31 +16,31 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type grpcApiClient struct {
+type grpcAPIClient struct {
 	conn   *grpc.ClientConn
 	client pb.CalendarClient
 }
 
-func NewGrpcAPIClient() c.TestCalendarApiClient {
-	grpcApiHost := utils.GetEnvOrDefault(config.CALENDAR_GRPC_API_HOST_ENV, config.CALENDAR_GRPC_API_HOST_DEFAULT)
-	grpcApiPort := utils.GetEnvOrDefault(config.CALENDAR_GRPC_API_PORT_ENV, config.CALENDAR_GRPC_API_PORT_DEFAULT)
-	url := fmt.Sprintf("%s:%s", grpcApiHost, grpcApiPort)
+func NewGrpcAPIClient() c.TestCalendarAPIClient {
+	grpcAPIHost := utils.GetEnvOrDefault(config.CALENDAR_GRPC_API_HOST_ENV, config.CALENDAR_GRPC_API_HOST_DEFAULT)
+	grpcAPIPort := utils.GetEnvOrDefault(config.CALENDAR_GRPC_API_PORT_ENV, config.CALENDAR_GRPC_API_PORT_DEFAULT)
+	url := fmt.Sprintf("%s:%s", grpcAPIHost, grpcAPIPort)
 	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	client := pb.NewCalendarClient(conn)
-	return &grpcApiClient{
+	return &grpcAPIClient{
 		conn:   conn,
 		client: client,
 	}
 }
 
-func (g *grpcApiClient) Stop() {
+func (g *grpcAPIClient) Stop() {
 	defer g.conn.Close()
 }
 
-func (g *grpcApiClient) AddTestEvent(eventRef *model.TestEvent) (string, string, error) {
+func (g *grpcAPIClient) AddTestEvent(eventRef *model.TestEvent) (string, string, error) {
 	req := pb.AddEventRequest{
 		Event: mapTestEventToProtoEvent(eventRef),
 	}
@@ -52,7 +52,7 @@ func (g *grpcApiClient) AddTestEvent(eventRef *model.TestEvent) (string, string,
 	return resp.Event.GetId(), "", nil
 }
 
-func (g *grpcApiClient) ListTestEvent(period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
+func (g *grpcAPIClient) ListTestEvent(period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
 	var pbPeriod pb.GetEventListPeriod
 	switch period {
 	case c.DAY:
@@ -88,7 +88,7 @@ func (g *grpcApiClient) ListTestEvent(period c.ListPeriod, startDay time.Time) (
 	return result, "", nil
 }
 
-func (g *grpcApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, error) {
+func (g *grpcAPIClient) UpdateTestEvent(eventRef *model.TestEvent) (string, error) {
 	req := pb.UpdateEventRequest{
 		Event: mapTestEventToProtoEvent(eventRef),
 	}
