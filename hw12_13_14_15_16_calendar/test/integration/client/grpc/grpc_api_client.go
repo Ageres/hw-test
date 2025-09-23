@@ -38,7 +38,9 @@ func NewGrpcAPIClient() c.TestCalendarAPIClient {
 }
 
 func (g *grpcAPIClient) Stop() {
-	defer g.conn.Close()
+	if g.conn != nil {
+		g.conn.Close()
+	}
 }
 
 func (g *grpcAPIClient) AddTestEvent(ctx context.Context, eventRef *model.TestEvent) (string, string, error) {
