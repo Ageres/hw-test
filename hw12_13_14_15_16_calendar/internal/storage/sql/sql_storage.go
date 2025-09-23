@@ -12,6 +12,7 @@ import (
 	// регистрация драйвера PostgreSQL.
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/pressly/goose/v3"
 )
 
 var ErrDatabaseMsg = "database error"
@@ -38,29 +39,53 @@ type dbEvent struct {
 }
 
 func NewSQLStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
-	logger := lg.GetLogger(ctx)
-
 	sqlConfRef := storageConfRef.SQL
-	dsn := sqlConfRef.DB.DSN()
-	db, err := sqlx.Connect("pgx", dsn)
-	if err != nil {
-		logger.WithError(err).Error("failed to load driver")
-		os.Exit(1)
-	}
-
+	db := createDBConnect(ctx, storageConfRef.SQL)
 	db.SetMaxOpenConns(sqlConfRef.Pool.Conn.MaxOpen)
 	db.SetMaxIdleConns(sqlConfRef.Pool.Conn.MaxIdle)
 	db.SetConnMaxLifetime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
 	db.SetConnMaxIdleTime(time.Duration(sqlConfRef.Pool.Conn.MaxLifeTime) * time.Second)
+	storage := &SQLStorage{
+		db: db,
+	}
+	setUpMigration(ctx, storage, storageConfRef)
+	return storage
+}
 
-	err = db.Ping()
+func createDBConnect(ctx context.Context, cfg *model.SQLConfig) *sqlx.DB {
+	var db *sqlx.DB
+	var err error
+	dsn := cfg.DB.DSN()
+	for i := range cfg.StartParam.ReconnectAttempt {
+		db, err = sqlx.Connect("pgx", dsn)
+		if err != nil {
+			lg.GetLogger(ctx).WithError(err).Error("failed to load driver", map[string]any{"attempt": i + 1})
+			if i < cfg.StartParam.ReconnectAttempt-1 {
+				err = nil
+				time.Sleep(time.Duration(cfg.StartParam.ReconnectTimeout) * time.Second)
+				continue
+			}
+		}
+	}
 	if err != nil {
-		logger.WithError(err).Error("failed to connect to db")
+		os.Exit(1)
+	}
+	return db
+}
+
+func setUpMigration(ctx context.Context, s *SQLStorage, storageConfRef *model.StorageConf) {
+	if !storageConfRef.SQL.Migration.Enable {
+		return
+	}
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		lg.GetLogger(ctx).WithError(err).Error("cannot set dialect")
 		os.Exit(1)
 	}
 
-	return &SQLStorage{
-		db: db,
+	if err := goose.Up(s.db.DB, storageConfRef.SQL.Migration.Path); err != nil {
+		lg.GetLogger(ctx).WithError(err).Error("failed to set up db migrations")
+		os.Exit(1)
 	}
 }
 
@@ -412,4 +437,56 @@ func (s *SQLStorage) ListReminderEvents(ctx context.Context, scanInterval int64)
 	}
 	logger.Debug("list reminder events", map[string]any{"found": len(result)})
 	return result, nil
+}
+
+func (s *SQLStorage) AddProcEvent(ctx context.Context, procEventRef *storage.ProcEvent) error {
+	logger := lg.GetLogger(ctx)
+	logger.Info("add proc event", map[string]any{"procEvent": lg.MarshalAny(procEventRef)})
+
+	if err := procEventRef.ValidateProcEvent(); err != nil {
+		logger.WithError(err).Error("add proc event")
+		return err
+	}
+
+	procEventID := procEventRef.ID
+	userID := procEventRef.UserID
+
+	tx, err := s.db.Beginx()
+	if err != nil {
+		err = storage.NewSError("add proc event", err)
+		logger.WithError(err).Error("list reminder events")
+		return err
+	}
+
+	defer func() error {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			err := storage.NewSErrorWithTemplate("add proc event: transaction rolled back due to panic: %v", r)
+			logger.WithError(err).Error("add proc event")
+			return err
+		} else if err != nil {
+			tx.Rollback()
+			err := storage.NewSErrorWithTemplate("add proc event: transaction rolled back due to panic: %v", r)
+			logger.WithError(err).Error("add proc event")
+			return err
+		}
+		return nil
+	}()
+
+	insertQuery := `INSERT INTO proc_events (id, user_id) VALUES ($1, $2)`
+	_, err = tx.Exec(insertQuery, procEventID, userID)
+	if err != nil {
+		err = storage.NewSError("add proc event", err)
+		logger.WithError(err).Error("add proc event")
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		err = storage.NewSError("add proc event", err)
+		logger.WithError(err).Error("add proc event")
+		return err
+	}
+
+	return nil
 }

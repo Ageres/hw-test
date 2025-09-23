@@ -13,8 +13,9 @@ import (
 )
 
 type MemoryStorage struct {
-	mu     sync.RWMutex
-	events map[string]storage.Event // key: Event.ID
+	mu         sync.RWMutex
+	events     map[string]storage.Event     // key: Event.ID
+	procEvents map[string]storage.ProcEvent // key: ProcEvent.ID
 }
 
 func NewMemoryStorage(ctx context.Context, storageConfRef *model.StorageConf) storage.Storage {
@@ -304,6 +305,30 @@ func (m *MemoryStorage) DeleteOldEvents(ctx context.Context, before time.Time) (
 	}
 
 	return rows, nil
+}
+
+func (m *MemoryStorage) AddProcEvent(ctx context.Context, procEventRef *storage.ProcEvent) error {
+	logger := lg.GetLogger(ctx)
+	logger.Info("add proc event", map[string]any{"procEvent": lg.MarshalAny(procEventRef)})
+
+	if err := procEventRef.ValidateProcEvent(); err != nil {
+		logger.WithError(err).Error("add proc event")
+		return err
+	}
+
+	procEventID := procEventRef.ID
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.procEvents[procEventID]; exists {
+		err := storage.NewSErrorWithTemplate("failed to add, proc event with this id already exists: %s", procEventID)
+		logger.WithError(err).Error("add event")
+		return err
+	}
+
+	m.procEvents[procEventID] = *procEventRef
+	return nil
 }
 
 func (m *MemoryStorage) Close() error {

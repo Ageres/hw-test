@@ -1,5 +1,8 @@
 rmq:
-  host: localhost
+  startParam:
+      reconnectAttempt: 5 
+      reconnectTimeout: 10 # second
+  host: ${RMQ_HOST:=localhost}
   port: 5672
   user: ${RMQ_USER:=guest}
   password: ${RMQ_PASSWORD:=guest}
@@ -14,3 +17,22 @@ logger:
   level: INFO 
   # JSON, TEXT, COLOUR_TEXT 
   format: JSON
+
+storage:
+  sql:
+    startParam:
+      reconnectAttempt: 5 
+      reconnectTimeout: 10 # second
+    db:
+      host: ${DB_HOST:=localhost}
+      port: 5432
+      name: calendar
+      user: ${DB_USER:=user}
+      password: ${DB_PASSWORD:=password}
+      sslmode: disable
+    pool:
+      conn:
+        maxOpen: 10
+        maxIdle: 2
+        maxLifeTime: 3600
+        maxIdleTime: 3600  

@@ -1,0 +1,1464 @@
+docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus ; \
+	EXIT_CODE=$?; \
+	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' down; \
+	docker rmi -f 1aeef68f-calendar:develop 1aeef68f-scheduler:develop 1aeef68f-sender:develop 1aeef68f-integration-tests:develop 2>/dev/null || true; \
+	docker system prune -f; \
+	echo "integration-tests-otus exited with code: $EXIT_CODE" ; \
+	exit $EXIT_CODE
+failed to get console mode for stdout: The handle is invalid.
+#1 [1aeef68f-integration-tests:develop internal] load build definition from Dockerfile
+#1 transferring dockerfile: 367B done
+#1 DONE 0.0s
+
+#2 [1aeef68f-scheduler:develop internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.12kB done
+#2 DONE 0.0s
+
+#3 [1aeef68f-sender:develop internal] load build definition from Dockerfile
+#3 transferring dockerfile: 1.10kB done
+#3 DONE 0.0s
+
+#4 [1aeef68f-calendar:develop internal] load build definition from Dockerfile
+#4 transferring dockerfile: 1.17kB done
+#4 DONE 0.0s
+
+#5 [1aeef68f-integration-tests:develop internal] load .dockerignore
+#5 transferring context: 2B done
+#5 DONE 0.0s
+
+#6 [1aeef68f-scheduler:develop internal] load .dockerignore
+#6 transferring context: 2B done
+#6 DONE 0.0s
+
+#7 [1aeef68f-sender:develop internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#8 [1aeef68f-calendar:develop internal] load .dockerignore
+#8 transferring context: 2B done
+#8 DONE 0.0s
+
+#9 [1aeef68f-scheduler:develop internal] load metadata for docker.io/library/alpine:3.22
+#9 ...
+
+#10 [1aeef68f-integration-tests:develop internal] load metadata for docker.io/library/golang:1.23.12-alpine3.22
+#10 DONE 4.2s
+
+#9 [1aeef68f-scheduler:develop internal] load metadata for docker.io/library/alpine:3.22
+#9 DONE 4.2s
+
+#11 [1aeef68f-integration-tests:develop internal] load build context
+#11 transferring context: 666.32kB 0.0s done
+#11 DONE 0.0s
+
+#12 [1aeef68f-sender:develop stage-1 1/4] FROM docker.io/library/alpine:3.22@sha256:4bcff63911fcb4448bd4fdacec207030997caf25e9bea4045fa6c8c44de311d1
+#12 resolve docker.io/library/alpine:3.22@sha256:4bcff63911fcb4448bd4fdacec207030997caf25e9bea4045fa6c8c44de311d1 0.0s done
+#12 sha256:4bcff63911fcb4448bd4fdacec207030997caf25e9bea4045fa6c8c44de311d1 9.22kB / 9.22kB done
+#12 sha256:eafc1edb577d2e9b458664a15f23ea1c370214193226069eb22921169fc7e43f 1.02kB / 1.02kB done
+#12 sha256:9234e8fb04c47cfe0f49931e4ac7eb76fa904e33b7f8576aec0501c085f02516 581B / 581B done
+#12 DONE 0.1s
+
+#13 [1aeef68f-calendar:develop internal] load build context
+#13 transferring context: 666.32kB 0.1s done
+#13 DONE 0.1s
+
+#14 [1aeef68f-sender:develop internal] load build context
+#14 transferring context: 666.32kB 0.1s done
+#14 DONE 0.1s
+
+#15 [1aeef68f-scheduler:develop internal] load build context
+#15 transferring context: 666.32kB 0.1s done
+#15 DONE 0.1s
+
+#16 [1aeef68f-integration-tests:develop 1/6] FROM docker.io/library/golang:1.23.12-alpine3.22@sha256:383395b794dffa5b53012a212365d40c8e37109a626ca30d6151c8348d380b5f
+#16 resolve docker.io/library/golang:1.23.12-alpine3.22@sha256:383395b794dffa5b53012a212365d40c8e37109a626ca30d6151c8348d380b5f done
+#16 sha256:72fd06a5dd05d7cb31d0fa2a125e89eecc16fbff26acf95bbd2762cdcfb5af38 2.08kB / 2.08kB done
+#16 sha256:383395b794dffa5b53012a212365d40c8e37109a626ca30d6151c8348d380b5f 10.30kB / 10.30kB done
+#16 sha256:a7ecaac5efda22510d8c903bdc6b19026543f1eac3317d47363680df22161bd8 1.92kB / 1.92kB done
+#16 DONE 0.3s
+
+#17 [1aeef68f-integration-tests:develop 2/6] WORKDIR /go/src/
+#17 DONE 0.1s
+
+#18 [1aeef68f-sender:develop build 3/7] COPY go.mod .
+#18 DONE 0.0s
+
+#19 [1aeef68f-calendar:develop build 3/7] COPY go.mod .
+#19 CACHED
+
+#20 [1aeef68f-calendar:develop build 4/7] COPY go.sum .
+#20 CACHED
+
+#21 [1aeef68f-sender:develop build 4/7] COPY go.sum .
+#21 DONE 0.0s
+
+#22 [1aeef68f-scheduler:develop build 3/7] COPY go.mod .
+#22 CACHED
+
+#23 [1aeef68f-scheduler:develop build 4/7] COPY go.sum .
+#23 CACHED
+
+#24 [1aeef68f-sender:develop build 5/7] RUN go mod download
+#24 ...
+
+#25 [1aeef68f-integration-tests:develop 3/6] RUN apk add --no-cache gcc musl-dev
+#0 0.513 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/APKINDEX.tar.gz
+#0 1.432 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/APKINDEX.tar.gz
+#0 2.533 (1/13) Installing libgcc (14.2.0-r6)
+#0 2.627 (2/13) Installing jansson (2.14.1-r0)
+#0 2.715 (3/13) Installing libstdc++ (14.2.0-r6)
+#0 3.360 (4/13) Installing zstd-libs (1.5.7-r0)
+#0 4.671 (5/13) Installing binutils (2.44-r3)
+#25 ...
+
+#26 [1aeef68f-calendar:develop build 5/7] RUN go mod download
+#26 ...
+
+#27 [1aeef68f-scheduler:develop build 5/7] RUN go mod download
+#27 DONE 10.5s
+
+#25 [1aeef68f-integration-tests:develop 3/6] RUN apk add --no-cache gcc musl-dev
+#25 10.37 (6/13) Installing libgomp (14.2.0-r6)
+#25 ...
+
+#28 [1aeef68f-scheduler:develop build 6/7] COPY . /go/src/
+#28 DONE 0.1s
+
+#25 [1aeef68f-integration-tests:develop 3/6] RUN apk add --no-cache gcc musl-dev
+#25 10.78 (7/13) Installing libatomic (14.2.0-r6)
+#25 10.87 (8/13) Installing gmp (6.3.0-r3)
+#25 11.45 (9/13) Installing isl26 (0.26-r1)
+#25 ...
+
+#24 [1aeef68f-sender:develop build 5/7] RUN go mod download
+#24 DONE 12.6s
+
+#26 [1aeef68f-calendar:develop build 5/7] RUN go mod download
+#26 DONE 12.6s
+
+#29 [1aeef68f-sender:develop build 6/7] COPY . /go/src/
+#29 DONE 0.0s
+
+#30 [1aeef68f-calendar:develop build 6/7] COPY . /go/src/
+#30 DONE 0.0s
+
+#31 [1aeef68f-calendar:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/calendar-app cmd/calendar/*
+#31 ...
+
+#25 [1aeef68f-integration-tests:develop 3/6] RUN apk add --no-cache gcc musl-dev
+#25 12.99 (10/13) Installing mpfr4 (4.2.1_p1-r0)
+#25 13.54 (11/13) Installing mpc1 (1.3.1-r1)
+#25 13.69 (12/13) Installing gcc (14.2.0-r6)
+#25 ...
+
+#32 [1aeef68f-scheduler:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/scheduler-app cmd/scheduler/*
+#32 ...
+
+#33 [1aeef68f-sender:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/sender-app cmd/sender/*
+#33 ...
+
+#25 [1aeef68f-integration-tests:develop 3/6] RUN apk add --no-cache gcc musl-dev
+#25 34.38 (13/13) Installing musl-dev (1.2.5-r10)
+#25 35.49 Executing busybox-1.37.0-r18.trigger
+#25 35.51 OK: 172 MiB in 30 packages
+#25 DONE 36.5s
+
+#33 [1aeef68f-sender:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/sender-app cmd/sender/*
+#33 ...
+
+#34 [1aeef68f-integration-tests:develop 4/6] COPY go.mod go.sum ./
+#34 DONE 0.3s
+
+#33 [1aeef68f-sender:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/sender-app cmd/sender/*
+#33 ...
+
+#35 [1aeef68f-integration-tests:develop 5/6] RUN go mod download
+#35 ...
+
+#32 [1aeef68f-scheduler:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/scheduler-app cmd/scheduler/*
+#32 DONE 29.0s
+
+#33 [1aeef68f-sender:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/sender-app cmd/sender/*
+#33 ...
+
+#36 [1aeef68f-scheduler:develop stage-1 2/3] COPY --from=build /opt/calendar/scheduler-app /opt/calendar/scheduler-app
+#36 DONE 0.4s
+
+#37 [1aeef68f-scheduler:develop stage-1 3/3] COPY ./configs/scheduler_config.yaml /etc/calendar/scheduler_config.yaml
+#37 DONE 0.3s
+
+#33 [1aeef68f-sender:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/sender-app cmd/sender/*
+#33 ...
+
+#38 [1aeef68f-scheduler:develop] exporting to image
+#38 exporting layers
+#38 exporting layers 0.4s done
+#38 writing image sha256:e2fcd5de9bec520864b263f8557cf10bef3e46a7011a52d3746d2823a120127f 0.0s done
+#38 naming to docker.io/library/1aeef68f-scheduler:develop 0.0s done
+#38 DONE 0.5s
+
+#31 [1aeef68f-calendar:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/calendar-app cmd/calendar/*
+#31 ...
+
+#35 [1aeef68f-integration-tests:develop 5/6] RUN go mod download
+#35 DONE 10.1s
+
+#39 [1aeef68f-integration-tests:develop 6/6] COPY . /go/src/
+#39 DONE 0.1s
+
+#33 [1aeef68f-sender:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/sender-app cmd/sender/*
+#33 ...
+
+#38 [1aeef68f-integration-tests:develop] exporting to image
+#38 exporting layers
+#38 ...
+
+#33 [1aeef68f-sender:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/sender-app cmd/sender/*
+#33 DONE 35.6s
+
+#31 [1aeef68f-calendar:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/calendar-app cmd/calendar/*
+#31 ...
+
+#40 [1aeef68f-sender:develop stage-1 2/3] COPY --from=build /opt/calendar/sender-app /opt/calendar/sender-app
+#40 DONE 0.2s
+
+#41 [1aeef68f-sender:develop stage-1 3/3] COPY ./configs/sender_config.yaml /etc/calendar/sender_config.yaml
+#41 DONE 0.1s
+
+#38 [1aeef68f-sender:develop] exporting to image
+#38 exporting layers 0.2s done
+#38 writing image sha256:0fd6d618a6dd8714e4c7df53b30da0dbe815f7501e8aee2e9e389233f64438fc done
+#38 naming to docker.io/library/1aeef68f-sender:develop
+#38 naming to docker.io/library/1aeef68f-sender:develop done
+#38 exporting layers 2.2s done
+#38 writing image sha256:2295f4a677fe9607dc72c42037a5d3f25e610b56e977bed6d2914978978b3049 done
+#38 naming to docker.io/library/1aeef68f-integration-tests:develop done
+#38 DONE 2.7s
+
+#31 [1aeef68f-calendar:develop build 7/7] RUN CGO_ENABLED=0 go build         -ldflags "$LDFLAGS"         -o /opt/calendar/calendar-app cmd/calendar/*
+#31 DONE 37.7s
+
+#42 [1aeef68f-calendar:develop stage-1 2/4] COPY --from=build /opt/calendar/calendar-app /opt/calendar/calendar-app
+#42 DONE 0.2s
+
+#43 [1aeef68f-calendar:develop stage-1 3/4] COPY ./configs/calendar_config.yaml /etc/calendar/calendar_config.yaml
+#43 DONE 0.1s
+
+#44 [1aeef68f-calendar:develop stage-1 4/4] COPY ./migrations ./migrations
+#44 DONE 0.1s
+
+#38 [1aeef68f-calendar:develop] exporting to image
+#38 exporting layers 0.2s done
+#38 writing image sha256:3029823408c357775b0014a00e4c42dea59aa5ac491b3dd136e8abbd6abee5a5 done
+#38 naming to docker.io/library/1aeef68f-calendar:develop done
+#38 DONE 2.9s
+[1A[1B[0G[?25l[+] Running 0/0
+ - Network deployments_default  Creating 0.0s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Network deployments_default  Creating 0.1s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Network deployments_default  Creating 0.2s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Network deployments_default  Creating 0.3s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Network deployments_default  Creating 0.4s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Network deployments_default  Creating 0.5s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Network deployments_default  Creating 0.6s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Network deployments_default  Creating 0.7s
+[?25h[1A[1A[0G[?25l[34m[+] Running 1/1[0m
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Creating 0.1s
+ - Container postgres           Creating 0.1s
+[?25h[1A[1A[1A[1A[0G[?25l[34m[+] Running 3/3[0m
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Creating 0.0s
+ - Container calendar           Creating 0.0s
+ - Container scheduler          Creating 0.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[34m[+] Running 6/6[0m
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.7s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Creating 0.8s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[34m[+] Running 7/7[0m
+ - Network deployments_default  Created 0.7s
+ - Container rabbit             Created 0.1s
+ - Container postgres           Created 0.1s
+ - Container sender             Created 0.1s
+ - Container calendar           Created 0.1s
+ - Container scheduler          Created 0.1s
+ - Container integration-tests  Created 0.8s
+[?25hAttaching to calendar, integration-tests, postgres, rabbit, scheduler, sender
+postgres           | 
+postgres           | PostgreSQL Database directory appears to contain a database; Skipping initialization
+postgres           | 
+postgres           | 2025-09-23 12:28:29.928 UTC [1] LOG:  starting PostgreSQL 17.5 (Debian 17.5-1.pgdg130+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+postgres           | 2025-09-23 12:28:29.928 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres           | 2025-09-23 12:28:29.928 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres           | 2025-09-23 12:28:29.939 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres           | 2025-09-23 12:28:29.951 UTC [29] LOG:  database system was shut down at 2025-09-23 12:27:17 UTC
+postgres           | 2025-09-23 12:28:29.960 UTC [1] LOG:  database system is ready to accept connections
+sender             | 2025/09/23 12:28:32 PathToConfigFile: /etc/calendar/sender_config.yaml
+sender             | {"time":"2025-09-23T12:28:32.0845251Z","level":"INFO","msg":"logger configured","logLevel":"INFO","logFormat":"JSON"}
+sender             | {"time":"2025-09-23T12:28:32.1103543Z","level":"INFO","msg":"storage configured","storageType":"SQL"}
+sender             | {"time":"2025-09-23T12:28:32.110401Z","level":"INFO","msg":"sender is running..."}
+sender             | {"time":"2025-09-23T12:28:32.1104132Z","level":"INFO","msg":"Starting sender..."}
+sender             | {"time":"2025-09-23T12:28:32.1115962Z","level":"ERROR","msg":"connect to RabbitMQ","error":"dial tcp 192.168.32.2:5672: connect: connection refused","attempt":1}
+scheduler          | 2025/09/23 12:28:32 PathToConfigFile: /etc/calendar/scheduler_config.yaml
+scheduler          | {"time":"2025-09-23T12:28:32.2028202Z","level":"INFO","msg":"logger configured","logLevel":"INFO","logFormat":"JSON"}
+scheduler          | {"time":"2025-09-23T12:28:32.2337326Z","level":"INFO","msg":"storage configured","storageType":"SQL"}
+scheduler          | {"time":"2025-09-23T12:28:32.2337839Z","level":"INFO","msg":"scheduler is running..."}
+scheduler          | {"time":"2025-09-23T12:28:32.2337986Z","level":"INFO","msg":"Starting scheduler..."}
+scheduler          | {"time":"2025-09-23T12:28:32.2346627Z","level":"ERROR","msg":"connect to RabbitMQ","error":"dial tcp 192.168.32.2:5672: connect: connection refused","attempt":1}
+calendar           | 2025/09/23 12:28:32 PathToConfigFile: /etc/calendar/calendar_config.yaml
+calendar           | {"time":"2025-09-23T12:28:32.653793Z","level":"INFO","msg":"logger configured","logLevel":"INFO","logFormat":"JSON"}
+calendar           | 2025/09/23 12:28:32 goose: no migrations to run. current version: 8
+calendar           | {"time":"2025-09-23T12:28:32.6833918Z","level":"INFO","msg":"storage configured","storageType":"SQL"}
+calendar           | {"time":"2025-09-23T12:28:32.6836659Z","level":"INFO","msg":"server configured"}
+calendar           | {"time":"2025-09-23T12:28:32.6839271Z","level":"INFO","msg":"calendar is running..."}
+calendar           | {"time":"2025-09-23T12:28:32.6840408Z","level":"INFO","msg":"Starting HTTP server..."}
+calendar           | {"time":"2025-09-23T12:28:32.6840884Z","level":"INFO","msg":"Starting HTTP server","address":":8080"}
+calendar           | {"time":"2025-09-23T12:28:32.6840476Z","level":"INFO","msg":"Starting gRPC server..."}
+calendar           | {"time":"2025-09-23T12:28:32.684627Z","level":"INFO","msg":"gRPC server listening","port":50051}
+rabbit             | 2025-09-23 12:28:32.747340+00:00 [notice] <0.44.0> Application syslog exited with reason: stopped
+rabbit             | 2025-09-23 12:28:32.752861+00:00 [notice] <0.254.0> Logging: switching to configured handler(s); following messages may not be visible in this log output
+rabbit             | [38;5;87m2025-09-23 12:28:32.753536+00:00 [notice] <0.254.0> Logging: configured log handlers are now ACTIVE[0m
+rabbit             | 2025-09-23 12:28:32.763348+00:00 [info] <0.254.0> ra: starting system quorum_queues[0m
+rabbit             | 2025-09-23 12:28:32.763429+00:00 [info] <0.254.0> starting Ra system: quorum_queues in directory: /var/lib/rabbitmq/mnesia/rabbit@97b6ac3a089c/quorum/rabbit@97b6ac3a089c[0m
+rabbit             | 2025-09-23 12:28:32.817619+00:00 [info] <0.268.0> ra system 'quorum_queues' running pre init for 0 registered servers[0m
+rabbit             | 2025-09-23 12:28:32.833210+00:00 [info] <0.269.0> ra: meta data store initialised for system quorum_queues. 0 record(s) recovered[0m
+rabbit             | [38;5;87m2025-09-23 12:28:32.850153+00:00 [notice] <0.274.0> WAL: ra_log_wal init, open tbls: ra_log_open_mem_tables, closed tbls: ra_log_closed_mem_tables[0m
+rabbit             | 2025-09-23 12:28:32.875926+00:00 [info] <0.254.0> ra: starting system coordination[0m
+rabbit             | 2025-09-23 12:28:32.875994+00:00 [info] <0.254.0> starting Ra system: coordination in directory: /var/lib/rabbitmq/mnesia/rabbit@97b6ac3a089c/coordination/rabbit@97b6ac3a089c[0m
+rabbit             | 2025-09-23 12:28:32.877512+00:00 [info] <0.282.0> ra system 'coordination' running pre init for 0 registered servers[0m
+rabbit             | 2025-09-23 12:28:32.878405+00:00 [info] <0.283.0> ra: meta data store initialised for system coordination. 0 record(s) recovered[0m
+rabbit             | [38;5;87m2025-09-23 12:28:32.878615+00:00 [notice] <0.288.0> WAL: ra_coordination_log_wal init, open tbls: ra_coordination_log_open_mem_tables, closed tbls: ra_coordination_log_closed_mem_tables[0m
+rabbit             | 2025-09-23 12:28:32.885759+00:00 [info] <0.254.0> ra: starting system coordination[0m
+rabbit             | 2025-09-23 12:28:32.885840+00:00 [info] <0.254.0> starting Ra system: coordination in directory: /var/lib/rabbitmq/mnesia/rabbit@97b6ac3a089c/coordination/rabbit@97b6ac3a089c[0m
+rabbit             | 2025-09-23 12:28:32.980650+00:00 [info] <0.254.0> Waiting for Khepri leader for 30000 ms, 9 retries left[0m
+rabbit             | [38;5;87m2025-09-23 12:28:32.994747+00:00 [notice] <0.292.0> RabbitMQ metadata store: candidate -> leader in term: 1 machine version: 1[0m
+rabbit             | 2025-09-23 12:28:33.000591+00:00 [info] <0.254.0> Khepri leader elected[0m
+rabbit             | 2025-09-23 12:28:33.000654+00:00 [info] <0.254.0> Waiting for Khepri projections for 30000 ms, 9 retries left[0m
+rabbit             | 2025-09-23 12:28:33.282212+00:00 [info] <0.254.0> [0m
+rabbit             | 2025-09-23 12:28:33.282212+00:00 [info] <0.254.0>  Starting RabbitMQ 3.13.7 on Erlang 26.2.5.15 [jit][0m
+rabbit             | 2025-09-23 12:28:33.282212+00:00 [info] <0.254.0>  Copyright (c) 2007-2024 Broadcom Inc and/or its subsidiaries[0m
+rabbit             | 2025-09-23 12:28:33.282212+00:00 [info] <0.254.0>  Licensed under the MPL 2.0. Website: https://rabbitmq.com[0m
+rabbit             | 
+rabbit             |   ##  ##      RabbitMQ 3.13.7
+rabbit             |   ##  ##
+rabbit             |   ##########  Copyright (c) 2007-2024 Broadcom Inc and/or its subsidiaries
+rabbit             |   ######  ##
+rabbit             |   ##########  Licensed under the MPL 2.0. Website: https://rabbitmq.com
+rabbit             | 
+rabbit             |   Erlang:      26.2.5.15 [jit]
+rabbit             |   TLS Library: OpenSSL - OpenSSL 3.1.8 11 Feb 2025
+rabbit             |   Release series support status: see https://www.rabbitmq.com/release-information
+rabbit             | 
+rabbit             |   Doc guides:  https://www.rabbitmq.com/docs
+rabbit             |   Support:     https://www.rabbitmq.com/docs/contact
+rabbit             |   Tutorials:   https://www.rabbitmq.com/tutorials
+rabbit             |   Monitoring:  https://www.rabbitmq.com/docs/monitoring
+rabbit             |   Upgrading:   https://www.rabbitmq.com/docs/upgrade
+rabbit             | 
+rabbit             |   Logs: <stdout>
+rabbit             | 
+rabbit             |   Config file(s): /etc/rabbitmq/conf.d/10-defaults.conf
+rabbit             | 
+rabbit             |   Starting broker...2025-09-23 12:28:33.283310+00:00 [info] <0.254.0> [0m
+rabbit             | 2025-09-23 12:28:33.283310+00:00 [info] <0.254.0>  node           : rabbit@97b6ac3a089c[0m
+rabbit             | 2025-09-23 12:28:33.283310+00:00 [info] <0.254.0>  home dir       : /var/lib/rabbitmq[0m
+rabbit             | 2025-09-23 12:28:33.283310+00:00 [info] <0.254.0>  config file(s) : /etc/rabbitmq/conf.d/10-defaults.conf[0m
+rabbit             | 2025-09-23 12:28:33.283310+00:00 [info] <0.254.0>  cookie hash    : wh0Q1CTViSI5KxqXIne4dg==[0m
+rabbit             | 2025-09-23 12:28:33.283310+00:00 [info] <0.254.0>  log(s)         : <stdout>[0m
+rabbit             | 2025-09-23 12:28:33.283310+00:00 [info] <0.254.0>  data dir       : /var/lib/rabbitmq/mnesia/rabbit@97b6ac3a089c[0m
+rabbit             | 2025-09-23 12:28:33.615974+00:00 [info] <0.254.0> Running boot step pre_boot defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.616068+00:00 [info] <0.254.0> Running boot step rabbit_global_counters defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.616354+00:00 [info] <0.254.0> Running boot step rabbit_osiris_metrics defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.616442+00:00 [info] <0.254.0> Running boot step rabbit_core_metrics defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.617058+00:00 [info] <0.254.0> Running boot step rabbit_alarm defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.627142+00:00 [info] <0.329.0> Memory high watermark set to 5031 MiB (5275802009 bytes) of 12578 MiB (13189505024 bytes) total[0m
+rabbit             | 2025-09-23 12:28:33.629675+00:00 [info] <0.331.0> Enabling free disk space monitoring (disk free space: 248835383296, total memory: 13189505024)[0m
+rabbit             | 2025-09-23 12:28:33.629732+00:00 [info] <0.331.0> Disk free limit set to 50MB[0m
+rabbit             | 2025-09-23 12:28:33.631324+00:00 [info] <0.254.0> Running boot step code_server_cache defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.631426+00:00 [info] <0.254.0> Running boot step file_handle_cache defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.637361+00:00 [info] <0.334.0> Limiting to approx 1048479 file handles (943629 sockets)[0m
+rabbit             | 2025-09-23 12:28:33.637498+00:00 [info] <0.335.0> FHC read buffering: OFF[0m
+rabbit             | 2025-09-23 12:28:33.637547+00:00 [info] <0.335.0> FHC write buffering: ON[0m
+rabbit             | 2025-09-23 12:28:33.637904+00:00 [info] <0.254.0> Running boot step worker_pool defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.637992+00:00 [info] <0.315.0> Will use 8 processes for default worker pool[0m
+rabbit             | 2025-09-23 12:28:33.638036+00:00 [info] <0.315.0> Starting worker pool 'worker_pool' with 8 processes in it[0m
+rabbit             | 2025-09-23 12:28:33.638470+00:00 [info] <0.254.0> Running boot step database defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:33.638731+00:00 [info] <0.254.0> Peer discovery: configured backend: rabbit_peer_discovery_classic_config[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.639633+00:00 [notice] <0.316.0> Feature flags: attempt to enable `detailed_queues_endpoint`...[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.705114+00:00 [notice] <0.316.0> Feature flags: `detailed_queues_endpoint` enabled[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.705279+00:00 [notice] <0.316.0> Feature flags: attempt to enable `quorum_queue_non_voters`...[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.798117+00:00 [notice] <0.316.0> Feature flags: `quorum_queue_non_voters` enabled[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.798312+00:00 [notice] <0.316.0> Feature flags: attempt to enable `stream_update_config_command`...[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.887649+00:00 [notice] <0.316.0> Feature flags: `stream_update_config_command` enabled[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.887804+00:00 [notice] <0.316.0> Feature flags: attempt to enable `stream_filtering`...[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.970420+00:00 [notice] <0.316.0> Feature flags: `stream_filtering` enabled[0m
+rabbit             | [38;5;87m2025-09-23 12:28:33.970659+00:00 [notice] <0.316.0> Feature flags: attempt to enable `stream_sac_coordinator_unblock_group`...[0m
+rabbit             | [38;5;87m2025-09-23 12:28:34.063475+00:00 [notice] <0.316.0> Feature flags: `stream_sac_coordinator_unblock_group` enabled[0m
+rabbit             | [38;5;87m2025-09-23 12:28:34.063660+00:00 [notice] <0.316.0> Feature flags: attempt to enable `restart_streams`...[0m
+rabbit             | [38;5;87m2025-09-23 12:28:34.182598+00:00 [notice] <0.316.0> Feature flags: `restart_streams` enabled[0m
+rabbit             | [38;5;87m2025-09-23 12:28:34.182854+00:00 [notice] <0.316.0> Feature flags: attempt to enable `message_containers`...[0m
+rabbit             | [38;5;87m2025-09-23 12:28:34.312703+00:00 [notice] <0.316.0> Feature flags: `message_containers` enabled[0m
+rabbit             | [38;5;87m2025-09-23 12:28:34.312905+00:00 [notice] <0.316.0> Feature flags: attempt to enable `message_containers_deaths_v2`...[0m
+rabbit             | [38;5;87m2025-09-23 12:28:34.392452+00:00 [notice] <0.316.0> Feature flags: `message_containers_deaths_v2` enabled[0m
+rabbit             | 2025-09-23 12:28:34.392982+00:00 [info] <0.254.0> DB: virgin node -> run peer discovery[0m
+rabbit             | [38;5;214m2025-09-23 12:28:34.393060+00:00 [warning] <0.254.0> Classic peer discovery backend: list of nodes does not contain the local node [][0m
+rabbit             | [38;5;87m2025-09-23 12:28:34.403261+00:00 [notice] <0.44.0> Application mnesia exited with reason: stopped[0m
+rabbit             | 2025-09-23 12:28:34.629981+00:00 [info] <0.254.0> Waiting for Mnesia tables for 30000 ms, 9 retries left[0m
+rabbit             | 2025-09-23 12:28:34.630134+00:00 [info] <0.254.0> Successfully synced tables from a peer[0m
+rabbit             | 2025-09-23 12:28:34.630373+00:00 [info] <0.254.0> Waiting for Mnesia tables for 30000 ms, 9 retries left[0m
+rabbit             | 2025-09-23 12:28:34.630511+00:00 [info] <0.254.0> Successfully synced tables from a peer[0m
+rabbit             | 2025-09-23 12:28:34.645530+00:00 [info] <0.254.0> Waiting for Mnesia tables for 30000 ms, 9 retries left[0m
+rabbit             | 2025-09-23 12:28:34.645720+00:00 [info] <0.254.0> Successfully synced tables from a peer[0m
+rabbit             | 2025-09-23 12:28:34.645919+00:00 [info] <0.254.0> Running boot step tracking_metadata_store defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.646033+00:00 [info] <0.562.0> Setting up a table for connection tracking on this node: tracked_connection[0m
+rabbit             | 2025-09-23 12:28:34.646117+00:00 [info] <0.562.0> Setting up a table for per-vhost connection counting on this node: tracked_connection_per_vhost[0m
+rabbit             | 2025-09-23 12:28:34.646254+00:00 [info] <0.562.0> Setting up a table for per-user connection counting on this node: tracked_connection_per_user[0m
+rabbit             | 2025-09-23 12:28:34.646302+00:00 [info] <0.562.0> Setting up a table for channel tracking on this node: tracked_channel[0m
+rabbit             | 2025-09-23 12:28:34.646360+00:00 [info] <0.562.0> Setting up a table for channel tracking on this node: tracked_channel_per_user[0m
+rabbit             | 2025-09-23 12:28:34.646502+00:00 [info] <0.254.0> Running boot step networking_metadata_store defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.646666+00:00 [info] <0.254.0> Running boot step feature_flags defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.646859+00:00 [info] <0.254.0> Running boot step codec_correctness_check defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.646888+00:00 [info] <0.254.0> Running boot step external_infrastructure defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.646946+00:00 [info] <0.254.0> Running boot step rabbit_event defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647120+00:00 [info] <0.254.0> Running boot step rabbit_registry defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647207+00:00 [info] <0.254.0> Running boot step rabbit_auth_mechanism_amqplain defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647318+00:00 [info] <0.254.0> Running boot step rabbit_auth_mechanism_cr_demo defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647398+00:00 [info] <0.254.0> Running boot step rabbit_auth_mechanism_plain defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647483+00:00 [info] <0.254.0> Running boot step rabbit_exchange_type_direct defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647575+00:00 [info] <0.254.0> Running boot step rabbit_exchange_type_fanout defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647669+00:00 [info] <0.254.0> Running boot step rabbit_exchange_type_headers defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647718+00:00 [info] <0.254.0> Running boot step rabbit_exchange_type_topic defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647752+00:00 [info] <0.254.0> Running boot step rabbit_mirror_queue_mode_all defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647865+00:00 [info] <0.254.0> Running boot step rabbit_mirror_queue_mode_exactly defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647926+00:00 [info] <0.254.0> Running boot step rabbit_mirror_queue_mode_nodes defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.647997+00:00 [info] <0.254.0> Running boot step rabbit_priority_queue defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.648045+00:00 [info] <0.254.0> Priority queues enabled, real BQ is rabbit_variable_queue[0m
+rabbit             | 2025-09-23 12:28:34.648092+00:00 [info] <0.254.0> Running boot step rabbit_queue_location_client_local defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.648157+00:00 [info] <0.254.0> Running boot step rabbit_queue_location_min_masters defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.648201+00:00 [info] <0.254.0> Running boot step rabbit_queue_location_random defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.648234+00:00 [info] <0.254.0> Running boot step kernel_ready defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.648283+00:00 [info] <0.254.0> Running boot step rabbit_sysmon_minder defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.648473+00:00 [info] <0.254.0> Running boot step rabbit_epmd_monitor defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.649251+00:00 [info] <0.570.0> epmd monitor knows us, inter-node communication (distribution) port: 25672[0m
+rabbit             | 2025-09-23 12:28:34.649444+00:00 [info] <0.254.0> Running boot step guid_generator defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.655066+00:00 [info] <0.254.0> Running boot step rabbit_node_monitor defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.655480+00:00 [info] <0.574.0> Starting rabbit_node_monitor (in ignore mode)[0m
+rabbit             | 2025-09-23 12:28:34.655661+00:00 [info] <0.254.0> Running boot step delegate_sup defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.656427+00:00 [info] <0.254.0> Running boot step rabbit_memory_monitor defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.656667+00:00 [info] <0.254.0> Running boot step rabbit_fifo_dlx_sup defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.656759+00:00 [info] <0.254.0> Running boot step core_initialized defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.656786+00:00 [info] <0.254.0> Running boot step rabbit_channel_tracking_handler defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.656856+00:00 [info] <0.254.0> Running boot step rabbit_connection_tracking_handler defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.656890+00:00 [info] <0.254.0> Running boot step rabbit_definitions_hashing defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.656992+00:00 [info] <0.254.0> Running boot step rabbit_exchange_parameters defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.713426+00:00 [info] <0.254.0> Running boot step rabbit_mirror_queue_misc defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.714059+00:00 [info] <0.254.0> Running boot step rabbit_policies defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.714477+00:00 [info] <0.254.0> Running boot step rabbit_policy defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.714577+00:00 [info] <0.254.0> Running boot step rabbit_queue_location_validator defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.714660+00:00 [info] <0.254.0> Running boot step rabbit_quorum_memory_manager defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.714705+00:00 [info] <0.254.0> Running boot step rabbit_quorum_queue defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.714770+00:00 [info] <0.254.0> Running boot step rabbit_stream_coordinator defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.714905+00:00 [info] <0.254.0> Running boot step rabbit_vhost_limit defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.715037+00:00 [info] <0.254.0> Running boot step rabbit_federation_parameters defined by app rabbitmq_federation[0m
+rabbit             | 2025-09-23 12:28:34.715495+00:00 [info] <0.254.0> Running boot step rabbit_federation_supervisor defined by app rabbitmq_federation[0m
+rabbit             | 2025-09-23 12:28:34.727427+00:00 [info] <0.254.0> Running boot step rabbit_federation_queue defined by app rabbitmq_federation[0m
+rabbit             | 2025-09-23 12:28:34.727686+00:00 [info] <0.254.0> Running boot step rabbit_federation_upstream_exchange defined by app rabbitmq_federation[0m
+rabbit             | 2025-09-23 12:28:34.727797+00:00 [info] <0.254.0> Running boot step rabbit_mgmt_reset_handler defined by app rabbitmq_management[0m
+rabbit             | 2025-09-23 12:28:34.727869+00:00 [info] <0.254.0> Running boot step rabbit_mgmt_db_handler defined by app rabbitmq_management_agent[0m
+rabbit             | 2025-09-23 12:28:34.727913+00:00 [info] <0.254.0> Management plugin: using rates mode 'basic'[0m
+rabbit             | 2025-09-23 12:28:34.728240+00:00 [info] <0.254.0> Running boot step recovery defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.751906+00:00 [info] <0.254.0> Running boot step empty_db_check defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.752032+00:00 [info] <0.254.0> Will seed default virtual host and user...[0m
+rabbit             | 2025-09-23 12:28:34.752223+00:00 [info] <0.254.0> Adding vhost '/' (description: 'Default virtual host', tags: [])[0m
+rabbit             | 2025-09-23 12:28:34.795807+00:00 [info] <0.634.0> Making sure data directory '/var/lib/rabbitmq/mnesia/rabbit@97b6ac3a089c/msg_stores/vhosts/628WB79CIFDYO9LJI6DKMI09L' for vhost '/' exists[0m
+rabbit             | 2025-09-23 12:28:34.797570+00:00 [info] <0.634.0> Setting segment_entry_count for vhost '/' with 0 queues to '2048'[0m
+rabbit             | 2025-09-23 12:28:34.816361+00:00 [info] <0.634.0> Starting message stores for vhost '/'[0m
+rabbit             | 2025-09-23 12:28:34.816710+00:00 [info] <0.643.0> Message store "628WB79CIFDYO9LJI6DKMI09L/msg_store_transient": using rabbit_msg_store_ets_index to provide index[0m
+rabbit             | 2025-09-23 12:28:34.819098+00:00 [info] <0.634.0> Started message store of type transient for vhost '/'[0m
+rabbit             | 2025-09-23 12:28:34.819405+00:00 [info] <0.647.0> Message store "628WB79CIFDYO9LJI6DKMI09L/msg_store_persistent": using rabbit_msg_store_ets_index to provide index[0m
+rabbit             | [38;5;214m2025-09-23 12:28:34.820355+00:00 [warning] <0.647.0> Message store "628WB79CIFDYO9LJI6DKMI09L/msg_store_persistent": rebuilding indices from scratch[0m
+rabbit             | 2025-09-23 12:28:34.821787+00:00 [info] <0.634.0> Started message store of type persistent for vhost '/'[0m
+rabbit             | 2025-09-23 12:28:34.822041+00:00 [info] <0.634.0> Recovering 0 queues of type rabbit_classic_queue took 23ms[0m
+rabbit             | 2025-09-23 12:28:34.822101+00:00 [info] <0.634.0> Recovering 0 queues of type rabbit_quorum_queue took 0ms[0m
+rabbit             | 2025-09-23 12:28:34.822252+00:00 [info] <0.634.0> Recovering 0 queues of type rabbit_stream_queue took 0ms[0m
+rabbit             | 2025-09-23 12:28:34.830191+00:00 [info] <0.254.0> Created user 'guest'[0m
+rabbit             | 2025-09-23 12:28:34.835544+00:00 [info] <0.254.0> Successfully set user tags for user 'guest' to [administrator][0m
+rabbit             | 2025-09-23 12:28:34.841419+00:00 [info] <0.254.0> Successfully set permissions for user 'guest' in virtual host '/' to '.*', '.*', '.*'[0m
+rabbit             | 2025-09-23 12:28:34.841570+00:00 [info] <0.254.0> Running boot step rabbit_observer_cli defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.841651+00:00 [info] <0.254.0> Running boot step rabbit_looking_glass defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.841681+00:00 [info] <0.254.0> Running boot step rabbit_core_metrics_gc defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.842036+00:00 [info] <0.254.0> Running boot step background_gc defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.842317+00:00 [info] <0.254.0> Running boot step routing_ready defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.842358+00:00 [info] <0.254.0> Running boot step pre_flight defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.842396+00:00 [info] <0.254.0> Running boot step notify_cluster defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.842430+00:00 [info] <0.254.0> Running boot step networking defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.842579+00:00 [info] <0.254.0> Running boot step rabbit_quorum_queue_periodic_membership_reconciliation defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.842754+00:00 [info] <0.254.0> Running boot step definition_import_worker_pool defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.842856+00:00 [info] <0.315.0> Starting worker pool 'definition_import_pool' with 8 processes in it[0m
+rabbit             | 2025-09-23 12:28:34.843412+00:00 [info] <0.254.0> Running boot step cluster_name defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.843546+00:00 [info] <0.254.0> Initialising internal cluster ID to 'rabbitmq-cluster-id-f-y8QO31MmsY6aSSBikKvA'[0m
+rabbit             | 2025-09-23 12:28:34.848766+00:00 [info] <0.254.0> Running boot step virtual_host_reconciliation defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.849177+00:00 [info] <0.254.0> Running boot step direct_client defined by app rabbit[0m
+rabbit             | 2025-09-23 12:28:34.849359+00:00 [info] <0.254.0> Running boot step rabbit_federation_exchange defined by app rabbitmq_federation[0m
+rabbit             | 2025-09-23 12:28:34.849597+00:00 [info] <0.254.0> Running boot step rabbit_management_load_definitions defined by app rabbitmq_management[0m
+rabbit             | 2025-09-23 12:28:34.849772+00:00 [info] <0.688.0> Resetting node maintenance status[0m
+rabbit             | [38;5;214m2025-09-23 12:28:35.099444+00:00 [warning] <0.717.0> Deprecated features: `management_metrics_collection`: Feature `management_metrics_collection` is deprecated.[0m
+rabbit             | [38;5;214m2025-09-23 12:28:35.099444+00:00 [warning] <0.717.0> By default, this feature can still be used for now.[0m
+rabbit             | [38;5;214m2025-09-23 12:28:35.099444+00:00 [warning] <0.717.0> Its use will not be permitted by default in a future minor RabbitMQ version and the feature will be removed from a future major RabbitMQ version; actual versions to be determined.[0m
+rabbit             | [38;5;214m2025-09-23 12:28:35.099444+00:00 [warning] <0.717.0> To continue using this feature when it is not permitted by default, set the following parameter in your configuration:[0m
+rabbit             | [38;5;214m2025-09-23 12:28:35.099444+00:00 [warning] <0.717.0>     "deprecated_features.permit.management_metrics_collection = true"[0m
+rabbit             | [38;5;214m2025-09-23 12:28:35.099444+00:00 [warning] <0.717.0> To test RabbitMQ as if the feature was removed, set this in your configuration:[0m
+rabbit             | [38;5;214m2025-09-23 12:28:35.099444+00:00 [warning] <0.717.0>     "deprecated_features.permit.management_metrics_collection = false"[0m
+rabbit             | 2025-09-23 12:28:40.318335+00:00 [info] <0.754.0> Management plugin: HTTP (non-TLS) listener started on port 15672[0m
+rabbit             | 2025-09-23 12:28:40.318586+00:00 [info] <0.784.0> Statistics database started.[0m
+rabbit             | 2025-09-23 12:28:40.318687+00:00 [info] <0.783.0> Starting worker pool 'management_worker_pool' with 3 processes in it[0m
+rabbit             | 2025-09-23 12:28:40.334198+00:00 [info] <0.802.0> Prometheus metrics: HTTP (non-TLS) listener started on port 15692[0m
+rabbit             | 2025-09-23 12:28:40.334474+00:00 [info] <0.688.0> Ready to start client connection listeners[0m
+rabbit             | 2025-09-23 12:28:40.336541+00:00 [info] <0.846.0> started TCP listener on [::]:5672[0m
+rabbit             |  completed with 5 plugins.
+rabbit             | 2025-09-23 12:28:40.479810+00:00 [info] <0.688.0> Server startup complete; 5 plugins started.[0m
+rabbit             | 2025-09-23 12:28:40.479810+00:00 [info] <0.688.0>  * rabbitmq_prometheus[0m
+rabbit             | 2025-09-23 12:28:40.479810+00:00 [info] <0.688.0>  * rabbitmq_federation[0m
+rabbit             | 2025-09-23 12:28:40.479810+00:00 [info] <0.688.0>  * rabbitmq_management[0m
+rabbit             | 2025-09-23 12:28:40.479810+00:00 [info] <0.688.0>  * rabbitmq_management_agent[0m
+rabbit             | 2025-09-23 12:28:40.479810+00:00 [info] <0.688.0>  * rabbitmq_web_dispatch[0m
+rabbit             | 2025-09-23 12:28:40.514340+00:00 [info] <0.9.0> Time to start RabbitMQ: 10648 ms[0m
+rabbit             | 2025-09-23 12:28:42.118796+00:00 [info] <0.851.0> accepting AMQP connection <0.851.0> (192.168.32.4:49574 -> 192.168.32.2:5672)[0m
+rabbit             | 2025-09-23 12:28:42.121086+00:00 [info] <0.851.0> connection <0.851.0> (192.168.32.4:49574 -> 192.168.32.2:5672): user 'guest' authenticated and granted access to vhost '/'[0m
+rabbit             | 2025-09-23 12:28:42.122467+00:00 [info] <0.860.0> accepting AMQP connection <0.860.0> (192.168.32.4:49576 -> 192.168.32.2:5672)[0m
+rabbit             | 2025-09-23 12:28:42.125192+00:00 [info] <0.860.0> connection <0.860.0> (192.168.32.4:49576 -> 192.168.32.2:5672): user 'guest' authenticated and granted access to vhost '/'[0m
+rabbit             | 2025-09-23 12:28:42.126837+00:00 [info] <0.868.0> accepting AMQP connection <0.868.0> (192.168.32.4:49578 -> 192.168.32.2:5672)[0m
+rabbit             | 2025-09-23 12:28:42.129380+00:00 [info] <0.868.0> connection <0.868.0> (192.168.32.4:49578 -> 192.168.32.2:5672): user 'guest' authenticated and granted access to vhost '/'[0m
+rabbit             | 2025-09-23 12:28:42.130636+00:00 [info] <0.876.0> accepting AMQP connection <0.876.0> (192.168.32.4:49580 -> 192.168.32.2:5672)[0m
+rabbit             | 2025-09-23 12:28:42.132723+00:00 [info] <0.876.0> connection <0.876.0> (192.168.32.4:49580 -> 192.168.32.2:5672): user 'guest' authenticated and granted access to vhost '/'[0m
+sender             | {"time":"2025-09-23T12:28:42.1336642Z","level":"INFO","msg":"rabbitmq client connection established"}
+sender             | {"time":"2025-09-23T12:28:42.1602737Z","level":"INFO","msg":"rabbitmq exchange declared"}
+sender             | {"time":"2025-09-23T12:28:42.1739919Z","level":"INFO","msg":"rabbitmq queue declared"}
+sender             | {"time":"2025-09-23T12:28:42.1917082Z","level":"INFO","msg":"rabbitmq queue binded"}
+rabbit             | 2025-09-23 12:28:42.238837+00:00 [info] <0.896.0> accepting AMQP connection <0.896.0> (192.168.32.5:35774 -> 192.168.32.2:5672)[0m
+rabbit             | 2025-09-23 12:28:42.241256+00:00 [info] <0.896.0> connection <0.896.0> (192.168.32.5:35774 -> 192.168.32.2:5672): user 'guest' authenticated and granted access to vhost '/'[0m
+rabbit             | 2025-09-23 12:28:42.242292+00:00 [info] <0.904.0> accepting AMQP connection <0.904.0> (192.168.32.5:35776 -> 192.168.32.2:5672)[0m
+rabbit             | 2025-09-23 12:28:42.244498+00:00 [info] <0.904.0> connection <0.904.0> (192.168.32.5:35776 -> 192.168.32.2:5672): user 'guest' authenticated and granted access to vhost '/'[0m
+rabbit             | 2025-09-23 12:28:42.245507+00:00 [info] <0.912.0> accepting AMQP connection <0.912.0> (192.168.32.5:35778 -> 192.168.32.2:5672)[0m
+rabbit             | 2025-09-23 12:28:42.247628+00:00 [info] <0.912.0> connection <0.912.0> (192.168.32.5:35778 -> 192.168.32.2:5672): user 'guest' authenticated and granted access to vhost '/'[0m
+rabbit             | 2025-09-23 12:28:42.248836+00:00 [info] <0.920.0> accepting AMQP connection <0.920.0> (192.168.32.5:35780 -> 192.168.32.2:5672)[0m
+rabbit             | 2025-09-23 12:28:42.251068+00:00 [info] <0.920.0> connection <0.920.0> (192.168.32.5:35780 -> 192.168.32.2:5672): user 'guest' authenticated and granted access to vhost '/'[0m
+scheduler          | {"time":"2025-09-23T12:28:42.2520661Z","level":"INFO","msg":"rabbitmq client connection established"}
+scheduler          | {"time":"2025-09-23T12:28:42.2525248Z","level":"INFO","msg":"rabbitmq exchange declared"}
+scheduler          | {"time":"2025-09-23T12:28:42.2526213Z","level":"INFO","msg":"Starting notification task..."}
+scheduler          | {"time":"2025-09-23T12:28:42.2526252Z","level":"INFO","msg":"Starting clean up task..."}
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/cmd/calendar	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/cmd/scheduler	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/cmd/sender	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/calendar	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/scheduler	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/sender	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq	[no test files]
+integration-tests  | ok  	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger	0.004s
+scheduler          | {"time":"2025-09-23T12:28:52.2545819Z","level":"INFO","msg":"cleanup old events","methodName":"run clean up task","requestId":"421fd877-eb54-4e15-91d7-07f690be62d0","deleted":0}
+scheduler          | {"time":"2025-09-23T12:28:52.2613024Z","level":"INFO","msg":"scan for notifications","requestId":"93c75278-da4b-4a05-85e6-62788a4bee73","methodName":"run notification task","notificated":0}
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc/pb	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http/baseserver	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config	[no test files]
+integration-tests  | ok  	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/grpc	0.006s
+integration-tests  | ok  	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http	0.005s
+integration-tests  | ok  	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage	0.003s
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/sql	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/utils	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client/grpc	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client/grpc/pb	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/client/http	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/config	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/model	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/repo	[no test files]
+integration-tests  | ?   	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/utils	[no test files]
+calendar           | {"time":"2025-09-23T12:28:53.494184Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","requestId":"84f1cc44-4673-451c-96d3-e56b53fc2027","event":"{\"title\":\"title TestAddEventByGrpcApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description TestAddEventByGrpcApi\",\"userId\":\"user-id-TestAddEventByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.495 UTC [47] LOG:  Add event attempt. User ID: user-id-TestAddEventByGrpcApi, Title: title TestAddEventByGrpcApi
+postgres           | 2025-09-23 12:28:53.495 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.495 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.497 UTC [47] LOG:  Event added successfully. ID: 70ad357f-2f99-4593-bb50-80e76c25766a
+postgres           | 2025-09-23 12:28:53.497 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.497 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5070238Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","requestId":"84f1cc44-4673-451c-96d3-e56b53fc2027","ip":"192.168.32.7","status":0,"latency_ms":12}
+calendar           | {"time":"2025-09-23T12:28:53.5127408Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"11be549a-cdd7-48bf-843f-ca5f428918d9","event":"{\"title\":\"title ok TestBusyDateByGrpcApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description ok TestBusyDateByGrpcApi\",\"userId\":\"user-id-TestBusyDateByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.513 UTC [47] LOG:  Add event attempt. User ID: user-id-TestBusyDateByGrpcApi, Title: title ok TestBusyDateByGrpcApi
+postgres           | 2025-09-23 12:28:53.513 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.513 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.513 UTC [47] LOG:  Event added successfully. ID: 68793c9e-affc-46f2-89b7-26af1f253a43
+postgres           | 2025-09-23 12:28:53.513 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.513 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5159503Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"11be549a-cdd7-48bf-843f-ca5f428918d9","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5165318Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"ddf24566-6614-4103-8e79-4cb70d88ea47","event":"{\"title\":\"title busy TestBusyDateByGrpcApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description busy TestBusyDateByGrpcApi\",\"userId\":\"user-id-TestBusyDateByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.516 UTC [47] LOG:  Add event attempt. User ID: user-id-TestBusyDateByGrpcApi, Title: title busy TestBusyDateByGrpcApi
+postgres           | 2025-09-23 12:28:53.516 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.516 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5193961Z","level":"ERROR","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"ddf24566-6614-4103-8e79-4cb70d88ea47","error":"time is already taken by another event: 68793c9e-affc-46f2-89b7-26af1f253a43","databaseResponse":{}}
+calendar           | {"time":"2025-09-23T12:28:53.5195412Z","level":"ERROR","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"ddf24566-6614-4103-8e79-4cb70d88ea47","error":"rpc error: code = AlreadyExists desc = {\"serviceName\":\"calendar\",\"status\":\"409\",\"message\":\"time is already taken by another event: 68793c9e-affc-46f2-89b7-26af1f253a43\",\"requestId\":\"ddf24566-6614-4103-8e79-4cb70d88ea47\",\"timestamp\":\"2025-09-23 12:28:53.5195033 +0000 UTC m=+20.871178501\",\"cause\":\"time is already taken by another event: 68793c9e-affc-46f2-89b7-26af1f253a43\"}"}
+calendar           | {"time":"2025-09-23T12:28:53.5195513Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"ddf24566-6614-4103-8e79-4cb70d88ea47","latency_ms":3,"ip":"192.168.32.7","status":6}
+calendar           | {"time":"2025-09-23T12:28:53.523616Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"bcc1a295-17fc-42a3-b6c6-085c32d5abd1","event":"{\"title\":\"title 01 TestListDayEventsByGrpcApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 01 TestListDayEventsByGrpcApi\",\"userId\":\"user-id-01-TestListDayEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.523 UTC [47] LOG:  Add event attempt. User ID: user-id-01-TestListDayEventsByGrpcApi, Title: title 01 TestListDayEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.523 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.523 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.524 UTC [47] LOG:  Event added successfully. ID: 44de4eea-42ae-4412-8d09-0ffe26e942f7
+postgres           | 2025-09-23 12:28:53.524 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.524 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5269738Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"bcc1a295-17fc-42a3-b6c6-085c32d5abd1","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.528061Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"9cdac24b-2402-489a-b366-7a74674cfccf","event":"{\"title\":\"title 02 TestListDayEventsByGrpcApi\",\"startTime\":\"2030-12-31T12:00:00Z\",\"duration\":3600000000000,\"description\":\"description 02 TestListDayEventsByGrpcApi\",\"userId\":\"user-id-02-TestListDayEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.528 UTC [47] LOG:  Add event attempt. User ID: user-id-02-TestListDayEventsByGrpcApi, Title: title 02 TestListDayEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.528 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.528 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.528 UTC [47] LOG:  Event added successfully. ID: b331431b-0bb3-44ff-9340-346a11c8dfbc
+postgres           | 2025-09-23 12:28:53.528 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.528 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5314241Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"9cdac24b-2402-489a-b366-7a74674cfccf","latency_ms":3,"ip":"192.168.32.7","status":0}
+calendar           | {"time":"2025-09-23T12:28:53.5325693Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"66c221ec-783c-44ad-9f97-cd64ff62c560","event":"{\"title\":\"title 03 TestListDayEventsByGrpcApi\",\"startTime\":\"2030-12-31T14:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 TestListDayEventsByGrpcApi\",\"userId\":\"user-id-03-TestListDayEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.532 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListDayEventsByGrpcApi, Title: title 03 TestListDayEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.532 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.532 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.533 UTC [47] LOG:  Event added successfully. ID: 38709d1a-e0b5-4ebb-9db4-553d1abae930
+postgres           | 2025-09-23 12:28:53.533 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.533 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5359778Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"66c221ec-783c-44ad-9f97-cd64ff62c560","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5370323Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"ffe3b3dc-3385-48e1-b148-ff4a4b9fafaf","event":"{\"title\":\"title 03 NotInPeriod TestListDayEventsByGrpcApi\",\"startTime\":\"2031-01-02T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 NotInPeriod TestListDayEventsByGrpcApi\",\"userId\":\"user-id-03-TestListDayEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.537 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListDayEventsByGrpcApi, Title: title 03 NotInPeriod TestListDayEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.537 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.537 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.537 UTC [47] LOG:  Event added successfully. ID: 81e14f82-2b43-4f0f-86f1-3935079c2374
+postgres           | 2025-09-23 12:28:53.537 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.537 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5402075Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"ffe3b3dc-3385-48e1-b148-ff4a4b9fafaf","latency_ms":3,"ip":"192.168.32.7","status":0}
+calendar           | {"time":"2025-09-23T12:28:53.541257Z","level":"INFO","msg":"list day events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"0004cce8-ca21-412a-ad18-45041b02eab6","startDay":"2030-12-31T10:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.5412859Z","level":"INFO","msg":"list events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"0004cce8-ca21-412a-ad18-45041b02eab6","startTime":"2030-12-31T00:00:00Z","endTime":"2031-01-01T00:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.5440744Z","level":"INFO","msg":"list events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"0004cce8-ca21-412a-ad18-45041b02eab6","found":3}
+calendar           | {"time":"2025-09-23T12:28:53.5441089Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"0004cce8-ca21-412a-ad18-45041b02eab6","latency_ms":2,"ip":"192.168.32.7","status":0}
+calendar           | {"time":"2025-09-23T12:28:53.5520451Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"0e4ecc79-b653-4554-94e4-f7d734dfea86","event":"{\"title\":\"title 01 TestListMonthEventsByGrpcApi\",\"startTime\":\"2031-01-01T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 01 TestListMonthEventsByGrpcApi\",\"userId\":\"user-id-01-TestListMonthEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.552 UTC [47] LOG:  Add event attempt. User ID: user-id-01-TestListMonthEventsByGrpcApi, Title: title 01 TestListMonthEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.552 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.552 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.552 UTC [47] LOG:  Event added successfully. ID: 10be328f-c599-47f9-8d8b-1cc55fde882a
+postgres           | 2025-09-23 12:28:53.552 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.552 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5550852Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"0e4ecc79-b653-4554-94e4-f7d734dfea86","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5561246Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"d5f0d203-a0a7-4f77-b8ef-551d83e322c3","event":"{\"title\":\"title 02 TestListMonthEventsByGrpcApi\",\"startTime\":\"2031-01-09T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 02 TestListMonthEventsByGrpcApi\",\"userId\":\"user-id-02-TestListMonthEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.556 UTC [47] LOG:  Add event attempt. User ID: user-id-02-TestListMonthEventsByGrpcApi, Title: title 02 TestListMonthEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.556 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.556 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.556 UTC [47] LOG:  Event added successfully. ID: fc7e4226-69ac-4f0e-bcfe-47b59d01f6e5
+postgres           | 2025-09-23 12:28:53.556 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.556 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5591612Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"d5f0d203-a0a7-4f77-b8ef-551d83e322c3","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5599878Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"95c2d18f-4ae4-4cb2-b246-6a7c35e5e0ac","event":"{\"title\":\"title 03 TestListMonthEventsByGrpcApi\",\"startTime\":\"2031-01-17T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 TestListMonthEventsByGrpcApi\",\"userId\":\"user-id-03-TestListMonthEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.560 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListMonthEventsByGrpcApi, Title: title 03 TestListMonthEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.560 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.560 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.560 UTC [47] LOG:  Event added successfully. ID: 9d8c499c-1982-4257-8946-8dcfaae061e9
+postgres           | 2025-09-23 12:28:53.560 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.560 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5631681Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"95c2d18f-4ae4-4cb2-b246-6a7c35e5e0ac","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5639948Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"d80fe93e-3dfc-4613-9b4e-476a4385a956","event":"{\"title\":\"title 03 NotInPeriod TestListMonthEventsByGrpcApi\",\"startTime\":\"2031-02-02T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 NotInPeriod TestListMonthEventsByGrpcApi\",\"userId\":\"user-id-03-TestListMonthEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.564 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListMonthEventsByGrpcApi, Title: title 03 NotInPeriod TestListMonthEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.564 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.564 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.564 UTC [47] LOG:  Event added successfully. ID: 7c797a0b-fbba-4d9e-8bf5-69267bf06382
+postgres           | 2025-09-23 12:28:53.564 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.564 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5668906Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"d80fe93e-3dfc-4613-9b4e-476a4385a956","status":0,"latency_ms":2,"ip":"192.168.32.7"}
+calendar           | {"time":"2025-09-23T12:28:53.5676563Z","level":"INFO","msg":"list month events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"0657c8c4-8f8f-46ab-9e0b-d818bbd01082","startDay":"2031-01-01T10:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.5676813Z","level":"INFO","msg":"list events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"0657c8c4-8f8f-46ab-9e0b-d818bbd01082","endTime":"2031-02-01T00:00:00Z","startTime":"2031-01-01T00:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.5713642Z","level":"INFO","msg":"list events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"0657c8c4-8f8f-46ab-9e0b-d818bbd01082","found":3}
+calendar           | {"time":"2025-09-23T12:28:53.5713978Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"0657c8c4-8f8f-46ab-9e0b-d818bbd01082","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5801657Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"8b19f555-cfe4-41f3-b08b-b78992632727","event":"{\"title\":\"title 01 TestListWeekEventsByGrpcApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 01 TestListWeekEventsByGrpcApi\",\"userId\":\"user-id-01-TestListWeekEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.580 UTC [47] LOG:  Add event attempt. User ID: user-id-01-TestListWeekEventsByGrpcApi, Title: title 01 TestListWeekEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.580 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.580 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.580 UTC [47] LOG:  Event added successfully. ID: a523defd-fbbd-47c4-8195-34fb428069ce
+postgres           | 2025-09-23 12:28:53.580 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.580 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5832932Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"8b19f555-cfe4-41f3-b08b-b78992632727","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5842001Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"6e9e2085-dd41-4f2a-b6ac-af7e22a4c869","event":"{\"title\":\"title 02 TestListWeekEventsByGrpcApi\",\"startTime\":\"2031-01-02T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 02 TestListWeekEventsByGrpcApi\",\"userId\":\"user-id-02-TestListWeekEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.584 UTC [47] LOG:  Add event attempt. User ID: user-id-02-TestListWeekEventsByGrpcApi, Title: title 02 TestListWeekEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.584 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.584 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.585 UTC [47] LOG:  Event added successfully. ID: 9f9c0839-a317-48c6-91d9-49a91f2a31cc
+postgres           | 2025-09-23 12:28:53.585 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.585 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5874128Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"6e9e2085-dd41-4f2a-b6ac-af7e22a4c869","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5883954Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"87795198-3ec5-48e4-b3c2-685ffdc8bd0e","event":"{\"title\":\"title 03 TestListWeekEventsByGrpcApi\",\"startTime\":\"2031-01-04T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 TestListWeekEventsByGrpcApi\",\"userId\":\"user-id-03-TestListWeekEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.588 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListWeekEventsByGrpcApi, Title: title 03 TestListWeekEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.588 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.588 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.589 UTC [47] LOG:  Event added successfully. ID: 0419e1ab-bb01-403f-9da5-aa28d92640fc
+postgres           | 2025-09-23 12:28:53.589 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.589 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5916521Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"87795198-3ec5-48e4-b3c2-685ffdc8bd0e","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5926167Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"da280652-ddaa-43dd-b06f-7eb389c64dfa","event":"{\"title\":\"title 03 NotInPeriod TestListWeekEventsByGrpcApi\",\"startTime\":\"2031-01-10T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 NotInPeriod TestListWeekEventsByGrpcApi\",\"userId\":\"user-id-03-TestListWeekEventsByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.592 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListWeekEventsByGrpcApi, Title: title 03 NotInPeriod TestListWeekEventsByGrpcApi
+postgres           | 2025-09-23 12:28:53.592 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.592 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.593 UTC [47] LOG:  Event added successfully. ID: 07261aaf-1599-4a2c-aba5-88333f434c81
+postgres           | 2025-09-23 12:28:53.593 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.593 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.5955875Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"da280652-ddaa-43dd-b06f-7eb389c64dfa","ip":"192.168.32.7","status":0,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.5965873Z","level":"INFO","msg":"list week events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"9cb8955c-9839-4bda-b33c-80a4d723f4ef","startDay":"2030-12-31T10:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.5966219Z","level":"INFO","msg":"list events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"9cb8955c-9839-4bda-b33c-80a4d723f4ef","startTime":"2030-12-31T00:00:00Z","endTime":"2031-01-07T00:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.6005985Z","level":"INFO","msg":"list events","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"9cb8955c-9839-4bda-b33c-80a4d723f4ef","found":3}
+calendar           | {"time":"2025-09-23T12:28:53.6006307Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","requestId":"9cb8955c-9839-4bda-b33c-80a4d723f4ef","ip":"192.168.32.7","status":0,"latency_ms":4}
+calendar           | {"time":"2025-09-23T12:28:53.6084142Z","level":"INFO","msg":"add event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"f022ba0e-fc3e-4c9f-b8d6-7364a44a135e","event":"{\"title\":\"title ok TestUserConflictErrorByGrpc\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description ok TestUserConflictErrorByGrpc\",\"userId\":\"user-id-ok-TestUserConflictErrorByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.608 UTC [47] LOG:  Add event attempt. User ID: user-id-ok-TestUserConflictErrorByGrpcApi, Title: title ok TestUserConflictErrorByGrpc
+postgres           | 2025-09-23 12:28:53.608 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.608 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.609 UTC [47] LOG:  Event added successfully. ID: 33a986be-bc89-4fff-8ee0-8bee806bb34e
+postgres           | 2025-09-23 12:28:53.609 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.609 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.6119272Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","requestId":"f022ba0e-fc3e-4c9f-b8d6-7364a44a135e","latency_ms":3,"ip":"192.168.32.7","status":0}
+calendar           | {"time":"2025-09-23T12:28:53.6126938Z","level":"INFO","msg":"update event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/UpdateEvent","requestId":"b45efb16-2607-46f8-8f9f-6d20029e8aaf","event":"{\"id\":\"33a986be-bc89-4fff-8ee0-8bee806bb34e\",\"title\":\"title conflict TestUserConflictErrorByGrpc\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description conflict TestUserConflictErrorByGrpc\",\"userId\":\"user-id-conflict-TestUserConflictErrorByGrpcApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.613 UTC [47] LOG:  Update event attempt. Event ID: 33a986be-bc89-4fff-8ee0-8bee806bb34e, User ID: user-id-conflict-TestUserConflictErrorByGrpcApi
+postgres           | 2025-09-23 12:28:53.613 UTC [47] CONTEXT:  PL/pgSQL function update_event(uuid,text,timestamp with time zone,integer,text,text,integer) line 9 at RAISE
+postgres           | 2025-09-23 12:28:53.613 UTC [47] STATEMENT:  
+postgres           | 	        SELECT status_code, error_message, conflict_event_id, conflict_user_id 
+postgres           | 	        FROM update_event($1, $2, $3, $4, $5, $6, $7)
+calendar           | {"time":"2025-09-23T12:28:53.6165694Z","level":"ERROR","msg":"update event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/UpdateEvent","requestId":"b45efb16-2607-46f8-8f9f-6d20029e8aaf","error":"'user-id-conflict-TestUserConflictErrorByGrpcApi' user is not the owner of the event, conflict with 'user-id-ok-TestUserConflictErrorByGrpcApi'","databaseResponse":{}}
+calendar           | {"time":"2025-09-23T12:28:53.6166932Z","level":"ERROR","msg":"update event","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/UpdateEvent","requestId":"b45efb16-2607-46f8-8f9f-6d20029e8aaf","error":"rpc error: code = AlreadyExists desc = {\"serviceName\":\"calendar\",\"status\":\"409\",\"message\":\"'user-id-conflict-TestUserConflictErrorByGrpcApi' user is not the owner of the event, conflict with 'user-id-ok-TestUserConflictErrorByGrpcApi'\",\"requestId\":\"b45efb16-2607-46f8-8f9f-6d20029e8aaf\",\"timestamp\":\"2025-09-23 12:28:53.6166386 +0000 UTC m=+20.968313801\",\"cause\":\"'user-id-conflict-TestUserConflictErrorByGrpcApi' user is not the owner of the event, conflict with 'user-id-ok-TestUserConflictErrorByGrpcApi'\"}"}
+calendar           | {"time":"2025-09-23T12:28:53.616703Z","level":"INFO","msg":"grpc request","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/GetEvent","grpcMethod":"/event.Calendar/AddEvent","grpcMethod":"/event.Calendar/UpdateEvent","requestId":"b45efb16-2607-46f8-8f9f-6d20029e8aaf","ip":"192.168.32.7","status":6,"latency_ms":4}
+calendar           | {"time":"2025-09-23T12:28:53.6493662Z","level":"INFO","msg":"add event","requestId":"738cdf46-e6b9-4ddb-8e2c-1871878b0bff","restMethod":"POST","event":"{\"title\":\"title TestAddEventByRestApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description TestAddEventByRestApi\",\"userId\":\"user-id-TestAddEventByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.649 UTC [47] LOG:  Add event attempt. User ID: user-id-TestAddEventByRestApi, Title: title TestAddEventByRestApi
+postgres           | 2025-09-23 12:28:53.649 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.649 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.650 UTC [47] LOG:  Event added successfully. ID: f98fb937-ead2-4249-bf11-33f33c73d6dc
+postgres           | 2025-09-23 12:28:53.650 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.650 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.6527011Z","level":"INFO","msg":"rest request","requestId":"738cdf46-e6b9-4ddb-8e2c-1871878b0bff","restMethod":"POST","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+postgres           | 2025-09-23 12:28:53.658 UTC [47] LOG:  Add event attempt. User ID: user-id-TestBusyDateByRestApi, Title: title ok TestBusyDateByRestApi
+postgres           | 2025-09-23 12:28:53.658 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+calendar           | {"time":"2025-09-23T12:28:53.6581131Z","level":"INFO","msg":"add event","requestId":"7516de7e-116b-4602-912f-8a851eeceb82","restMethod":"POST","event":"{\"title\":\"title ok TestBusyDateByRestApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description ok TestBusyDateByRestApi\",\"userId\":\"user-id-TestBusyDateByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.658 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.658 UTC [47] LOG:  Event added successfully. ID: 141ba396-a0ff-478a-ab4d-a4cc9270d3f3
+postgres           | 2025-09-23 12:28:53.658 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.658 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.661196Z","level":"INFO","msg":"rest request","requestId":"7516de7e-116b-4602-912f-8a851eeceb82","restMethod":"POST","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7"}
+calendar           | {"time":"2025-09-23T12:28:53.6618135Z","level":"INFO","msg":"add event","requestId":"56c8d3b4-1bde-43c3-9b57-9c5558176a25","restMethod":"POST","event":"{\"title\":\"title busy TestBusyDateByRestApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description busy TestBusyDateByRestApi\",\"userId\":\"user-id-TestBusyDateByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.662 UTC [47] LOG:  Add event attempt. User ID: user-id-TestBusyDateByRestApi, Title: title busy TestBusyDateByRestApi
+postgres           | 2025-09-23 12:28:53.662 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.662 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.6648593Z","level":"ERROR","msg":"add event","requestId":"56c8d3b4-1bde-43c3-9b57-9c5558176a25","restMethod":"POST","error":"time is already taken by another event: 141ba396-a0ff-478a-ab4d-a4cc9270d3f3","databaseResponse":{}}
+calendar           | {"time":"2025-09-23T12:28:53.664954Z","level":"ERROR","msg":"write error","requestId":"56c8d3b4-1bde-43c3-9b57-9c5558176a25","restMethod":"POST","error":"add event: time is already taken by another event: 141ba396-a0ff-478a-ab4d-a4cc9270d3f3"}
+calendar           | {"time":"2025-09-23T12:28:53.6649633Z","level":"INFO","msg":"rest request","requestId":"56c8d3b4-1bde-43c3-9b57-9c5558176a25","restMethod":"POST","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":409,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.6687069Z","level":"INFO","msg":"add event","requestId":"19c73f26-2d2d-4ada-b82e-009b957b42da","restMethod":"POST","event":"{\"title\":\"title 01 TestListDayEventsByRestApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 01 TestListDayEventsByRestApi\",\"userId\":\"user-id-01-TestListDayEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.668 UTC [47] LOG:  Add event attempt. User ID: user-id-01-TestListDayEventsByRestApi, Title: title 01 TestListDayEventsByRestApi
+postgres           | 2025-09-23 12:28:53.668 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.668 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.669 UTC [47] LOG:  Event added successfully. ID: ecb0af4f-6cd2-4190-9bc1-44962f10152d
+postgres           | 2025-09-23 12:28:53.669 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.669 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.6717399Z","level":"INFO","msg":"rest request","requestId":"19c73f26-2d2d-4ada-b82e-009b957b42da","restMethod":"POST","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7"}
+calendar           | {"time":"2025-09-23T12:28:53.672642Z","level":"INFO","msg":"add event","requestId":"e958d3e8-cf8f-45ae-bae2-b82b1b11940e","restMethod":"POST","event":"{\"title\":\"title 02 TestListDayEventsByRestApi\",\"startTime\":\"2030-12-31T12:00:00Z\",\"duration\":3600000000000,\"description\":\"description 02 TestListDayEventsByRestApi\",\"userId\":\"user-id-02-TestListDayEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.672 UTC [47] LOG:  Add event attempt. User ID: user-id-02-TestListDayEventsByRestApi, Title: title 02 TestListDayEventsByRestApi
+postgres           | 2025-09-23 12:28:53.672 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.672 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.673 UTC [47] LOG:  Event added successfully. ID: d90336b1-8522-4f7d-925f-e91254f364b6
+postgres           | 2025-09-23 12:28:53.673 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.673 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.6757224Z","level":"INFO","msg":"rest request","requestId":"e958d3e8-cf8f-45ae-bae2-b82b1b11940e","restMethod":"POST","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.6767087Z","level":"INFO","msg":"add event","requestId":"d670fceb-5a5f-4bd6-b6fd-ed3912e3f6f1","restMethod":"POST","event":"{\"title\":\"title 03 TestListDayEventsByRestApi\",\"startTime\":\"2030-12-31T14:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 TestListDayEventsByRestApi\",\"userId\":\"user-id-03-TestListDayEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.676 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListDayEventsByRestApi, Title: title 03 TestListDayEventsByRestApi
+postgres           | 2025-09-23 12:28:53.676 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.676 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.677 UTC [47] LOG:  Event added successfully. ID: a92cb2ae-2a62-43f3-96d6-6dcd1abc5c68
+postgres           | 2025-09-23 12:28:53.677 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.677 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.6797889Z","level":"INFO","msg":"rest request","requestId":"d670fceb-5a5f-4bd6-b6fd-ed3912e3f6f1","restMethod":"POST","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.6806616Z","level":"INFO","msg":"add event","requestId":"f568870b-d768-4214-ba6e-6b575d0d176e","restMethod":"POST","event":"{\"title\":\"title 03 NotInPeriod TestListDayEventsByRestApi\",\"startTime\":\"2031-01-02T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 NotInPeriod TestListDayEventsByRestApi\",\"userId\":\"user-id-03-TestListDayEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.680 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListDayEventsByRestApi, Title: title 03 NotInPeriod TestListDayEventsByRestApi
+postgres           | 2025-09-23 12:28:53.680 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.680 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.681 UTC [47] LOG:  Event added successfully. ID: 226f7609-5fd8-411a-8b8c-feab64b1fc2f
+postgres           | 2025-09-23 12:28:53.681 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.681 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.6839904Z","level":"INFO","msg":"rest request","requestId":"f568870b-d768-4214-ba6e-6b575d0d176e","restMethod":"POST","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.684961Z","level":"INFO","msg":"list day events","requestId":"2cd47e40-e666-451a-b526-c46568907f59","restMethod":"GET","startDay":"2030-12-31T10:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.6849853Z","level":"INFO","msg":"list events","requestId":"2cd47e40-e666-451a-b526-c46568907f59","restMethod":"GET","startTime":"2030-12-31T00:00:00Z","endTime":"2031-01-01T00:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.687285Z","level":"INFO","msg":"list events","requestId":"2cd47e40-e666-451a-b526-c46568907f59","restMethod":"GET","found":3}
+calendar           | {"time":"2025-09-23T12:28:53.687354Z","level":"INFO","msg":"rest request","requestId":"2cd47e40-e666-451a-b526-c46568907f59","restMethod":"GET","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":2,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.6951115Z","level":"INFO","msg":"add event","requestId":"8a1f6152-e3b2-46e6-a39a-fc9996c4a688","restMethod":"POST","event":"{\"title\":\"title 01 TestListMonthEventsByRestApi\",\"startTime\":\"2031-01-01T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 01 TestListMonthEventsByRestApi\",\"userId\":\"user-id-01-TestListMonthEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.695 UTC [47] LOG:  Add event attempt. User ID: user-id-01-TestListMonthEventsByRestApi, Title: title 01 TestListMonthEventsByRestApi
+postgres           | 2025-09-23 12:28:53.695 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.695 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.695 UTC [47] LOG:  Event added successfully. ID: 1585d2bd-6f21-426e-8777-f7ac560e6e65
+postgres           | 2025-09-23 12:28:53.695 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.695 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.6981426Z","level":"INFO","msg":"rest request","requestId":"8a1f6152-e3b2-46e6-a39a-fc9996c4a688","restMethod":"POST","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event"}
+calendar           | {"time":"2025-09-23T12:28:53.699098Z","level":"INFO","msg":"add event","requestId":"fab6e255-1af3-4ddc-aa25-0bb3ffb060c4","restMethod":"POST","event":"{\"title\":\"title 02 TestListMonthEventsByRestApi\",\"startTime\":\"2031-01-09T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 02 TestListMonthEventsByRestApi\",\"userId\":\"user-id-02-TestListMonthEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.699 UTC [47] LOG:  Add event attempt. User ID: user-id-02-TestListMonthEventsByRestApi, Title: title 02 TestListMonthEventsByRestApi
+postgres           | 2025-09-23 12:28:53.699 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.699 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.699 UTC [47] LOG:  Event added successfully. ID: 31679e7a-ffc8-4750-8652-4593097ed8a3
+postgres           | 2025-09-23 12:28:53.699 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.699 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7023041Z","level":"INFO","msg":"rest request","requestId":"fab6e255-1af3-4ddc-aa25-0bb3ffb060c4","restMethod":"POST","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.7032311Z","level":"INFO","msg":"add event","requestId":"d2ff34d7-57d9-465a-b3fa-025c6076d766","restMethod":"POST","event":"{\"title\":\"title 03 TestListMonthEventsByRestApi\",\"startTime\":\"2031-01-17T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 TestListMonthEventsByRestApi\",\"userId\":\"user-id-03-TestListMonthEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.703 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListMonthEventsByRestApi, Title: title 03 TestListMonthEventsByRestApi
+postgres           | 2025-09-23 12:28:53.703 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.703 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.703 UTC [47] LOG:  Event added successfully. ID: e5e97ae5-a58f-43ac-a79c-8e0b50350ef2
+postgres           | 2025-09-23 12:28:53.703 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.703 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7063725Z","level":"INFO","msg":"rest request","requestId":"d2ff34d7-57d9-465a-b3fa-025c6076d766","restMethod":"POST","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event"}
+calendar           | {"time":"2025-09-23T12:28:53.7072433Z","level":"INFO","msg":"add event","restMethod":"POST","requestId":"fb0fe792-9670-402e-ab1b-420b2777bed8","event":"{\"title\":\"title 03 NotInPeriod TestListMonthEventsByRestApi\",\"startTime\":\"2031-02-02T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 NotInPeriod TestListMonthEventsByRestApi\",\"userId\":\"user-id-03-TestListMonthEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.707 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListMonthEventsByRestApi, Title: title 03 NotInPeriod TestListMonthEventsByRestApi
+postgres           | 2025-09-23 12:28:53.707 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.707 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.707 UTC [47] LOG:  Event added successfully. ID: 61b3fece-70e3-4836-9e5d-df76da3757e6
+postgres           | 2025-09-23 12:28:53.707 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.707 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.71042Z","level":"INFO","msg":"rest request","restMethod":"POST","requestId":"fb0fe792-9670-402e-ab1b-420b2777bed8","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.7112675Z","level":"INFO","msg":"list month events","restMethod":"GET","requestId":"ea70a76c-0717-4120-8323-19a0604e9572","startDay":"2031-01-01T10:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.7112943Z","level":"INFO","msg":"list events","restMethod":"GET","requestId":"ea70a76c-0717-4120-8323-19a0604e9572","startTime":"2031-01-01T00:00:00Z","endTime":"2031-02-01T00:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.7137543Z","level":"INFO","msg":"list events","restMethod":"GET","requestId":"ea70a76c-0717-4120-8323-19a0604e9572","found":3}
+calendar           | {"time":"2025-09-23T12:28:53.7138314Z","level":"INFO","msg":"rest request","restMethod":"GET","requestId":"ea70a76c-0717-4120-8323-19a0604e9572","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":2,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.7215873Z","level":"INFO","msg":"add event","requestId":"17f43020-5f99-4534-8a7e-744207d284be","restMethod":"POST","event":"{\"title\":\"title 01 TestListWeekEventsByRestApi\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 01 TestListWeekEventsByRestApi\",\"userId\":\"user-id-01-TestListWeekEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.721 UTC [47] LOG:  Add event attempt. User ID: user-id-01-TestListWeekEventsByRestApi, Title: title 01 TestListWeekEventsByRestApi
+postgres           | 2025-09-23 12:28:53.721 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.721 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.722 UTC [47] LOG:  Event added successfully. ID: b3550dbf-b2ae-47f4-a0df-6fcf1557ccd6
+postgres           | 2025-09-23 12:28:53.722 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.722 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7247694Z","level":"INFO","msg":"rest request","requestId":"17f43020-5f99-4534-8a7e-744207d284be","restMethod":"POST","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.7255856Z","level":"INFO","msg":"add event","requestId":"57a43e9d-a3e8-4518-a4d4-482dc88cb0ec","restMethod":"POST","event":"{\"title\":\"title 02 TestListWeekEventsByRestApi\",\"startTime\":\"2031-01-02T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 02 TestListWeekEventsByRestApi\",\"userId\":\"user-id-02-TestListWeekEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.725 UTC [47] LOG:  Add event attempt. User ID: user-id-02-TestListWeekEventsByRestApi, Title: title 02 TestListWeekEventsByRestApi
+postgres           | 2025-09-23 12:28:53.725 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.725 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.726 UTC [47] LOG:  Event added successfully. ID: 722a650f-e97c-480a-8a52-109c7112b2af
+postgres           | 2025-09-23 12:28:53.726 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.726 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7287622Z","level":"INFO","msg":"rest request","requestId":"57a43e9d-a3e8-4518-a4d4-482dc88cb0ec","restMethod":"POST","latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200}
+calendar           | {"time":"2025-09-23T12:28:53.7296383Z","level":"INFO","msg":"add event","requestId":"e97b3b11-cb35-498b-aa10-cfdc9fb47b55","restMethod":"POST","event":"{\"title\":\"title 03 TestListWeekEventsByRestApi\",\"startTime\":\"2031-01-04T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 TestListWeekEventsByRestApi\",\"userId\":\"user-id-03-TestListWeekEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.729 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListWeekEventsByRestApi, Title: title 03 TestListWeekEventsByRestApi
+postgres           | 2025-09-23 12:28:53.729 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.729 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.730 UTC [47] LOG:  Event added successfully. ID: e2a9831e-93df-4cbf-ad43-82f65ad470bb
+postgres           | 2025-09-23 12:28:53.730 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.730 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7327663Z","level":"INFO","msg":"rest request","requestId":"e97b3b11-cb35-498b-aa10-cfdc9fb47b55","restMethod":"POST","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event"}
+calendar           | {"time":"2025-09-23T12:28:53.7338021Z","level":"INFO","msg":"add event","requestId":"bf6d89f7-20b8-454f-adf6-2c596b138c8d","restMethod":"POST","event":"{\"title\":\"title 03 NotInPeriod TestListWeekEventsByRestApi\",\"startTime\":\"2031-01-10T10:00:00Z\",\"duration\":3600000000000,\"description\":\"description 03 NotInPeriod TestListWeekEventsByRestApi\",\"userId\":\"user-id-03-TestListWeekEventsByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.734 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestListWeekEventsByRestApi, Title: title 03 NotInPeriod TestListWeekEventsByRestApi
+postgres           | 2025-09-23 12:28:53.734 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.734 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.734 UTC [47] LOG:  Event added successfully. ID: 977745d0-66bc-4869-8b21-fc92811c2643
+postgres           | 2025-09-23 12:28:53.734 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.734 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7371616Z","level":"INFO","msg":"rest request","requestId":"bf6d89f7-20b8-454f-adf6-2c596b138c8d","restMethod":"POST","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event"}
+calendar           | {"time":"2025-09-23T12:28:53.7380464Z","level":"INFO","msg":"list week events","restMethod":"GET","requestId":"76052bd2-7751-4145-a357-398340860d09","startDay":"2030-12-31T10:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.7381073Z","level":"INFO","msg":"list events","restMethod":"GET","requestId":"76052bd2-7751-4145-a357-398340860d09","startTime":"2030-12-31T00:00:00Z","endTime":"2031-01-07T00:00:00Z"}
+calendar           | {"time":"2025-09-23T12:28:53.7405816Z","level":"INFO","msg":"list events","restMethod":"GET","requestId":"76052bd2-7751-4145-a357-398340860d09","found":3}
+calendar           | {"time":"2025-09-23T12:28:53.7406516Z","level":"INFO","msg":"rest request","restMethod":"GET","requestId":"76052bd2-7751-4145-a357-398340860d09","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":2,"user_agent":"Go-http-client/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.7482583Z","level":"INFO","msg":"add event","requestId":"53829b07-6ed8-4d63-9239-049468fe630c","restMethod":"POST","event":"{\"title\":\"title ok TestUserConflictErrorByRest\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description ok TestUserConflictErrorByRest\",\"userId\":\"user-id-ok-TestUserConflictErrorByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.748 UTC [47] LOG:  Add event attempt. User ID: user-id-ok-TestUserConflictErrorByRestApi, Title: title ok TestUserConflictErrorByRest
+postgres           | 2025-09-23 12:28:53.748 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.748 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.749 UTC [47] LOG:  Event added successfully. ID: dcc0e876-a5c3-4c03-b435-0d8417bb4b2b
+postgres           | 2025-09-23 12:28:53.749 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.749 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7516807Z","level":"INFO","msg":"rest request","requestId":"53829b07-6ed8-4d63-9239-049468fe630c","restMethod":"POST","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7"}
+calendar           | {"time":"2025-09-23T12:28:53.7522473Z","level":"INFO","msg":"update event","requestId":"2f4d04c4-4795-4622-9c64-12b4a0b50806","restMethod":"PUT","event":"{\"id\":\"dcc0e876-a5c3-4c03-b435-0d8417bb4b2b\",\"title\":\"title conflict TestUserConflictErrorByRest\",\"startTime\":\"2030-12-31T10:00:00Z\",\"duration\":86400000000000,\"description\":\"description conflict TestUserConflictErrorByRest\",\"userId\":\"user-id-conflict-TestUserConflictErrorByRestApi\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.752 UTC [47] LOG:  Update event attempt. Event ID: dcc0e876-a5c3-4c03-b435-0d8417bb4b2b, User ID: user-id-conflict-TestUserConflictErrorByRestApi
+postgres           | 2025-09-23 12:28:53.752 UTC [47] CONTEXT:  PL/pgSQL function update_event(uuid,text,timestamp with time zone,integer,text,text,integer) line 9 at RAISE
+postgres           | 2025-09-23 12:28:53.752 UTC [47] STATEMENT:  
+postgres           | 	        SELECT status_code, error_message, conflict_event_id, conflict_user_id 
+postgres           | 	        FROM update_event($1, $2, $3, $4, $5, $6, $7)
+calendar           | {"time":"2025-09-23T12:28:53.75512Z","level":"ERROR","msg":"update event","requestId":"2f4d04c4-4795-4622-9c64-12b4a0b50806","restMethod":"PUT","error":"'user-id-conflict-TestUserConflictErrorByRestApi' user is not the owner of the event, conflict with 'user-id-ok-TestUserConflictErrorByRestApi'","databaseResponse":{}}
+calendar           | {"time":"2025-09-23T12:28:53.7551696Z","level":"ERROR","msg":"write error","requestId":"2f4d04c4-4795-4622-9c64-12b4a0b50806","restMethod":"PUT","error":"update event: 'user-id-conflict-TestUserConflictErrorByRestApi' user is not the owner of the event, conflict with 'user-id-ok-TestUserConflictErrorByRestApi'"}
+calendar           | {"time":"2025-09-23T12:28:53.7551763Z","level":"INFO","msg":"rest request","requestId":"2f4d04c4-4795-4622-9c64-12b4a0b50806","restMethod":"PUT","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":409,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+postgres           | 2025-09-23 12:28:53.784 UTC [47] LOG:  Add event attempt. User ID: user-id-01-TestSender, Title: title 01 TestSender
+postgres           | 2025-09-23 12:28:53.784 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+calendar           | {"time":"2025-09-23T12:28:53.7843794Z","level":"INFO","msg":"add event","requestId":"127ce1c0-dcc0-45e1-9489-2bc4ffdb76a7","restMethod":"POST","event":"{\"title\":\"title 01 TestSender\",\"startTime\":\"2025-09-24T12:29:04.7840848Z\",\"duration\":3600000000000,\"description\":\"description 01 TestSender\",\"userId\":\"user-id-01-TestSender\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.784 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.785 UTC [47] LOG:  Event added successfully. ID: 4d692748-bd6b-4654-a46b-7fc9d8fe02c5
+postgres           | 2025-09-23 12:28:53.785 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.785 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.787542Z","level":"INFO","msg":"rest request","requestId":"127ce1c0-dcc0-45e1-9489-2bc4ffdb76a7","restMethod":"POST","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.7881578Z","level":"INFO","msg":"add event","requestId":"0af9a351-7d77-4f4c-9c9a-98a76b575c80","restMethod":"POST","event":"{\"title\":\"title 02 TestSender\",\"startTime\":\"2025-09-25T12:29:04.7840848Z\",\"duration\":3600000000000,\"description\":\"description 02 TestSender\",\"userId\":\"user-id-02-TestSender\",\"reminder\":172800000000000}"}
+postgres           | 2025-09-23 12:28:53.788 UTC [47] LOG:  Add event attempt. User ID: user-id-02-TestSender, Title: title 02 TestSender
+postgres           | 2025-09-23 12:28:53.788 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.788 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.788 UTC [47] LOG:  Event added successfully. ID: ca7e8f54-3b9f-4ddf-9ad5-7c39915ef263
+postgres           | 2025-09-23 12:28:53.788 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.788 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7913903Z","level":"INFO","msg":"rest request","requestId":"0af9a351-7d77-4f4c-9c9a-98a76b575c80","restMethod":"POST","user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3}
+calendar           | {"time":"2025-09-23T12:28:53.7919232Z","level":"INFO","msg":"add event","requestId":"2d30dbe0-cb89-4636-99e8-3de81762b302","restMethod":"POST","event":"{\"title\":\"title 03 TestSender\",\"startTime\":\"2025-09-27T12:29:04.7840848Z\",\"duration\":3600000000000,\"description\":\"description 03 TestSender\",\"userId\":\"user-id-03-TestSender\",\"reminder\":345600000000000}"}
+postgres           | 2025-09-23 12:28:53.792 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestSender, Title: title 03 TestSender
+postgres           | 2025-09-23 12:28:53.792 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.792 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.792 UTC [47] LOG:  Event added successfully. ID: f839e3d4-2c77-49ef-ac1c-989c7c60aa2b
+postgres           | 2025-09-23 12:28:53.792 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.792 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.7949646Z","level":"INFO","msg":"rest request","requestId":"2d30dbe0-cb89-4636-99e8-3de81762b302","restMethod":"POST","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1"}
+calendar           | {"time":"2025-09-23T12:28:53.7955426Z","level":"INFO","msg":"add event","requestId":"3fd4c8f1-132f-40c3-a0e1-67b81bc6a1ec","restMethod":"POST","event":"{\"title\":\"title 03 NotInPeriod TestSender\",\"startTime\":\"2025-10-25T12:28:53.7840848Z\",\"duration\":3600000000000,\"description\":\"description 03 NotInPeriod TestSender\",\"userId\":\"user-id-03-TestSender\",\"reminder\":86400000000000}"}
+postgres           | 2025-09-23 12:28:53.795 UTC [47] LOG:  Add event attempt. User ID: user-id-03-TestSender, Title: title 03 NotInPeriod TestSender
+postgres           | 2025-09-23 12:28:53.795 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 10 at RAISE
+postgres           | 2025-09-23 12:28:53.795 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+postgres           | 2025-09-23 12:28:53.796 UTC [47] LOG:  Event added successfully. ID: 68ba2a7f-4f97-41b0-9412-1de8391a1380
+postgres           | 2025-09-23 12:28:53.796 UTC [47] CONTEXT:  PL/pgSQL function add_event(text,timestamp with time zone,integer,text,text,integer) line 49 at RAISE
+postgres           | 2025-09-23 12:28:53.796 UTC [47] STATEMENT:  
+postgres           | 	        SELECT event_id, status_code, error_message, conflict_event_id 
+postgres           | 	        FROM add_event($1, $2, $3, $4, $5, $6)
+calendar           | {"time":"2025-09-23T12:28:53.798631Z","level":"INFO","msg":"rest request","requestId":"3fd4c8f1-132f-40c3-a0e1-67b81bc6a1ec","restMethod":"POST","ip":"192.168.32.7","path":"/v1/event","protocol":"HTTP/1.1","status":200,"latency_ms":3,"user_agent":"Go-http-client/1.1"}
+integration-tests  | ok  	github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/memory	1.615s
+scheduler          | {"time":"2025-09-23T12:29:02.2532636Z","level":"INFO","msg":"cleanup old events","requestId":"236f7342-65db-477f-a30b-d0a81acd7206","methodName":"run clean up task","deleted":0}
+sender             | {"time":"2025-09-23T12:29:02.2558096Z","level":"INFO","msg":"sending notification","requestId":"1e839dcf-d820-4f9d-9281-f0f6077860fb","methodName":"consume and send notification","notification":{"id":"4d692748-bd6b-4654-a46b-7fc9d8fe02c5","title":"title 01 TestSender","date":"2025-09-24T00:00:00Z","userId":"user-id-01-TestSender"}}
+sender             | {"time":"2025-09-23T12:29:02.2558755Z","level":"INFO","msg":"add proc event","requestId":"1e839dcf-d820-4f9d-9281-f0f6077860fb","methodName":"consume and send notification","procEvent":"{\"id\":\"4d692748-bd6b-4654-a46b-7fc9d8fe02c5\",\"userId\":\"user-id-01-TestSender\"}"}
+scheduler          | {"time":"2025-09-23T12:29:02.2583634Z","level":"INFO","msg":"scan for notifications","requestId":"85c1478c-13c1-449f-bbe6-a48debb6ca9c","methodName":"run notification task","notificated":4}
+sender             | {"time":"2025-09-23T12:29:02.2604376Z","level":"INFO","msg":"sending notification","requestId":"1e839dcf-d820-4f9d-9281-f0f6077860fb","methodName":"consume and send notification","notification":{"id":"4d692748-bd6b-4654-a46b-7fc9d8fe02c5","title":"title 01 TestSender","date":"2025-09-24T00:00:00Z","userId":"user-id-01-TestSender"}}
+sender             | {"time":"2025-09-23T12:29:02.260496Z","level":"INFO","msg":"sending notification","requestId":"11295a38-67ae-49e1-89f2-2c0d37e2a0e5","methodName":"consume and send notification","notification":{"id":"ca7e8f54-3b9f-4ddf-9ad5-7c39915ef263","title":"title 02 TestSender","date":"2025-09-25T00:00:00Z","userId":"user-id-02-TestSender"}}
+sender             | {"time":"2025-09-23T12:29:02.2605039Z","level":"INFO","msg":"add proc event","requestId":"11295a38-67ae-49e1-89f2-2c0d37e2a0e5","methodName":"consume and send notification","procEvent":"{\"id\":\"ca7e8f54-3b9f-4ddf-9ad5-7c39915ef263\",\"userId\":\"user-id-02-TestSender\"}"}
+sender             | {"time":"2025-09-23T12:29:02.262939Z","level":"INFO","msg":"sending notification","requestId":"11295a38-67ae-49e1-89f2-2c0d37e2a0e5","methodName":"consume and send notification","notification":{"id":"ca7e8f54-3b9f-4ddf-9ad5-7c39915ef263","title":"title 02 TestSender","date":"2025-09-25T00:00:00Z","userId":"user-id-02-TestSender"}}
+sender             | {"time":"2025-09-23T12:29:02.2630113Z","level":"INFO","msg":"sending notification","requestId":"870af81f-be06-46bc-808e-6670358fe4d8","methodName":"consume and send notification","notification":{"id":"f839e3d4-2c77-49ef-ac1c-989c7c60aa2b","title":"title 03 TestSender","date":"2025-09-27T00:00:00Z","userId":"user-id-03-TestSender"}}
+sender             | {"time":"2025-09-23T12:29:02.2630198Z","level":"INFO","msg":"add proc event","requestId":"870af81f-be06-46bc-808e-6670358fe4d8","methodName":"consume and send notification","procEvent":"{\"id\":\"f839e3d4-2c77-49ef-ac1c-989c7c60aa2b\",\"userId\":\"user-id-03-TestSender\"}"}
+sender             | {"time":"2025-09-23T12:29:02.265352Z","level":"INFO","msg":"sending notification","requestId":"870af81f-be06-46bc-808e-6670358fe4d8","methodName":"consume and send notification","notification":{"id":"f839e3d4-2c77-49ef-ac1c-989c7c60aa2b","title":"title 03 TestSender","date":"2025-09-27T00:00:00Z","userId":"user-id-03-TestSender"}}
+sender             | {"time":"2025-09-23T12:29:02.2653968Z","level":"INFO","msg":"sending notification","requestId":"927e4be0-7f42-473a-b4d5-81f4a9aedeab","methodName":"consume and send notification","notification":{"id":"00000000-0000-0000-0000-000000008267","title":"title_user-0083_68","date":"2025-09-23T00:00:00Z","userId":"user-0083"}}
+sender             | {"time":"2025-09-23T12:29:02.265403Z","level":"INFO","msg":"add proc event","requestId":"927e4be0-7f42-473a-b4d5-81f4a9aedeab","methodName":"consume and send notification","procEvent":"{\"id\":\"00000000-0000-0000-0000-000000008267\",\"userId\":\"user-0083\"}"}
+sender             | {"time":"2025-09-23T12:29:02.2677691Z","level":"INFO","msg":"sending notification","requestId":"927e4be0-7f42-473a-b4d5-81f4a9aedeab","methodName":"consume and send notification","notification":{"id":"00000000-0000-0000-0000-000000008267","title":"title_user-0083_68","date":"2025-09-23T00:00:00Z","userId":"user-0083"}}
+integration-tests  | ok  	github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration	15.398s
+integration-tests exited with code 0
+Aborting on container exit...
+failed to get console mode for stdout: The handle is invalid.
+failed to get console mode for stdout: The handle is invalid.
+[1A[1B[0G[?25l[+] Running 0/0
+ - Container integration-tests  Stopping 0.1s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 0.2s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 0.3s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 0.4s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 0.5s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 0.6s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 0.7s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 0.8s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 0.9s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 1.0s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 1.1s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 1.2s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 1.3s
+[?25h[1A[1A[0G[?25l[+] Running 0/1
+ - Container integration-tests  Stopping 1.4s
+[?25h[1A[1A[0G[?25l[34m[+] Running 1/1[0m
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopping 0.1s
+ - Container scheduler          Stopping 0.1s
+ - Container calendar           Stopping 0.1s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 1/4
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopping 0.2s
+ - Container scheduler          Stopping 0.2s
+ - Container calendar           Stopping 0.2s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 1/4
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopping 0.3s
+ - Container scheduler          Stopping 0.3s
+ - Container calendar           Stopping 0.3s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 1/4
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopping 0.4s
+ - Container scheduler          Stopping 0.4s
+ - Container calendar           Stopping 0.4s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 1/4
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopping 0.5s
+ - Container scheduler          Stopping 0.5s
+ - Container calendar           Stopping 0.5s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 1/4
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopping 0.6s
+ - Container scheduler          Stopping 0.6s
+ - Container calendar           Stopping 0.6s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 1/4
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopping 0.7s
+ - Container scheduler          Stopping 0.7s
+ - Container calendar           Stopping 0.7s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 1/4
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopping 0.8s
+ - Container scheduler          Stopping 0.8s
+ - Container calendar           Stopping 0.8s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 3/4
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopping 0.9s
+ - Container rabbit             Stopping 0.0s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 4/5
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.1s
+ - Container postgres           Stopping 0.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 4/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.2s
+ - Container postgres           Stopping 0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 4/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.3s
+ - Container postgres           Stopping 0.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 4/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.4s
+ - Container postgres           Stopping 0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 4/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.5s
+ - Container postgres           Stopping 0.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 4/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.6s
+ - Container postgres           Stopping 0.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.7s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.8s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 0.9s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 1.0s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 1.1s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 1.2s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 1.3s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 1.4s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 1.5s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 1.6s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 5/6
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopping 1.7s
+ - Container postgres           Stopped 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[0G[?25l[34m[+] Running 6/6[0m
+ - Container integration-tests  Stopped 1.4s
+ - Container sender             Stopped 0.8s
+ - Container scheduler          Stopped 0.8s
+ - Container calendar           Stopped 1.0s
+ - Container rabbit             Stopped 1.8s
+ - Container postgres           Stopped 0.6s
+[?25hfailed to get console mode for stdout: The handle is invalid.
+[1A[1B[0G[?25l[+] Running 1/0
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Stopping 0.0s
+ - Container sender             Stopping 0.0s
+ - Container scheduler          Stopping 0.0s
+[?25h[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/4
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Removed 0.1s
+ - Container sender             Removed 0.1s
+ - Container scheduler          Removed 0.1s
+ - Container rabbit             Removed 0.0s
+ - Container postgres           Removed 0.0s
+ - Network deployments_default  Removing 0.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Removed 0.1s
+ - Container sender             Removed 0.1s
+ - Container scheduler          Removed 0.1s
+ - Container rabbit             Removed 0.0s
+ - Container postgres           Removed 0.0s
+ - Network deployments_default  Removing 0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Removed 0.1s
+ - Container sender             Removed 0.1s
+ - Container scheduler          Removed 0.1s
+ - Container rabbit             Removed 0.0s
+ - Container postgres           Removed 0.0s
+ - Network deployments_default  Removing 0.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Removed 0.1s
+ - Container sender             Removed 0.1s
+ - Container scheduler          Removed 0.1s
+ - Container rabbit             Removed 0.0s
+ - Container postgres           Removed 0.0s
+ - Network deployments_default  Removing 0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Removed 0.1s
+ - Container sender             Removed 0.1s
+ - Container scheduler          Removed 0.1s
+ - Container rabbit             Removed 0.0s
+ - Container postgres           Removed 0.0s
+ - Network deployments_default  Removing 0.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Removed 0.1s
+ - Container sender             Removed 0.1s
+ - Container scheduler          Removed 0.1s
+ - Container rabbit             Removed 0.0s
+ - Container postgres           Removed 0.0s
+ - Network deployments_default  Removing 0.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Running 6/7
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Removed 0.1s
+ - Container sender             Removed 0.1s
+ - Container scheduler          Removed 0.1s
+ - Container rabbit             Removed 0.0s
+ - Container postgres           Removed 0.0s
+ - Network deployments_default  Removing 0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[34m[+] Running 7/7[0m
+ - Container integration-tests  Removed 0.1s
+ - Container calendar           Removed 0.1s
+ - Container sender             Removed 0.1s
+ - Container scheduler          Removed 0.1s
+ - Container rabbit             Removed 0.0s
+ - Container postgres           Removed 0.0s
+ - Network deployments_default  Removed 0.6s
+[?25hUntagged: 1aeef68f-calendar:develop
+Deleted: sha256:3029823408c357775b0014a00e4c42dea59aa5ac491b3dd136e8abbd6abee5a5
+Untagged: 1aeef68f-scheduler:develop
+Deleted: sha256:e2fcd5de9bec520864b263f8557cf10bef3e46a7011a52d3746d2823a120127f
+Untagged: 1aeef68f-sender:develop
+Deleted: sha256:0fd6d618a6dd8714e4c7df53b30da0dbe815f7501e8aee2e9e389233f64438fc
+Untagged: 1aeef68f-integration-tests:develop
+Deleted: sha256:2295f4a677fe9607dc72c42037a5d3f25e610b56e977bed6d2914978978b3049
+Deleted build cache objects:
+ljosq3ug4tp2hkru281bmwm0x
+l63mn9nvug1gtgl8w1exkhc5n
+28619a0rduxcn2hs9zi01r9e0
+mu0znvx0i79c4ky1jjhzj6gzq
+al7v3uxz3xmba7qrbbdrj2h37
+mch1e62c8jvap46r8xl3n3h1a
+d16smyntzvv8auoa0pozv1ax9
+85c71s8bgvsigutnma37d2sot
+u49ru7wzl53os6aql16xok2fv
+3mvgc80wo1leslcya5djciet2
+m9ipdnk5vc8238w0fo7vcgxmb
+zin0htrfq9ni6mof5vg71t7o3
+zb60nau4jyye5vhomjfsj9sur
+xz2wkt2ptee5um41whz1ua98x
+wax3nab4v6s2129y9e109z6r1
+4sc5nzp86and5k4nl9a8vtszd
+kfagv7xoaqtvf4yvpy1etaal3
+o84w8zrzlyoxm177e7jav3kc8
+rtpcu56pdhewiahtubsg4f0qg
+pfeuuz9nswur3nym09h324qqr
+p3un3pyll14499fvzusl1dxxx
+pro225m0pih4ek6zp73nrh1rb
+wjyxyzrswey6ystc6mwxg2oip
+lzd0bfyo5wmdxv0fpnw8dww1l
+or0jnbcyz8p7ytl43cewsf2mg
+kl00cqgx10jb5q2ca59gxw3jv
+wis2pdc16af2vhg984da6bt27
+iyn061hcs4ppppfqf3ypeb4qu
+y1fc0x4y79bc6xnasn98vaiik
+yzeb1u0d08e5ky1avsrxk1mjs
+clqa8z3ru1ael5bcdtj83c6z2
+7wmp7ul3vldkytjb6pm6jqx0u
+qgrh32lnuimdqa5q2agd2cpgs
+nv0qk92trtn1ih4r9wrua4iyp
+yxdsps0404kfgege11ujq4tzo
+uefo6aexyomtaro8guewlggal
+n1fh4oj39y9nq0vejijtyl35e
+oi9iz4meiseiaqmxop6uhws62
+yit04xw87a0t7jpnh2ahnwt6b
+v9ftg67nz34h62xp2yd8a1306
+
+Total reclaimed space: 1.445GB
+integration-tests-otus exited with code: 0

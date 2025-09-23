@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"time"
 
 	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
@@ -26,23 +28,40 @@ func NewClient(conf *model.RMQConf) rmq.Client {
 }
 
 func (r *client) Connect(ctx context.Context) error {
+	r.createConnect(ctx)
+	channel, err := r.conn.Channel()
+	if err != nil {
+		return fmt.Errorf("open channel: %w", err)
+	}
+	r.channel = channel
+	lg.GetLogger(ctx).Info("rabbitmq client connection established")
+	return nil
+}
+
+func (r *client) createConnect(ctx context.Context) {
 	amqpURI := fmt.Sprintf("amqp://%s:%s@%s:%d/",
 		r.conf.User,
 		r.conf.Password,
 		r.conf.Host,
 		r.conf.Port,
 	)
+	var conn *amqp.Connection
 	var err error
-	r.conn, err = amqp.Dial(amqpURI)
-	if err != nil {
-		return fmt.Errorf("connect to RabbitMQ: %w", err)
+	for i := range r.conf.StartParam.ReconnectAttempt {
+		conn, err = amqp.Dial(amqpURI)
+		if err != nil {
+			lg.GetLogger(ctx).WithError(err).Error("connect to RabbitMQ", map[string]any{"attempt": i + 1})
+			if i < r.conf.StartParam.ReconnectAttempt-1 {
+				err = nil
+				time.Sleep(time.Duration(r.conf.StartParam.ReconnectTimeout) * time.Second)
+				continue
+			}
+		}
 	}
-	r.channel, err = r.conn.Channel()
 	if err != nil {
-		return fmt.Errorf("open channel: %w", err)
+		os.Exit(1)
 	}
-	lg.GetLogger(ctx).Info("rabbitmq client connection established")
-	return nil
+	r.conn = conn
 }
 
 func (r *client) ExchangeDeclare(ctx context.Context) error {

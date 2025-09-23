@@ -1,8 +1,10 @@
 BIN_CALENDAR := "./bin/calendar"
 BIN_SCHEDULER := "./bin/scheduler"
 BIN_SENDER := "./bin/sender"
-DOCKER_IMG="calendar:develop"
-DB_USER ?= user
+DOCKER_IMG_CALENDAR="calendar:develop"
+DOCKER_IMG_SCHEDULER="scheduler:develop"
+DOCKER_IMG_SENDER="sender:develop"
+DB_USER ?= postgres
 DB_PASSWORD ?= password
 DB_DSN="host=localhost port=5432 user=$(DB_USER) password=$(DB_PASSWORD) dbname=calendar sslmode=disable"
 MIGRATIONS_DIR="./migrations"
@@ -24,10 +26,9 @@ run: build
 	$(BIN_SENDER) -config ./configs/sender_config.yaml
 
 build-img:
-	docker build \
-		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
+	docker build --build-arg=LDFLAGS="$(LDFLAGS)" -t $(DOCKER_IMG_CALENDAR) -f ./build/calendar/Dockerfile .
+	docker build --build-arg=LDFLAGS="$(LDFLAGS)" -t $(DOCKER_IMG_SCHEDULER) -f ./build/scheduler/Dockerfile .
+	docker build --build-arg=LDFLAGS="$(LDFLAGS)" -t $(DOCKER_IMG_CALENDAR) -f ./build/sender/Dockerfile .
 
 run-img: build-img
 	docker run $(DOCKER_IMG)
@@ -63,4 +64,19 @@ generate: install-protoc-deps
 		$(PROTO_DIR)/$(PROTO_FILE)
 	@echo "gRPC code generated in $(GRPC_OUT_DIR)"
 
-.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate
+up:
+	docker compose -f './deployments/docker-compose.yaml' up -d --build 
+
+down:
+	docker compose -f './deployments/docker-compose.yaml' down 
+
+integration-tests:
+	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus ; \
+	EXIT_CODE=$$?; \
+	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' down; \
+	docker rmi -f 1aeef68f-calendar:develop 1aeef68f-scheduler:develop 1aeef68f-sender:develop 1aeef68f-integration-tests:develop 2>/dev/null || true; \
+	docker system prune -f; \
+	echo "integration-tests-otus exited with code: $$EXIT_CODE" ; \
+	exit $$EXIT_CODE
+
+.PHONY: build run build-img run-img version test lint install-goose migrate install-protoc-deps generate up down integration-tests

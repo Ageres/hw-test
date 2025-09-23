@@ -23,8 +23,9 @@ type SchedulerConfig struct {
 // -----------------------------
 // sender config model.
 type SenderConfig struct {
-	RMQ    *RMQConf    `yaml:"rmq" validate:"required"`
-	Logger *LoggerConf `yaml:"logger" validate:"required"`
+	RMQ     *RMQConf     `yaml:"rmq" validate:"required"`
+	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
+	Storage *StorageConf `yaml:"storage" validate:"required"`
 }
 
 // -----------------------------
@@ -47,8 +48,15 @@ type InMemoryConf struct {
 }
 
 type SQLConfig struct {
-	DB   DBConfig `yaml:"db" validate:"required"`
-	Pool PoolConf `yaml:"pool" validate:"required"`
+	StartParam StartParamConf `yaml:"startParam" validate:"required"`
+	DB         DBConfig       `yaml:"db" validate:"required"`
+	Pool       PoolConf       `yaml:"pool" validate:"required"`
+	Migration  MigrationConf  `yaml:"migration"`
+}
+
+type StartParamConf struct {
+	ReconnectAttempt int `yaml:"reconnectAttempt" validate:"required"`
+	ReconnectTimeout int `yaml:"reconnectTimeout" validate:"required"`
 }
 
 type DBConfig struct {
@@ -78,6 +86,11 @@ func (d *DBConfig) DSN() string {
 	)
 }
 
+type MigrationConf struct {
+	Enable bool   `yaml:"enable"`
+	Path   string `yaml:"path"`
+}
+
 // -----------------------------
 // http config model.
 type HTTPConf struct {
@@ -85,7 +98,7 @@ type HTTPConf struct {
 }
 
 type HTTPServerConf struct {
-	Host              string `yaml:"host" validate:"required"`
+	Host              string `yaml:"host"`
 	Port              int    `yaml:"port" validate:"required,gt=0"`
 	ReadHeaderTimeout int    `yaml:"readHeaderTimeout" validate:"gte=0"`
 	ReadTimeout       int    `yaml:"readTimeout" validate:"gte=0"`
@@ -135,13 +148,14 @@ type IntervalConf struct {
 // rmq config model.
 
 type RMQConf struct {
-	Host         string `yaml:"host" validate:"required"`
-	Port         int    `yaml:"port" validate:"required,gt=0"`
-	User         string `yaml:"user" validate:"required"`
-	Password     string `yaml:"password" validate:"required"`
-	ExchangeName string `yaml:"exchangeName" validate:"required"`
-	ExchangeType string `yaml:"exchangeType" validate:"oneof=direct fanout topic x-custom"`
-	QueueName    string `yaml:"queueName" validate:"required"`
-	RoutingKey   string `yaml:"routingKey" validate:"required"`
-	ConsumerTag  string `yaml:"consumerTag"`
+	StartParam   StartParamConf `yaml:"startParam" validate:"required"`
+	Host         string         `yaml:"host" validate:"required"`
+	Port         int            `yaml:"port" validate:"required,gt=0"`
+	User         string         `yaml:"user" validate:"required"`
+	Password     string         `yaml:"password" validate:"required"`
+	ExchangeName string         `yaml:"exchangeName" validate:"required"`
+	ExchangeType string         `yaml:"exchangeType" validate:"oneof=direct fanout topic x-custom"`
+	QueueName    string         `yaml:"queueName" validate:"required"`
+	RoutingKey   string         `yaml:"routingKey" validate:"required"`
+	ConsumerTag  string         `yaml:"consumerTag"`
 }

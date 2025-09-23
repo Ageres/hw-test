@@ -72,6 +72,11 @@ func (m *MockStorage) DeleteOldEvents(ctx context.Context, before time.Time) (in
 	return args.Get(0).(int64), args.Error(1)
 }
 
+func (m *MockStorage) AddProcEvent(ctx context.Context, procEvent *storage.ProcEvent) error {
+	args := m.Called(ctx, procEvent)
+	return args.Error(0)
+}
+
 func (m *MockStorage) Close() error {
 	return nil
 }

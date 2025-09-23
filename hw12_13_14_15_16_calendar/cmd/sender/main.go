@@ -12,6 +12,7 @@ import (
 	cs "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/sender"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq"
+	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 )
 
 // запуск:
@@ -35,7 +36,9 @@ func main() {
 
 	rmqClient := rabbitmq.NewClient(configRef.RMQ)
 
-	sender := app.NewSender(ctx, rmqClient)
+	storage := storage_config.NewStorage(ctx, configRef.Storage)
+
+	sender := app.NewSender(ctx, rmqClient, storage)
 
 	senderErrChan := make(chan error, 1)
 
