@@ -1,4 +1,4 @@
-//go:build integration
+//------------------go:build integration
 
 package integration
 
@@ -17,7 +17,7 @@ import (
 
 type CalendarRestApiIntegrationSuite struct {
 	suite.Suite
-	apiClient c.TestCalendarApiClient
+	apiClient c.TestCalendarAPIClient
 	repo      repo.Repo
 }
 
@@ -43,7 +43,7 @@ func (s *CalendarRestApiIntegrationSuite) TearDownSuite() {
 		"user-id-03-TestListMonthEventsByRestApi",
 	}
 	for _, userID := range userIDs {
-		_ = s.repo.DeleteByUserId(userID)
+		_ = s.repo.DeleteByUserID(userID)
 	}
 }
 
@@ -68,16 +68,16 @@ func (s *CalendarRestApiIntegrationSuite) TestAddEventByRestApi() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventId, _, err := s.apiClient.AddTestEvent(restApiEvent)
+	eventID, _, err := s.apiClient.AddTestEvent(restApiEvent)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventId)
-	restApiEvent.ID = eventId
+	s.Require().NotEqual("", eventID)
+	restApiEvent.ID = eventID
 
-	dbEvent, err := s.repo.Get(eventId)
+	dbEvent, err := s.repo.Get(eventID)
 	s.Require().NoError(err)
 	s.Require().Equal(restApiEvent, dbEvent)
 
-	err = s.repo.DeleteByUserId(restApiEvent.UserID)
+	err = s.repo.DeleteByUserID(restApiEvent.UserID)
 	s.Require().NoError(err)
 }
 
@@ -103,22 +103,22 @@ func (s *CalendarRestApiIntegrationSuite) TestBusyDateErrorByRestApi() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkId, _, err := s.apiClient.AddTestEvent(restApiEventOk)
+	eventOkID, _, err := s.apiClient.AddTestEvent(restApiEventOk)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventOkId)
-	restApiEventOk.ID = eventOkId
+	s.Require().NotEqual("", eventOkID)
+	restApiEventOk.ID = eventOkID
 
-	eventBusyId, bodyBusy, err := s.apiClient.AddTestEvent(restApiEventBusy)
+	eventBusyID, bodyBusy, err := s.apiClient.AddTestEvent(restApiEventBusy)
 	s.Require().Equal(err.Error(), "response status '409 Conflict'")
-	s.Require().Contains(bodyBusy, fmt.Sprintf("add event: time is already taken by another event: %s", eventOkId))
-	s.Require().Equal("", eventBusyId)
-	restApiEventOk.ID = eventOkId
+	s.Require().Contains(bodyBusy, fmt.Sprintf("add event: time is already taken by another event: %s", eventOkID))
+	s.Require().Equal("", eventBusyID)
+	restApiEventOk.ID = eventOkID
 
-	dbEvents, err := s.repo.ListByUserId(userID)
+	dbEvents, err := s.repo.ListByUserID(userID)
 	s.Require().NoError(err)
 	s.Require().Equal(1, len(dbEvents))
 
-	err = s.repo.DeleteByUserId(userID)
+	err = s.repo.DeleteByUserID(userID)
 	s.Require().NoError(err)
 }
 
@@ -145,26 +145,26 @@ func (s *CalendarRestApiIntegrationSuite) TestUserConflictErrorByRestApi() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkId, _, err := s.apiClient.AddTestEvent(restApiEventOk)
+	eventOkID, _, err := s.apiClient.AddTestEvent(restApiEventOk)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventOkId)
-	restApiEventOk.ID = eventOkId
+	s.Require().NotEqual("", eventOkID)
+	restApiEventOk.ID = eventOkID
 
-	restApiEventConflict.ID = eventOkId
+	restApiEventConflict.ID = eventOkID
 	bodyConflict, err := s.apiClient.UpdateTestEvent(restApiEventConflict)
 	s.Require().Equal(err.Error(), "response status '409 Conflict'")
 	s.Require().Contains(bodyConflict, fmt.Sprintf("'%s' user is not the owner of the event, conflict with '%s'", userIDConflict, userIDOk))
-	restApiEventOk.ID = eventOkId
+	restApiEventOk.ID = eventOkID
 
-	dbEventOks, err := s.repo.ListByUserId(userIDOk)
+	dbEventOks, err := s.repo.ListByUserID(userIDOk)
 	s.Require().NoError(err)
 	s.Require().Equal(1, len(dbEventOks))
 
-	dbEventConflicts, err := s.repo.ListByUserId(userIDConflict)
+	dbEventConflicts, err := s.repo.ListByUserID(userIDConflict)
 	s.Require().Error(err, "not found events for user_id 'user-id-conflict-TestUserConflictErrorByRestApi'")
 	s.Require().Equal(0, len(dbEventConflicts))
 
-	err = s.repo.DeleteByUserId(userIDOk)
+	err = s.repo.DeleteByUserID(userIDOk)
 	s.Require().NoError(err)
 }
 
@@ -181,11 +181,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 		UserID:      "user-id-01-TestListDayEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneId, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventOneId)
-	eventOne.ID = eventOneId
-	dbEventOne, err := s.repo.Get(eventOneId)
+	s.Require().NotEqual("", eventOneID)
+	eventOne.ID = eventOneID
+	dbEventOne, err := s.repo.Get(eventOneID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventOne, dbEventOne)
 
@@ -197,11 +197,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 		UserID:      "user-id-02-TestListDayEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoId, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventTwoId)
-	eventTwo.ID = eventTwoId
-	dbEventTwo, err := s.repo.Get(eventTwoId)
+	s.Require().NotEqual("", eventTwoID)
+	eventTwo.ID = eventTwoID
+	dbEventTwo, err := s.repo.Get(eventTwoID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventTwo, dbEventTwo)
 
@@ -213,11 +213,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 		UserID:      "user-id-03-TestListDayEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeId, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventThreeId)
-	eventThree.ID = eventThreeId
-	dbEventThree, err := s.repo.Get(eventThreeId)
+	s.Require().NotEqual("", eventThreeID)
+	eventThree.ID = eventThreeID
+	dbEventThree, err := s.repo.Get(eventThreeID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventThree, dbEventThree)
 
@@ -229,11 +229,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 		UserID:      "user-id-03-TestListDayEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodId, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventNotInPeriodId)
-	eventNotInPeriod.ID = eventNotInPeriodId
-	dbEventNotInPeriod, err := s.repo.Get(eventNotInPeriodId)
+	s.Require().NotEqual("", eventNotInPeriodID)
+	eventNotInPeriod.ID = eventNotInPeriodID
+	dbEventNotInPeriod, err := s.repo.Get(eventNotInPeriodID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
@@ -245,11 +245,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().True(slices.Contains(events, *eventThree))
 	s.Require().False(slices.Contains(events, *eventNotInPeriod))
 
-	err = s.repo.DeleteByUserId(eventOne.UserID)
+	err = s.repo.DeleteByUserID(eventOne.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteByUserId(eventTwo.UserID)
+	err = s.repo.DeleteByUserID(eventTwo.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteByUserId(eventThree.UserID)
+	err = s.repo.DeleteByUserID(eventThree.UserID)
 	s.Require().NoError(err)
 }
 
@@ -266,11 +266,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 		UserID:      "user-id-01-TestListWeekEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneId, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventOneId)
-	eventOne.ID = eventOneId
-	dbEventOne, err := s.repo.Get(eventOneId)
+	s.Require().NotEqual("", eventOneID)
+	eventOne.ID = eventOneID
+	dbEventOne, err := s.repo.Get(eventOneID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventOne, dbEventOne)
 
@@ -282,11 +282,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 		UserID:      "user-id-02-TestListWeekEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoId, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventTwoId)
-	eventTwo.ID = eventTwoId
-	dbEventTwo, err := s.repo.Get(eventTwoId)
+	s.Require().NotEqual("", eventTwoID)
+	eventTwo.ID = eventTwoID
+	dbEventTwo, err := s.repo.Get(eventTwoID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventTwo, dbEventTwo)
 
@@ -298,11 +298,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 		UserID:      "user-id-03-TestListWeekEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeId, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventThreeId)
-	eventThree.ID = eventThreeId
-	dbEventThree, err := s.repo.Get(eventThreeId)
+	s.Require().NotEqual("", eventThreeID)
+	eventThree.ID = eventThreeID
+	dbEventThree, err := s.repo.Get(eventThreeID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventThree, dbEventThree)
 
@@ -314,11 +314,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 		UserID:      "user-id-03-TestListWeekEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodId, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventNotInPeriodId)
-	eventNotInPeriod.ID = eventNotInPeriodId
-	dbEventNotInPeriod, err := s.repo.Get(eventNotInPeriodId)
+	s.Require().NotEqual("", eventNotInPeriodID)
+	eventNotInPeriod.ID = eventNotInPeriodID
+	dbEventNotInPeriod, err := s.repo.Get(eventNotInPeriodID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
@@ -330,11 +330,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().True(slices.Contains(events, *eventThree))
 	s.Require().False(slices.Contains(events, *eventNotInPeriod))
 
-	err = s.repo.DeleteByUserId(eventOne.UserID)
+	err = s.repo.DeleteByUserID(eventOne.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteByUserId(eventTwo.UserID)
+	err = s.repo.DeleteByUserID(eventTwo.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteByUserId(eventThree.UserID)
+	err = s.repo.DeleteByUserID(eventThree.UserID)
 	s.Require().NoError(err)
 }
 
@@ -351,11 +351,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 		UserID:      "user-id-01-TestListMonthEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneId, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventOneId)
-	eventOne.ID = eventOneId
-	dbEventOne, err := s.repo.Get(eventOneId)
+	s.Require().NotEqual("", eventOneID)
+	eventOne.ID = eventOneID
+	dbEventOne, err := s.repo.Get(eventOneID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventOne, dbEventOne)
 
@@ -367,11 +367,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 		UserID:      "user-id-02-TestListMonthEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoId, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventTwoId)
-	eventTwo.ID = eventTwoId
-	dbEventTwo, err := s.repo.Get(eventTwoId)
+	s.Require().NotEqual("", eventTwoID)
+	eventTwo.ID = eventTwoID
+	dbEventTwo, err := s.repo.Get(eventTwoID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventTwo, dbEventTwo)
 
@@ -383,11 +383,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 		UserID:      "user-id-03-TestListMonthEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeId, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventThreeId)
-	eventThree.ID = eventThreeId
-	dbEventThree, err := s.repo.Get(eventThreeId)
+	s.Require().NotEqual("", eventThreeID)
+	eventThree.ID = eventThreeID
+	dbEventThree, err := s.repo.Get(eventThreeID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventThree, dbEventThree)
 
@@ -399,11 +399,11 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 		UserID:      "user-id-03-TestListMonthEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodId, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
 	s.Require().NoError(err)
-	s.Require().NotEqual("", eventNotInPeriodId)
-	eventNotInPeriod.ID = eventNotInPeriodId
-	dbEventNotInPeriod, err := s.repo.Get(eventNotInPeriodId)
+	s.Require().NotEqual("", eventNotInPeriodID)
+	eventNotInPeriod.ID = eventNotInPeriodID
+	dbEventNotInPeriod, err := s.repo.Get(eventNotInPeriodID)
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
@@ -415,10 +415,10 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 	s.Require().True(slices.Contains(events, *eventThree))
 	s.Require().False(slices.Contains(events, *eventNotInPeriod))
 
-	err = s.repo.DeleteByUserId(eventOne.UserID)
+	err = s.repo.DeleteByUserID(eventOne.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteByUserId(eventTwo.UserID)
+	err = s.repo.DeleteByUserID(eventTwo.UserID)
 	s.Require().NoError(err)
-	err = s.repo.DeleteByUserId(eventThree.UserID)
+	err = s.repo.DeleteByUserID(eventThree.UserID)
 	s.Require().NoError(err)
 }
