@@ -94,7 +94,7 @@ linters:
     - misspell
     - nestif
     - nilerr
-    #- noctx
+    - noctx
     - nolintlint
     - prealloc
     - predeclared

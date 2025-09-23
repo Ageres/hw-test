@@ -2,6 +2,7 @@ package integration
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,7 +34,7 @@ func (c *restApiClient) AddTestEvent(eventRef *model.TestEvent) (string, string,
 	if err != nil {
 		return "", "", err
 	}
-	req, err := http.NewRequest(http.MethodPost, c.url, bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, c.url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return "", "", err
 	}
@@ -61,7 +62,7 @@ func (c *restApiClient) UpdateTestEvent(eventRef *model.TestEvent) (string, erro
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest(http.MethodPut, c.url, bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPut, c.url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return "", err
 	}
@@ -101,7 +102,7 @@ func (c *restApiClient) ListTestEvent(period c.ListPeriod, startDay time.Time) (
 	if err != nil {
 		return nil, "", err
 	}
-	req, err := http.NewRequest(http.MethodGet, c.url, bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, c.url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, "", err
 	}
