@@ -79,7 +79,7 @@ linters:
     - goconst
     - gocritic
     - gocyclo
-    #- godot
+    - godot
     - gofmt
     - gofumpt
     - goheader

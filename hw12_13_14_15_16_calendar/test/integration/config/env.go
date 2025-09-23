@@ -1,6 +1,6 @@
 package config
 
-// rest api client envs
+// rest api client envs.
 const (
 	CalendarRestAPIHostEnv     = "CALENDAR_REST_API_HOST"
 	CalendarRestAPIHostDefault = "localhost"
@@ -8,7 +8,7 @@ const (
 	CalendarRestAPIPortDefault = "8888"
 )
 
-// grpc api client  envs
+// grpc api client  envs.
 const (
 	CalendarGrpcAPIHostEnv     = "CALENDAR_GRPC_API_HOST"
 	CalendarGrpcAPIHostDefault = "localhost"
@@ -16,7 +16,7 @@ const (
 	CalendarGrpcAPIPortDefault = "50051"
 )
 
-// repo envs
+// repo envs.
 const (
 	CalendarDBHostEnv         = "CALENDAR_DB_HOST"
 	CalendarDBHostDefault     = "localhost"
