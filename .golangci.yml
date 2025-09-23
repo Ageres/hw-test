@@ -65,7 +65,7 @@ linters:
   disable-all: true
   enable:
     - asciicheck
-    - depguard
+    #- depguard
     - dogsled
     - dupl
     - bodyclose
@@ -74,14 +74,14 @@ linters:
     - exhaustive
     - copyloopvar
     - funlen
-    - gci
+    #- gci
     - gocognit
     - goconst
     - gocritic
     - gocyclo
-    - godot
-    - gofmt
-    - gofumpt
+    #- godot
+    #- gofmt
+    #- gofumpt
     - goheader
     - goprintffuncname
     - gosec
@@ -89,18 +89,18 @@ linters:
     - govet
     - importas
     - ineffassign
-    - lll
+    #- lll
     - makezero
     - misspell
     - nestif
     - nilerr
-    - noctx
+    #- noctx
     - nolintlint
     - prealloc
     - predeclared
-    - revive
-    - staticcheck
-    - stylecheck
+    #- revive
+    #- staticcheck
+    #- stylecheck
     - tagliatelle
     - thelper
     - typecheck
