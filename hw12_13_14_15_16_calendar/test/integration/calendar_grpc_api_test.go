@@ -1,8 +1,9 @@
-//------------------go:build integration
+//go:build integration
 
 package integration
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"testing"
@@ -57,6 +58,7 @@ func TestGrpcAPISuite(t *testing.T) {
 }
 
 func (s *CalendarGrpcAPIIntegrationSuite) TestAddEventByGrpcAPI() {
+	ctx := context.Background()
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -69,7 +71,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestAddEventByGrpcAPI() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventID, _, err := s.apiClient.AddTestEvent(grpcApiEvent)
+	eventID, _, err := s.apiClient.AddTestEvent(ctx, grpcApiEvent)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventID)
 	grpcApiEvent.ID = eventID
@@ -83,6 +85,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestAddEventByGrpcAPI() {
 }
 
 func (s *CalendarGrpcAPIIntegrationSuite) TestBusyDateErrorByGrpcAPI() {
+	ctx := context.Background()
 	userID := "user-id-TestBusyDateByGrpcApi"
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
@@ -104,12 +107,12 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestBusyDateErrorByGrpcAPI() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkID, _, err := s.apiClient.AddTestEvent(grpcApiEventOk)
+	eventOkID, _, err := s.apiClient.AddTestEvent(ctx, grpcApiEventOk)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOkID)
 	grpcApiEventOk.ID = eventOkID
 
-	eventBusyID, _, err := s.apiClient.AddTestEvent(grpcApiEventBusy)
+	eventBusyID, _, err := s.apiClient.AddTestEvent(ctx, grpcApiEventBusy)
 	s.Require().Contains(err.Error(), fmt.Sprintf("time is already taken by another event: %s", eventOkID))
 	s.Require().Equal("", eventBusyID)
 	grpcApiEventOk.ID = eventOkID
@@ -123,6 +126,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestBusyDateErrorByGrpcAPI() {
 }
 
 func (s *CalendarGrpcAPIIntegrationSuite) TestUserConflictErrorByGrpcAPI() {
+	ctx := context.Background()
 	userIDOk := "user-id-ok-TestUserConflictErrorByGrpcApi"
 	userIDConflict := "user-id-conflict-TestUserConflictErrorByGrpcApi"
 	timeLocation, err := time.LoadLocation("Local")
@@ -145,13 +149,13 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestUserConflictErrorByGrpcAPI() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkID, _, err := s.apiClient.AddTestEvent(grpcApiEventOk)
+	eventOkID, _, err := s.apiClient.AddTestEvent(ctx, grpcApiEventOk)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOkID)
 	grpcApiEventOk.ID = eventOkID
 
 	grpcApiEventConflict.ID = eventOkID
-	_, err = s.apiClient.UpdateTestEvent(grpcApiEventConflict)
+	_, err = s.apiClient.UpdateTestEvent(ctx, grpcApiEventConflict)
 	s.Require().Contains(err.Error(), fmt.Sprintf("'%s' user is not the owner of the event, conflict with '%s'", userIDConflict, userIDOk))
 	grpcApiEventOk.ID = eventOkID
 
@@ -168,6 +172,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestUserConflictErrorByGrpcAPI() {
 }
 
 func (s *CalendarGrpcAPIIntegrationSuite) TestListDayEventsByGrpcAPI() {
+	ctx := context.Background()
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -180,7 +185,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListDayEventsByGrpcAPI() {
 		UserID:      "user-id-01-TestListDayEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(ctx, eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneID)
 	eventOne.ID = eventOneID
@@ -196,7 +201,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListDayEventsByGrpcAPI() {
 		UserID:      "user-id-02-TestListDayEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(ctx, eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoID)
 	eventTwo.ID = eventTwoID
@@ -212,7 +217,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListDayEventsByGrpcAPI() {
 		UserID:      "user-id-03-TestListDayEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(ctx, eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeID)
 	eventThree.ID = eventThreeID
@@ -228,7 +233,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListDayEventsByGrpcAPI() {
 		UserID:      "user-id-03-TestListDayEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(ctx, eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodID)
 	eventNotInPeriod.ID = eventNotInPeriodID
@@ -236,7 +241,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListDayEventsByGrpcAPI() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.apiClient.ListTestEvent(c.DAY, startTime)
+	events, _, err := s.apiClient.ListTestEvent(ctx, c.DAY, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))
@@ -253,6 +258,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListDayEventsByGrpcAPI() {
 }
 
 func (s *CalendarGrpcAPIIntegrationSuite) TestListWeekEventsByGrpcAPI() {
+	ctx := context.Background()
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -265,7 +271,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListWeekEventsByGrpcAPI() {
 		UserID:      "user-id-01-TestListWeekEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(ctx, eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneID)
 	eventOne.ID = eventOneID
@@ -281,7 +287,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListWeekEventsByGrpcAPI() {
 		UserID:      "user-id-02-TestListWeekEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(ctx, eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoID)
 	eventTwo.ID = eventTwoID
@@ -297,7 +303,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListWeekEventsByGrpcAPI() {
 		UserID:      "user-id-03-TestListWeekEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(ctx, eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeID)
 	eventThree.ID = eventThreeID
@@ -313,7 +319,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListWeekEventsByGrpcAPI() {
 		UserID:      "user-id-03-TestListWeekEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(ctx, eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodID)
 	eventNotInPeriod.ID = eventNotInPeriodID
@@ -321,7 +327,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListWeekEventsByGrpcAPI() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.apiClient.ListTestEvent(c.WEEK, startTime)
+	events, _, err := s.apiClient.ListTestEvent(ctx, c.WEEK, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))
@@ -338,6 +344,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListWeekEventsByGrpcAPI() {
 }
 
 func (s *CalendarGrpcAPIIntegrationSuite) TestListMonthEventsByGrpcAPI() {
+	ctx := context.Background()
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2031, 1, 1, 10, 0, 0, 0, timeLocation)
@@ -350,7 +357,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListMonthEventsByGrpcAPI() {
 		UserID:      "user-id-01-TestListMonthEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(ctx, eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneID)
 	eventOne.ID = eventOneID
@@ -366,7 +373,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListMonthEventsByGrpcAPI() {
 		UserID:      "user-id-02-TestListMonthEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(ctx, eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoID)
 	eventTwo.ID = eventTwoID
@@ -382,7 +389,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListMonthEventsByGrpcAPI() {
 		UserID:      "user-id-03-TestListMonthEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(ctx, eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeID)
 	eventThree.ID = eventThreeID
@@ -398,7 +405,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListMonthEventsByGrpcAPI() {
 		UserID:      "user-id-03-TestListMonthEventsByGrpcApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(ctx, eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodID)
 	eventNotInPeriod.ID = eventNotInPeriodID
@@ -406,7 +413,7 @@ func (s *CalendarGrpcAPIIntegrationSuite) TestListMonthEventsByGrpcAPI() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.apiClient.ListTestEvent(c.MONTH, startTime)
+	events, _, err := s.apiClient.ListTestEvent(ctx, c.MONTH, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))

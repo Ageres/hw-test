@@ -1,8 +1,9 @@
-//------------------go:build integration
+//go:build integration
 
 package integration
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -47,6 +48,7 @@ func TestSenderSuite(t *testing.T) {
 }
 
 func (s *SenderIntegrationSuite) TestSender() {
+	ctx := context.Background()
 	now := time.Now().Local()
 
 	eventOne := &model.TestEvent{
@@ -57,7 +59,7 @@ func (s *SenderIntegrationSuite) TestSender() {
 		UserID:      "user-id-01-TestSender",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneID, _, err := s.restApiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.restApiClient.AddTestEvent(ctx, eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOne)
 
@@ -69,7 +71,7 @@ func (s *SenderIntegrationSuite) TestSender() {
 		UserID:      "user-id-02-TestSender",
 		Reminder:    48 * time.Hour,
 	}
-	eventTwoID, _, err := s.restApiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.restApiClient.AddTestEvent(ctx, eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoID)
 
@@ -81,7 +83,7 @@ func (s *SenderIntegrationSuite) TestSender() {
 		UserID:      "user-id-03-TestSender",
 		Reminder:    96 * time.Hour,
 	}
-	eventThreeID, _, err := s.restApiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.restApiClient.AddTestEvent(ctx, eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeID)
 
@@ -93,7 +95,7 @@ func (s *SenderIntegrationSuite) TestSender() {
 		UserID:      "user-id-03-TestSender",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodID, _, err := s.restApiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.restApiClient.AddTestEvent(ctx, eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodID)
 

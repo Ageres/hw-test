@@ -40,19 +40,19 @@ func (g *grpcAPIClient) Stop() {
 	defer g.conn.Close()
 }
 
-func (g *grpcAPIClient) AddTestEvent(eventRef *model.TestEvent) (string, string, error) {
+func (g *grpcAPIClient) AddTestEvent(ctx context.Context, eventRef *model.TestEvent) (string, string, error) {
 	req := pb.AddEventRequest{
 		Event: mapTestEventToProtoEvent(eventRef),
 	}
 
-	resp, err := g.client.AddEvent(context.Background(), &req)
+	resp, err := g.client.AddEvent(ctx, &req)
 	if err != nil {
 		return "", "", err
 	}
 	return resp.Event.GetId(), "", nil
 }
 
-func (g *grpcAPIClient) ListTestEvent(period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
+func (g *grpcAPIClient) ListTestEvent(ctx context.Context, period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
 	var pbPeriod pb.GetEventListPeriod
 	switch period {
 	case c.DAY:
@@ -69,7 +69,7 @@ func (g *grpcAPIClient) ListTestEvent(period c.ListPeriod, startDay time.Time) (
 		StartTime: timestamppb.New(startDay),
 		Period:    pbPeriod,
 	}
-	resp, err := g.client.GetEvent(context.Background(), &req)
+	resp, err := g.client.GetEvent(ctx, &req)
 	if err != nil {
 		return nil, "", err
 	}
@@ -88,11 +88,11 @@ func (g *grpcAPIClient) ListTestEvent(period c.ListPeriod, startDay time.Time) (
 	return result, "", nil
 }
 
-func (g *grpcAPIClient) UpdateTestEvent(eventRef *model.TestEvent) (string, error) {
+func (g *grpcAPIClient) UpdateTestEvent(ctx context.Context, eventRef *model.TestEvent) (string, error) {
 	req := pb.UpdateEventRequest{
 		Event: mapTestEventToProtoEvent(eventRef),
 	}
-	_, err := g.client.UpdateEvent(context.Background(), &req)
+	_, err := g.client.UpdateEvent(ctx, &req)
 	if err != nil {
 		return "", err
 	}

@@ -1,8 +1,9 @@
-//------------------go:build integration
+//go:build integration
 
 package integration
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"testing"
@@ -56,6 +57,7 @@ func TestRestApiSuite(t *testing.T) {
 }
 
 func (s *CalendarRestApiIntegrationSuite) TestAddEventByRestApi() {
+	ctx := context.Background()
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -68,7 +70,7 @@ func (s *CalendarRestApiIntegrationSuite) TestAddEventByRestApi() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventID, _, err := s.apiClient.AddTestEvent(restApiEvent)
+	eventID, _, err := s.apiClient.AddTestEvent(ctx, restApiEvent)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventID)
 	restApiEvent.ID = eventID
@@ -82,6 +84,7 @@ func (s *CalendarRestApiIntegrationSuite) TestAddEventByRestApi() {
 }
 
 func (s *CalendarRestApiIntegrationSuite) TestBusyDateErrorByRestApi() {
+	ctx := context.Background()
 	userID := "user-id-TestBusyDateByRestApi"
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
@@ -103,12 +106,12 @@ func (s *CalendarRestApiIntegrationSuite) TestBusyDateErrorByRestApi() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkID, _, err := s.apiClient.AddTestEvent(restApiEventOk)
+	eventOkID, _, err := s.apiClient.AddTestEvent(ctx, restApiEventOk)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOkID)
 	restApiEventOk.ID = eventOkID
 
-	eventBusyID, bodyBusy, err := s.apiClient.AddTestEvent(restApiEventBusy)
+	eventBusyID, bodyBusy, err := s.apiClient.AddTestEvent(ctx, restApiEventBusy)
 	s.Require().Equal(err.Error(), "response status '409 Conflict'")
 	s.Require().Contains(bodyBusy, fmt.Sprintf("add event: time is already taken by another event: %s", eventOkID))
 	s.Require().Equal("", eventBusyID)
@@ -123,6 +126,7 @@ func (s *CalendarRestApiIntegrationSuite) TestBusyDateErrorByRestApi() {
 }
 
 func (s *CalendarRestApiIntegrationSuite) TestUserConflictErrorByRestApi() {
+	ctx := context.Background()
 	userIDOk := "user-id-ok-TestUserConflictErrorByRestApi"
 	userIDConflict := "user-id-conflict-TestUserConflictErrorByRestApi"
 	timeLocation, err := time.LoadLocation("Local")
@@ -145,13 +149,13 @@ func (s *CalendarRestApiIntegrationSuite) TestUserConflictErrorByRestApi() {
 		Reminder:    24 * time.Hour,
 	}
 
-	eventOkID, _, err := s.apiClient.AddTestEvent(restApiEventOk)
+	eventOkID, _, err := s.apiClient.AddTestEvent(ctx, restApiEventOk)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOkID)
 	restApiEventOk.ID = eventOkID
 
 	restApiEventConflict.ID = eventOkID
-	bodyConflict, err := s.apiClient.UpdateTestEvent(restApiEventConflict)
+	bodyConflict, err := s.apiClient.UpdateTestEvent(ctx, restApiEventConflict)
 	s.Require().Equal(err.Error(), "response status '409 Conflict'")
 	s.Require().Contains(bodyConflict, fmt.Sprintf("'%s' user is not the owner of the event, conflict with '%s'", userIDConflict, userIDOk))
 	restApiEventOk.ID = eventOkID
@@ -169,6 +173,7 @@ func (s *CalendarRestApiIntegrationSuite) TestUserConflictErrorByRestApi() {
 }
 
 func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
+	ctx := context.Background()
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -181,7 +186,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 		UserID:      "user-id-01-TestListDayEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(ctx, eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneID)
 	eventOne.ID = eventOneID
@@ -197,7 +202,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 		UserID:      "user-id-02-TestListDayEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(ctx, eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoID)
 	eventTwo.ID = eventTwoID
@@ -213,7 +218,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 		UserID:      "user-id-03-TestListDayEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(ctx, eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeID)
 	eventThree.ID = eventThreeID
@@ -229,7 +234,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 		UserID:      "user-id-03-TestListDayEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(ctx, eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodID)
 	eventNotInPeriod.ID = eventNotInPeriodID
@@ -237,7 +242,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.apiClient.ListTestEvent(c.DAY, startTime)
+	events, _, err := s.apiClient.ListTestEvent(ctx, c.DAY, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))
@@ -254,6 +259,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListDayEventsByRestApi() {
 }
 
 func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
+	ctx := context.Background()
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2030, 12, 31, 10, 0, 0, 0, timeLocation)
@@ -266,7 +272,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 		UserID:      "user-id-01-TestListWeekEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(ctx, eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneID)
 	eventOne.ID = eventOneID
@@ -282,7 +288,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 		UserID:      "user-id-02-TestListWeekEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(ctx, eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoID)
 	eventTwo.ID = eventTwoID
@@ -298,7 +304,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 		UserID:      "user-id-03-TestListWeekEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(ctx, eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeID)
 	eventThree.ID = eventThreeID
@@ -314,7 +320,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 		UserID:      "user-id-03-TestListWeekEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(ctx, eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodID)
 	eventNotInPeriod.ID = eventNotInPeriodID
@@ -322,7 +328,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.apiClient.ListTestEvent(c.WEEK, startTime)
+	events, _, err := s.apiClient.ListTestEvent(ctx, c.WEEK, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))
@@ -339,6 +345,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListWeekEventsByRestApi() {
 }
 
 func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
+	ctx := context.Background()
 	timeLocation, err := time.LoadLocation("Local")
 	s.Require().NoError(err)
 	startTime := time.Date(2031, 1, 1, 10, 0, 0, 0, timeLocation)
@@ -351,7 +358,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 		UserID:      "user-id-01-TestListMonthEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventOneID, _, err := s.apiClient.AddTestEvent(eventOne)
+	eventOneID, _, err := s.apiClient.AddTestEvent(ctx, eventOne)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventOneID)
 	eventOne.ID = eventOneID
@@ -367,7 +374,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 		UserID:      "user-id-02-TestListMonthEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventTwoID, _, err := s.apiClient.AddTestEvent(eventTwo)
+	eventTwoID, _, err := s.apiClient.AddTestEvent(ctx, eventTwo)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventTwoID)
 	eventTwo.ID = eventTwoID
@@ -383,7 +390,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 		UserID:      "user-id-03-TestListMonthEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventThreeID, _, err := s.apiClient.AddTestEvent(eventThree)
+	eventThreeID, _, err := s.apiClient.AddTestEvent(ctx, eventThree)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventThreeID)
 	eventThree.ID = eventThreeID
@@ -399,7 +406,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 		UserID:      "user-id-03-TestListMonthEventsByRestApi",
 		Reminder:    24 * time.Hour,
 	}
-	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(eventNotInPeriod)
+	eventNotInPeriodID, _, err := s.apiClient.AddTestEvent(ctx, eventNotInPeriod)
 	s.Require().NoError(err)
 	s.Require().NotEqual("", eventNotInPeriodID)
 	eventNotInPeriod.ID = eventNotInPeriodID
@@ -407,7 +414,7 @@ func (s *CalendarRestApiIntegrationSuite) TestListMonthEventsByRestApi() {
 	s.Require().NoError(err)
 	s.Require().Equal(eventNotInPeriod, dbEventNotInPeriod)
 
-	events, _, err := s.apiClient.ListTestEvent(c.MONTH, startTime)
+	events, _, err := s.apiClient.ListTestEvent(ctx, c.MONTH, startTime)
 	s.Require().NoError(err)
 	s.Require().Equal(3, len(events))
 	s.Require().True(slices.Contains(events, *eventOne))

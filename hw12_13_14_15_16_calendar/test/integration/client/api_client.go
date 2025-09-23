@@ -1,6 +1,7 @@
 package apiclient
 
 import (
+	"context"
 	"time"
 
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/test/integration/model"
@@ -16,10 +17,10 @@ const (
 
 type TestCalendarAPIClient interface {
 	// return eventId, responseBody, error
-	AddTestEvent(eventRef *model.TestEvent) (string, string, error)
+	AddTestEvent(ctx context.Context, eventRef *model.TestEvent) (string, string, error)
 	// return responseBody, error
-	UpdateTestEvent(eventRef *model.TestEvent) (string, error)
+	UpdateTestEvent(ctx context.Context, eventRef *model.TestEvent) (string, error)
 	// return events, responseBody, error
-	ListTestEvent(period ListPeriod, startDay time.Time) ([]model.TestEvent, string, error)
+	ListTestEvent(ctx context.Context, period ListPeriod, startDay time.Time) ([]model.TestEvent, string, error)
 	Stop()
 }

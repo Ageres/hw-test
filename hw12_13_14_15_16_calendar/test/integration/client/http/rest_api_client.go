@@ -29,12 +29,12 @@ func NewRestAPIClient() c.TestCalendarAPIClient {
 	}
 }
 
-func (c *restAPIClient) AddTestEvent(eventRef *model.TestEvent) (string, string, error) {
+func (c *restAPIClient) AddTestEvent(ctx context.Context, eventRef *model.TestEvent) (string, string, error) {
 	jsonBody, err := json.Marshal(eventRef)
 	if err != nil {
 		return "", "", err
 	}
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, c.url, bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return "", "", err
 	}
@@ -57,12 +57,12 @@ func (c *restAPIClient) AddTestEvent(eventRef *model.TestEvent) (string, string,
 }
 
 // UpdateTestEvent implements apiclient.TestCalendarApiClient.
-func (c *restAPIClient) UpdateTestEvent(eventRef *model.TestEvent) (string, error) {
+func (c *restAPIClient) UpdateTestEvent(ctx context.Context, eventRef *model.TestEvent) (string, error) {
 	jsonBody, err := json.Marshal(eventRef)
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPut, c.url, bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return "", err
 	}
@@ -93,7 +93,7 @@ type ListTestEventResponseBody struct {
 	Events []model.TestEvent `json:"events,omitempty"`
 }
 
-func (c *restAPIClient) ListTestEvent(period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
+func (c *restAPIClient) ListTestEvent(ctx context.Context, period c.ListPeriod, startDay time.Time) ([]model.TestEvent, string, error) {
 	reqBody := ListTestEventRequestBody{
 		Period:   period,
 		StartDay: startDay,
@@ -102,7 +102,7 @@ func (c *restAPIClient) ListTestEvent(period c.ListPeriod, startDay time.Time) (
 	if err != nil {
 		return nil, "", err
 	}
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, c.url, bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, "", err
 	}
