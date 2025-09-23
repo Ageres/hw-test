@@ -22,7 +22,7 @@ type restAPIClient struct {
 
 func NewRestAPIClient() c.TestCalendarAPIClient {
 	restAPIHost := utils.GetEnvOrDefault(config.CalendarRestAPIHostEnv, config.CalendarRestAPIHostDefault)
-	restAPIPort := utils.GetEnvOrDefault(config.CALENDAR_REST_API_PORT_ENV, config.CALENDAR_REST_API_PORT_DEFAULT)
+	restAPIPort := utils.GetEnvOrDefault(config.CalendarRestAPIPortEnv, config.CalendarRestAPIPortDefault)
 	return &restAPIClient{
 		url:        fmt.Sprintf("http://%s:%s/v1/event", restAPIHost, restAPIPort),
 		httpClient: http.DefaultClient,

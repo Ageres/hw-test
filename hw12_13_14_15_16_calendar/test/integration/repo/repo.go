@@ -71,11 +71,11 @@ func NewRepo() Repo {
 }
 
 func dns() string {
-	host := utils.GetEnvOrDefault(config.CALENDAR_DB_HOST_ENV, config.CALENDAR_DB_HOST_DEFAULT)
-	port := utils.GetEnvOrDefault(config.CALENDAR_DB_PORT_ENV, config.CALENDAR_DB_PORT_DEFAULT)
-	name := utils.GetEnvOrDefault(config.CALENDAR_DB_NAME_ENV, config.CALENDAR_DB_NAME_DEFAULT)
-	user := utils.GetEnvOrDefault(config.CALENDAR_DB_USER_ENV, config.CALENDAR_DB_USER_DEFAULT)
-	password := utils.GetEnvOrDefault(config.CALENDAR_DB_PASSWORD_ENV, config.CALENDAR_DB_PASSWORD_DEFAULT)
+	host := utils.GetEnvOrDefault(config.CalendarDBHostEnv, config.CalendarDBHostDefault)
+	port := utils.GetEnvOrDefault(config.CalendarDBPortEnv, config.CalendarDBPortDefault)
+	name := utils.GetEnvOrDefault(config.CalendarDBNameEnv, config.CalendarDBNameDefault)
+	user := utils.GetEnvOrDefault(config.CalendarDBUserEnv, config.CalendarDBUserDefault)
+	password := utils.GetEnvOrDefault(config.CalendarDBPasswordEnv, config.CalendarDBPasswordDefault)
 	return fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
 		host, port, name, user, password,

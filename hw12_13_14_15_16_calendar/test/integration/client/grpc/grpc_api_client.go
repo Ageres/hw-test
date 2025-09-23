@@ -22,8 +22,8 @@ type grpcAPIClient struct {
 }
 
 func NewGrpcAPIClient() c.TestCalendarAPIClient {
-	grpcAPIHost := utils.GetEnvOrDefault(config.CALENDAR_GRPC_API_HOST_ENV, config.CALENDAR_GRPC_API_HOST_DEFAULT)
-	grpcAPIPort := utils.GetEnvOrDefault(config.CALENDAR_GRPC_API_PORT_ENV, config.CALENDAR_GRPC_API_PORT_DEFAULT)
+	grpcAPIHost := utils.GetEnvOrDefault(config.CalendarGrpcAPIHostEnv, config.CalendarGrpcAPIHostDefault)
+	grpcAPIPort := utils.GetEnvOrDefault(config.CalendarGrpcAPIPortEnv, config.CalendarGrpcAPIPortDefault)
 	url := fmt.Sprintf("%s:%s", grpcAPIHost, grpcAPIPort)
 	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
