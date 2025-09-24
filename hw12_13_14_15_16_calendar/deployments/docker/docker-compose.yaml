@@ -34,7 +34,7 @@ services:
       - pg-otus
     image: 1aeef68f-calendar:develop
     build:
-      context: ../.
+      context: ../../.
       dockerfile: ./build/calendar/Dockerfile 
     container_name: calendar
     environment:
@@ -51,7 +51,7 @@ services:
       - rmq-otus
     image: 1aeef68f-scheduler:develop
     build:
-      context: ../.
+      context: ../../.
       dockerfile: ./build/scheduler/Dockerfile 
     container_name: scheduler
     environment:
@@ -68,7 +68,7 @@ services:
       - rmq-otus
     image: 1aeef68f-sender:develop
     build:
-      context: ../.
+      context: ../../.
       dockerfile: ./build/sender/Dockerfile 
     container_name: sender
     environment:

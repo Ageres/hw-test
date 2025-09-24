@@ -65,15 +65,15 @@ generate: install-protoc-deps
 	@echo "gRPC code generated in $(GRPC_OUT_DIR)"
 
 up:
-	docker compose -f './deployments/docker-compose.yaml' up -d --build 
+	docker compose -f './deployments/docker/docker-compose.yaml' up -d --build 
 
 down:
-	docker compose -f './deployments/docker-compose.yaml' down 
+	docker compose -f './deployments/docker/docker-compose.yaml' down 
 
 integration-tests:
-	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus ; \
+	docker compose -f './deployments/docker/docker-compose.yaml' -f './deployments/docker/docker-compose.test.yaml' up --build --exit-code-from integration-tests-otus ; \
 	EXIT_CODE=$$?; \
-	docker compose -f './deployments/docker-compose.yaml' -f './deployments/docker-compose.test.yaml' down; \
+	docker compose -f './deployments/docker/docker-compose.yaml' -f './deployments/docker/docker-compose.test.yaml' down; \
 	docker rmi -f 1aeef68f-calendar:develop 1aeef68f-scheduler:develop 1aeef68f-sender:develop 1aeef68f-integration-tests:develop 2>/dev/null || true; \
 	docker system prune -f; \
 	echo "integration-tests-otus exited with code: $$EXIT_CODE" ; \
