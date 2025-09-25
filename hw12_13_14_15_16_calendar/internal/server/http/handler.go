@@ -6,7 +6,9 @@ import (
 
 func (s *httpServer) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		s.service.MethodNotAllowed(w, r)
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 page not found\n"))
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

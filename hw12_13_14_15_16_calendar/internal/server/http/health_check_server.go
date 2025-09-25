@@ -34,6 +34,5 @@ func NewHealthCheckHTTPServer(ctx context.Context, httpConf *model.HealthHTTPCon
 func (s *httpServer) createHealtCheckhRouter() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", s.healthCheckHandler)
-	mux.HandleFunc("/", s.methodNotAllowedHandler)
 	return s.loggingMiddleware(mux)
 }
