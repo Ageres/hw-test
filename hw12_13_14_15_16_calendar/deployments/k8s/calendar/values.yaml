@@ -76,3 +76,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+env:
+  db:
+    host: localhost
+    user: postgres
+    password: password

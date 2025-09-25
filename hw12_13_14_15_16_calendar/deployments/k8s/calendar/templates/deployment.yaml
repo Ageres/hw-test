@@ -2,63 +2,44 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "calendar.fullname" . }}
-  labels:
-    {{- include "calendar.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "calendar.selectorLabels" . | nindent 6 }}
+      app: {{ include "calendar.fullname" . }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "calendar.selectorLabels" . | nindent 8 }}
+        app: {{ include "calendar.fullname" . }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "calendar.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: calendar
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
             - name: grpc
               containerPort: 50051
-              protocol: TCP  
+              protocol: TCP
+          env:
+            - name: DB_HOST
+              value: "{{ .Values.db.host }}"
+          env:
+            - name: DB_USER
+              value: "{{ .Values.db.user }}"
+          env:
+            - name: DB_PASSWORD
+              value: "{{ .Values.db.password }}"                  
           livenessProbe:
+            initialDelaySeconds: 120
+            periodSeconds: 30
             httpGet:
-              path: /hello
-              port: http
+              path: /health
+              port: 8080
           readinessProbe:
             httpGet:
-              path: /hello
-              port: http
+              path: /health
+              port: 8080
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+            {{- toYaml .Values.resources }}
