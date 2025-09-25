@@ -4,14 +4,14 @@ import (
 	"net/http"
 )
 
-func (s *httpServer) healthHandler(w http.ResponseWriter, r *http.Request) {
+func (s *httpServer) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		s.service.MethodNotAllowed(w, r)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"service": "calendar", "status": "ok"}`))
+	w.Write([]byte(`{"status": "ok"}`))
 }
 
 func (s *httpServer) helloHandler(w http.ResponseWriter, r *http.Request) {

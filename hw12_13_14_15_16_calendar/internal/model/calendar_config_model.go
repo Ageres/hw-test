@@ -14,18 +14,20 @@ type CalendarConfig struct {
 // -----------------------------
 // scheduller config model.
 type SchedulerConfig struct {
-	Scheduler *SchedulerConf `yaml:"scheduler" validate:"required"`
-	RMQ       *RMQConf       `yaml:"rmq" validate:"required"`
-	Logger    *LoggerConf    `yaml:"logger" validate:"required"`
-	Storage   *StorageConf   `yaml:"storage" validate:"required"`
+	Scheduler *SchedulerConf  `yaml:"scheduler" validate:"required"`
+	RMQ       *RMQConf        `yaml:"rmq" validate:"required"`
+	Logger    *LoggerConf     `yaml:"logger" validate:"required"`
+	Storage   *StorageConf    `yaml:"storage" validate:"required"`
+	HTTP      *HealthHTTPConf `yaml:"http" validate:"required"`
 }
 
 // -----------------------------
 // sender config model.
 type SenderConfig struct {
-	RMQ     *RMQConf     `yaml:"rmq" validate:"required"`
-	Logger  *LoggerConf  `yaml:"logger" validate:"required"`
-	Storage *StorageConf `yaml:"storage" validate:"required"`
+	RMQ     *RMQConf        `yaml:"rmq" validate:"required"`
+	Logger  *LoggerConf     `yaml:"logger" validate:"required"`
+	Storage *StorageConf    `yaml:"storage" validate:"required"`
+	HTTP    *HealthHTTPConf `yaml:"http" validate:"required"`
 }
 
 // -----------------------------
@@ -95,6 +97,10 @@ type MigrationConf struct {
 // http config model.
 type HTTPConf struct {
 	Server *HTTPServerConf `yaml:"server" validate:"required"`
+}
+
+type HealthHTTPConf struct {
+	Server *HTTPServerConf `yaml:"healthCheckServer" validate:"required"`
 }
 
 type HTTPServerConf struct {
