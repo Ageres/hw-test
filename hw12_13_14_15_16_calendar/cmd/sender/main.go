@@ -12,6 +12,7 @@ import (
 	cs "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/sender"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq"
+	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 )
 
@@ -38,11 +39,23 @@ func main() {
 
 	storage := storage_config.NewStorage(ctx, configRef.Storage)
 
+	httpServer := internalhttp.NewHealthCheckHTTPServer(ctx, configRef.HTTP)
+
 	sender := app.NewSender(ctx, rmqClient, storage)
 
+	httpErrChan := make(chan error, 1)
 	senderErrChan := make(chan error, 1)
 
 	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting health check HTTP server...")
+		if err := httpServer.Start(ctx); err != nil {
+			httpErrChan <- err
+		}
+	}()
 
 	wg.Add(1)
 	go func() {
@@ -56,6 +69,9 @@ func main() {
 	logger.GetLogger(ctx).Info("sender is running...")
 
 	select {
+	case err := <-httpErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("health check HTTP server failed to start")
+		cancel()
 	case err := <-senderErrChan:
 		logger.GetLogger(ctx).WithError(err).Error("sender failed to start")
 		cancel()
@@ -63,10 +79,20 @@ func main() {
 		logger.GetLogger(ctx).Info("Shutdown signal received")
 	}
 
-	_, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
 
 	var shutdownWg sync.WaitGroup
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		if err := httpServer.Stop(shutdownCtx); err != nil {
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop health check HTTP server")
+		} else {
+			logger.GetLogger(ctx).Info("health check HTTP server stopped gracefully")
+		}
+	}()
 
 	shutdownWg.Add(1)
 	go func() {
