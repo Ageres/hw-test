@@ -41,6 +41,7 @@ func NewHTTPServer(ctx context.Context, httpConf *model.HTTPConf, service HTTPSe
 
 func (s *httpServer) createRouter() http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/health", s.healthHandler)
 	mux.HandleFunc("/hello", s.helloHandler)
 	mux.HandleFunc("/v1/event", s.eventHandler)
 	mux.HandleFunc("/", s.methodNotAllowedHandler)
