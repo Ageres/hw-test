@@ -61,6 +61,8 @@ services:
       DB_HOST: ${DB_HOST:-pg-otus}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "8081:8080"  
     restart: unless-stopped  
   sender-otus:
     depends_on:
@@ -78,6 +80,8 @@ services:
       DB_HOST: ${DB_HOST:-pg-otus}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "8082:8080"  
     restart: unless-stopped  
 volumes:
   postgres_data:
