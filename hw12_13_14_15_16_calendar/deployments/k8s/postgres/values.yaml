@@ -1,6 +1,6 @@
 postgresDb:
   image:
-    repository: postgres:17.5
+    repository: postgres
     tag: "17.5"
     version: "17.5"
   replicaCount: 1
