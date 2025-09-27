@@ -1,13 +1,3 @@
-valkey:
-  architecture: standalone
-  auth:
-    enabled: false
-
-ingress-nginx:
-  controller:
-    service:
-      type: LoadBalancer
-
 postgresDb:
   image:
     repository: postgres:17.5
