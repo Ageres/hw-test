@@ -23,13 +23,11 @@ spec:
               containerPort: 50051
               protocol: TCP
           env:
-            - name: DB_HOST
-              value: "{{ .Values.db.host }}"
-          env:
-            - name: DB_USER
+            - name: POSTGRES_DB
+              value: "{{ .Values.db.database }}"
+            - name: POSTGRES_USER
               value: "{{ .Values.db.user }}"
-          env:
-            - name: DB_PASSWORD
+            - name: POSTGRES_PASSWORD
               value: "{{ .Values.db.password }}"                  
           livenessProbe:
             initialDelaySeconds: 120

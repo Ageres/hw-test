@@ -20,6 +20,10 @@ spec:
           env:
             - name: APP_VERSION
               value: "{{ .Values.postgresDb.image.version }}"
+            - name: DB_USER
+              value: "{{ .Values.db.user }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.db.password }}"                
           readinessProbe:
             exec:
               command:

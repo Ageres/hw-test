@@ -26,3 +26,8 @@ postgresDb:
           - path: /
             pathType: Prefix
     tls: []
+  env:
+  db:
+    database: calendar
+    user: postgres
+    password: password
