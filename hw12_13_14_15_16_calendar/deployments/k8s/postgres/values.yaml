@@ -31,3 +31,10 @@ postgresDb:
       database: calendar
       user: postgres
       password: password
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 1024Mi    
