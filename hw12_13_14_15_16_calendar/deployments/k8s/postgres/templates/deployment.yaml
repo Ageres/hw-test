@@ -20,19 +20,21 @@ spec:
           env:
             - name: APP_VERSION
               value: "{{ .Values.postgresDb.image.version }}"
-            - name: DB_USER
-              value: "{{ .Values.db.user }}"
-            - name: DB_PASSWORD
-              value: "{{ .Values.db.password }}"                
+            - name: POSTGRES_DB
+              value: "{{ .Values.postgresDb.env.db.database }}"
+            - name: POSTGRES_USER
+              value: "{{ .Values.postgresDb.env.db.user }}"  
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.postgresDb.env..db.password }}"                
           readinessProbe:
             exec:
               command:
                 - sh
                 - -c
-                - "psql -h localhost -U postgres -d postgres -c 'SELECT 1;' && exit 0 || exit 1"
-            initialDelaySeconds: 10
+                - "psql -h localhost -U $DB_USER -d $POSTGRES_DB -c 'SELECT 1;'"
+            initialDelaySeconds: 15
             periodSeconds: 5
-            timeoutSeconds: 3
+            timeoutSeconds: 5
             failureThreshold: 3
           livenessProbe:
             exec:
@@ -47,4 +49,4 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 6            
+            failureThreshold: 3          
