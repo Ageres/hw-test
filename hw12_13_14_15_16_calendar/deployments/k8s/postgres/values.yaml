@@ -24,8 +24,8 @@ postgresDb:
       password: password
   resources:
     requests:
-      cpu: 1000m
+      cpu: 512m
       memory: 512Mi
     limits:
-      cpu: 2000m
+      cpu: 1024m
       memory: 1024Mi    
