@@ -1,0 +1,28 @@
+valkey:
+  architecture: standalone
+  auth:
+    enabled: false
+
+ingress-nginx:
+  controller:
+    service:
+      type: LoadBalancer
+
+otusApp:
+  image:
+    repository: khorost/otus-app
+    tag: "1.2.0"
+    version: "1.2.0"
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: otus-app.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []

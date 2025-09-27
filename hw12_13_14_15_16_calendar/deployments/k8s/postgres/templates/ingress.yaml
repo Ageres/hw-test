@@ -1,0 +1,23 @@
+{{- if .Values.otusApp.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "postgres-db.fullname" . }}
+spec:
+  ingressClassName: {{ .Values.postgresDb.ingress.className }}
+  rules:
+  {{- range .Values.postgresDb.ingress.hosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "postgres-db.fullname" $ }}
+                port:
+                  number: {{ $.Values.postgresDb.service.port }}
+        {{- end }}
+  {{- end }}
+{{- end }}
