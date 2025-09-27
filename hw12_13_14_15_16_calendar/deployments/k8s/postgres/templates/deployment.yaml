@@ -1,7 +1,4 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ include "postgres-db.fullname" . }}
+
 spec:
   replicas: {{ .Values.postgresDb.replicaCount }}
   selector:
@@ -27,13 +24,16 @@ spec:
             - name: POSTGRES_PASSWORD
               value: "{{ .Values.postgresDb.env.db.password }}"
             - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata  
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
           readinessProbe:
             exec:
               command:
                 - sh
                 - -c
-                - "psql -h localhost -U $DB_USER -d $POSTGRES_DB -c 'SELECT 1;'"
+                - "psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -c 'SELECT 1;'"
             initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 5
@@ -53,8 +53,8 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 3
           resources:
-            {{- toYaml .Values.postgresDb.resources }}  
-volumes:
-  - name: postgres-data
-    persistentVolumeClaim:
-      claimName: postgres-pvc                    
+            {{- toYaml .Values.postgresDb.resources }}
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
