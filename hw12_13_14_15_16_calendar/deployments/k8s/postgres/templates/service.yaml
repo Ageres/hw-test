@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "otus-app.fullname" . }}
+  name: {{ include "postgres-db.fullname" . }}
 spec:
-  type: {{ .Values.otusApp.service.type }}
+  type: {{ .Values.postgresDb.service.type }}
   selector:
-    app: {{ include "otus-app.fullname" . }}
+    app: {{ include "postgres-db.fullname" . }}
   ports:
-    - port: {{ .Values.otusApp.service.port }}
-      targetPort: 8080
+    - port: {{ .Values.postgresDb.service.port }}
+      targetPort: 5432
       protocol: TCP

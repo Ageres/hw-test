@@ -8,20 +8,20 @@ ingress-nginx:
     service:
       type: LoadBalancer
 
-otusApp:
+postgresDb:
   image:
-    repository: khorost/otus-app
-    tag: "1.2.0"
-    version: "1.2.0"
-  replicaCount: 2
+    repository: postgres:17.5
+    tag: "17.5"
+    version: "17.5"
+  replicaCount: 1
   service:
     type: ClusterIP
-    port: 80
+    port: 5432
   ingress:
     enabled: true
     className: nginx
     hosts:
-      - host: otus-app.local
+      - host: postgres-db.local
         paths:
           - path: /
             pathType: Prefix
