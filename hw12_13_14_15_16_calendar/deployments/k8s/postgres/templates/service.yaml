@@ -8,5 +8,5 @@ spec:
     app: {{ include "postgres-db.fullname" . }}
   ports:
     - port: {{ .Values.postgresDb.service.port }}
-      targetPort: 5432
+      nodePort: {{ .Values.postgresDb.service.nodePort }}
       protocol: TCP
