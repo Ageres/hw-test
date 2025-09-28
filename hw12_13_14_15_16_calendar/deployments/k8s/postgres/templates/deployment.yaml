@@ -16,7 +16,7 @@ spec:
         - name: postgres-db
           image: "{{ .Values.postgresDb.image.repository }}:{{ .Values.postgresDb.image.tag }}"
           ports:
-            - containerPort: 5432
+            - containerPort: {{ .Values.postgresDb.service.port }}
           env:
             - name: APP_VERSION
               value: "{{ .Values.postgresDb.image.version }}"

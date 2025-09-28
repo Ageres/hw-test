@@ -11,9 +11,9 @@ spec:
   ports:
     - name: amqp
       port: {{ .Values.rabbitMq.service.amqpPort }}
-      targetPort: 5672  # ⬅️ исправлено
+      targetPort: 5672
       protocol: TCP
     - name: management
       port: {{ .Values.rabbitMq.service.managementPort }}
-      targetPort: 15672  # ⬅️ исправлено
+      targetPort: 15672
       protocol: TCP
