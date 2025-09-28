@@ -5,9 +5,9 @@ postgresDb:
     version: "17.5"
   replicaCount: 1
   service:
-    type: NodePort
+    type: ClusterIP
     port: 5432
-    nodePort: 30432
+    targetPort: 5432
   ingress:
     enabled: true
     className: nginx
