@@ -24,7 +24,7 @@ postgresDb:
     db:
       database: calendar
       user: postgres
-      password: passwordX
+      password: password
   resources:
     requests:
       cpu: 512m
