@@ -1,3 +1,6 @@
+nameOverride: "postgres-db"
+fullnameOverride: "postgres-db"
+
 postgresDb:
   image:
     repository: postgres
