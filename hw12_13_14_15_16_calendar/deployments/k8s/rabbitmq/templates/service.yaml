@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rabbit-mq.fullname" . }}
+  labels:
+    {{- include "rabbit-mq.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.rabbitMq.service.type }}
+  selector:
+    {{- include "rabbit-mq.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: amqp
+      port: {{ .Values.rabbitMq.service.amqpPort }}
+      targetPort: 5672  # ⬅️ исправлено
+      protocol: TCP
+    - name: management
+      port: {{ .Values.rabbitMq.service.managementPort }}
+      targetPort: 15672  # ⬅️ исправлено
+      protocol: TCP

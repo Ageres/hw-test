@@ -1,0 +1,30 @@
+nameOverride: "rabbit-mq"
+fullnameOverride: "rabbit-mq"
+
+rabbitMq:
+  image:
+    repository: rabbitmq
+    tag: "3-management"  # ⬅️ исправлен тег
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    amqpPort: 5672
+    managementPort: 15672
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: rabbit-mq.local
+        paths:
+          - path: /
+            pathType: Prefix
+  env:
+    user: "guest"
+    password: "guest"
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
