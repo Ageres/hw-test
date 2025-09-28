@@ -28,3 +28,5 @@ rabbitMq:
     limits:
       cpu: 1000m
       memory: 1024Mi
+  persistence:
+    size: 1Gi

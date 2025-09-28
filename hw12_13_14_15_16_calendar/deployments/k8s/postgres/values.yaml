@@ -32,3 +32,5 @@ postgresDb:
     limits:
       cpu: 1024m
       memory: 1024Mi    
+  persistence:
+    size: 1Gi
