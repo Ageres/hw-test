@@ -19,9 +19,9 @@ spec:
           image: "{{ .Values.rabbitMq.image.repository }}:{{ .Values.rabbitMq.image.tag }}"
           ports:
             - name: amqp
-              containerPort: 5672
+              containerPort: {{ .Values.rabbitMq.service.amqpPort }}
             - name: management
-              containerPort: 15672
+              containerPort: {{ .Values.rabbitMq.service.managementPort }}
           env:
             - name: RABBITMQ_DEFAULT_USER
               value: "{{ .Values.rabbitMq.env.user }}"
@@ -29,7 +29,7 @@ spec:
               value: "{{ .Values.rabbitMq.env.password }}"
           readinessProbe:
             tcpSocket:
-              port: 5672
+              port: {{ .Values.rabbitMq.service.amqpPort }}
             initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 5

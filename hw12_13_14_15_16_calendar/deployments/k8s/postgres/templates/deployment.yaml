@@ -48,7 +48,7 @@ spec:
                 - -h
                 - localhost
                 - -p
-                - "5432"
+                - "{{ .Values.postgresDb.service.port }}"
                 - -U
                 - postgres
             initialDelaySeconds: 30
