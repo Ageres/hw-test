@@ -42,5 +42,5 @@ spec:
             initialDelaySeconds: 2
             periodSeconds: 3
           resources:
-            {{- toYaml .Values.calendar.resources }}   
+            {{- toYaml .Values.calendar.resources | nindent 12 }}   
      

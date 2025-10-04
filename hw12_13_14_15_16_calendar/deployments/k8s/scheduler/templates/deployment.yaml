@@ -28,12 +28,6 @@ spec:
               value: "{{ .Values.scheduler.env.rmq.user }}"
             - name: RMQ_PASSWORD
               value: "{{ .Values.scheduler.env.rmq.password }}"          
-          livenessProbe:
-            initialDelaySeconds: 120
-            periodSeconds: 30
-            httpGet:
-              path: /health
-              port: 8080
           readinessProbe:
             httpGet:
               path: /health
@@ -47,4 +41,4 @@ spec:
               path: /health
               port: 8080
           resources:
-            {{- toYaml .Values.scheduler.resources }}  
+            {{- toYaml .Values.scheduler.resources | nindent 12 }}  
