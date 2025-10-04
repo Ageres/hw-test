@@ -6,3 +6,5 @@ spec:
   type: {{ .Values.scheduler.service.type }}
   selector:
     app: {{ include "scheduler.fullname" . }}
+  ports:
+    - port: 8080  
