@@ -7,6 +7,11 @@ spec:
   selector:
     app: {{ include "calendar.fullname" . }}
   ports:
-    - port: {{ .Values.calendar.service.port }}
+    - name: http
+      port: {{ .Values.calendar.service.port }}
       targetPort: 8080
+      protocol: TCP
+    - name: grpc
+      port: {{ .Values.calendar.service.grpcPort }}
+      targetPort: 50051
       protocol: TCP
