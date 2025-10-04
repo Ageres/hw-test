@@ -14,8 +14,8 @@ scheduler:
       password: password
     rmq:
       host: rabbit-mq
-      user: postgres
-      password: password   
+      user: guest
+      password: guest   
   resources:
     requests:
       cpu: 100m
