@@ -1,23 +1,6 @@
 nameOverride: "rabbit-mq"
 fullnameOverride: "rabbit-mq"
 
-# Dependencies configurations
-valkey:
-  enabled: false
-  architecture: standalone
-  auth:
-    enabled: false
-
-ingress-nginx:
-  enabled: true
-  controller:
-    service:
-      type: LoadBalancer
-    ingressClassResource:
-      name: nginx
-      enabled: true
-      default: true
-
 # RabbitMQ configuration
 rabbitMq:
   image:
