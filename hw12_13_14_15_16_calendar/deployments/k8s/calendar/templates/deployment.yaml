@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "calendar.fullname" . }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.calendar.replicaCount }}
   selector:
     matchLabels:
       app: {{ include "calendar.fullname" . }}
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: calendar
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.calendar.image.repository }}:{{ .Values.calendar.image.tag }}"
           ports:
             - name: http
               containerPort: 8080
@@ -23,12 +23,12 @@ spec:
               containerPort: 50051
               protocol: TCP
           env:
-            - name: POSTGRES_DB
-              value: "{{ .Values.db.database }}"
-            - name: POSTGRES_USER
-              value: "{{ .Values.db.user }}"
-            - name: POSTGRES_PASSWORD
-              value: "{{ .Values.db.password }}"                  
+            - name: DB_HOST
+              value: "{{ .Values.calendar.env.db.host }}"
+            - name: DB_USER
+              value: "{{ .Values.calendar.env.db.user }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.calendar.env.db.password }}"                 
           livenessProbe:
             initialDelaySeconds: 120
             periodSeconds: 30
@@ -39,5 +39,7 @@ spec:
             httpGet:
               path: /health
               port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 3  
           resources:
-            {{- toYaml .Values.resources }}
+            {{- toYaml .Values.calendar.resources }}          

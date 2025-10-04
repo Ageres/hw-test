@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: {{ include "calendar.fullname" . }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.calendar.service.type }}
   selector:
-    {{- include "calendar.selectorLabels" . }}
+    app: {{ include "calendar.fullname" . }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.calendar.service.port }}
       targetPort: 8080
       protocol: TCP
