@@ -2,17 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "rabbit-mq.fullname" . }}
-  labels:
-    {{- include "rabbit-mq.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.rabbitMq.replicaCount }}
   selector:
     matchLabels:
-      {{- include "rabbit-mq.selectorLabels" . | nindent 6 }}
+      app: {{ include "rabbit-mq.fullname" . }}
   template:
     metadata:
       labels:
-        {{- include "rabbit-mq.selectorLabels" . | nindent 8 }}
+        app: {{ include "rabbit-mq.fullname" . }}
     spec:
       containers:
         - name: rabbit-mq
