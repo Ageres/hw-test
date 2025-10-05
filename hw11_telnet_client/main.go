@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
 	"time"
 )
 
@@ -23,7 +24,8 @@ func main() {
 	// Place your code here,
 	// P.S. Do not rush to throw context down, think think if it is useful with blocking operation?
 
-	ctx := context.Background()
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
 
 	flag.Parse()
 	args := flag.Args()
