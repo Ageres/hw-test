@@ -49,7 +49,7 @@ func main() {
 	}
 	defer client.Close()
 
-	fmt.Fprintf(os.Stderr, "connected to %s\n", address)
+	fmt.Fprintf(os.Stderr, "...Connected to %s\n", address)
 
 	go func() {
 		defer cancel()
@@ -76,5 +76,5 @@ func main() {
 	}()
 
 	<-ctx.Done()
-	fmt.Fprintln(os.Stderr, "EOF")
+	fmt.Fprintln(os.Stderr, "...EOF")
 }
