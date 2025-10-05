@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"io"
-	"log"
 	"net"
 	"time"
 )
@@ -50,8 +49,7 @@ func (t *telnetClient) Send() error {
 		return err
 	}
 
-	n, err := t.conn.Write([]byte(line))
-	log.Printf("send n '%d'", n)
+	_, err = t.conn.Write([]byte(line))
 	return err
 }
 
@@ -62,8 +60,7 @@ func (t *telnetClient) Receive() error {
 		return err
 	}
 
-	n, err := t.out.Write([]byte(line))
-	log.Printf("receive n '%d'", n)
+	_, err = t.out.Write([]byte(line))
 	return err
 }
 
