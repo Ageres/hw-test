@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"net"
 	"time"
 )
 
@@ -27,5 +28,9 @@ func main() {
 	port := args[1]
 
 	log.Printf("timeout '%s', host '%s', port '%s", timeout, host, port)
+
+	address := net.JoinHostPort(host, port)
+
+	log.Printf("address '%s'", address)
 
 }
