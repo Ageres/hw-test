@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "calendar.fullname" . }}
+spec:
+  type: {{ .Values.calendar.service.type }}
+  selector:
+    app: {{ include "calendar.fullname" . }}
+  ports:
+    - name: http
+      port: {{ .Values.calendar.service.port }}
+      targetPort: 8080
+      protocol: TCP
+    - name: grpc
+      port: {{ .Values.calendar.service.grpcPort }}
+      targetPort: 50051
+      protocol: TCP

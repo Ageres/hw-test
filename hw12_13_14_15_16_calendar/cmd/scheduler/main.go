@@ -12,6 +12,7 @@ import (
 	cs "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/scheduler"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq"
+	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
 	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
 )
 
@@ -39,11 +40,23 @@ func main() {
 
 	rmqClient := rabbitmq.NewClient(configRef.RMQ)
 
+	httpServer := internalhttp.NewHealthCheckHTTPServer(ctx, configRef.HTTP)
+
 	scheduler := app.NewScheduler(ctx, configRef.Scheduler, storage, rmqClient)
 
+	httpErrChan := make(chan error, 1)
 	schedulerErrChan := make(chan error, 1)
 
 	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting health check HTTP server...")
+		if err := httpServer.Start(ctx); err != nil {
+			httpErrChan <- err
+		}
+	}()
 
 	wg.Add(1)
 	go func() {
@@ -57,6 +70,9 @@ func main() {
 	logger.GetLogger(ctx).Info("scheduler is running...")
 
 	select {
+	case err := <-httpErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("health check HTTP server failed to start")
+		cancel()
 	case err := <-schedulerErrChan:
 		logger.GetLogger(ctx).WithError(err).Error("scheduler failed to start")
 		cancel()
@@ -64,10 +80,20 @@ func main() {
 		logger.GetLogger(ctx).Info("Shutdown signal received")
 	}
 
-	_, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
 
 	var shutdownWg sync.WaitGroup
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		if err := httpServer.Stop(shutdownCtx); err != nil {
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop health check HTTP server")
+		} else {
+			logger.GetLogger(ctx).Info("health check HTTP server stopped gracefully")
+		}
+	}()
 
 	shutdownWg.Add(1)
 	go func() {

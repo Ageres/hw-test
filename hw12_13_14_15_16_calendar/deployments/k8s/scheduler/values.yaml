@@ -1,0 +1,25 @@
+scheduler:
+  image:
+    repository: bsvcoder/scheduler
+    tag: "develop"
+    version: "develop"
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    tls: []
+  env:
+    db:
+      host: postgres-db
+      user: postgres
+      password: password
+    rmq:
+      host: rabbit-mq
+      user: guest
+      password: guest   
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi  

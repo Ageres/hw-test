@@ -34,7 +34,7 @@ services:
       - pg-otus
     image: 1aeef68f-calendar:develop
     build:
-      context: ../.
+      context: ../../.
       dockerfile: ./build/calendar/Dockerfile 
     container_name: calendar
     environment:
@@ -51,7 +51,7 @@ services:
       - rmq-otus
     image: 1aeef68f-scheduler:develop
     build:
-      context: ../.
+      context: ../../.
       dockerfile: ./build/scheduler/Dockerfile 
     container_name: scheduler
     environment:
@@ -61,6 +61,8 @@ services:
       DB_HOST: ${DB_HOST:-pg-otus}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "8082:8080"  
     restart: unless-stopped  
   sender-otus:
     depends_on:
@@ -68,7 +70,7 @@ services:
       - rmq-otus
     image: 1aeef68f-sender:develop
     build:
-      context: ../.
+      context: ../../.
       dockerfile: ./build/sender/Dockerfile 
     container_name: sender
     environment:
@@ -78,6 +80,8 @@ services:
       DB_HOST: ${DB_HOST:-pg-otus}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "8083:8080"  
     restart: unless-stopped  
 volumes:
   postgres_data:

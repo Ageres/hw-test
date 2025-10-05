@@ -17,7 +17,7 @@ storage:
       host: ${DB_HOST:=localhost}
       port: 5432
       name: calendar
-      user: ${DB_USER:=user}
+      user: ${DB_USER:=postgres}
       password: ${DB_PASSWORD:=password}
       sslmode: disable
     pool:

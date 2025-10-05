@@ -27,7 +27,7 @@ storage:
       host: ${DB_HOST:=localhost}
       port: 5432
       name: calendar
-      user: ${DB_USER:=user}
+      user: ${DB_USER:=postgres}
       password: ${DB_PASSWORD:=password}
       sslmode: disable
     pool:
@@ -35,4 +35,13 @@ storage:
         maxOpen: 10
         maxIdle: 2
         maxLifeTime: 3600
-        maxIdleTime: 3600  
+        maxIdleTime: 3600
+
+http:
+  healthCheckServer:
+    host: 
+    port: 8080
+    readHeaderTimeout: 5
+    readTimeout: 10
+    writeTimeout: 30
+    idleTimeout: 90 

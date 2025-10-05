@@ -10,14 +10,7 @@ import (
 	bserv "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http/baseserver"
 )
 
-type httpServer struct {
-	server  *http.Server
-	logger  lg.Logger
-	address string
-	service HTTPService
-}
-
-func NewHTTPServer(ctx context.Context, httpConf *model.HTTPConf, service HTTPService) bserv.HTTPServer {
+func NewHealthCheckHTTPServer(ctx context.Context, httpConf *model.HealthHTTPConf) bserv.HTTPServer {
 	address := httpConf.Server.GetAddress()
 
 	s := &httpServer{
@@ -30,32 +23,16 @@ func NewHTTPServer(ctx context.Context, httpConf *model.HTTPConf, service HTTPSe
 		},
 		logger:  lg.GetLogger(ctx),
 		address: address,
-		service: service,
 	}
 
-	s.server.Handler = s.createRouter()
+	s.server.Handler = s.createHealtCheckhRouter()
 
-	s.logger.Info("server configured")
+	s.logger.Info("health check server configured")
 	return s
 }
 
-func (s *httpServer) createRouter() http.Handler {
+func (s *httpServer) createHealtCheckhRouter() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", s.healthCheckHandler)
-	mux.HandleFunc("/hello", s.helloHandler)
-	mux.HandleFunc("/v1/event", s.eventHandler)
-	mux.HandleFunc("/", s.methodNotAllowedHandler)
 	return s.loggingMiddleware(mux)
-}
-
-func (s *httpServer) Start(_ context.Context) error {
-	s.logger.Info("Starting HTTP server", map[string]any{
-		"address": s.address,
-	})
-	return s.server.ListenAndServe()
-}
-
-func (s *httpServer) Stop(ctx context.Context) error {
-	s.logger.Info("Shutting down HTTP server")
-	return s.server.Shutdown(ctx)
 }
