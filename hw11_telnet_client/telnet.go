@@ -14,6 +14,7 @@ type TelnetClient interface {
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
 	// Place your code here.
+
 	return nil
 }
 
