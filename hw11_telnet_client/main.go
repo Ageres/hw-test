@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -19,6 +22,9 @@ func init() {
 func main() {
 	// Place your code here,
 	// P.S. Do not rush to throw context down, think think if it is useful with blocking operation?
+
+	ctx := context.Background()
+
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 2 {
@@ -42,5 +48,29 @@ func main() {
 	defer client.Close()
 
 	log.Printf("connected to %s\n", address)
+
+	go func() {
+		for {
+			if err := client.Receive(); err != nil {
+				if err != io.EOF {
+					fmt.Fprintf(os.Stderr, "receive error: %v\n", err)
+				}
+				return
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			if err := client.Send(); err != nil {
+				if err != io.EOF {
+					fmt.Fprintf(os.Stderr, "send error: %v\n", err)
+				}
+				return
+			}
+		}
+	}()
+
+	<-ctx.Done()
 
 }
