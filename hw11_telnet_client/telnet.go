@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"net"
 	"time"
 )
 
@@ -15,6 +16,20 @@ type TelnetClient interface {
 type telnetClient struct {
 	address string
 	timeout time.Duration
+	conn    net.Conn
+	in      io.ReadCloser
+	out     io.Writer
+}
+
+func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
+	client := telnetClient{
+		address: address,
+		timeout: timeout,
+		in:      in,
+		out:     out,
+	}
+
+	return &client
 }
 
 // Close implements TelnetClient.
@@ -35,17 +50,6 @@ func (t *telnetClient) Receive() error {
 // Send implements TelnetClient.
 func (t *telnetClient) Send() error {
 	panic("unimplemented")
-}
-
-func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
-	// Place your code here.
-
-	client := telnetClient{
-		address: address,
-		timeout: timeout,
-	}
-
-	return &client
 }
 
 // Place your code here.
