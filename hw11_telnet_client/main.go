@@ -22,9 +22,6 @@ func init() {
 }
 
 func main() {
-	// Place your code here,
-	// P.S. Do not rush to throw context down, think think if it is useful with blocking operation?
-
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
@@ -48,7 +45,10 @@ func main() {
 	if err := client.Connect(); err != nil {
 		log.Fatalf("connect error: %v", err)
 	}
-	defer client.Close()
+	defer func() {
+		client.Close()
+		fmt.Fprintln(os.Stderr, "...EOF")
+	}()
 
 	fmt.Fprintf(os.Stderr, "...Connected to %s\n", address)
 
@@ -81,5 +81,4 @@ func main() {
 	}()
 
 	<-ctx.Done()
-	fmt.Fprintln(os.Stderr, "...EOF")
 }
