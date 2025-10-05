@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 )
 
@@ -55,6 +56,10 @@ func main() {
 		defer cancel()
 		for {
 			if err := client.Receive(); err != nil {
+				if strings.Contains(err.Error(), "closed by the remote host") {
+					fmt.Println("...Connection was closed by peer")
+					return
+				}
 				if err != io.EOF {
 					fmt.Fprintf(os.Stderr, "receive error: %v\n", err)
 				}
