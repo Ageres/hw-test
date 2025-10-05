@@ -52,6 +52,7 @@ func main() {
 	log.Printf("connected to %s\n", address)
 
 	go func() {
+		defer cancel()
 		for {
 			if err := client.Receive(); err != nil {
 				if err != io.EOF {
@@ -63,6 +64,7 @@ func main() {
 	}()
 
 	go func() {
+		defer cancel()
 		for {
 			if err := client.Send(); err != nil {
 				if err != io.EOF {
