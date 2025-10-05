@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"io"
+	"log"
 	"net"
 	"time"
 )
@@ -41,20 +43,33 @@ func (t *telnetClient) Connect() error {
 	return nil
 }
 
-// Close implements TelnetClient.
-func (t *telnetClient) Close() error {
-	panic("unimplemented")
-}
-
-// Receive implements TelnetClient.
-func (t *telnetClient) Receive() error {
-	panic("unimplemented")
-}
-
-// Send implements TelnetClient.
 func (t *telnetClient) Send() error {
-	panic("unimplemented")
+	reader := bufio.NewReader(t.in)
+	line, err := reader.ReadString('\n')
+	if err != nil {
+		return err
+	}
+
+	n, err := t.conn.Write([]byte(line))
+	log.Printf("send n '%d'", n)
+	return err
 }
 
-// Place your code here.
-// P.S. Author's solution takes no more than 50 lines.
+func (t *telnetClient) Receive() error {
+	reader := bufio.NewReader(t.conn)
+	line, err := reader.ReadString('\n')
+	if err != nil {
+		return err
+	}
+
+	n, err := t.out.Write([]byte(line))
+	log.Printf("receive n '%d'", n)
+	return err
+}
+
+func (t *telnetClient) Close() error {
+	if t.conn != nil {
+		return t.conn.Close()
+	}
+	return nil
+}
