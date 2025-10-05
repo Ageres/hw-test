@@ -17,7 +17,7 @@ func init() {
 func main() {
 	// Place your code here,
 	// P.S. Do not rush to throw context down, think think if it is useful with blocking operation?
-
+	flag.Parse()
 	args := flag.Args()
 	if len(args) != 2 {
 		log.Fatalf("Usage: go-telnet [--timeout=10s] host port")
