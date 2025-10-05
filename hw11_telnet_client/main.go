@@ -41,4 +41,6 @@ func main() {
 	}
 	defer client.Close()
 
+	log.Printf("connected to %s\n", address)
+
 }
