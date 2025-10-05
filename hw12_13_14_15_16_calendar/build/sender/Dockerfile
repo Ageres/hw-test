@@ -35,4 +35,6 @@ COPY --from=build ${BIN_FILE} ${BIN_FILE}
 ENV CONFIG_FILE /etc/calendar/sender_config.yaml
 COPY ./configs/sender_config.yaml ${CONFIG_FILE}
 
+EXPOSE 8080
+
 CMD ${BIN_FILE} --config ${CONFIG_FILE}

@@ -9,7 +9,7 @@ services:
       - sender-otus
     image: 1aeef68f-integration-tests:develop
     build:
-      context: ../.
+      context: ../../.
       dockerfile: ./build/test/Dockerfile 
     container_name: integration-tests
     environment:

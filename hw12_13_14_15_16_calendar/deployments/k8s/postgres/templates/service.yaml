@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "postgres-db.fullname" . }}
+spec:
+  type: {{ .Values.postgresDb.service.type }}
+  selector:
+    app: {{ include "postgres-db.fullname" . }}
+  ports:
+    - port: {{ .Values.postgresDb.service.port }}
+      targetPort: {{ .Values.postgresDb.service.targetPort }}
+      protocol: TCP

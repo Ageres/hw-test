@@ -1,0 +1,36 @@
+nameOverride: "postgres-db"
+fullnameOverride: "postgres-db"
+
+postgresDb:
+  image:
+    repository: postgres
+    tag: "17.5"
+    version: "17.5"
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 5432
+    targetPort: 5432
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: postgres-db.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  env:
+    db:
+      database: calendar
+      user: postgres
+      password: password
+  resources:
+    requests:
+      cpu: 512m
+      memory: 512Mi
+    limits:
+      cpu: 1024m
+      memory: 1024Mi    
+  persistence:
+    size: 1Gi

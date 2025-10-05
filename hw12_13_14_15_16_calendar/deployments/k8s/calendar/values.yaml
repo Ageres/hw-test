@@ -1,0 +1,43 @@
+ingress-nginx:
+  controller:
+    service:
+      type: LoadBalancer
+      ports:
+        http: 8080
+        https: 8443
+    ingressClassResource:
+      name: nginx
+      enabled: true
+      default: true
+
+calendar:
+  image:
+    repository: bsvcoder/calendar
+    tag: "develop"
+    version: "develop"
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 8080
+    grpcPort: 50051
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: calendar.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  env:
+    db:
+      host: postgres-db
+      user: postgres
+      password: password
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi    
