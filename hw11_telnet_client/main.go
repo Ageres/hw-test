@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net"
+	"os"
 	"time"
 )
 
@@ -32,5 +33,12 @@ func main() {
 	address := net.JoinHostPort(host, port)
 
 	log.Printf("address '%s'", address)
+
+	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
+
+	if err := client.Connect(); err != nil {
+		log.Fatalf("connect error: %v", err)
+	}
+	defer client.Close()
 
 }

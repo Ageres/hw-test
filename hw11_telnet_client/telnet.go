@@ -32,13 +32,17 @@ func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, ou
 	return &client
 }
 
-// Close implements TelnetClient.
-func (t *telnetClient) Close() error {
-	panic("unimplemented")
+func (t *telnetClient) Connect() error {
+	conn, err := net.DialTimeout("tcp", t.address, t.timeout)
+	if err != nil {
+		return err
+	}
+	t.conn = conn
+	return nil
 }
 
-// Connect implements TelnetClient.
-func (t *telnetClient) Connect() error {
+// Close implements TelnetClient.
+func (t *telnetClient) Close() error {
 	panic("unimplemented")
 }
 
