@@ -2,30 +2,60 @@ package internalhttp
 
 import (
 	"context"
+	"net/http"
+	"time"
+
+	lg "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/model"
+	bserv "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http/baseserver"
 )
 
-type Server struct { // TODO
+type httpServer struct {
+	server  *http.Server
+	logger  lg.Logger
+	address string
+	service HTTPService
 }
 
-type Logger interface { // TODO
+func NewHTTPServer(ctx context.Context, httpConf *model.HTTPConf, service HTTPService) bserv.HTTPServer {
+	address := httpConf.Server.GetAddress()
+
+	s := &httpServer{
+		server: &http.Server{
+			Addr:              address,
+			ReadHeaderTimeout: time.Duration(httpConf.Server.ReadHeaderTimeout) * time.Second,
+			ReadTimeout:       time.Duration(httpConf.Server.ReadTimeout) * time.Second,
+			WriteTimeout:      time.Duration(httpConf.Server.WriteTimeout) * time.Second,
+			IdleTimeout:       time.Duration(httpConf.Server.IdleTimeout) * time.Second,
+		},
+		logger:  lg.GetLogger(ctx),
+		address: address,
+		service: service,
+	}
+
+	s.server.Handler = s.createRouter()
+
+	s.logger.Info("server configured")
+	return s
 }
 
-type Application interface { // TODO
+func (s *httpServer) createRouter() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", s.healthCheckHandler)
+	mux.HandleFunc("/hello", s.helloHandler)
+	mux.HandleFunc("/v1/event", s.eventHandler)
+	mux.HandleFunc("/", s.methodNotAllowedHandler)
+	return s.loggingMiddleware(mux)
 }
 
-func NewServer(logger Logger, app Application) *Server {
-	return &Server{}
+func (s *httpServer) Start(_ context.Context) error {
+	s.logger.Info("Starting HTTP server", map[string]any{
+		"address": s.address,
+	})
+	return s.server.ListenAndServe()
 }
 
-func (s *Server) Start(ctx context.Context) error {
-	// TODO
-	<-ctx.Done()
-	return nil
+func (s *httpServer) Stop(ctx context.Context) error {
+	s.logger.Info("Shutting down HTTP server")
+	return s.server.Shutdown(ctx)
 }
-
-func (s *Server) Stop(ctx context.Context) error {
-	// TODO
-	return nil
-}
-
-// TODO

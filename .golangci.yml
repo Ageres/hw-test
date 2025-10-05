@@ -30,6 +30,39 @@ issues:
         - dupl
         - gocyclo
         - gosec
+    - path: "(/|\\\\)config(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)logger(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)storage(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)server(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "cmd/calendar/main\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)utils(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)rmq(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)app(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)scheduler(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)sender(/|\\\\).*\\.go"
+      linters:
+        - depguard
+    - path: "(/|\\\\)integration(/|\\\\).*\\.go"
+      linters:
+        - depguard    
 
 linters:
   disable-all: true

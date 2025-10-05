@@ -1,0 +1,112 @@
+package main
+
+import (
+	"context"
+	"log"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
+
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/app"
+	cs "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/config/sender"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/logger"
+	"github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/rmq/rabbitmq"
+	internalhttp "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/server/http"
+	storage_config "github.com/Ageres/hw-test/hw12_13_14_15_calendar/internal/storage/config"
+)
+
+// запуск:
+// go run .\cmd\sender\main.go --version --config=./configs/sender_config.yaml
+
+func main() {
+	ctx, cancel := signal.NotifyContext(context.Background(),
+		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	defer cancel()
+
+	cliArgs := cs.ScenderExecute()
+	log.Println("PathToConfigFile:", cliArgs.PathToConfigFile)
+
+	configRef := cs.NewSenderConfig(cliArgs.PathToConfigFile)
+
+	ctx = logger.SetNewLogger(ctx, configRef.Logger, nil)
+
+	logger.GetLogger(ctx).Debug("config file", map[string]any{
+		"config": configRef,
+	})
+
+	rmqClient := rabbitmq.NewClient(configRef.RMQ)
+
+	storage := storage_config.NewStorage(ctx, configRef.Storage)
+
+	httpServer := internalhttp.NewHealthCheckHTTPServer(ctx, configRef.HTTP)
+
+	sender := app.NewSender(ctx, rmqClient, storage)
+
+	httpErrChan := make(chan error, 1)
+	senderErrChan := make(chan error, 1)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting health check HTTP server...")
+		if err := httpServer.Start(ctx); err != nil {
+			httpErrChan <- err
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		logger.GetLogger(ctx).Info("Starting sender...")
+		if err := sender.Start(ctx); err != nil {
+			senderErrChan <- err
+		}
+	}()
+
+	logger.GetLogger(ctx).Info("sender is running...")
+
+	select {
+	case err := <-httpErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("health check HTTP server failed to start")
+		cancel()
+	case err := <-senderErrChan:
+		logger.GetLogger(ctx).WithError(err).Error("sender failed to start")
+		cancel()
+	case <-ctx.Done():
+		logger.GetLogger(ctx).Info("Shutdown signal received")
+	}
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	var shutdownWg sync.WaitGroup
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		if err := httpServer.Stop(shutdownCtx); err != nil {
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop health check HTTP server")
+		} else {
+			logger.GetLogger(ctx).Info("health check HTTP server stopped gracefully")
+		}
+	}()
+
+	shutdownWg.Add(1)
+	go func() {
+		defer shutdownWg.Done()
+		if err := rmqClient.Close(ctx); err != nil {
+			logger.GetLogger(ctx).WithError(err).Error("failed to stop rmqClient")
+		} else {
+			logger.GetLogger(ctx).Info("rmqClient stopped gracefully")
+		}
+	}()
+
+	shutdownWg.Wait()
+
+	wg.Wait()
+
+	logger.GetLogger(ctx).Info("sender stopped")
+}

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+// protoc --proto_path=./api --go_out=./internal/server/grpc/pb --go-grpc_out=./internal/server/grpc/pb ./api/calendar.proto
+// protoc --proto_path=./api --go_out=./test/integration/client/grpc/pb --go-grpc_out=./test/integration/client/grpc/pb ./api/calendar.proto
+
+package event;
+option go_package = "./;pb";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+service Calendar {
+    rpc GetEvent(GetEventListRequest) returns (GetEventListResponse);
+    rpc AddEvent(AddEventRequest) returns (AddEventResponse);
+    rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse);
+    rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+}
+
+message ProtoEvent {
+    string id = 1;
+    string title = 2;
+    google.protobuf.Timestamp start_time = 3;
+    google.protobuf.Duration duration = 4;
+    string description = 5;
+    string user_id = 6;
+    google.protobuf.Duration reminder = 7;
+}
+
+enum GetEventListPeriod {
+    GET_EVENT_LIST_PERIOD_UNSPECIFIED = 0;
+    GET_EVENT_LIST_PERIOD_DAY = 1;
+    GET_EVENT_LIST_PERIOD_WEEK = 2;
+    GET_EVENT_LIST_PERIOD_MONTH = 3;
+}
+
+message GetEventListRequest {
+    GetEventListPeriod period = 1;
+    google.protobuf.Timestamp start_time = 2;
+}
+
+message GetEventListResponse {
+    repeated ProtoEvent events = 1;
+}
+
+message AddEventRequest {
+    ProtoEvent event = 1;
+}
+
+message AddEventResponse {
+    ProtoEvent event = 1;
+}
+
+message UpdateEventRequest {
+    ProtoEvent event = 1;
+}
+
+message UpdateEventResponse {
+}
+
+message DeleteEventRequest {
+    string id = 1;
+}
+
+message DeleteEventResponse {
+}

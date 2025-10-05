@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  pg-otus:
+    image: postgres:17.5
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: calendar
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  rmq-otus:
+    image: rabbitmq:3-management
+    container_name: rabbit
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RMQ_PASSWORD:-guest}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+  calendar-otus:
+    depends_on:
+      - pg-otus
+    image: 1aeef68f-calendar:develop
+    build:
+      context: ../../.
+      dockerfile: ./build/calendar/Dockerfile 
+    container_name: calendar
+    environment:
+      DB_HOST: ${DB_HOST:-pg-otus}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "8888:8080"
+      - "50051:50051"
+    restart: unless-stopped
+  scheduler-otus:
+    depends_on:
+      - pg-otus
+      - rmq-otus
+    image: 1aeef68f-scheduler:develop
+    build:
+      context: ../../.
+      dockerfile: ./build/scheduler/Dockerfile 
+    container_name: scheduler
+    environment:
+      RMQ_HOST: ${RMQ_HOST:-rmq-otus}
+      RMQ_USER: ${RMQ_USER:-guest}
+      RMQ_PASSWORD: ${RMQ_PASSWORD:-guest}
+      DB_HOST: ${DB_HOST:-pg-otus}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "8082:8080"  
+    restart: unless-stopped  
+  sender-otus:
+    depends_on:
+      - pg-otus
+      - rmq-otus
+    image: 1aeef68f-sender:develop
+    build:
+      context: ../../.
+      dockerfile: ./build/sender/Dockerfile 
+    container_name: sender
+    environment:
+      RMQ_HOST: ${RMQ_HOST:-rmq-otus}
+      RMQ_USER: ${RMQ_USER:-guest}
+      RMQ_PASSWORD: ${RMQ_PASSWORD:-guest}
+      DB_HOST: ${DB_HOST:-pg-otus}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "8083:8080"  
+    restart: unless-stopped  
+volumes:
+  postgres_data:
+  rabbitmq_data:
+networks:
+  default:
+    #name: deploy_default
+    driver: bridge

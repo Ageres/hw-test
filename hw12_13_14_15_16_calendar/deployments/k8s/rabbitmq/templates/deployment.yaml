@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rabbit-mq.fullname" . }}
+spec:
+  replicas: {{ .Values.rabbitMq.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "rabbit-mq.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "rabbit-mq.fullname" . }}
+    spec:
+      containers:
+        - name: rabbit-mq
+          image: "{{ .Values.rabbitMq.image.repository }}:{{ .Values.rabbitMq.image.tag }}"
+          ports:
+            - name: amqp
+              containerPort: {{ .Values.rabbitMq.service.amqpPort }}
+            - name: management
+              containerPort: {{ .Values.rabbitMq.service.managementPort }}
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "{{ .Values.rabbitMq.env.user }}"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "{{ .Values.rabbitMq.env.password }}"
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.rabbitMq.service.amqpPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - rabbitmqctl
+                - status
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.rabbitMq.resources | nindent 12 }}
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: {{ include "rabbit-mq.fullname" . }}

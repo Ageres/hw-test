@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  integration-tests-otus:
+    depends_on:
+      - pg-otus
+      - calendar-otus
+      - scheduler-otus
+      - sender-otus
+    image: 1aeef68f-integration-tests:develop
+    build:
+      context: ../../.
+      dockerfile: ./build/test/Dockerfile 
+    container_name: integration-tests
+    environment:
+      CALENDAR_REST_API_HOST: calendar-otus
+      CALENDAR_REST_API_PORT: ${CALENDAR_REST_API_PORT:-8080}
+      CALENDAR_GRPC_API_HOST: calendar-otus
+      CALENDAR_GRPC_API_PORT: ${CALENDAR_GRPC_API_PORT:-50051}
+      CALENDAR_DB_HOST: pg-otus
+      CALENDAR_DB_PORT: 5432
+      CALENDAR_DB_NAME: calendar
+      CALENDAR_DB_USER: ${DB_USER:-postgres}
+      CALENDAR_DB_PASSWORD: ${DB_PASSWORD:-password}
+    restart: unless-stopped     
+networks:
+  default:
+    #name: deploy_default
+    driver: bridge
