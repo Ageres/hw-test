@@ -9,7 +9,6 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 )
 
@@ -34,11 +33,7 @@ func main() {
 	host := args[0]
 	port := args[1]
 
-	log.Printf("timeout '%s', host '%s', port '%s", timeout, host, port)
-
 	address := net.JoinHostPort(host, port)
-
-	log.Printf("address '%s'", address)
 
 	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
 
@@ -55,14 +50,12 @@ func main() {
 	go func() {
 		defer cancel()
 		for {
-			if err := client.Receive(); err != nil {
-				if strings.Contains(err.Error(), "closed by the remote host") {
-					fmt.Println("...Connection was closed by peer")
+			if err := client.Send(); err != nil {
+				if err == io.EOF {
+					fmt.Fprintln(os.Stderr, "...EOF")
 					return
 				}
-				if err != io.EOF {
-					fmt.Fprintf(os.Stderr, "receive error: %v\n", err)
-				}
+				fmt.Fprintf(os.Stderr, "Send error: %v\n", err)
 				return
 			}
 		}
@@ -71,10 +64,12 @@ func main() {
 	go func() {
 		defer cancel()
 		for {
-			if err := client.Send(); err != nil {
-				if err != io.EOF {
-					fmt.Fprintf(os.Stderr, "send error: %v\n", err)
+			if err := client.Receive(); err != nil {
+				if err == io.EOF {
+					fmt.Fprintln(os.Stderr, "...Connection was closed by peer")
+					return
 				}
+				fmt.Fprintf(os.Stderr, "Receive error: %v\n", err)
 				return
 			}
 		}
