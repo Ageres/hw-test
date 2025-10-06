@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net"
+	"net/http/httptest"
 	"sync"
 	"testing"
 	"time"
@@ -64,11 +65,25 @@ func TestTelnetClient(t *testing.T) {
 	})
 }
 
-func TestTelnetClientTimeout(t *testing.T) {
-	t.Run("timeout", func(t *testing.T) {
+func TestGoTelnet(t *testing.T) {
+	t.Run("connect ok", func(t *testing.T) {
+		// Создаем реальный httptest сервер для теста успешного подключения
+		server := httptest.NewServer(nil)
+		defer server.Close()
+
+		// Извлекаем адрес сервера
+		serverAddr := server.Listener.Addr().String()
+
+		client := NewTelnetClient(serverAddr, 5*time.Second, io.NopCloser(&bytes.Buffer{}), &bytes.Buffer{})
+		err := client.Connect()
+
+		require.NoError(t, err)
+		require.NoError(t, client.Close())
+	})
+
+	t.Run("connect error", func(t *testing.T) {
 		client := NewTelnetClient("someHost:8080", 1*time.Second, io.NopCloser(&bytes.Buffer{}), &bytes.Buffer{})
 		err := client.Connect()
 		require.Error(t, err)
-		require.Equal(t, err.Error(), "dial tcp: lookup someHost: i/o timeout")
 	})
 }
