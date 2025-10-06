@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"io"
 	"net"
 	"time"
@@ -41,24 +40,12 @@ func (t *telnetClient) Connect() error {
 }
 
 func (t *telnetClient) Send() error {
-	reader := bufio.NewReader(t.in)
-	line, err := reader.ReadString('\n')
-	if err != nil {
-		return err
-	}
-
-	_, err = t.conn.Write([]byte(line))
+	_, err := io.Copy(t.conn, t.in)
 	return err
 }
 
 func (t *telnetClient) Receive() error {
-	reader := bufio.NewReader(t.conn)
-	line, err := reader.ReadString('\n')
-	if err != nil {
-		return err
-	}
-
-	_, err = t.out.Write([]byte(line))
+	_, err := io.Copy(t.out, t.conn)
 	return err
 }
 
