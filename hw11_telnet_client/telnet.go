@@ -23,14 +23,12 @@ type telnetClient struct {
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
-	client := telnetClient{
+	return &telnetClient{
 		address: address,
 		timeout: timeout,
 		in:      in,
 		out:     out,
 	}
-
-	return &client
 }
 
 func (t *telnetClient) Connect() error {
