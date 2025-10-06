@@ -47,6 +47,7 @@ func main() {
 
 	fmt.Fprintf(os.Stderr, "...Connected to %s\n", address)
 
+	done := make(chan struct{})
 	go func() {
 		defer cancel()
 		for {
@@ -76,4 +77,5 @@ func main() {
 	}()
 
 	<-ctx.Done()
+	close(done)
 }
