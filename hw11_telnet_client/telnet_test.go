@@ -62,20 +62,13 @@ func TestTelnetClient(t *testing.T) {
 
 		wg.Wait()
 	})
+}
 
+func TestTelnetClientTimeout(t *testing.T) {
 	t.Run("timeout", func(t *testing.T) {
 		client := NewTelnetClient("someHost:8080", 1*time.Second, io.NopCloser(&bytes.Buffer{}), &bytes.Buffer{})
 		err := client.Connect()
 		require.Error(t, err)
 		require.Equal(t, err.Error(), "dial tcp: lookup someHost: i/o timeout")
-	})
-}
-
-func TestTelnetClientTimeout(t *testing.T) {
-	t.Run("timeout", func(t *testing.T) {
-		client := NewTelnetClient("127.0.0.1:8080", 1*time.Second, io.NopCloser(&bytes.Buffer{}), &bytes.Buffer{})
-		err := client.Connect()
-		require.Error(t, err)
-		require.Equal(t, err.Error(), "dial tcp: lookup s127.0.0.1: i/o timeout")
 	})
 }
