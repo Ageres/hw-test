@@ -20,7 +20,7 @@ func TestCopy(t *testing.T) {
 		errType     error
 		compareWith string
 	}{
-		{ //OK
+		{
 			name:        "offset0_limit0",
 			from:        "testdata/input.txt",
 			to:          filepath.Join(tmpDir, "test1.txt"),
@@ -73,6 +73,23 @@ func TestCopy(t *testing.T) {
 			limit:       1000,
 			wantErr:     false,
 			compareWith: "testdata/out_offset6000_limit1000.txt",
+		},
+		{
+			name:    "offset exceeds file size",
+			from:    "testdata/input.txt",
+			to:      filepath.Join(tmpDir, "test7.txt"),
+			offset:  1000000,
+			limit:   1000,
+			wantErr: true,
+			errType: ErrOffsetExceedsFileSize,
+		},
+		{
+			name:    "non-existent source file",
+			from:    "testdata/nonexistent.txt",
+			to:      filepath.Join(tmpDir, "test8.txt"),
+			offset:  0,
+			limit:   1000,
+			wantErr: true,
 		},
 	}
 
