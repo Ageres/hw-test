@@ -108,52 +108,80 @@ func TestCopyError(t *testing.T) {
 }
 
 func processTest(t *testing.T, tests []testDto) {
+	t.Helper()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer func() {
-				if _, err := os.Stat(tt.to); err == nil {
-					os.Remove(tt.to)
-				}
-			}()
-
+			cleanupTestFile(t, tt.to)
 			err := Copy(tt.from, tt.to, tt.offset, tt.limit)
 
 			if tt.wantErr {
-				if err == nil {
-					t.Errorf("Copy error: nil")
-				}
-				if tt.errType != nil && !errors.Is(err, tt.errType) {
-					t.Errorf("Copy error:  %v, want %v", err, tt.errType)
-				}
+				assertError(t, err, tt.errType)
 			} else {
-				if err != nil {
-					t.Errorf("Copy unexpected error: %v", err)
-					return
-				}
-
-				if _, err := os.Stat(tt.to); os.IsNotExist(err) {
-					t.Errorf("Copy error: destination file not created")
-					return
-				}
-
-				if tt.compareWith != "" {
-					expected, err := os.ReadFile(tt.compareWith)
-					if err != nil {
-						t.Errorf("Read expected file error: %v", err)
-						return
-					}
-
-					actual, err := os.ReadFile(tt.to)
-					if err != nil {
-						t.Errorf("Read actual file error: %v", err)
-						return
-					}
-
-					if string(actual) != string(expected) {
-						t.Errorf("Copy content mismatch")
-					}
-				}
+				assertSuccess(t, err, tt.to, tt.compareWith)
 			}
 		})
+	}
+}
+
+func cleanupTestFile(t *testing.T, filePath string) {
+	t.Helper()
+	t.Cleanup(func() {
+		if _, err := os.Stat(filePath); err == nil {
+			if removeErr := os.Remove(filePath); removeErr != nil {
+				t.Logf("Failed to cleanup test file %s: %v", filePath, removeErr)
+			}
+		}
+	})
+}
+
+func assertError(t *testing.T, err error, expectedErrType error) {
+	t.Helper()
+	if err == nil {
+		t.Error("Copy error: nil")
+		return
+	}
+
+	if expectedErrType != nil && !errors.Is(err, expectedErrType) {
+		t.Errorf("Copy error: got %v, want %v", err, expectedErrType)
+	}
+}
+
+func assertSuccess(t *testing.T, err error, destFile string, compareFile string) {
+	t.Helper()
+	if err != nil {
+		t.Errorf("Copy unexpected error: %v", err)
+		return
+	}
+
+	assertFileExists(t, destFile)
+
+	if compareFile != "" {
+		assertFilesEqual(t, destFile, compareFile)
+	}
+}
+
+func assertFileExists(t *testing.T, filePath string) {
+	t.Helper()
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		t.Errorf("Copy error: destination file %s not created", filePath)
+	}
+}
+
+func assertFilesEqual(t *testing.T, actualFile string, expectedFile string) {
+	t.Helper()
+	expected, err := os.ReadFile(expectedFile)
+	if err != nil {
+		t.Errorf("Read expected file error: %v", err)
+		return
+	}
+
+	actual, err := os.ReadFile(actualFile)
+	if err != nil {
+		t.Errorf("Read actual file error: %v", err)
+		return
+	}
+
+	if string(actual) != string(expected) {
+		t.Errorf("Copy content mismatch")
 	}
 }
