@@ -65,6 +65,15 @@ func TestCopy(t *testing.T) {
 			wantErr:     false,
 			compareWith: "testdata/out_offset100_limit1000.txt",
 		},
+		{
+			name:        "offset6000_limit1000",
+			from:        "testdata/input.txt",
+			to:          filepath.Join(tmpDir, "test6.txt"),
+			offset:      6000,
+			limit:       1000,
+			wantErr:     false,
+			compareWith: "testdata/out_offset6000_limit1000.txt",
+		},
 	}
 
 	for _, tt := range tests {
