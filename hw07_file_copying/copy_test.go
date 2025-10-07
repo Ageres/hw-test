@@ -20,7 +20,7 @@ func TestCopy(t *testing.T) {
 		errType     error
 		compareWith string
 	}{
-		/*{ //OK
+		{ //OK
 			name:        "offset0_limit0",
 			from:        "testdata/input.txt",
 			to:          filepath.Join(tmpDir, "test1.txt"),
@@ -28,7 +28,7 @@ func TestCopy(t *testing.T) {
 			limit:       0,
 			wantErr:     false,
 			compareWith: "testdata/out_offset0_limit0.txt",
-		},*/
+		},
 		{
 			name:        "offset0_limit10",
 			from:        "testdata/input.txt",
@@ -37,6 +37,15 @@ func TestCopy(t *testing.T) {
 			limit:       10,
 			wantErr:     false,
 			compareWith: "testdata/out_offset0_limit10.txt",
+		},
+		{
+			name:        "_offset0_limit1000",
+			from:        "testdata/input.txt",
+			to:          filepath.Join(tmpDir, "test3.txt"),
+			offset:      0,
+			limit:       1000,
+			wantErr:     false,
+			compareWith: "testdata/out_offset0_limit1000.txt",
 		},
 	}
 
