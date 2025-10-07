@@ -7,19 +7,21 @@ import (
 	"testing"
 )
 
-func TestCopy(t *testing.T) {
+type testDto struct {
+	name        string
+	from        string
+	to          string
+	offset      int64
+	limit       int64
+	wantErr     bool
+	errType     error
+	compareWith string
+}
+
+func TestCopyOk(t *testing.T) {
 	tmpDir := os.TempDir()
 
-	tests := []struct {
-		name        string
-		from        string
-		to          string
-		offset      int64
-		limit       int64
-		wantErr     bool
-		errType     error
-		compareWith string
-	}{
+	tests := []testDto{
 		{
 			name:        "offset0_limit0",
 			from:        "testdata/input.txt",
@@ -74,6 +76,15 @@ func TestCopy(t *testing.T) {
 			wantErr:     false,
 			compareWith: "testdata/out_offset6000_limit1000.txt",
 		},
+	}
+
+	processTest(t, tests)
+}
+
+func TestCopyError(t *testing.T) {
+	tmpDir := os.TempDir()
+
+	tests := []testDto{
 		{
 			name:    "offset exceeds file size",
 			from:    "testdata/input.txt",
@@ -93,6 +104,10 @@ func TestCopy(t *testing.T) {
 		},
 	}
 
+	processTest(t, tests)
+}
+
+func processTest(t *testing.T, tests []testDto) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			defer func() {
