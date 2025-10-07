@@ -26,7 +26,8 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 2 {
-		log.Fatalf("Usage: go-telnet [--timeout=10s] host port")
+		log.Println("Usage: go-telnet [--timeout=10s] host port")
+		return
 	}
 
 	host := args[0]
@@ -37,7 +38,8 @@ func main() {
 	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
 
 	if err := client.Connect(); err != nil {
-		log.Fatalf("connect error: %v", err)
+		log.Printf("connect error: %v", err)
+		return
 	}
 	defer func() {
 		client.Close()

@@ -77,13 +77,13 @@ linters:
     - exhaustive
     - copyloopvar
     - funlen
-    #- gci
+    - gci
     - gocognit
     - goconst
-    #- gocritic
+    - gocritic
     - gocyclo
     - godot
-    #- gofmt
+    - gofmt
     - gofumpt
     - goheader
     - goprintffuncname
