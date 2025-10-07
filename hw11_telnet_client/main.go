@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -51,7 +52,7 @@ func main() {
 		defer cancel()
 		for {
 			if err := client.Send(); err != nil {
-				if err == io.EOF {
+				if errors.Is(err, io.EOF) {
 					fmt.Fprintln(os.Stderr, "...EOF")
 					return
 				}
@@ -65,7 +66,7 @@ func main() {
 		defer cancel()
 		for {
 			if err := client.Receive(); err != nil {
-				if err == io.EOF {
+				if errors.Is(err, io.EOF) {
 					fmt.Fprintln(os.Stderr, "...Connection was closed by peer")
 					return
 				}
