@@ -135,11 +135,6 @@ func TestCopy(t *testing.T) {
 					}
 
 					if string(actual) != string(expected) {
-						//fmt.Println("--------------------------------------------")
-						//fmt.Println(actual)
-						//fmt.Println("--------------------------------------------")
-						//fmt.Println(expected)
-						//fmt.Println("--------------------------------------------")
 						t.Errorf("Copy content mismatch")
 					}
 				}
